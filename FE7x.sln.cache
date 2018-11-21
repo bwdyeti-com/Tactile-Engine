@@ -1,0 +1,920 @@
+﻿<Project DefaultTargets="Build" ToolsVersion="4.0" InitialTargets="ValidateSolutionConfiguration;ValidateToolsVersions" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_SolutionProjectConfiguration>Debug|Mixed Platforms</_SolutionProjectConfiguration>
+    <_SolutionProjectToolsVersion>4.0</_SolutionProjectToolsVersion>
+    <_SolutionProjectCacheVersion>4.0</_SolutionProjectCacheVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <_SolutionProjectProjects Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" />
+    <_SolutionProjectProjects Include="ContentManifestExtensions\ContentManifestExtensions.csproj" />
+    <_SolutionProjectProjects Include="FE7x\FE7xContent\FE7xContent.contentproj" />
+    <_SolutionProjectProjects Include="FE7x\FE7x\FE7x.csproj" />
+    <_SolutionProjectProjects Include="FEXNA\FEXNA.csproj" />
+    <_SolutionProjectProjects Include="FEXNA_Config\FEXNA_Config.csproj" />
+    <_SolutionProjectProjects Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <BuildLevel1 Include="FEXNA_Config\FEXNA_Config.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel2 Include="FEXNA\FEXNA.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel2>
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <BuildLevel1 Include="FEXNA_Config\FEXNA_Config.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel2 Include="FEXNA\FEXNA.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel2>
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <SkipLevel2 Include="FEXNA" />
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <SkipLevel0 Include="FEXNA_Library" />
+    <SkipLevel1 Include="FEXNA_Config" />
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <BuildLevel1 Include="FEXNA_Config\FEXNA_Config.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>DebugPipeline</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel2 Include="FEXNA\FEXNA.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel2>
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+    <SkipLevel3 Include="FE7x" />
+    <SkipLevel2 Include="FE7xContent" />
+    <BuildLevel1 Include="FEXNA_Config\FEXNA_Config.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>DebugPipeline</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel2 Include="FEXNA\FEXNA.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel2>
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') ">
+    <SkipLevel3 Include="FE7x" />
+    <SkipLevel2 Include="FE7xContent" />
+    <SkipLevel2 Include="FEXNA" />
+    <SkipLevel1 Include="FEXNA_Config" />
+    <SkipLevel1 Include="LevelContentPipelineExtension" />
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <SkipLevel0 Include="FEXNA_Library" />
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <BuildLevel1 Include="FEXNA_Config\FEXNA_Config.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel2 Include="FEXNA\FEXNA.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel2>
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <BuildLevel1 Include="FEXNA_Config\FEXNA_Config.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <BuildLevel2 Include="FEXNA\FEXNA.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel2>
+  </ItemGroup>
+  <ItemGroup Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+    <BuildLevel3 Include="FE7x\FE7x\FE7x.csproj">
+      <Configuration>Release</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel3>
+    <SkipLevel2 Include="FE7xContent" />
+    <SkipLevel2 Include="FEXNA" />
+    <BuildLevel1 Include="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel1>
+    <BuildLevel0 Include="ContentManifestExtensions\ContentManifestExtensions.csproj">
+      <Configuration>Debug</Configuration>
+      <Platform>x86</Platform>
+    </BuildLevel0>
+    <SkipLevel0 Include="FEXNA_Library" />
+    <SkipLevel1 Include="FEXNA_Config" />
+  </ItemGroup>
+  <UsingTask TaskName="Microsoft.Build.Tasks.CreateTemporaryVCProject" AssemblyName="Microsoft.Build.Tasks.v3.5, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <UsingTask TaskName="Microsoft.Build.Tasks.ResolveVCProjectOutput" AssemblyName="Microsoft.Build.Tasks.v3.5, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <PropertyGroup Condition=" '$(Configuration)' == '' ">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == '' ">
+    <Platform>Mixed Platforms</Platform>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(AspNetConfiguration)' == '') ">
+    <AspNetConfiguration>$(Configuration)</AspNetConfiguration>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SolutionDir>C:\Users\BwdYeti\Documents\Visual Studio 2010\Projects\FE7x\</SolutionDir>
+    <SolutionExt>.sln</SolutionExt>
+    <SolutionFileName>FE7x.sln</SolutionFileName>
+    <SolutionName>FE7x</SolutionName>
+    <SolutionPath>C:\Users\BwdYeti\Documents\Visual Studio 2010\Projects\FE7x\FE7x.sln</SolutionPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == '' and '$(MSBuildToolsVersion)' == '2.0'">v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == '' and ('$(MSBuildToolsVersion)' == '3.5' or '$(MSBuildToolsVersion)' == '3.0')">v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(TargetFrameworkVersion)' == '' and '$(MSBuildToolsVersion)' == '4.0'">v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Debug|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Debug|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Debug|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">DebugPipeline|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Debug|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">DebugPipeline|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Debug|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">DebugPipeline|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Debug|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Release|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Release|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <PropertyGroup Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+    <CurrentSolutionConfigurationContents>
+      <SolutionConfiguration xmlns="">
+        <ProjectConfiguration Project="{0EEDDACE-B5BB-4136-8283-29529A8A02BB}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{3B113AA2-92B6-42D4-AD75-C78052A6163F}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{76460235-460A-4EFC-A92E-D074CB280804}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{F4CDBC64-A84A-41CD-A941-418B67578AF7}">Debug|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}">Release|x86</ProjectConfiguration>
+        <ProjectConfiguration Project="{35A635FD-7621-4DB8-AEF1-DCAB317198C0}">Release|x86</ProjectConfiguration>
+      </SolutionConfiguration>
+    </CurrentSolutionConfigurationContents>
+  </PropertyGroup>
+  <Target Name="ValidateSolutionConfiguration">
+    <Error Text="The specified solution configuration &quot;$(Configuration)|$(Platform)&quot; is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform=&quot;Any CPU&quot;) or leave those properties blank to use the default solution configuration." Code="MSB4126" HelpKeyword="MSBuild.SolutionInvalidSolutionConfiguration" Condition="('$(CurrentSolutionConfigurationContents)' == '') and ('$(SkipInvalidConfigurations)' != 'true')" />
+    <Warning Text="The specified solution configuration &quot;$(Configuration)|$(Platform)&quot; is invalid. Please specify a valid solution configuration using the Configuration and Platform properties (e.g. MSBuild.exe Solution.sln /p:Configuration=Debug /p:Platform=&quot;Any CPU&quot;) or leave those properties blank to use the default solution configuration." Code="MSB4126" HelpKeyword="MSBuild.SolutionInvalidSolutionConfiguration" Condition="('$(CurrentSolutionConfigurationContents)' == '') and ('$(SkipInvalidConfigurations)' == 'true')" />
+    <Message Text="Building solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="'$(CurrentSolutionConfigurationContents)' != ''" />
+  </Target>
+  <Target Name="ValidateToolsVersions">
+    <Error Text="The tools version &quot;$(MSBuildToolsVersion)&quot; of the solution does not support building projects with a different tools version." Code="MSB4149" HelpKeyword="MSBuild.SolutionToolsVersionDoesNotSupportProjectToolsVersion" Condition="'$(MSBuildToolsVersion)' == '2.0' and ('$(ProjectToolsVersion)' != '2.0' and '$(ProjectToolsVersion)' != '')" />
+  </Target>
+  <Target Name="FE7x" DependsOnTargets="FEXNA_Library;FEXNA;FEXNA_Config;FE7xContent" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FE7xBuildOutput)">
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="FE7x:Clean" DependsOnTargets="FEXNA_Library:Clean;FEXNA:Clean;FEXNA_Config:Clean;FE7xContent:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FE7x:Rebuild" DependsOnTargets="FEXNA_Library:Rebuild;FEXNA:Rebuild;FEXNA_Config:Rebuild;FE7xContent:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FE7xBuildOutput)">
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FE7xBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="FE7x:Publish" DependsOnTargets="FEXNA_Library:Publish;FEXNA:Publish;FEXNA_Config:Publish;FE7xContent:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7x&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="FE7x\FE7x\FE7x.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FE7xContent" DependsOnTargets="ContentManifestExtensions;LevelContentPipelineExtension" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FE7xContentBuildOutput)">
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|x86&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|x86&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FE7xContent:Clean" DependsOnTargets="ContentManifestExtensions:Clean;LevelContentPipelineExtension:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|x86&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|x86&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FE7xContent:Rebuild" DependsOnTargets="ContentManifestExtensions:Rebuild;LevelContentPipelineExtension:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FE7xContentBuildOutput)">
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|x86&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|x86&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FE7xContent:Publish" DependsOnTargets="ContentManifestExtensions:Publish;LevelContentPipelineExtension:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|x86&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|x86&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Mixed Platforms&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|x86&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FE7xContent&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="LevelContentPipelineExtension" DependsOnTargets="FEXNA_Library" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(LevelContentPipelineExtensionBuildOutput)">
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;LevelContentPipelineExtension&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="LevelContentPipelineExtension:Clean" DependsOnTargets="FEXNA_Library:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;LevelContentPipelineExtension&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="LevelContentPipelineExtension:Rebuild" DependsOnTargets="FEXNA_Library:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(LevelContentPipelineExtensionBuildOutput)">
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;LevelContentPipelineExtension&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="LevelContentPipelineExtensionBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="LevelContentPipelineExtension:Publish" DependsOnTargets="FEXNA_Library:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=DebugPipeline; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;LevelContentPipelineExtension&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="LevelContentPipelineExtension\LevelContentPipelineExtension.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="ContentManifestExtensions" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(ContentManifestExtensionsBuildOutput)">
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="ContentManifestExtensions:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="ContentManifestExtensions:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(ContentManifestExtensionsBuildOutput)">
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') ">
+      <Output TaskParameter="TargetOutputs" ItemName="ContentManifestExtensionsBuildOutput" />
+    </MSBuild>
+  </Target>
+  <Target Name="ContentManifestExtensions:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <MSBuild Projects="ContentManifestExtensions\ContentManifestExtensions.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Library" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FEXNA_LibraryBuildOutput)">
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Library:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Library:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FEXNA_LibraryBuildOutput)">
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_LibraryBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Library:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="..\FEXNA EDITORS\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Library&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA" DependsOnTargets="FEXNA_Library;FEXNA_Config" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FEXNABuildOutput)">
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA:Clean" DependsOnTargets="FEXNA_Library:Clean;FEXNA_Config:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA:Rebuild" DependsOnTargets="FEXNA_Library:Rebuild;FEXNA_Config:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FEXNABuildOutput)">
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNABuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA:Publish" DependsOnTargets="FEXNA_Library:Publish;FEXNA_Config:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA\FEXNA.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Config" DependsOnTargets="FEXNA_Library" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FEXNA_ConfigBuildOutput)">
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Config:Clean" DependsOnTargets="FEXNA_Library:Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Clean" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Clean" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Config:Rebuild" DependsOnTargets="FEXNA_Library:Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(FEXNA_ConfigBuildOutput)">
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Rebuild" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Rebuild" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') ">
+      <Output TaskParameter="TargetOutputs" ItemName="FEXNA_ConfigBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="FEXNA_Config:Publish" DependsOnTargets="FEXNA_Library:Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Debug|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Debug') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Publish" Properties="Configuration=Debug; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;DebugPipeline|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'DebugPipeline') and ('$(Platform)' == 'Xbox 360') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Mixed Platforms') " />
+    <MSBuild Projects="FEXNA_Config\FEXNA_Config.csproj" Targets="Publish" Properties="Configuration=Release; Platform=x86; BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'x86') " />
+    <Message Text="The project &quot;FEXNA_Config&quot; is not selected for building in solution configuration &quot;Release|Xbox 360&quot;." Condition=" ('$(Configuration)' == 'Release') and ('$(Platform)' == 'Xbox 360') " />
+  </Target>
+  <Target Name="Build" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(CollectedBuildOutput)">
+    <MSBuild Condition="@(BuildLevel0) != ''" Projects="@(BuildLevel0)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel0.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel0) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel0.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel0) != ''" />
+    <MSBuild Condition="@(BuildLevel1) != ''" Projects="@(BuildLevel1)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel1.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel1) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel1.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel1) != ''" />
+    <MSBuild Condition="@(BuildLevel2) != ''" Projects="@(BuildLevel2)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel2.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel2) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel2.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel2) != ''" />
+    <MSBuild Condition="@(BuildLevel3) != ''" Projects="@(BuildLevel3)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel3.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel3) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel3.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel3) != ''" />
+  </Target>
+  <Target Name="Clean" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Condition="@(BuildLevel0) != ''" Projects="@(BuildLevel0)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Clean" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel0.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel0) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel0.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel0) != ''" />
+    <MSBuild Condition="@(BuildLevel1) != ''" Projects="@(BuildLevel1)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Clean" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel1.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel1) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel1.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel1) != ''" />
+    <MSBuild Condition="@(BuildLevel2) != ''" Projects="@(BuildLevel2)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Clean" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel2.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel2) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel2.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel2) != ''" />
+    <MSBuild Condition="@(BuildLevel3) != ''" Projects="@(BuildLevel3)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Clean" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel3.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel3) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel3.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel3) != ''" />
+    <Delete Files="FE7x.sln.cache" />
+  </Target>
+  <Target Name="Rebuild" Condition="'$(CurrentSolutionConfigurationContents)' != ''" Outputs="@(CollectedBuildOutput)">
+    <MSBuild Condition="@(BuildLevel0) != ''" Projects="@(BuildLevel0)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Rebuild" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel0.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel0) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel0.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel0) != ''" />
+    <MSBuild Condition="@(BuildLevel1) != ''" Projects="@(BuildLevel1)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Rebuild" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel1.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel1) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel1.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel1) != ''" />
+    <MSBuild Condition="@(BuildLevel2) != ''" Projects="@(BuildLevel2)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Rebuild" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel2.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel2) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel2.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel2) != ''" />
+    <MSBuild Condition="@(BuildLevel3) != ''" Projects="@(BuildLevel3)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Rebuild" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)">
+      <Output TaskParameter="TargetOutputs" ItemName="CollectedBuildOutput" />
+    </MSBuild>
+    <Message Text="The project &quot;%(SkipLevel3.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel3) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel3.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel3) != ''" />
+  </Target>
+  <Target Name="Publish" Condition="'$(CurrentSolutionConfigurationContents)' != ''">
+    <MSBuild Condition="@(BuildLevel0) != ''" Projects="@(BuildLevel0)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Publish" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel0.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel0) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel0.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel0) != ''" />
+    <MSBuild Condition="@(BuildLevel1) != ''" Projects="@(BuildLevel1)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Publish" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel1.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel1) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel1.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel1) != ''" />
+    <MSBuild Condition="@(BuildLevel2) != ''" Projects="@(BuildLevel2)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Publish" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel2.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel2) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel2.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel2) != ''" />
+    <MSBuild Condition="@(BuildLevel3) != ''" Projects="@(BuildLevel3)" Properties="Configuration=%(Configuration); Platform=%(Platform); BuildingSolutionFile=true; CurrentSolutionConfigurationContents=$(CurrentSolutionConfigurationContents); SolutionDir=$(SolutionDir); SolutionExt=$(SolutionExt); SolutionFileName=$(SolutionFileName); SolutionName=$(SolutionName); SolutionPath=$(SolutionPath)" Targets="Publish" ToolsVersion="$(ProjectToolsVersion)" BuildInParallel="true" UnloadProjectsOnCompletion="$(UnloadProjectsOnCompletion)" UseResultsCache="$(UseResultsCache)" />
+    <Message Text="The project &quot;%(SkipLevel3.Identity)&quot; is not selected for building in solution configuration &quot;$(Configuration)|$(Platform)&quot;." Condition="@(SkipLevel3) != ''" />
+    <Warning Text="The project configuration for project &quot;%(MissingConfigLevel3.Identity)&quot; was not specified in the solution file for the solution configuration &quot;$(Configuration)|$(Platform)&quot;." Code="MSB4121" HelpKeyword="MSBuild.SolutionProjectConfigurationMissing" Condition="@(MissingConfigLevel3) != ''" />
+  </Target>
+</Project>

@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7EB67CA5-F821-4B6E-A80F-FC1092B70AFC}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FE7x</RootNamespace>
+    <AssemblyName>FE7x</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <AndroidApplication>true</AndroidApplication>
+    <AndroidResgenFile>Resources\Resource.Designer.cs</AndroidResgenFile>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <AndroidSupportedAbis>armeabi-v7a%3bx86</AndroidSupportedAbis>
+    <AndroidStoreUncompressedFileExtensions>.m4a</AndroidStoreUncompressedFileExtensions>
+    <MandroidI18n />
+    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
+    <MonoGamePlatform>Android</MonoGamePlatform>
+    <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+    <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Android\$(Configuration)\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;__MOBILE__;__ANDROID__;MONOGAME</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>True</AndroidUseSharedRuntime>
+    <AndroidLinkMode>None</AndroidLinkMode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Android\$(Configuration)\</OutputPath>
+    <DefineConstants>TRACE;__MOBILE__;__ANDROID__;MONOGAME</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Android" />
+    <Reference Include="mscorlib" />
+    <Reference Include="OpenTK-1.0" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Resources\Resource.designer.cs" />
+    <Compile Include="Source Code\Fullscreen.cs" />
+    <Compile Include="Source Code\NetConnection.cs" />
+    <Compile Include="Source Code\Update_Checker.cs" />
+    <Compile Include="Source Code\Metrics_Handler.cs" />
+    <Compile Include="Source Code\NativeMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source Code\Program.cs" />
+    <Compile Include="Source Code\Game1.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AboutResources.txt" />
+    <None Include="Assets\AboutAssets.txt" />
+    <None Include="Game.ico" />
+    <None Include="GameThumbnail.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Strings.xml" />
+    <AndroidResource Include="Resources\drawable\Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\layout\" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Content\Content.mgcb" />
+    <AndroidAsset Include="Content\Effect.xnb" />
+    <AndroidAsset Include="Content\Face_Data.xnb" />
+    <AndroidAsset Include="Content\Face_Palette_Data.xnb" />
+    <AndroidAsset Include="Content\manifest.xnb" />
+    <AndroidAsset Include="Content\MapSpriteRecolors.xnb" />
+    <AndroidAsset Include="Content\Palette_Data.xnb" />
+    <AndroidAsset Include="Content\Audio\BGM\*" />
+    <AndroidAsset Include="Content\Audio\SE\Battle Sounds\*" />
+    <AndroidAsset Include="Content\Audio\SE\Map Sounds\*" />
+    <AndroidAsset Include="Content\Audio\SE\Step Sounds\*" />
+    <AndroidAsset Include="Content\Audio\SE\System Sounds\*" />
+    <AndroidAsset Include="Content\Data\*" />
+    <AndroidAsset Include="Content\Data\Map Data\Event Data\*" />
+    <AndroidAsset Include="Content\Data\Map Data\Maps\*" />
+    <AndroidAsset Include="Content\Data\Map Data\Unit Data\*" />
+    <AndroidAsset Include="Content\Data\Text\*" />
+    <AndroidAsset Include="Content\Graphics\*" />
+    <AndroidAsset Include="Content\Graphics\Animations\*" />
+    <AndroidAsset Include="Content\Graphics\Animations\Effects\*" />
+    <AndroidAsset Include="Content\Graphics\Autotiles\*" />
+    <AndroidAsset Include="Content\Graphics\Battlebacks\*" />
+    <AndroidAsset Include="Content\Graphics\Characters\*" />
+    <AndroidAsset Include="Content\Graphics\Faces\*" />
+    <AndroidAsset Include="Content\Graphics\Faces\Countries\*" />
+    <AndroidAsset Include="Content\Graphics\Fonts\*" />
+    <AndroidAsset Include="Content\Graphics\Icons\*" />
+    <AndroidAsset Include="Content\Graphics\Palettes\Battlers\*" />
+    <AndroidAsset Include="Content\Graphics\Panoramas\*" />
+    <AndroidAsset Include="Content\Graphics\Pictures\*" />
+    <AndroidAsset Include="Content\Graphics\Tilesets\*" />
+    <AndroidAsset Include="Content\Graphics\Titles\*" />
+    <AndroidAsset Include="Content\Graphics\Windowskins\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\Drawable\Splash.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidNativeLibrary Include="lib\armeabi\libopenal32.so" />
+    <AndroidNativeLibrary Include="lib\armeabi-v7a\libopenal32.so" />
+    <AndroidNativeLibrary Include="lib\x86\libopenal32.so" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\LIBRARIES\MonoGame-3.5.1\MonoGame.Framework\MonoGame.Framework.Android.csproj">
+      <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
+      <Name>MonoGame.Framework.Android</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FEXNA\FEXNA.Android.csproj">
+      <Project>{61A7516D-6D37-4A7B-8363-CFD307948445}</Project>
+      <Name>FEXNA.Android</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FEXNA_Config\FEXNA_Config.Android.csproj">
+      <Project>{A9502348-609F-481C-92E2-6DD77FEC9291}</Project>
+      <Name>FEXNA_Config.Android</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\FEXNA LIBRARIES\FEXNA_Library\FEXNA_Library\FEXNA_Library.Android.csproj">
+      <Project>{2D274530-F906-4896-8850-C6729871C03E}</Project>
+      <Name>FEXNA_Library.Android</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
