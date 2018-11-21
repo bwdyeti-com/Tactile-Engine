@@ -8,9 +8,9 @@ using Android.App;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FEGame")]
-[assembly: AssemblyProduct("FEGame")]
-[assembly: AssemblyDescription("FEXNA Default Game")]
+[assembly: AssemblyTitle("FE7x")]
+[assembly: AssemblyProduct("FE7x")]
+[assembly: AssemblyDescription("Fire Emblem: Immortal Sword")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
 [assembly: AssemblyCopyright("Copyright © bwdyeti.com 2017")]
 [assembly: AssemblyTrademark("")]

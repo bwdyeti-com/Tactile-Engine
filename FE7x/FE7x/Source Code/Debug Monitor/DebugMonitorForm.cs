@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace FEGame.Debug_Monitor
+namespace FE7x.Debug_Monitor
 {
     public partial class DebugMonitorForm : Form
     {

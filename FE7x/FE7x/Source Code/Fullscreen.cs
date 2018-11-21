@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace FEGame
+namespace FE7x
 {
     class Fullscreen
     {

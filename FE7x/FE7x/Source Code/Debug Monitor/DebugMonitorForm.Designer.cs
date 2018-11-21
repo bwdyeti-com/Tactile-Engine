@@ -1,5 +1,5 @@
 ﻿#if DEBUGMONITOR
-namespace FEGame.Debug_Monitor
+namespace FE7x.Debug_Monitor
 {
     partial class DebugMonitorForm
     {

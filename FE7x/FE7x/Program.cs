@@ -1,4 +1,4 @@
-﻿#if WINDOWS // && DEBUG
+#if WINDOWS // && DEBUG
 #define LOGGING
 #endif
 
@@ -14,10 +14,10 @@ using System.IO;
 #endif
 #endif
 
-namespace FEGame
+namespace FE7x
 {
 #if __ANDROID__
-	[Activity(Label = "FEGame", 
+	[Activity(Label = "FE7x", 
 		MainLauncher = true, 
 		Icon ="@drawable/icon",
 		ConfigurationChanges=ConfigChanges.Orientation|ConfigChanges.Keyboard|ConfigChanges.KeyboardHidden)]
@@ -27,7 +27,7 @@ namespace FEGame
 		protected override void OnCreate(Bundle bundle)
 		{
 			base.OnCreate(bundle);
-			FEGame.Game1.Activity = this;
+			FE7x.Game1.Activity = this;
 			Game1.STATUS_BAR_HEIGHT = getStatusBarHeight();
             g = new Game1(new string[0]);
 
@@ -63,7 +63,7 @@ namespace FEGame
 using MonoMac.AppKit;
 using MonoMac.Foundation;
 
-namespace FEGame
+namespace FE7x
 {
 	class Program
 	{

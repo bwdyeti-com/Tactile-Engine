@@ -3,13 +3,15 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace FEGame
+namespace FE7x
 {
     class Update_Checker
     {
-        internal readonly static string GAME_DOWNLOAD = "yoursite.herethough/yourgame";
-        readonly static string UPDATE_URL = "http://put.yoursite.herethough/yourgame/check_update.php";
+        //internal readonly static string GAME_DOWNLOAD = "yoursite.herethough/yourgame";
+        //readonly static string UPDATE_URL = "http://put.yoursite.herethough/yourgame/check_update.php";
 
+        internal readonly static string GAME_DOWNLOAD = "bwdyeti.com/fe7x"; //FEGame
+        readonly static string UPDATE_URL = "http://www.bwdyeti.com/fe7x/check_update.php";
         const int UPDATE_CHECK_TIMEOUT_SECONDS = 5;
         const int DESCRIPTION_LENGTH_CAP = 128;
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
@@ -17,6 +19,12 @@ namespace FEGame
 
         internal static Tuple<Version, DateTime, string> check_for_update()
         {
+#if DEBUG //FEGame
+            // Just some code to ensure I don't accidently distribute FE7x urls, remove after scrubbing
+            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            System.Diagnostics.Debug.Assert(assembly.ManifestModule.Name == "FE7x.exe", "whoops mistakes");
+#endif
+
             string update_data = NetConnection.webPost(UPDATE_URL,
                 timeout: new TimeSpan(0, 0, UPDATE_CHECK_TIMEOUT_SECONDS),
                 responseLengthLimit: REMOTE_RESPONSE_LENGTH_LIMIT);

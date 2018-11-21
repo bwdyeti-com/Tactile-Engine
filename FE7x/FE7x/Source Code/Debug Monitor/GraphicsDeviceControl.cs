@@ -15,7 +15,7 @@ using System.Windows.Forms;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
-namespace FEGame.Debug_Monitor
+namespace FE7x.Debug_Monitor
 {
     // System.Drawing and the XNA Framework both define Color and Rectangle
     // types. To avoid conflicts, we specify exactly which ones to use.

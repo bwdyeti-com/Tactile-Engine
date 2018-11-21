@@ -13,7 +13,7 @@ using System;
 using System.Collections.Generic;
 #endregion
 
-namespace FEGame.Debug_Monitor
+namespace FE7x.Debug_Monitor
 {
     /// <summary>
     /// Container class implements the IServiceProvider interface. This is used

@@ -20,7 +20,7 @@ using Microsoft.Xna.Framework.Graphics;
 // we don't care so we just disable this warning.
 #pragma warning disable 67
 
-namespace FEGame.Debug_Monitor
+namespace FE7x.Debug_Monitor
 {
     /// <summary>
     /// Helper class responsible for creating and managing the GraphicsDevice.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Collections.Generic;
 //#if DEBUG
@@ -24,7 +24,7 @@ using FEXNAVersionExtension;
 
 using System.Runtime.InteropServices; //fullscreen test
 
-namespace FEGame
+namespace FE7x
 {
     public class Game1 : Game
     {
@@ -42,7 +42,7 @@ namespace FEGame
         public const int Window_Width = Config.WINDOW_WIDTH;
         public const int Window_Height = Config.WINDOW_HEIGHT;
 
-#if DEBUG
+#if DEBUG //Cheat codes
         const bool HYPER_SPEED_ENABLED = true;
         const bool PAUSE_ENABLED = true;
         const bool SAVESTATE_ENABLED = true;

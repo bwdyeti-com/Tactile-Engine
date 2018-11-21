@@ -4,19 +4,26 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 
-namespace FEGame
+namespace FE7x
 {
     enum OperatingSystems { Windows, OSX, Android, Linux }
 
     class Metrics_Handler
     {
-        readonly static string PRIVATE_KEY = "put the private key from your php file here, compeltely random characters is most secure!";
-        readonly static string ADD_SCORE_URL = "http://put.yoursite.herethough/yourgame/ranking_analytics.php?"; // The question mark lets you pass variables in, okay
+        //readonly static string PRIVATE_KEY = "put the private key from your php file here, compeltely random characters is most secure!";
+        //readonly static string ADD_SCORE_URL = "http://put.yoursite.herethough/yourgame/ranking_analytics.php?"; // The question mark lets you pass variables in, okay
+
+        readonly static string PRIVATE_KEY = "ABtHyAe3U29jT!xf"; //FEGame
+        readonly static string ADD_SCORE_URL = "http://www.bwdyeti.com/fe7x/ranking_analytics.php?"; // The question mark lets you pass variables in, okay
         
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
 
         internal static void enable(System.Reflection.Assembly assembly)
         {
+#if DEBUG //FEGame
+            // Just some code to ensure I don't accidently distribute FE7x credentials, remove after scrubbing
+            System.Diagnostics.Debug.Assert(assembly.ManifestModule.Name == "FE7x.exe", "whoops mistakes");
+#endif
             FEXNA.Global.metrics_allowed = true;
         }
 
