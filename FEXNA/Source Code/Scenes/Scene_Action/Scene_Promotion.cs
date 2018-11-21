@@ -43,7 +43,13 @@ namespace FEXNA
             {
                 Combat_Data = ((Scene_Action)Global.scene).combat_data;
                 Combat_Scene_Fade_In = true;
-                if (Global.scene.scene_type == "Scene_Arena")
+                //Sparring
+                if (Global.scene.scene_type == "Scene_Sparring")
+                {
+                    Arena_Scene = true;
+                    Unit_Ids = ((Scene_Level_Up)Global.scene).level_up_battler_ids;
+                }
+                else if (Global.scene.scene_type == "Scene_Arena")
                 {
                     Arena_Scene = true;
                     Arena_Background = true;

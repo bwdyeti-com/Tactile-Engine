@@ -145,6 +145,7 @@
     <Compile Include="Source Code\Services\Audio\MusicInstance.cs" />
     <Compile Include="Source Code\Services\Audio\MusicPlayer.cs" />
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
+    <Compile Include="Source Code\Sprites\Gauges\Sparring_Exp_Gauge.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\Button_Description_Touch.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\TouchIcon.cs" />
     <Compile Include="Source Code\Sprites\ScreenFade.cs" />
@@ -172,6 +173,7 @@
     <Compile Include="Source Code\Combat Abstraction\Round Data\Terrain_Round_Data.cs" />
     <Compile Include="Source Code\Combat Abstraction\Scripted_Combat_Data.cs" />
     <Compile Include="Source Code\Combat Abstraction\Scripted_Combat_Stats.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Sparring_Combat_Data.cs" />
     <Compile Include="Source Code\Combat Abstraction\Staff_Data.cs" />
     <Compile Include="Source Code\Combat Abstraction\Terrain_Attack_Data.cs" />
     <Compile Include="Source Code\Debug Monitor\Display Components\DebugBooleanDisplay.cs" />
@@ -231,6 +233,7 @@
     <Compile Include="Source Code\Metrics\Metrics_Data.cs" />
     <Compile Include="Source Code\Saving\Save_Info.cs" />
     <Compile Include="Source Code\Saving\Save_Progress.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Sparring.cs" />
     <Compile Include="Source Code\Scenes\Scene_Soft_Reset.cs" />
     <Compile Include="Source Code\Services\Audio\ChannelSound.cs" />
     <Compile Include="Source Code\Services\Input\BaseInputService.cs" />
@@ -260,8 +263,11 @@
     <Compile Include="Source Code\Sprites\Popups\Item_Received_Popup.cs" />
     <Compile Include="Source Code\Sprites\Preparations Components\Prep_Support_List_Window.cs" />
     <Compile Include="Source Code\Sprites\Preparations Components\Prep_Support_Stats_Window.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Sparring_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Sparring_Items_Header.cs" />
     <Compile Include="Source Code\Sprites\Platform.cs" />
     <Compile Include="Source Code\Sprites\Preparations Components\Prep_Stats_Window.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Sparring_Stats_Window.cs" />
     <Compile Include="Source Code\Sprites\Sparks\Automated\Ranking_Burst.cs" />
     <Compile Include="Source Code\Sprites\Status Components\Page 1\Inventory_Target_Item.cs" />
     <Compile Include="Source Code\Sprites\Status Components\Page 1\Prep_Using_Item.cs" />
@@ -527,12 +533,15 @@
     <Compile Include="Source Code\Menus\Preparations\AuguryMenu.cs" />
     <Compile Include="Source Code\Windows\Preparations Menus\Window_Base_Convos.cs" />
     <Compile Include="Source Code\Windows\Preparations Menus\Window_Home_Base.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Sparring\Window_Prep_Sparring_Unit.cs" />
     <Compile Include="Source Code\Windows\Preparations Menus\Supports\Window_Base_Support.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Sparring\Window_Sparring.cs" />
     <Compile Include="Source Code\Windows\Shop\Window_Business.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Arena.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Combat_Detail.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Construct.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Location.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Sparring.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Unit.cs" />
     <Compile Include="Source Code\Windows\Title\Window_Title_Main_Menu.cs" />
     <Compile Include="Source Code\Windows\Map Menus\Window_Unit.cs" />
@@ -600,6 +609,7 @@
     <Compile Include="Source Code\Windows\User Interface\Status\Stats\StatusHpUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Status\StatusTextUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Status\Stats\StatusStatUINode.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Preparations\PrepSparringUnitUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Preparations\PrepItemsUnitUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Status\StatusUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\UICursor.cs" />
@@ -622,6 +632,7 @@
     <Compile Include="Source Code\Windows\Window_Minimap.cs" />
     <Compile Include="Source Code\Windows\Window_Ranking.cs" />
     <Compile Include="Source Code\Windows\Shop\Window_Shop.cs" />
+    <Compile Include="Source Code\Windows\Window_Sparring_Result.cs" />
     <Compile Include="Source Code\Menus\World Map\PreviousChapterSelectionMenu.cs" />
     <Compile Include="Source Code\Windows\World Map\Window_WorldMap_Data.cs" />
     <Compile Include="Source Code\Windows\World Map\World_Minimap_ViewArea.cs" />

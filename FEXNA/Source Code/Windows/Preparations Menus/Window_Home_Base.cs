@@ -110,6 +110,13 @@ namespace FEXNA
                 case HomeBaseManageChoices.Trade:
                     HelpText.text = Global.system_text["Prep Items"];
                     break;
+                // Training //Sparring
+                case HomeBaseManageChoices.Training:
+                    if (true)//Yeti
+                        HelpText.text = Global.system_text["Prep Training"];
+                    else
+                        HelpText.text = Global.system_text["Prep Disabled"];
+                    break;
                 // Support
                 case HomeBaseManageChoices.Support:
                     HelpText.text = Global.system_text["Prep Support"];

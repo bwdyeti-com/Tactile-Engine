@@ -13,7 +13,8 @@ using FEXNA.Windows.UserInterface.Command;
 namespace FEXNA.Menus.Preparations
 {
     enum HomeBaseChoices { Manage, Talk, Codex, Options, Save, None }
-    enum HomeBaseManageChoices { Organize, Trade, Support, None }
+    //Sparring
+    enum HomeBaseManageChoices { Organize, Trade, Training, Support, None }
 
     class HomeBaseMenuManager : SetupMenuManager<IHomeBaseMenuHandler>
     {
@@ -29,6 +30,32 @@ namespace FEXNA.Menus.Preparations
             homeBaseMenu.Start += homeBaseMenu_Start;
             homeBaseMenu.Closed += homeBaseMenu_Closed;
             AddMenu(homeBaseMenu);
+        }
+
+        //Sparring
+        public void ResumeSparring()
+        {
+            // Manage
+            var homeBaseMenu = Menus.Peek() as Window_Home_Base;
+            homeBaseMenu.index = (int)HomeBaseChoices.Manage;
+            Vector2 optionLocation = homeBaseMenu.SelectedOptionLocation;
+
+            var manageCommandMenu = GetManageMenu(optionLocation,
+                (int)HomeBaseManageChoices.Training);
+            manageCommandMenu.IndexChanged += manageCommandMenu_IndexChanged;
+            AddMenu(manageCommandMenu);
+
+            homeBaseMenu.refresh_manage_text(
+                (HomeBaseManageChoices)manageCommandMenu.Index);
+
+            // Training
+            Window_Sparring.reset();
+            var sparringMenu = new Window_Sparring();
+            sparringMenu.black_screen();
+            sparringMenu.Spar += sparringMenu_Spar;
+            sparringMenu.Status += itemsMenu_Status;
+            sparringMenu.Closed += menu_Closed;
+            AddMenu(sparringMenu);
         }
 
         public override void ResumeItemUse()
@@ -56,14 +83,20 @@ namespace FEXNA.Menus.Preparations
         {
             // Command Window
             Vector2 manage_loc = optionLocation + new Vector2(48, 8);
+            //Sparring
             var manageCommandWindow = new Window_Command(manage_loc, 72,
-                new List<string> { "Organize", "Items", "Support" });
+                new List<string> { "Organize", "Items", "Training", "Support" });
             manageCommandWindow.text_offset = new Vector2(8, 0);
             manageCommandWindow.glow = true;
             manageCommandWindow.bar_offset = new Vector2(-8, 0);
             manageCommandWindow.stereoscopic = Config.PREPMAIN_WINDOW_DEPTH;
 
             manageCommandWindow.index = index;
+
+            //Sparring
+            if (Scene_Map.debug_chapter_options_blocked())
+                manageCommandWindow.set_text_color(
+                    (int)HomeBaseManageChoices.Training, "Grey");
 
             var manageCommandMenu = new CommandMenu(manageCommandWindow);
             manageCommandMenu.CreateCancelButton(
@@ -179,6 +212,23 @@ namespace FEXNA.Menus.Preparations
                     Global.game_system.play_se(System_Sounds.Confirm);
                     AddItemMenu();
                     break;
+                //Sparring
+                case HomeBaseManageChoices.Training:
+                    if (Scene_Map.debug_chapter_options_blocked())
+                    {
+                        Global.game_system.play_se(System_Sounds.Buzzer);
+                    }
+                    else
+                    {
+                        Global.game_system.play_se(System_Sounds.Confirm);
+                        Window_Sparring.reset();
+                        var sparringMenu = new Window_Sparring();
+                        sparringMenu.Spar += sparringMenu_Spar;
+                        sparringMenu.Status += itemsMenu_Status;
+                        sparringMenu.Closed += menu_Closed;
+                        AddMenu(sparringMenu);
+                    }
+                    break;
                 case HomeBaseManageChoices.Support:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     var supportMenu = new Window_Base_Support();
@@ -188,6 +238,17 @@ namespace FEXNA.Menus.Preparations
                     AddMenu(supportMenu);
                     break;
             }
+        }
+
+        //Sparring
+        void sparringMenu_Spar(object sender, EventArgs e)
+        {
+            var sparringWindow = (sender as Window_Sparring);
+
+            MenuHandler.HomeBaseTraining(
+                Window_Sparring.Healer_Id,
+                Window_Sparring.Battler_1_Id,
+                Window_Sparring.Battler_2_Id);
         }
 
         void supportMenu_Support(object sender, EventArgs e)
@@ -223,6 +284,8 @@ namespace FEXNA.Menus.Preparations
 
     interface IHomeBaseMenuHandler : ISetupMenuHandler
     {
+        //Sparring
+        void HomeBaseTraining(int healerId, int battlerId1, int battlerId2);
         void HomeBaseSupport(int actorId1, int actorId2);
         void HomeBaseLeave();
     }

@@ -908,6 +908,17 @@ namespace FEXNA
                 exp_gain = (int)(weapon.Staff_Exp / (Math.Pow(2, actor.tier - 1)));
             return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
+
+        //Sparring
+        public static int training_exp(Game_Unit battler_1, Game_Unit battler_2, bool kill)
+        {
+            return Math.Min(Constants.Actor.EXP_TO_LVL,
+                training_exp(battler_1.actor, exp(battler_1, battler_2, kill)));
+        }
+        public static int training_exp(Game_Actor actor, int exp)
+        {
+            return (int)Math.Round(exp / Math.Pow(2, (actor.full_level - 30) / 20f));
+        }
         #endregion
 
         public static WeaponTriangle weapon_triangle(

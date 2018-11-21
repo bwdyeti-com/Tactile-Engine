@@ -111,6 +111,8 @@ namespace FEXNA
                     case "Scene_Test_Battle":
                     case "Scene_Battle":
                     case "Scene_Promotion":
+                    //Sparring
+                    case "Scene_Sparring":
                         return true;
                     default:
                         return false;

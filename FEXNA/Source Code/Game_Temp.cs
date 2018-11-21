@@ -28,6 +28,8 @@ namespace FEXNA
         public int status_team;
         public bool scripted_battle = false;
         public int preparations_item_index;
+        //Sparring
+        public bool sparring = false;
         internal Scripted_Combat_Script scripted_battle_stats;
         // Ranges
         public HashSet<Vector2> temp_attack_range = new HashSet<Vector2>();

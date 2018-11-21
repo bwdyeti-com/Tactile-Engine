@@ -83,8 +83,10 @@ namespace FEXNA
 
         protected override void update_level_up_action_3()
         {
+            //Sparring
             if (!Promoting && (Scene_Type == "Scene_Arena" ||
-                Scene_Type == "Scene_Battle" || Scene_Type == "Scene_Staff"))
+                Scene_Type == "Scene_Battle" || Scene_Type == "Scene_Staff" ||
+                Scene_Type == "Scene_Sparring"))
             {
                 switch (Level_Up_Timer)
                 {
@@ -105,8 +107,10 @@ namespace FEXNA
 
         protected override void update_level_up_action_7()
         {
+            //Sparring
             if (Scene_Type == "Scene_Arena" ||
-                Scene_Type == "Scene_Battle" || Scene_Type == "Scene_Staff")
+                Scene_Type == "Scene_Battle" || Scene_Type == "Scene_Staff" ||
+                Scene_Type == "Scene_Sparring")
             {
                 switch (Level_Up_Timer)
                 {

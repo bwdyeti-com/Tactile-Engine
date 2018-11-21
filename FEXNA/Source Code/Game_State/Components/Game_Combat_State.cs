@@ -1539,8 +1539,27 @@ namespace FEXNA.State
                             Global.game_system.Class_Changer = -1;
                             if (Arena)
                             {
-                                Units[Global.game_system.Battler_1_Id].battling = false;
-                                scene_map.resume_arena();
+                                //Sparring
+                                if (Global.game_temp.sparring)
+                                {
+                                    int healer_unit_id =
+                                        Global.game_map.get_unit_id_from_actor(Window_Sparring.Healer_Id);
+                                    Units[Global.game_system.Battler_1_Id].recover_all();
+                                    Units[Global.game_system.Battler_2_Id].recover_all();
+                                    Units[healer_unit_id].recover_all();
+
+                                    Global.game_map.completely_remove_unit(healer_unit_id);
+                                    Global.game_map.completely_remove_unit(Global.game_system.Battler_2_Id);
+                                    Global.game_map.completely_remove_unit(Global.game_system.Battler_1_Id);
+                                    Global.game_system.Battler_1_Id = -1;
+                                    Global.game_system.Battler_2_Id = -1;
+                                    scene_map.resume_preparations_sparring_menu();
+                                }
+                                else
+                                {
+                                    Units[Global.game_system.Battler_1_Id].battling = false;
+                                    scene_map.resume_arena();
+                                }
 
                                 end_battle();
                             }
@@ -2172,6 +2191,8 @@ namespace FEXNA.State
             Combat_Phase = 1;
             Combat_Timer = 5;
             Global.game_system.In_Arena = true;
+            //Sparring
+            Global.game_temp.sparring = false;
 
             Units[Global.game_system.Battler_1_Id].preload_animations(Global.game_system.Arena_Distance);
             Units[Global.game_system.Battler_2_Id].preload_animations(Global.game_system.Arena_Distance);

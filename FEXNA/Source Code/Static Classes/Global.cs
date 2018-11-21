@@ -705,7 +705,10 @@ namespace FEXNA
                     Scene = new Scene_Dance();
                     break;
                 case "Scene_Arena":
-                    Scene = new Scene_Arena();
+                    if (Game_Temp.sparring) //Sparring
+                        Scene = new Scene_Sparring();
+                    else
+                        Scene = new Scene_Arena();
                     break;
                 case "Scene_Promotion":
                     Scene = new Scene_Promotion();

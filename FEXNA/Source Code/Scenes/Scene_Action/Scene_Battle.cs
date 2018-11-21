@@ -1019,9 +1019,11 @@ namespace FEXNA
                             remove_battle_action(Battle_Actions.Wait_For_Death);
                             if (is_battler_dead(ids[1]))
                             {
+                                //Sparring // Remove the bit at the end about not sparring
                                 if (Global.game_state.get_death_quote(
                                     battler_2_sprite.battler.id).Length > 0 &&
-                                    !is_test_battle)
+                                    !is_test_battle &&
+                                    !Global.game_temp.sparring)
                                 {
                                     Dying_Unit = 2;
                                     battler_2_sprite.get_hit(0, false);
@@ -1036,9 +1038,11 @@ namespace FEXNA
                             }
                             else if (is_battler_dead(ids[0]))
                             {
+                                //Sparring // Remove the bit at the end about not sparring
                                 if (Global.game_state.get_death_quote(
                                     battler_1_sprite.battler.id).Length > 0 &&
-                                    !is_test_battle)
+                                    !is_test_battle &&
+                                    !Global.game_temp.sparring)
                                 {
                                     Dying_Unit = 1;
                                     insert_battle_action(0, Battle_Actions.Death_Quote);

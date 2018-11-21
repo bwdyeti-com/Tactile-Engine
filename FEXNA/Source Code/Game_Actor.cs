@@ -3212,6 +3212,65 @@ namespace FEXNA
             return true;
         }
 
+        //Sparring
+        /// <summary>
+        /// Returns true if the actor can oversee sparring
+        /// </summary>
+        public bool can_oversee_sparring()
+        {
+            if (can_oversee_sparring_normally())
+                return true;
+            if (has_skill("SACRIFICE"))
+                return true;
+            return false;
+        }
+
+        //Sparring
+        /// <summary>
+        /// Returns true if the actor can always oversee sparring, without special skills
+        /// </summary>
+        internal bool can_oversee_sparring_normally()
+        {
+            if (can_staff())
+                return true;
+            if (has_skill("PROVISION"))
+                return true;
+            return false;
+        }
+
+        //Sparring
+        /// <summary>
+        /// Returns the number of times this unit can oversee sparring
+        /// </summary>
+        public int sparring_overseer_points()
+        {
+            if (!can_oversee_sparring())
+                return 0;
+            if (can_oversee_sparring_normally())
+            {
+                if (can_staff())
+                    return (int)Math.Ceiling(get_weapon_level(staff_type()) / 2f);
+                return Battalion.SPAR_COUNT;
+            }
+            return 1;
+        }
+
+        //Sparring
+        public int sparring_points_cost(bool overseeing)
+        {
+            return 1;
+
+            if (overseeing)
+            {
+                if (can_oversee_sparring_normally())
+                    return 1;
+                else
+                    return Battalion.SPAR_COUNT;
+            }
+            else
+                return 1;
+        }
+
         /// <summary>
         /// Returns true if the actor has any equippable non-staff weapons
         /// </summary>
@@ -3268,6 +3327,28 @@ namespace FEXNA
             // Could I just call determine_sparring_weapon_type() and then if it's staff or none throw the exception? //Yeti
             throw new KeyNotFoundException("No valid weapon type for the arena");
             return Global.weapon_types[1]; // Should never get here
+        }
+        //Sparring
+        /// <summary>
+        /// Returns the weapon type that should be used when sparring.
+        /// If any weapon is equipped, its type is used; otherwise the first weapon type with a rank in order is used.
+        /// If no combat type is valid, returns staff if there is a staff rank, and otherwise returns none
+        /// </summary>
+        public WeaponType determine_sparring_weapon_type()
+        {
+            // Already has something equipped, so use that type
+            if (this.weapon != null)
+                if (!this.weapon.is_staff() && Config.ARENA_WEAPON_TYPES.ContainsKey(this.weapon.Main_Type))
+                    return this.weapon.main_type();
+            // Otherwise use first possible type
+            for (int i = 1; (int)i < Global.weapon_types.Count; i++)
+                if (!Global.weapon_types[i].IsStaff &&
+                        can_use_weapon_type(Global.weapon_types[i]) &&
+                        Config.ARENA_WEAPON_TYPES.ContainsKey(i))
+                    return Global.weapon_types[i];
+            if (can_staff())
+                return staff_type();
+            return Global.weapon_types[0];
         }
 
         /// <summary>

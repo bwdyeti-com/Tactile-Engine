@@ -11,6 +11,7 @@ namespace FEXNA.Metrics
     class Gameplay_Metrics
     {
         private List<Actor_Metrics> StartingActors = new List<Actor_Metrics>();
+        // Sparring? //Sparring
         private List<Combat_Metrics> Combats = new List<Combat_Metrics>();
         private List<Item_Metrics> Items = new List<Item_Metrics>();
         // Rescuing?

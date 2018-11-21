@@ -259,9 +259,15 @@ namespace FEXNA
 
     public class Battalion
     {
+        //Sparring
+        internal const int SPAR_COUNT = 3;
+
         private List<int> Actors = new List<int>(), Deployed_Actors = new List<int>();
         private int Convoy_Id = -1;
         private int Gold = 0;
+        //Sparring
+        private Dictionary<int, int> Sparring_Readiness = new Dictionary<int,int>();
+        private Dictionary<int, int> OverseerUsed = new Dictionary<int,int>();
 
         #region Serialization
         public void write(BinaryWriter writer)
@@ -270,6 +276,8 @@ namespace FEXNA
             Deployed_Actors.write(writer);
             writer.Write(Convoy_Id);
             writer.Write(Gold);
+            Sparring_Readiness.write(writer);
+            OverseerUsed.write(writer);
         }
 
         public static Battalion read(BinaryReader reader)
@@ -280,6 +288,14 @@ namespace FEXNA
                 result.Deployed_Actors.read(reader);
             result.Convoy_Id = reader.ReadInt32();
             result.Gold = reader.ReadInt32();
+            //Sparring
+            if (!Global.LOADED_VERSION.older_than(0, 4, 3, 6))
+                result.Sparring_Readiness.read(reader);
+            if (!Global.LOADED_VERSION.older_than(0, 5, 5, 2))
+                result.OverseerUsed.read(reader);
+            else
+                result.OverseerUsed = result.Sparring_Readiness
+                    .ToDictionary(p => p.Key, p => 0);
 
             return result;
         }
@@ -470,6 +486,8 @@ namespace FEXNA
             Actors = new List<int>(source.Actors);
             Convoy_Id = source.Convoy_Id;
             Gold = source.Gold;
+            Sparring_Readiness = new Dictionary<int, int>(source.Sparring_Readiness);
+            OverseerUsed = new Dictionary<int, int>(source.OverseerUsed);
         }
 
         public void add_actor(int id)
@@ -477,6 +495,8 @@ namespace FEXNA
             if (!Actors.Contains(id))
             {
                 Actors.Add(id);
+                Sparring_Readiness.Add(id, SPAR_COUNT);
+                OverseerUsed.Add(id, 0);
                 Global.game_actors[id].reset_lives();
             }
             if (Constants.Gameplay.LOSS_ON_DEATH.Contains(id))
@@ -603,6 +623,15 @@ namespace FEXNA
 
         internal void enter_home_base()
         {
+            //Sparring
+            Sparring_Readiness.Clear();
+            OverseerUsed.Clear();
+            foreach (int id in Actors)
+            {
+                Sparring_Readiness.Add(id, SPAR_COUNT);
+                OverseerUsed.Add(id, 0);
+            }
+
             if (Global.game_battalions.active_convoy_shop != null)
             {
                 if (Constants.Gameplay.CONVOY_SOLD_ITEMS_REPAIR)
@@ -642,8 +671,49 @@ namespace FEXNA
 
         internal void leave_home_base()
         {
+            //Sparring
+            Sparring_Readiness.Clear();
+            OverseerUsed.Clear();
+
             if (this.has_convoy)
                 Global.game_battalions.clear_convoy_shop();
+        }
+
+        internal int sparring_readiness(int actor_id)
+        {
+            if (Sparring_Readiness.ContainsKey(actor_id))
+                return Sparring_Readiness[actor_id];
+            return -1;
+        }
+
+        internal int overseer_uses(int actorId)
+        {
+            if (OverseerUsed.ContainsKey(actorId))
+                return Global.game_actors[actorId].sparring_overseer_points() -
+                    OverseerUsed[actorId];
+            return 0;
+        }
+
+        internal void use_spar_point(int actor_id, bool overseeing)
+        {
+            if (Sparring_Readiness.ContainsKey(actor_id))
+                Sparring_Readiness[actor_id] -= spar_expense(actor_id, overseeing);
+            if (overseeing)
+                if (OverseerUsed.ContainsKey(actor_id))
+                    OverseerUsed[actor_id] += 1;
+        }
+
+        internal int spar_expense(int actor_id, bool overseeing)
+        {
+            return Global.game_actors[actor_id].sparring_points_cost(overseeing);
+        }
+
+        internal bool can_spar(int actor_id, bool overseeing)
+        {
+            if (overseeing)
+                if (overseer_uses(actor_id) <= 0)
+                    return false;
+            return sparring_readiness(actor_id) >= spar_expense(actor_id, overseeing);
         }
     }
 

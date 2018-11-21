@@ -125,6 +125,33 @@ namespace FEXNA
             }
         }
 
+        //Sparring
+        public void resume_preparations_sparring_menu()
+        {
+            if (Global.game_system.preparations)
+            {
+                Global.game_temp.menuing = true;
+
+                Global.Audio.BgmFadeOut();
+                Global.game_state.play_preparations_theme();
+
+                if (Global.game_system.home_base)
+                {
+                    var menu = new HomeBaseMenuManager(this, true);
+                    menu.ResumeSparring();
+
+                    MapMenu = menu;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+
+                }
+                Global.game_system.In_Arena = false;
+                Global.game_temp.sparring = false;
+            }
+        }
+
         private void start_preparations()
         {
             Global.game_map.move_range_visible = false;
@@ -213,6 +240,24 @@ namespace FEXNA
         #endregion
 
         #region IHomeBaseMenuHandler
+        //Sparring
+        public void HomeBaseTraining(int healerId, int battlerId1, int battlerId2)
+        {
+            Global.game_system.Preparations_Actor_Id = healerId;
+
+            Global.battalion.use_spar_point(healerId, true);
+            Global.battalion.use_spar_point(battlerId1, false);
+            Global.battalion.use_spar_point(battlerId2, false);
+
+            Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Config.OFF_MAP,
+                healerId, "");
+
+            Global.game_system.Battle_Mode = Constants.Animation_Modes.Full;
+            Global.game_state.to_arena();
+            Global.game_temp.sparring = true;
+            Global.game_temp.menuing = false;
+        }
+
         public void HomeBaseSupport(int actorId1, int actorId2)
         {
             Global.game_state.call_support(actorId1, actorId2);
