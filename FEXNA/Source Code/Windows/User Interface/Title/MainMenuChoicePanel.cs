@@ -27,9 +27,22 @@ namespace FEXNA.Windows.UserInterface.Title
             ChoiceText.text = text;
             
             WindowPanel window;
-            window = new System_Color_Window();
-            window.height = 12;
-            window.offset = new Vector2(16, 12);
+            //FEGame
+            if (true)
+            {
+                window = new WindowPanel(Global.Content.Load<Texture2D>(
+                    "Graphics/Windowskins/MainMenuWindow"),
+                    new Vector2(0, 40),
+                    128, 8, 24, 8, 0, 8);
+                window.height = 16;
+                window.offset = new Vector2(16, 16);
+            }
+            else
+            {
+                window = new System_Color_Window();
+                window.height = 12;
+                window.offset = new Vector2(16, 12);
+            }
 
             window.loc = new Vector2(-4, 16);
             window.width = PANEL_WIDTH;

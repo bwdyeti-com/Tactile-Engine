@@ -33,6 +33,8 @@ namespace FEXNA.Constants
         //     the remaining support count even before they're activated
         public readonly static Dictionary<int, HashSet<int>> RESERVED_SUPPORTS = new Dictionary<int, HashSet<int>>
         {
+            { 6, new HashSet<int> { 8 } }, //FEGame
+            { 8, new HashSet<int> { 6 } }, //FEGame
         };
 
         public readonly static Dictionary<Affinities, float[]> AFFINITY_BOOSTS = new Dictionary<Affinities, float[]>

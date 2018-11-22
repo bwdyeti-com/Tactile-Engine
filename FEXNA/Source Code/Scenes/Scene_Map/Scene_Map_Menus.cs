@@ -3345,6 +3345,10 @@ namespace FEXNA
 
         internal static bool debug_chapter_options_blocked()
         {
+            //FEGame
+            if (Global.game_system.chapter_id == "Ch23")
+                return true;
+
             return false;
         }
     }

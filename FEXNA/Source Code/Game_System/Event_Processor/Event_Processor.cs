@@ -14,14 +14,22 @@ namespace FEXNA
             101, 102, 103, 111, 112, 121, 122, 123, 129, 130, 172, 201, 202, 203, 204, 205, 211, 212, 213, 214, 215, 250, 252 };
 
 #if DEBUG
+        //FEGame
         internal readonly static Dictionary<int, string> SWITCH_NAMES = new Dictionary<int, string>
         {
-            { 97, "Ch4x was played" },
-            { 98, "-NPC- talked to in Ch10" },
-            { 99, "Ch7x was played" },
+            { 96, "Ch1x Played" },
+            { 97, "Ch4x Played" },
+            { 98, "Kalten Rescued" },
+            { 99, "Ch7x Played" },
+            
+            //FEGame
+            //{ 97, "Ch4x was played" },
+            //{ 98, "-NPC- talked to in Ch10" },
+            //{ 99, "Ch7x was played" },
         };
         internal readonly static Dictionary<int, string> VARIABLE_NAMES = new Dictionary<int, string>
         {
+            { 99, "Ch7 NPC State" },
         };
 
         internal static string switch_name(int index)

@@ -3,7 +3,7 @@
     public class Gameplay
     {
         public readonly static int[] MAIN_CHARACTER = { 1 };
-        public readonly static int[] LOSS_ON_DEATH = { 1 };
+        public readonly static int[] LOSS_ON_DEATH = { 1, 26, 41 }; //FEGame
 
         public const bool BLOCK_FIRE_THROUGH_WALLS_DEFAULT = true;
         public const bool BLOCK_VISION_THROUGH_WALLS = false;

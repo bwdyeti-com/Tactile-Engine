@@ -27,6 +27,10 @@ namespace FEXNA.Windows.UserInterface.Title
                 else
                     Window.height = 32;
 
+                //FEGame
+                if (MainMenu)
+                    Window.height += 8;
+
                 Size = new Vector2(Size.X, Window.height - 8);
             }
         }
@@ -99,9 +103,26 @@ namespace FEXNA.Windows.UserInterface.Title
 
         private void create_window(int width, bool mainMenu)
         {
-            Window = new System_Color_Window();
-            Window.height = 32;
-            Window.offset = new Vector2(16, 8);
+            //FEGame
+            if (mainMenu)
+            {
+                MainMenu = true;
+                //Yeti
+                //Window = new System_Color_Window(Global.Content.Load<Texture2D>(
+                //    "Graphics/Windowskins/MainMenuWindow"),
+                //    128, 8, 24, 16, 8, 16);
+                Window = new WindowPanel(Global.Content.Load<Texture2D>(
+                    "Graphics/Windowskins/MainMenuWindow"), Vector2.Zero,
+                    128, 8, 24, 16, 8, 16);
+                Window.height = 40;
+                Window.offset = new Vector2(16, 16);
+            }
+            else
+            {
+                Window = new System_Color_Window();
+                Window.height = 32;
+                Window.offset = new Vector2(16, 8);
+            }
 
             Window.width = width;
         }

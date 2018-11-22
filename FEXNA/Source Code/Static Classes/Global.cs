@@ -178,6 +178,46 @@ namespace FEXNA
             Test_Battler_1 = new Test_Battle_Character_Data();
             Test_Battler_2 = new Test_Battle_Character_Data();
 #endif
+
+#if DEBUG && WINDOWS //FEGame
+            // This is only supposed to happen in FE7x debug to add the test map, remove after getting rid of arena data
+            System.Diagnostics.Debug.Assert(GAME_ASSEMBLY.ManifestModule.Name == "FE7x.exe", "whoops mistakes");
+
+            if (false)
+            {
+                Data_Chapters["Arena"] = new Data_Chapter
+                {
+                    Id = "Arena", Chapter_Name = "Arena Test Map", World_Map_Name = "Arena Test",
+                    World_Map_Loc = new Vector2(1097, 921), Standalone = true, Battalion = 4, World_Map_Lord_Id = 1,
+                    Progression_Ids = new List<string> { "Arena" },
+                    Completed_Chapters = new List<string> { "Pre" },
+                    Text_Key = "Arena", Event_Data_Id = "ArenaIntro",
+                    Turn_Themes = new List<string> { "", "Friendship and Adventure", "Enemies Appear", "Binding Ties", "Enemies Appear" },
+                    Battle_Themes = new List<string> { "", "Strike", "Safeguard", "Strike", "Safeguard" },
+                    Ranking_Turns = 8, Ranking_Combat = 50, Ranking_Exp = 400, Ranking_Completion = 5,
+                    Preset_Data = new FEXNA_Library.Preset_Chapter_Data { Lord_Lvl = 1, Units = 55, Gold = 50000, Playtime = 0 }
+                };
+                Chapter_List.Add(data_chapters["Arena"].Id);
+            }
+#endif
+#if (DEBUG || PRERELEASE) //FEGame
+            if (!Data_Chapters.ContainsKey("Ch23"))
+            {
+                Data_Chapters["Ch23"] = new Data_Chapter
+                {
+                    Id = "Ch23", Chapter_Name = "endgame test", World_Map_Name = "Chapter 23",
+                    World_Map_Loc = new Vector2(1885, 542), Standalone = true, Battalion = 0, World_Map_Lord_Id = 1,
+                    Progression_Ids = new List<string> { "Ch23" },
+                    Completed_Chapters = new List<string> { "Pre" },
+                    Text_Key = "Ch23", Event_Data_Id = "Ch23Intro",
+                    Turn_Themes = new List<string> { "", "Companions", "The Messenger", "Binding Ties", "Enemies Appear" },
+                    Battle_Themes = new List<string> { "", "Strike", "Safeguard", "Strike", "Safeguard" },
+                    Ranking_Turns = 20, Ranking_Combat = 600, Ranking_Exp = 2500, Ranking_Completion = 5,
+                    Preset_Data = new FEXNA_Library.Preset_Chapter_Data { Lord_Lvl = 15, Units = 99, Gold = 50000, Playtime = 0 }
+                };
+                Chapter_List.Add(data_chapters["Ch23"].Id);
+            }
+#endif
         }
 
         private static Dictionary<string, Data_Support> load_supports(List<Data_Support> list)
@@ -566,7 +606,7 @@ namespace FEXNA
         public static event EventHandler send_metrics_to_server;
 
         // Check for update
-        static bool UpdatesActive = false;
+        static bool UpdatesActive = true; // false; //FEGame
         public static bool updates_active
         {
             get { return UpdatesActive; }

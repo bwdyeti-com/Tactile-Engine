@@ -10,7 +10,9 @@ namespace FEXNA
 {
     public class Scene_Splash : Scene_Base
     {
-        private readonly static string GAME_SITE = "yoursite.herethough/yourgame";
+        //private readonly static string GAME_SITE = "yoursite.herethough/yourgame";
+
+        private readonly static string GAME_SITE = "bwdyeti.com/fe7x"; //FEGame
 
         private readonly static string[] DISCLAIMERS =
         {

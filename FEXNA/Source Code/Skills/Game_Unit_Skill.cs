@@ -2077,6 +2077,7 @@ namespace FEXNA
         }
 
 #if DEBUG
+        //Cheat codes
         internal static bool INFINITE_MOVE_ALLOWED = false;
         static bool ANY_TERRAIN_PASSABLE = false;
 #endif

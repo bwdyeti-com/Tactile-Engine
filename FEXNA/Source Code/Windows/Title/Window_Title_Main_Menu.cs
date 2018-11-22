@@ -98,7 +98,7 @@ namespace FEXNA
             if (SuspendExists)
             {
                 SuspendPanel = new Suspend_Info_Panel(true);
-                SuspendPanel.loc = new Vector2(-16, 8);
+                SuspendPanel.loc = new Vector2(-16, 12); // 8); //FEGame
                 SuspendPanel.stereoscopic = Config.TITLE_MENU_DEPTH;
             }
             else
@@ -109,7 +109,7 @@ namespace FEXNA
             StartGamePanel = new StartGame_Info_Panel(
                 Global.latest_save_id, MainMenuChoicePanel.PANEL_WIDTH, true);
             StartGamePanel.active = Global.latest_save_id != -1;
-            StartGamePanel.loc = new Vector2(-16, 8);
+            StartGamePanel.loc = new Vector2(-16, 12); // 8); //FEGame
             StartGamePanel.stereoscopic = Config.TITLE_MENU_DEPTH;
 
             RefreshLocs();
@@ -151,7 +151,7 @@ namespace FEXNA
                 MenuChoices[1].BgVisible = true;
             }
 
-            Vector2 loc = MENU_LOC + new Vector2(4, -12);
+            Vector2 loc = MENU_LOC + new Vector2(4, -16); //-12); //FEGame
             for (int i = 0; i < MenuChoices.Count; i++)
             {
                 MenuChoices[i].ResetOffset();

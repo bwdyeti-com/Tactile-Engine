@@ -18,9 +18,16 @@ namespace FEXNA
     {
         public const bool SKIP_LCK = true;
 
+        //FEGame
         // If true the chapter must be completed; if false it merely needs to be unlocked
         public readonly static Tuple<string, bool>[] ORDER = new Tuple<string, bool>[] {
-            new Tuple<string, bool>("Tr3", false),
+            new Tuple<string, bool>("Ch12", true),
+            new Tuple<string, bool>("Ch11", false),
+            new Tuple<string, bool>("Ch8", false),
+            new Tuple<string, bool>("Ch6", false),
+            new Tuple<string, bool>("Ch1", false),
+            
+            //new Tuple<string, bool>("Tr3", false), //FEGame
             new Tuple<string, bool>("", false),
         };
         public readonly static Dictionary<Tuple<string, bool>, Reel_Classes[]> CH_DATA = new Dictionary<Tuple<string, bool>, Reel_Classes[]> {
@@ -30,10 +37,53 @@ namespace FEXNA
                 Reel_Classes.Medic, Reel_Classes.Paladin, Reel_Classes.Nomad, Reel_Classes.Scout }
             },
             { // Other lord guys
-                new Tuple<string, bool>("Tr3", false),
+                new Tuple<string, bool>("Ch1", false), // "Tr3", false), //FEGame
                 new Reel_Classes[] { Reel_Classes.Tristan, Reel_Classes.Zweihander, Reel_Classes.Journeyman, Reel_Classes.Ruffian,
                 Reel_Classes.Eliza, Reel_Classes.Warrior, Reel_Classes.PegasusKnight, Reel_Classes.ThiefF }
             },
+
+            //FEGame
+            { // Remaining trainees and also enemies
+                new Tuple<string, bool>("Ch6", false),
+                new Reel_Classes[] { Reel_Classes.Skywatcher, Reel_Classes.Page, Reel_Classes.Pupil, Reel_Classes.Ascetic,
+                Reel_Classes.Myrmidon, Reel_Classes.Fighter, Reel_Classes.Monk, Reel_Classes.Troubadour }
+                // Myrm, Brigand, Archer, Phalanx //Debug
+            },
+            { // random enemies
+                new Tuple<string, bool>("Ch8", false),
+                new Reel_Classes[] { Reel_Classes.Cohort, Reel_Classes.Mage, Reel_Classes.Crossbowman, Reel_Classes.Shaman,
+                Reel_Classes.Sorcerer, Reel_Classes.Halberdier, Reel_Classes.Justice }
+                //Reel_Classes.Sorcerer, Reel_Classes.Tent, Reel_Classes.Halberdier, Reel_Classes.Justice } //Debug
+            },
+            { // more other guys
+                new Tuple<string, bool>("Ch11", false),
+                new Reel_Classes[] { Reel_Classes.Corsair, Reel_Classes.Scholar, Reel_Classes.Witch, Reel_Classes.Falcoknight,
+                Reel_Classes.Cleric, Reel_Classes.Bishop, Reel_Classes.Dracoknight, Reel_Classes.Mercenary }
+            },
+            { // remaining Uther guys
+                new Tuple<string, bool>("Ch12", true),
+                new Reel_Classes[] { Reel_Classes.Thief, Reel_Classes.Soldier, Reel_Classes.Lieutenant, Reel_Classes.Vanguard,
+                Reel_Classes.Gendarme, Reel_Classes.Diviner, Reel_Classes.Warlock, Reel_Classes.Sage,  }
+            },
+
+            // Ch14 // random early part 2 enemies //Debug
+            // Hero, General, Raider, Longbow, Hex, Bishop, Elder, Valk
+
+            // Ch15 // Tristan and Eliza part 2 //Debug
+            // Mage, Archer, Myrm, Merc, Phalanx, Sin, Crossbow, Swordmaster
+
+            // Ch20 // endgame PCs //Debug
+            // Bard, Trooper, Brigand, Pirate, Champion, Mage Knight, femWarlock, Wagon
+
+            // Ch22 // part 2 bosses //Debug
+            // General Richter, Druid Sopheil, Hero Renault, Stahlfaust Heinrich
+            // Warrior Lazlo, Centurion Mazda, Berserker Melios, Magic Seal Kishuna
+
+            // F // showdown (even though they died two chapters ago) //Debug
+            // Great Lord, Savage Lord, Prodigal Lord, Arbalest, Justice, Rogue, Dragon Master, Paladin
+
+            // F, true // secrets //Debug
+            // Isaac, Deacon, Elbert, Solomon, Belmont, Maya, Aphrael, Drake
         };
         public readonly static Dictionary<Reel_Classes, Class_Reel_Data> DATA = new Dictionary<Reel_Classes, Class_Reel_Data> {
             #region Tier 0s

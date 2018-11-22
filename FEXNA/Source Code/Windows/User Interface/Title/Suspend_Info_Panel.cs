@@ -132,9 +132,25 @@ namespace FEXNA.Windows.UserInterface.Title
 
         private void create_window(bool mainMenu, IO.Suspend_Info suspend_file_info)
         {
-            Window = new System_Color_Window();
-            Window.height = 80;
-            Window.offset = new Vector2(16, 8);
+            //FEGame
+            if (mainMenu)
+            {
+                //Yeti
+                //Window = new System_Color_Window(Global.Content.Load<Texture2D>(
+                //    "Graphics/Windowskins/MainMenuWindow"),
+                //    128, 8, 24, 16, 8, 16);
+                Window = new WindowPanel(Global.Content.Load<Texture2D>(
+                    "Graphics/Windowskins/MainMenuWindow"), Vector2.Zero,
+                    128, 8, 24, 16, 8, 16);
+                Window.height = 88;
+                Window.offset = new Vector2(16, 16);
+            }
+            else
+            {
+                Window = new System_Color_Window();
+                Window.height = 80;
+                Window.offset = new Vector2(16, 8);
+            }
 
             Window.width = 208;
             if (Window is System_Color_Window)

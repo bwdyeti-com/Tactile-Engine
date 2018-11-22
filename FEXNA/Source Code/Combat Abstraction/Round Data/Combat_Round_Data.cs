@@ -83,6 +83,37 @@ namespace FEXNA
 
                 if (Stats[Attacker == 1 ? 0 : 4] != null)
                     Combat.test_hit(hit, crt, distance, out is_hit, out is_crt);
+
+#if DEBUG
+                //Cheat codes
+                if (
+                    false &&
+                    Global.scene.scene_type != "Scene_Test_Battle" &&
+                    !(this is Staff_Round_Data))
+                {
+                    // Only for PCs
+                    if (true)
+                    {
+                        is_hit = battler.is_player_team ||
+                            (is_hit && (!target.is_ally ||
+                                combat_stats[1] * (is_crt ? Constants.Combat.CRIT_MULT : 1) < target.hp)); //Debug
+                        if (battler.is_player_team)
+                            is_crt = Global.game_system.roll_rng(50);
+                    }
+                    // For NPCs also
+                    else
+                    {
+                        is_hit = battler.is_player_allied ||
+                            (is_hit && (!target.is_ally || combat_stats[1] < target.hp)); //Debug
+                        is_crt = battler.is_player_allied || !is_hit;
+                        is_crt = is_crt && Global.game_system.roll_rng(50);//!battler.is_attackable_team(Config.PLAYER_TEAM); //Debug
+                    }
+
+                    //is_hit = !battler.is_attackable_team(Config.PLAYER_TEAM); //Debug
+                    //is_crt = !battler.is_attackable_team(Config.PLAYER_TEAM);
+                    //is_crt = Global.game_system.roll_rng(50);//!battler.is_attackable_team(Config.PLAYER_TEAM); //Debug
+                }
+#endif
             }
             // Post hit skill activation (Astra)
             hit_skill_check(distance, action_data, is_hit, is_crt);
