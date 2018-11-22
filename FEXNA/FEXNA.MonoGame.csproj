@@ -1,0 +1,485 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}</ProjectGuid>
+    <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FEXNA</RootNamespace>
+    <AssemblyName>FEXNA</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
+    <XnaPlatform>Windows</XnaPlatform>
+    <XnaProfile>Reach</XnaProfile>
+    <XnaCrossPlatformGroupID>e8efade1-387e-4104-9ea5-c451dd60fced</XnaCrossPlatformGroupID>
+    <XnaOutputType>Library</XnaOutputType>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\MonoGame\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;MONOGAME</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <XnaCompressContent>false</XnaCompressContent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\MonoGame\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS;MONOGAME</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <XnaCompressContent>true</XnaCompressContent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Net" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source Code\Camera.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Aoe_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Arena_Combat_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Combat_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Round Data\Arena_Combat_Round_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Round Data\Combat_Action_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Round Data\Combat_Round_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Round Data\Staff_Round_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Round Data\Terrain_Round_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Scripted_Combat_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Scripted_Combat_Stats.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Sparring_Combat_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Staff_Data.cs" />
+    <Compile Include="Source Code\Combat Abstraction\Terrain_Attack_Data.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugBooleanDisplay.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugDisplay.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugStringDisplay.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugIntDisplay.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugMonitorState.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugSwitchDisplay.cs" />
+    <Compile Include="Source Code\Extensions\Extensions.cs" />
+    <Compile Include="Source Code\Extensions\Library_Extensions.cs" />
+    <Compile Include="Source Code\Game_State\Game_Combat_State_Component.cs" />
+    <Compile Include="Source Code\Game_State\Game_State.cs" />
+    <Compile Include="Source Code\Game_State\Game_State_Component.cs" />
+    <Compile Include="Source Code\Game_State\Game_State_Events.cs" />
+    <Compile Include="Source Code\Game_State\Game_State_Map.cs" />
+    <Compile Include="Source Code\Metrics\Actor_Metrics.cs" />
+    <Compile Include="Source Code\Metrics\Item_Metrics.cs" />
+    <Compile Include="Source Code\Metrics\Combat_Metrics.cs" />
+    <Compile Include="Source Code\Metrics\Gameplay_Metrics.cs" />
+    <Compile Include="Source Code\Game_Actor.cs" />
+    <Compile Include="Source Code\Game_Actors.cs" />
+    <Compile Include="Source Code\Game_Battalions.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Sacrifice_State.cs" />
+    <Compile Include="Source Code\Game_Map\Game_Map.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Ai_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Aoe_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Block_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Combat_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Dance_State.cs" />
+    <Compile Include="Source Code\Game_Map\Game_Map_Formation.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Item_State.cs" />
+    <Compile Include="Source Code\Game_Map\Game_Map_MoveRange.cs" />
+    <Compile Include="Source Code\Game_State\Game_State_New_Turn.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Rescue_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Shop_Suspend_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Steal_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Support_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Exp_State.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Talk_State.cs" />
+    <Compile Include="Source Code\Game_Map\Game_Map_Terrain.cs" />
+    <Compile Include="Source Code\Game_Map\Game_Map_Unit_Add.cs" />
+    <Compile Include="Source Code\Game_Map\Game_Map_Unit_Kill.cs" />
+    <Compile Include="Source Code\Game_State\Components\Game_Visit_State.cs" />
+    <Compile Include="Source Code\Game_Options.cs" />
+    <Compile Include="Source Code\Game_Ranking.cs" />
+    <Compile Include="Source Code\Game_System\Event_Processor\Event_Processor.cs" />
+    <Compile Include="Source Code\Game_System\Event_Processor\Event_Processor_Commands.cs" />
+    <Compile Include="Source Code\Game_System\Event_Processor\Event_Variable_Data.cs" />
+    <Compile Include="Source Code\Game_System\Game_System.cs" />
+    <Compile Include="Source Code\Game_System\Game_System_Sounds.cs" />
+    <Compile Include="Source Code\Game_System\Rng.cs" />
+    <Compile Include="Source Code\Game_Temp.cs" />
+    <Compile Include="Source Code\Maybe.cs" />
+    <Compile Include="Source Code\Metrics\Metrics_Data.cs" />
+    <Compile Include="Source Code\Saving\Save_Info.cs" />
+    <Compile Include="Source Code\Saving\Save_Progress.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Sparring.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Soft_Reset.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Title\Copy of Scene_Title.cs" />
+    <Compile Include="Source Code\Services\Rumble\BaseRumbleService.cs" />
+    <Compile Include="Source Code\Services\Rumble\RumbleData.cs" />
+    <Compile Include="Source Code\Services\Rumble\RumbleService.cs" />
+    <Compile Include="Source Code\Skills\Game_Skills_State.cs" />
+    <Compile Include="Source Code\Sound_Name_Data.cs" />
+    <Compile Include="Source Code\Sprites\Arena_Background.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\ClassChange_Map_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\ClassChange_Battle_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Casual_Mode_Lives.cs" />
+    <Compile Include="Source Code\Sprites\Stereoscopic_Graphic_Object.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Button_Description_360.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Button_Description_Keyboard.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Keyboard_Icon.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Info_Skill_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Repair_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Sent_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Received_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Prep_Support_List_Window.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Prep_Support_Stats_Window.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Sparring_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Sparring_Items_Header.cs" />
+    <Compile Include="Source Code\Sprites\Platform.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Prep_Stats_Window.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Sparring_Stats_Window.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Ch6_Line_Thing.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Ranking_Burst.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Inventory_Target_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Prep_Using_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 2\Weapon_Level_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 2\Weapon_Level_Rank.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 3\Status_Support_Bonuses.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 3\Status_Support_List.cs" />
+    <Compile Include="Source Code\Sprites\Text\Quick_Stat_Up_Num.cs" />
+    <Compile Include="Source Code\Sprites\Title\Difficulty_Info_Panel.cs" />
+    <Compile Include="Source Code\Sprites\Title\Game_Updated_Banner.cs" />
+    <Compile Include="Source Code\Sprites\Title\Mode_Style_Info_Panel.cs" />
+    <Compile Include="Source Code\Sprites\Title\StartGame_Info_Panel.cs" />
+    <Compile Include="Source Code\Sprites\Title\Suspend_Info_Panel.cs" />
+    <Compile Include="Source Code\Sprites\Title\Title_Info_Panel.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\FE_Arena_Target_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Shop_Window_Divider.cs" />
+    <Compile Include="Source Code\Sprites\Worldmap Components\Worldmap_Arrow.cs" />
+    <Compile Include="Source Code\Sprites\Worldmap Components\Worldmap_Beacon.cs" />
+    <Compile Include="Source Code\Sprites\Worldmap Components\Flashing_Worldmap_Object.cs" />
+    <Compile Include="Source Code\Sprites\Worldmap Components\Worldmap_Dot.cs" />
+    <Compile Include="Source Code\Sprites\Worldmap Components\Worldmap_Unit.cs" />
+    <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\FE_Battler_Image_Wrapper.cs" />
+    <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\On_Hit.cs" />
+    <Compile Include="Source Code\Static Classes\Global.cs" />
+    <Compile Include="Source Code\Map Objects\Destroyable_Object.cs" />
+    <Compile Include="Source Code\Map Objects\Game_Unit.cs" />
+    <Compile Include="Source Code\Map Objects\Game_Unit_AI.cs" />
+    <Compile Include="Source Code\Map Objects\Map_Object.cs" />
+    <Compile Include="Source Code\Map Objects\Player.cs" />
+    <Compile Include="Source Code\Map Objects\Siege_Engine.cs" />
+    <Compile Include="Source Code\Palette_Handler.cs" />
+    <Compile Include="Source Code\Saving\Save_Data.cs" />
+    <Compile Include="Source Code\Saving\Save_File.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Action.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Action_Shared.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Arena.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Battle.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Battle_Level_Up.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Dance.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Promotion.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Staff.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Action\Scene_Test_Battle.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Base.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Base_Message.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Class_Reel.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Level_Up.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map_BattleConvo.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map_Combat.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map_Info.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map_Menus.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map_Preparations.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Map\Scene_Map_Unit_Editor.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Save.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Worldmap.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Worldmap_Unit_Editor.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Title\Scene_Splash.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Title\Scene_Title.cs" />
+    <Compile Include="Source Code\Scenes\Scene_Title\Scene_Title_Load.cs" />
+    <Compile Include="Source Code\Shop_Data.cs" />
+    <Compile Include="Source Code\Skills\Game_Actor_Skill.cs" />
+    <Compile Include="Source Code\Skills\Game_Unit_Skill.cs" />
+    <Compile Include="Source Code\Skills\Scene_Map_Menus_Skill.cs" />
+    <Compile Include="Source Code\Sprites\Battler\Battler_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Battler\Battle_Animation.cs" />
+    <Compile Include="Source Code\Sprites\Battle_Face_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Battle_Transition_Effect.cs" />
+    <Compile Include="Source Code\Sprites\Chapter_Transition_Effect.cs" />
+    <Compile Include="Source Code\Sprites\Character_Hp_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Character_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Class Reel Components\Class_Reel_Stat_Bars.cs" />
+    <Compile Include="Source Code\Sprites\Class Reel Components\Spiral_Letter.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Convo_Background.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Convo_Backlog.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Face_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Message_Arrow.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Parchment_Box.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Text_Box.cs" />
+    <Compile Include="Source Code\Sprites\Conversations\Text_Window.cs" />
+    <Compile Include="Source Code\Sprites\Data Components\Data_Team_Cursor.cs" />
+    <Compile Include="Source Code\Sprites\Data Components\Play_Time_Counter.cs" />
+    <Compile Include="Source Code\Sprites\GameOver_Background.cs" />
+    <Compile Include="Source Code\Sprites\Gauges\HP_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Gauges\Stat_Bar.cs" />
+    <Compile Include="Source Code\Sprites\Gauges\Stat_Bar_Fill.cs" />
+    <Compile Include="Source Code\Sprites\Graphic_Object.cs" />
+    <Compile Include="Source Code\Sprites\Hand_Cursor.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Button_Description.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Button_Icon.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Miniface.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Detail_Info_Hp_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Info_Exp_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Info_Hp_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Info_Inventory.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Info_Stats.cs" />
+    <Compile Include="Source Code\Sprites\Map Info Components\Unit_Info_Stats_Detail.cs" />
+    <Compile Include="Source Code\Sprites\Menu_Background.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Pick_Units_Header.cs" />
+    <Compile Include="Source Code\Sprites\Preparations Components\Pick_Units_Items_Header.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Gold_Gain_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Break_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Drop_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Gain_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Loss_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Steal_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Item_Stolen_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Stat_Boost_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Popups\Weapon_Level_Popup.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\LevelUp_Battle_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\LevelUp_Map_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Miss_Map_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\NoDamage_Map_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Page_Arrow.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\SoloAnim_Button.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Stat_Change_Arrow.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Stat_Change_Bar.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Automated\Stat_Up_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Ballista_Bolt.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Battle Text Spark\Battle_Text_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Battle Text Spark\Miss_Battle_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Battle Text Spark\No_Damage_Battle_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Effective_WT_Arrow.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Hit_Spark\Battle_Crit_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Hit_Spark\Battle_Hit_Spark.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Icon_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Item_Icon_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Map_Effect.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Map_Status_Effect.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Multiplier_Img.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Status_Heal_Effect.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Status_Icon_Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Torch_Flash.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Weapon_Triangle_Arrow.cs" />
+    <Compile Include="Source Code\Sprites\Sparks\Weapon_Type_Icon.cs" />
+    <Compile Include="Source Code\Sprites\Sprite.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Help Window Components\Help_Weapon_Data.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Convoy_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Restock_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Shop_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Shop_Sell_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Status_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Status_Page_1.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Steal_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Steal_Target_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\Trade_Target_Item.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 2\Mastery_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 2\Status_Page_2.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 3\Status_Bonus_Background.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 3\Status_Page_3.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Status_Face.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Status_Page.cs" />
+    <Compile Include="Source Code\Sprites\Text\FE_Text.cs" />
+    <Compile Include="Source Code\Sprites\Text\FE_Text_Int.cs" />
+    <Compile Include="Source Code\Sprites\Text\HP_Counter.cs" />
+    <Compile Include="Source Code\Sprites\Text\Stat_Up_Num.cs" />
+    <Compile Include="Source Code\Sprites\Title\Column.cs" />
+    <Compile Include="Source Code\Sprites\Title\Press_Start.cs" />
+    <Compile Include="Source Code\Sprites\Title\Title_Background.cs" />
+    <Compile Include="Source Code\Sprites\Turn_Change_Effect.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Scroll_Bar.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\SoloAnim_Page.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Line_Cursor.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_1.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_2.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_3.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_4.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_5.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_6.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\Unit_Window_Inventory.cs" />
+    <Compile Include="Source Code\Sprites\Weather\Rain_Handler.cs" />
+    <Compile Include="Source Code\Sprites\Weather\Snow_Handler.cs" />
+    <Compile Include="Source Code\Sprites\Weather\Weather_Handler.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Battle_Stats_BG.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Data_Team_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\FE_Banner.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\FE_Combat_Target_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\FE_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\FE_Window_Headered.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Objective_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Prepartions_Item_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Status_Top_Panel_Bg.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Terrain_Window.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Trade_Target_Window_Img.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\Unit_Window.cs" />
+    <Compile Include="Source Code\Static Classes\Print.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Additional_Math.cs" />
+    <Compile Include="Source Code\Audio.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Combat.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Equipment_Service.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Game_AI.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\IAudioService.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Input.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Module.cs" />
+    <Compile Include="Source Code\Static Classes\Processing\Pathfinding.cs" />
+    <Compile Include="Source Code\Saving\Suspend_Info.cs" />
+    <Compile Include="Source Code\ThreadSafeContentManager.cs" />
+    <Compile Include="Source Code\Tilemap.cs" />
+    <Compile Include="Source Code\Tone.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Attack.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Convoy_Take.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Dance.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Discard.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Preparations.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Preparations_Repair.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Send.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Staff.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Supply.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Swoop.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Target_Inventory.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Command_Item_Trample.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Steal.cs" />
+    <Compile Include="Source Code\Windows\Command Item Windows\Window_Trade.cs" />
+    <Compile Include="Source Code\Windows\Help Windows\Confirmation_Window.cs" />
+    <Compile Include="Source Code\Windows\Conversation\Window_Worldmap_Message.cs" />
+    <Compile Include="Source Code\Windows\Exp_Gauge.cs" />
+    <Compile Include="Source Code\Windows\Help Windows\Parchment_Info_Window.cs" />
+    <Compile Include="Source Code\Windows\Help Windows\Preparations_Confirm_Window.cs" />
+    <Compile Include="Source Code\Windows\Level Up\Window_LevelUp.cs" />
+    <Compile Include="Source Code\Windows\Level Up\Window_Promotion.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Button_Descriptions.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Location_Info.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Map_Info.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Objective_Info.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Terrain_Info.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Unit_Info_Burst.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Unit_Info_Detail_Burst.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Unit_Info_Panel.cs" />
+    <Compile Include="Source Code\Windows\Map Info Windows\Window_Unit_Info_Panel_Detail.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Map_Window_Base.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Data.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Options.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_SoloAnim.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Test_Battle_Setup.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Unit_Team.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Manage_Items.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Supports\Window_Prep_Support_Unit.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Window_Augury.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Window_Base_Convos.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Window_Home_Base.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Sparring\Window_Prep_Sparring_Unit.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Supports\Window_Base_Support.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Sparring\Window_Sparring.cs" />
+    <Compile Include="Source Code\Windows\Shop\Window_Business.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Arena.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Combat_Detail.cs" />
+    <Compile Include="Source Code\Windows\Title\Window_Title_Main_Menu.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Unit.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Unit_Actor.cs" />
+    <Compile Include="Source Code\Windows\Map Menus\Window_Unit_Editor.cs" />
+    <Compile Include="Source Code\Windows\Map_Combat_HUD.cs" />
+    <Compile Include="Source Code\Windows\Conversation\Message_Box.cs" />
+    <Compile Include="Source Code\Windows\Help Windows\Parchment_Confirm_Window.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Prep_Items.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Prep_Items_Unit.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Pick Units\Window_Prep_PickUnits.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Pick Units\Window_Prep_PickUnits_Unit.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Prep_Trade.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Window_Setup.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Window_Setup_CheckMap.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Supply.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Supply_Items.cs" />
+    <Compile Include="Source Code\Windows\Status Window\Window_Status.cs" />
+    <Compile Include="Source Code\Windows\Status Window\Window_Status_Help.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Combat.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Dance.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Door.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Rescue.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Sacrifice.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Staff.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Steal.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Support.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Talk.cs" />
+    <Compile Include="Source Code\Windows\Target Windows\Window_Target_Trade.cs" />
+    <Compile Include="Source Code\Windows\Shop\Window_Arena.cs" />
+    <Compile Include="Source Code\Windows\Title\Window_Title_Start_Game.cs" />
+    <Compile Include="Source Code\Windows\Window_Battle_HUD.cs" />
+    <Compile Include="Source Code\Windows\Window_Command.cs" />
+    <Compile Include="Source Code\Windows\Window_Command_Scroll.cs" />
+    <Compile Include="Source Code\Windows\Window_Command_Support.cs" />
+    <Compile Include="Source Code\Windows\Window_Command_Worldmap.cs" />
+    <Compile Include="Source Code\Windows\Window_Config_Options.cs" />
+    <Compile Include="Source Code\Windows\Window_Convo_Location.cs" />
+    <Compile Include="Source Code\Windows\Help Windows\Window_Help.cs" />
+    <Compile Include="Source Code\Windows\Window_Item_Options.cs" />
+    <Compile Include="Source Code\Windows\Conversation\Window_Message.cs" />
+    <Compile Include="Source Code\Windows\Window_Minimap.cs" />
+    <Compile Include="Source Code\Windows\Window_Ranking.cs" />
+    <Compile Include="Source Code\Windows\Shop\Window_Shop.cs" />
+    <Compile Include="Source Code\Windows\Window_Sparring_Result.cs" />
+    <Compile Include="Source Code\Windows\World Map\Window_WorldMap_Data.cs" />
+    <Compile Include="Source Code\Windows\World Map\World_Minimap_ViewArea.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\FEXNA LIBRARIES\FEXNA_Library\FEXNA_Library\FEXNA_Library.MonoGame.csproj">
+      <Project>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</Project>
+      <Name>FEXNA_Library.MonoGame</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FEXNA LIBRARIES\MonoGame-3.2 audio edit\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+      <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
+      <Name>MonoGame.Framework.WindowsGL</Name>
+      <Aliases>global</Aliases>
+    </ProjectReference>
+    <ProjectReference Include="..\..\FEXNA LIBRARIES\NVorbis\NVorbis.csproj">
+      <Project>{a372e591-dfef-49c4-9c82-98c4361efccd}</Project>
+      <Name>NVorbis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FEXNA_Config\FEXNA_Config.MonoGame.csproj">
+      <Project>{35A635FD-7621-4DB8-AEF1-DCAB317198C0}</Project>
+      <Name>FEXNA_Config.MonoGame</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" Eazfuscator.NET.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 3.1</PostBuildEvent>
+  </PropertyGroup>
+  <!--
+      To modify your build process, add your task inside one of the targets below and uncomment it. 
+      Other similar extension points exist, see Microsoft.Common.targets.
+      <Target Name="BeforeBuild">
+      </Target>
+      <Target Name="AfterBuild">
+      </Target>
+    -->
+</Project>
