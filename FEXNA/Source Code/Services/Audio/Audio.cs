@@ -1157,7 +1157,7 @@ namespace FEXNA.Services.Audio
         public IEnumerable<string> PendingBgm { get; private set; }
 
         public AudioDiagnostics(IEnumerable<string> bgm, IEnumerable<string> pendingBgm)
-            :this()
+            : this()
         {
             Bgm = bgm;
             PendingBgm = pendingBgm;
