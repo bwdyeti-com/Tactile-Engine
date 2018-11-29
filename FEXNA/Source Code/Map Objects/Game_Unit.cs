@@ -1636,7 +1636,7 @@ namespace FEXNA
 #if DEBUG
                 return true;
 #else
-                return !Constants.Actor.ONLY_PC_AVERAGES || this.is_player_team;
+                return !Constants.Actor.ONLY_PC_COLORS || this.is_player_team;
 #endif
             }
         }
