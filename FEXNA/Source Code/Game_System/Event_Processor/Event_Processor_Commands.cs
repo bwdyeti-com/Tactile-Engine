@@ -1292,7 +1292,7 @@ namespace FEXNA
             return true;
         }
 
-        // Convoy Item Gain
+        // 34: Convoy Item Gain
         private bool command_convoy_item_gain()
         {
             // Value[0-2] = item data
@@ -1307,7 +1307,7 @@ namespace FEXNA
             return true;
         }
 
-        // Remove Unit
+        // 35: Remove Unit
         private bool command_remove_unit()
         {
             if (command.Value[0] == "Remove All")
@@ -1315,6 +1315,27 @@ namespace FEXNA
                 // Value[0] = "Remove All"
                 while (Global.game_map.units.Any())
                     Global.game_map.remove_unit(Global.game_map.units.First().Key);
+            }
+            else if (command.Value[0] == "Remove Team")
+            {
+                // Value[0] = "Remove Team"
+                // Value[1] = team id
+                //?Value[2] = group id
+                int team = process_unit_id(command.Value[1]);
+                int group = -1;
+                if (command.Value.Length > 2)
+                    group = process_unit_id(command.Value[2]);
+
+                List<int> units = Global.game_map.units
+                    .Where(x => x.Value.team == team && (group == -1 || x.Value.group == group))
+                    .Select(x => x.Key)
+                    .ToList();
+                foreach(int id in units)
+                {
+                    Global.game_map.remove_unit(id);
+                    // Move ranges will need to be updated
+                    unit_moved = true;
+                }
             }
             else
             {
@@ -1339,7 +1360,7 @@ namespace FEXNA
             return true;
         }
 
-        // Remove Talk Event
+        // 36: Remove Talk Event
         private bool command_remove_talk()
         {
             switch (command.Value[0])
