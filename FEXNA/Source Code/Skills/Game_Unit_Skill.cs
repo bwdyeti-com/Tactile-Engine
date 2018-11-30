@@ -80,7 +80,7 @@ namespace FEXNA
             }
         }
 
-        private void start_attack_skills(int attackIndex)
+        private void start_attack_skills(int attackIndex, Combat_Map_Object target)
         {
         }
 
@@ -365,6 +365,7 @@ namespace FEXNA
             if (actor.has_skill("CROSSBOW"))
                 if (!magic && weapon.main_type().Name == "Bow" && !weapon.Ballista())
                     return 0;
+
             return new Maybe<int>();
         }
 

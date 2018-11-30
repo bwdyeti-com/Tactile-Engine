@@ -18,7 +18,7 @@ namespace FEXNA
                     { Color_Keys.Main2, new Color(80, 32, 160) },
                     { Color_Keys.Main3, new Color(112, 48, 184) },
                     { Color_Keys.Main4, new Color(160, 72, 248) },
-                    { Color_Keys.Main5, new Color(184, 104, 248) },//208, 144, 224)},
+                    { Color_Keys.Main5, new Color(184, 104, 248) },
                     { Color_Keys.Main6, new Color(208, 152, 248) },
                     { Color_Keys.Main7, new Color(240, 208, 248) },
                     { Color_Keys.Scnd1, new Color(112, 80, 32) }, // Secondary

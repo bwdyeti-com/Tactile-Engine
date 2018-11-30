@@ -1476,9 +1476,14 @@ namespace FEXNA
             return 1;
         }
 
-        public void start_attack(int attackIndex)
+        /// <summary>
+        /// Called at the start of combat and each attack this unit is in.
+        /// Should pass in attackIndex -1 for the start of combat.
+        /// </summary>
+        /// <param name="attackIndex">The index of the attack among attack this unit performs that is about to start.</param>
+        public void start_attack(int attackIndex, Combat_Map_Object target)
         {
-            start_attack_skills(attackIndex);
+            start_attack_skills(attackIndex, target);
         }
 
         public void end_battle()

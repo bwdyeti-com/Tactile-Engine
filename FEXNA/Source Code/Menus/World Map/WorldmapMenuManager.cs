@@ -74,9 +74,11 @@ loaded in normal mode. Sorry!");
             }
 
             Global.game_system.play_se(System_Sounds.Confirm);
-
+            
             if (worldmapMenu.PreviousChapterSelectionIncomplete())
             {
+                // A lone prior requirement of a chapter from
+                // another battalion can make this crash //@Yeti
                 AddPreviousChapterSelectionMenu(worldmapMenu);
             }
             else

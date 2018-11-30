@@ -251,15 +251,18 @@ namespace FEXNA
         {
             get
             {
+                // If renamed
                 if (Face_Sprite_Data.FACE_RENAME.ContainsKey(this.name_full))
                     return Face_Sprite_Data.FACE_RENAME[this.name_full];
-
+                // Simply return the name if not generic
                 if (!generic_face)
                     return this.name_full;
 
+                // Generic face for this non-generic actor
                 if (Face_Sprite_Data.FACE_TO_GENERIC_RENAME.ContainsKey(this.name_full))
                     return Face_Sprite_Data.FACE_TO_GENERIC_RENAME[this.name_full].GraphicName;
 
+                // Generate generic name
                 string name = class_name_full;
                 if (Face_Sprite_Data.CLASS_RENAME.ContainsKey(name))
                     name = Face_Sprite_Data.CLASS_RENAME[name];
