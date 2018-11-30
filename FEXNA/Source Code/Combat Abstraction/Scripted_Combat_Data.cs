@@ -38,9 +38,9 @@ namespace FEXNA
         }
         private void process_scripted_attacks(Game_Unit battler_1, Combat_Map_Object battler_2, Scripted_Combat_Script script)
         {
-            battler_1.start_attack(-1);
+            battler_1.start_attack(-1, battler_2);
             if (battler_2 is Game_Unit)
-                (battler_2 as Game_Unit).start_attack(-1);
+                (battler_2 as Game_Unit).start_attack(-1, battler_1);
 
             for (int i = 0; i < script.Stats.Count; i++)
             {
