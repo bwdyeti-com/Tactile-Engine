@@ -44,7 +44,7 @@ namespace FEXNA
                 };
 
                 Func<Game_Unit, Color> label_color = null;
-                if (Window_Status.show_stat_averages(stat_label))
+                if (Window_Status.show_stat_colors(stat_label))
                 {
                     label_color = (Game_Unit unit) =>
                     {
