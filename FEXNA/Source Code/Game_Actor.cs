@@ -1071,12 +1071,52 @@ namespace FEXNA
 
         internal Color stat_color(Stat_Labels stat_label)
         {
-            float stat_quality = this.stat_quality(stat_label);
-            if (this.get_capped(stat_label))
-                stat_quality = Math.Max(0, stat_quality);
-            int r = 255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255);
-            int g = (int)MathHelper.Clamp(255 + (stat_quality * 255), 0, 255);
-            return new Color(r, g, 255);
+            switch (Constants.Actor.COLORING_METHOD)
+            {
+                case 1:
+                    //Yeti's averages color display
+                    float stat_quality = this.stat_quality(stat_label);
+                    if (this.get_capped(stat_label))
+                        stat_quality = Math.Max(0, stat_quality);
+                    int r = 255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255);
+                    int g = (int)MathHelper.Clamp(255 + (stat_quality * 255), 0, 255);
+                    return new Color(r, g, 255);
+                case 2:
+                    //Smilies' growths color display
+                    if ((int)stat_label < this.Data.Growths.Count)
+                    {
+                        int growth = this.Data.Growths[(int)stat_label];
+                        if(stat_label == Stat_Labels.Hp)
+                        {
+                            growth = (int)(growth * Constants.Actor.HP_VALUE);
+                        }
+                        growth = (int)MathHelper.Clamp(growth
+                        , Constants.Actor.GROWTH_AVERAGE_COLOR_MIN, Constants.Actor.GROWTH_AVERAGE_COLOR_MAX);
+                        //Sets the function to be within the range provided.
+                        if (growth == Constants.Actor.GROWTH_AVERAGE_COLOR_MED)
+                        {
+                            return Color.White;
+                        } else if(growth < Constants.Actor.GROWTH_AVERAGE_COLOR_MED)
+                        {
+                            growth -= Constants.Actor.GROWTH_AVERAGE_COLOR_MIN;
+                            int mid = Constants.Actor.GROWTH_AVERAGE_COLOR_MED - Constants.Actor.GROWTH_AVERAGE_COLOR_MIN;
+                            int green = (int)MathHelper.Clamp(63 +
+                                192 * growth / mid, 0, 255);
+                            return new Color(255, green, 255);
+                        } else
+                        {
+                            growth -= Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
+                            int max = Constants.Actor.GROWTH_AVERAGE_COLOR_MAX-Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
+                            int red = (int)MathHelper.Clamp(255 -
+                                192 * growth / max, 0, 255);
+                            return new Color(red, 255, 255);
+                        }
+                    }
+                    return Color.White;
+                default:
+                    //This should never be reached. Turn off stat coloring if you aren't using a method for it.
+                    return new Color(0,0,255);
+            }
 
             /*//Yeti
             int avg = (int)Math.Round(this.stat_avg_comparison(stat_label));
