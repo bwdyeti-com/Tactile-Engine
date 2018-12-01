@@ -830,13 +830,13 @@ namespace FEXNA
                     {
                         Data.Growths[(int)stat] +=
                             Constants.Support.AFFINITY_GROWTH_MOD *
-                            get_stat_ratio((int)stat);
+                            GetStatRatio((int)stat);
                     }
                     foreach (Stat_Labels stat in Constants.Support.AFFINITY_GROWTHS[affin][1])
                     {
                         Data.Growths[(int)stat] -=
                             Constants.Support.AFFINITY_GROWTH_MOD *
-                            get_stat_ratio((int)stat);
+                            GetStatRatio((int)stat);
                     }
                 }
             }
@@ -870,8 +870,7 @@ namespace FEXNA
 #endif
 
             var adjusted_growths = Enumerable.Range(0, (int)Stat_Labels.Con)
-                .Select(x => Data.Growths[x] *
-                    (x == (int)Stat_Labels.Hp ? Constants.Actor.HP_VALUE : 1));
+                .Select(x => Data.Growths[x] * GetStatValue(x));
 #if DEBUG
             int total_growth_bonus = (int)(adjusted_growths.Sum() * difficulty_bonus);
             int total_difficulty_stat_bonus =
@@ -892,11 +891,7 @@ namespace FEXNA
                 foreach (int i in Enumerable.Range(0, (int)Stat_Labels.Con))
                     if (remaining_bonus != 0)
                     {
-                        if (i == (int)Stat_Labels.Hp)
-                            Data.Growths[i] +=
-                                (int)(1 / Constants.Actor.HP_VALUE);
-                        else
-                            Data.Growths[i] += 1;
+                        Data.Growths[i] += GetStatRatio(i);
 
                         if (remaining_bonus > 0)
                             remaining_bonus--;
@@ -992,9 +987,9 @@ namespace FEXNA
 
         public int stat_total()
         {
-            int total = (int)(stat(Stat_Labels.Hp) * Constants.Actor.HP_VALUE);
-            for (int i = (int)Stat_Labels.Hp + 1; i < LEVEL_UP_VIABLE_STATS; i++)
-                total += stat(i);
+            int total = 0;
+            for (int i = (int)Stat_Labels.Hp; i < LEVEL_UP_VIABLE_STATS; i++)
+                total += (int)(stat(i) * GetStatValue(i));
             return total;
         }
 
@@ -1091,10 +1086,7 @@ namespace FEXNA
                         //@Debug: get_growths() includes bonuses from skills, permanent growth boosts, etc
                         //int growth = this.Data.Growths[(int)stat_label]; 
                         int growth = get_growths((int)stat_label);
-                        if (stat_label == Stat_Labels.Hp)
-                        {
-                            growth = (int)(growth * Constants.Actor.HP_VALUE);
-                        }
+                        growth = (int)(growth * GetStatValue((int)stat_label));
                         growth = (int)MathHelper.Clamp(
                             growth,
                             Constants.Actor.GROWTH_AVERAGE_COLOR_MIN,
@@ -1420,14 +1412,19 @@ namespace FEXNA
             return (get_stat(i) + added) >= get_cap(i);
         }
 
-        internal static int get_stat_ratio(int i)
+        internal static int GetStatRatio(int i)
         {
-            switch(i)
+            float result = (1 / GetStatValue(i));
+            return (int)result;
+        }
+        internal static float GetStatValue(int i)
+        {
+            switch (i)
             {
                 case (int)Stat_Labels.Hp:
-                    return 2;
+                    return Constants.Actor.HP_VALUE;
                 default:
-                    return 1;
+                    return 1.0f;
             }
         }
 

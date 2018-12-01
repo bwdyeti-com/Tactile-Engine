@@ -16,7 +16,7 @@ namespace FEXNA.Calculations.LevelUp.Stats
             string result = string.Format(
                 "LevelUpStats: {0} point change", Enumerable
                     .Range(0, StatGains.Length)
-                    .Sum(i => StatGains[i] / (float)Game_Actor.get_stat_ratio(i)));
+                    .Sum(i => StatGains[i] / (float)Game_Actor.GetStatRatio(i)));
             if (PerfectLevel)
                 result += "; Perfect level";
             else if (EmptyLevel)
