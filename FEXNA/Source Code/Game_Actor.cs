@@ -1074,27 +1074,31 @@ namespace FEXNA
 
         internal Color stat_color(Stat_Labels stat_label)
         {
-            switch (Constants.Actor.COLORING_METHOD)
+            switch (Constants.Actor.STAT_LABEL_COLORING)
             {
-                case 1:
-                    //Yeti's averages color display
+                case Constants.StatLabelColoring.Averages:
+                    // Stat labels are colored based on how far from the average the stat value is
                     float stat_quality = this.stat_quality(stat_label);
                     if (this.get_capped(stat_label))
                         stat_quality = Math.Max(0, stat_quality);
                     int r = 255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255);
                     int g = (int)MathHelper.Clamp(255 + (stat_quality * 255), 0, 255);
                     return new Color(r, g, 255);
-                case 2:
-                    //Smilies' growths color display
+                case Constants.StatLabelColoring.Growths:
+                    // Stat labels are colored based on the unit's growth in that stat
                     if ((int)stat_label < this.Data.Growths.Count)
                     {
-                        int growth = this.Data.Growths[(int)stat_label];
-                        if(stat_label == Stat_Labels.Hp)
+                        //@Debug: get_growths() includes bonuses from skills, permanent growth boosts, etc
+                        //int growth = this.Data.Growths[(int)stat_label]; 
+                        int growth = get_growths((int)stat_label);
+                        if (stat_label == Stat_Labels.Hp)
                         {
                             growth = (int)(growth * Constants.Actor.HP_VALUE);
                         }
-                        growth = (int)MathHelper.Clamp(growth
-                        , Constants.Actor.GROWTH_AVERAGE_COLOR_MIN, Constants.Actor.GROWTH_AVERAGE_COLOR_MAX);
+                        growth = (int)MathHelper.Clamp(
+                            growth,
+                            Constants.Actor.GROWTH_AVERAGE_COLOR_MIN,
+                            Constants.Actor.GROWTH_AVERAGE_COLOR_MAX);
                         //Sets the function to be within the range provided.
                         if (growth == Constants.Actor.GROWTH_AVERAGE_COLOR_MED)
                         {
@@ -1116,15 +1120,11 @@ namespace FEXNA
                         }
                     }
                     return Color.White;
+                case Constants.StatLabelColoring.None:
                 default:
-                    //This should never be reached. Turn off stat coloring if you aren't using a method for it.
-                    return new Color(0,0,255);
+                    // Default color if no method is active
+                    return Color.White;
             }
-
-            /*//Yeti
-            int avg = (int)Math.Round(this.stat_avg_comparison(stat_label));
-            Text.text += (avg >= 0 ? "+" : "-") + Math.Abs(avg);
-            Text.draw_offset = new Vector2(16, 0);*/
         }
 
         #region Class/Tier/Level
