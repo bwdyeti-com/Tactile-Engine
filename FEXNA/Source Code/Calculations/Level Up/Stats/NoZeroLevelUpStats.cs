@@ -35,7 +35,7 @@ namespace FEXNA.Calculations.LevelUp.Stats
                         // Halve the chance of getting hp,
                         // since hp is worth half as much
                         rolls.Add(Tuple.Create(j,
-                            roll * Game_Actor.get_stat_ratio(j)));
+                            roll * Game_Actor.GetStatRatio(j)));
                     }
                     // Sort by how close to the growth the roll was
                     rolls.Sort(delegate (Tuple<int, int> a, Tuple<int, int> b)

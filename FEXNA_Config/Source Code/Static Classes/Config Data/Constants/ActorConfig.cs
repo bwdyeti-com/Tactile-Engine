@@ -1,5 +1,12 @@
 ﻿namespace FEXNA.Constants
 {
+    public enum StatLabelColoring
+    {
+        None,
+        Averages, // Stat labels are colored based on how far from the average the stat value is
+        Growths // Stat labels are colored based on the unit's growth in that stat
+    }
+
     public class Actor
     {
         public const char ACTOR_NAME_DELIMITER = '_';
@@ -30,9 +37,12 @@
         public const bool GENERIC_AUTO_WEXP = true; // Should generic units automatically gain enough wexp to use weapons in their inventory
         public const bool GENERIC_ACTOR_RANDOM_AFFINITIES = true;
 
-        public const bool DISPLAY_STAT_AVERAGES = true; // Stat labels are colored based on how far from the average the stat value is
-        public const bool STAT_AVERAGES_ONLY_IN_PREP = false; // Does stat label coloring only occur in preparations and the world map
-        public const bool ONLY_PC_AVERAGES = true; // Are status screen averages only shown for PCs
+        public const StatLabelColoring STAT_LABEL_COLORING = StatLabelColoring.Averages;
+        public const bool STAT_COLORS_ONLY_IN_PREP = false; // Does stat label coloring only occur in preparations and the world map
+        public const bool ONLY_PC_STAT_COLORS = true; // Are status screen averages only shown for PCs
+        public const int GROWTH_AVERAGE_COLOR_MIN = 0; // For growth stat coloring. Anything equal or lesser will be the darkest red.
+        public const int GROWTH_AVERAGE_COLOR_MED = 30; // For growth stat coloring. Anything equal will be exact white.
+        public const int GROWTH_AVERAGE_COLOR_MAX = 60; // For growth stat coloring. Anything equal or greater will be the brightest green.
 
         public const bool CHILD_WEAPON_TYPE_ALLOWS_PARENT = true; // Having ranks in a child weapon type allows using all of its ancestors
         public const bool PARENT_WEAPON_TYPE_ALLOWS_CHILD = true; // Having ranks in a parent weapon type allows using all of its children

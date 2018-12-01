@@ -119,7 +119,7 @@ namespace FEXNA.Calculations.LevelUp
                     // If the stat is already capped, add it to the excess growth pool and zero it out
                     else if (statCapped && growths[i] > 0)
                     {
-                        unusedGrowth += growths[i] / Game_Actor.get_stat_ratio(i);
+                        unusedGrowth += growths[i] / Game_Actor.GetStatRatio(i);
                         uncappedStats--;
                         growths[i] = 0;
                     }
@@ -154,7 +154,7 @@ namespace FEXNA.Calculations.LevelUp
                     if (!statCapped)
                     {
                         int bonus = Math.Min(maxBonus, (unusedGrowth / uncappedStats));
-                        growths[i] += bonus * Game_Actor.get_stat_ratio(i);
+                        growths[i] += bonus * Game_Actor.GetStatRatio(i);
                     }
                 }
             }

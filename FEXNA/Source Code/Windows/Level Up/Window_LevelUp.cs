@@ -202,7 +202,7 @@ namespace FEXNA
 
         protected virtual void refresh_stat_label_color(int i)
         {
-            if (Constants.Actor.DISPLAY_STAT_AVERAGES &&
+            if (Constants.Actor.STAT_LABEL_COLORING != Constants.StatLabelColoring.None &&
                 (unit.average_stat_hue_shown))
             {
                 float stat_quality = actor.stat_quality(i, actor.needed_levels);

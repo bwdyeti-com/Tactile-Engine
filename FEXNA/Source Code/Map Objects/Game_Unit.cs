@@ -893,11 +893,12 @@ namespace FEXNA
         public int threat(bool move)
         {
             int threat = (int)((move ? actor.hp : stat(Stat_Labels.Hp)) *
-                Constants.Actor.HP_VALUE);
+                Game_Actor.GetStatValue((int)Stat_Labels.Hp));
             for (int i = (int)Stat_Labels.Hp + 1; i <= (int)Stat_Labels.Con; i++)
-                threat += stat((Stat_Labels)i);
+                threat += (int)(stat((Stat_Labels)i) * Game_Actor.GetStatValue(i));
             if (!move)
                 return threat;
+            //@Yeti: Maybe this should use GetStatValue() too
             threat += stat(Stat_Labels.Mov) * 2;
             if (actor.equipped <= 0)
                 threat /= 2;
@@ -1641,7 +1642,7 @@ namespace FEXNA
 #if DEBUG
                 return true;
 #else
-                return !Constants.Actor.ONLY_PC_AVERAGES || this.is_player_team;
+                return !Constants.Actor.ONLY_PC_COLORS || this.is_player_team;
 #endif
             }
         }

@@ -2555,8 +2555,7 @@ namespace FEXNA
                             actor = Global.game_map.last_added_unit.actor;
                     if (Global.game_map.units.ContainsKey(unit_id))
                         actor = Global.game_map.units[unit_id].actor;
-
-                    int hp_value = (int)(1 / Constants.Actor.HP_VALUE);
+                    
                     if (actor != null)
                     {
                         Dictionary<Stat_Labels, int> stat_fixes = new Dictionary<Stat_Labels, int>();
@@ -2567,7 +2566,11 @@ namespace FEXNA
                                 stat_fixes[(Stat_Labels)(i - 2)] = value;
                         }
                         int actor_stat_total = Enumerable.Range(0, Game_Actor.LEVEL_UP_VIABLE_STATS)
-                            .Select(x => actor.stat(x) / (x == (int)Stat_Labels.Hp ? hp_value : 1)).Sum();
+                            .Select(x => (int)(actor.stat(x) * Game_Actor.GetStatValue(x)))
+                            .Sum();
+                        int statFixesTotal = stat_fixes
+                            .Select(pair => (int)(pair.Value * Game_Actor.GetStatValue((int)pair.Key)))
+                            .Sum();
                         if (stat_fixes.Any(p => actor.get_cap(p.Key) < p.Value))
 #if DEBUG
                         {
@@ -2585,11 +2588,12 @@ namespace FEXNA
 #else
                         { }
 #endif
-                        else if (actor_stat_total < stat_fixes.Select(pair => pair.Value / (pair.Key == Stat_Labels.Hp ? hp_value : 1)).Sum())
+                        else if (actor_stat_total < statFixesTotal)
 #if DEBUG
                             Print.message(string.Format(
                                 "Tried to fix the stats for a unit,\nbut the final stat total is larger\nthan the current total.\nAttempted total: {0}; Actor total: {1}",
-                                stat_fixes.Select(pair => pair.Value / (pair.Key == Stat_Labels.Hp ? hp_value : 1)).Sum(), actor_stat_total));
+                                statFixesTotal,
+                                actor_stat_total));
 #else
                         { }
 #endif
@@ -2606,27 +2610,32 @@ namespace FEXNA
                                 // Randomly selects one
                                 List<Stat_Labels> stats = stat_fixes.Where(p => p.Value != -1).Select(p => p.Key).ToList();
                                 stats.Sort();
+
                                 Stat_Labels stat = stats[Global.game_system.get_rng() % stats.Count];
+                                int statRatio = Game_Actor.GetStatRatio((int)stat);
                                 // Modifies the selected stat
                                 int difference = stat_fixes[stat] - actor.stat(stat);
-                                // If the stat is hp and we're not adjusting by a full stat worth, just adjust it for free
-                                if (stat == Stat_Labels.Hp && hp_value > 1 && Math.Abs(difference) == 1)
+                                // If the stat is worth less than a point and we're not adjusting by a full stat worth, just adjust it for free
+                                if (statRatio > 1 && Math.Abs(difference) < statRatio)
                                 {
                                     actor.gain_stat(stat, difference);
                                     stat_fixes[stat] = -1;
                                     continue;
                                 }
+
                                 // Randomly selects another stat to move points between
                                 List<Stat_Labels> other_stats = Enumerable.Range(0, Game_Actor.LEVEL_UP_VIABLE_STATS)
                                     .Select(x => (Stat_Labels)x).Where(x => !stat_fixes.ContainsKey(x) &&
                                         (difference > 0 ? !actor.get_capped(x) : actor.stat(x) > 0)).ToList();
                                 // If somehow we fail to find another stat to give/take from, it still needs to adjust the target stat
+                                //@Yeti: This should take points from multiple stats and not just one, right?
                                 if (other_stats.Count > 0)
                                 {
                                     Stat_Labels other_stat = other_stats[Global.game_system.get_rng() % other_stats.Count];
-                                    actor.gain_stat(other_stat, (other_stat == Stat_Labels.Hp ? hp_value : 1) * (difference <= 0 ? 1 : -1));
+                                    int otherStatRatio = Game_Actor.GetStatRatio((int)other_stat);
+                                    actor.gain_stat(other_stat, otherStatRatio * (difference <= 0 ? 1 : -1));
                                 }
-                                actor.gain_stat(stat, (stat == Stat_Labels.Hp ? hp_value : 1) * (difference > 0 ? 1 : -1));
+                                actor.gain_stat(stat, statRatio * (difference > 0 ? 1 : -1));
                                 if (stat_fixes[stat] == actor.stat(stat))
                                     stat_fixes[stat] = -1;
 

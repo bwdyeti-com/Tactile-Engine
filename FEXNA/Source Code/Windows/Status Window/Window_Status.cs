@@ -199,24 +199,13 @@ namespace FEXNA
 #endif
 
             Func<Game_Unit, Color> label_color = null;
-            if (show_stat_averages(Stat_Labels.Hp))
+            if (show_stat_colors(Stat_Labels.Hp))
             {
                 label_color = (Game_Unit unit) =>
                 {
                     if (unit.average_stat_hue_shown)
-                    {
-                        float stat_quality = unit.actor.stat_quality(Stat_Labels.Hp);
-                        if (unit.actor.get_capped(Stat_Labels.Hp))
-                            stat_quality = Math.Max(0, stat_quality);
-                        int r = 255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255);
-                        int g = (int)MathHelper.Clamp(255 + (stat_quality * 255), 0, 255);
-                        return new Color(r, g, 255);
+                        return unit.actor.stat_color(Stat_Labels.Hp);
 
-                        /*//Yeti
-                        int avg = (int)Math.Round(unit.actor.stat_avg_comparison(stat_label));
-                        Text.text += (avg >= 0 ? "+" : "-") + Math.Abs(avg);
-                        Text.draw_offset = new Vector2(16, 0);*/
-                    }
                     return Color.White;
                 };
             }
@@ -402,11 +391,11 @@ namespace FEXNA
             CancelButton.stereoscopic = Config.STATUS_TOP_PANEL_DEPTH;
         }
 
-        internal static bool show_stat_averages(Stat_Labels stat_label)
+        internal static bool show_stat_colors(Stat_Labels stat_label)
         {
-            if (Constants.Actor.DISPLAY_STAT_AVERAGES)
+            if (Constants.Actor.STAT_LABEL_COLORING != Constants.StatLabelColoring.None)
                 if (stat_label < Stat_Labels.Con &&
-                        (!Constants.Actor.STAT_AVERAGES_ONLY_IN_PREP ||
+                        (!Constants.Actor.STAT_COLORS_ONLY_IN_PREP ||
                         (Global.scene is Scene_Worldmap || Global.game_system.preparations)))
                     return true;
             return false;
