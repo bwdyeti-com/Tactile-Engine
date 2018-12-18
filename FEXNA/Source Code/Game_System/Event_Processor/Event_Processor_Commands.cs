@@ -3574,7 +3574,19 @@ namespace FEXNA
                 case "Tile Occupied":
                     // Value[1] = x
                     // Value[2] = y
-                    result = Global.game_map.get_unit(new Vector2(process_number(command.Value[1]), process_number(command.Value[2]))) != null;
+                    // Checks every two lines as an x/y pair, true if any
+                    for (int i = 1; i <= command.Value.Length - 2; i += 2)
+                    {
+                        Vector2 tileLoc = new Vector2(
+                            process_number(command.Value[i]),
+                            process_number(command.Value[i + 1]));
+                        unit = Global.game_map.get_unit(tileLoc);
+                        if (unit != null)
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
                     break;
                 case "Tile Enemy Occupied":
                     // Value[1] = x
