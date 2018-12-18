@@ -955,6 +955,7 @@ namespace FEXNA
 
         protected void update_main_turn_change()
         {
+            // This needs to not stop on non-player turns on turn 0??? //@Yeti
             if (Changing_Turn)
             {
                 if (No_Input_Timer <= 0)
@@ -971,7 +972,21 @@ namespace FEXNA
                                 break;
                             // Loops through these three, starting and ending turns that no units exist for
                             case 0:
+                                // If units got added to the team so it
+                                // shouldn't be skipped any more
+                                if (!SkipTeamTurn(Skipped_Turns[0]))
+                                {
+                                    Skipped_Turns.Clear();
+                                    break;
+                                }
+
                                 Team_Turn = Skipped_Turns[0];
+                                // This used to be checked in case 2,
+                                // but that would not work
+                                // It never triggered incorrectly because the
+                                // player turn is basically never skipped //@Debug
+                                if (Team_Turn <= Previous_Turn || Previous_Turn == 0)
+                                    next_turn();
                                 Skipped_Turns.RemoveAt(0);
                                 turn_start_events();
                                 Skipped_Turn_Action = 1;
@@ -982,8 +997,6 @@ namespace FEXNA
                                 break;
                             case 2:
                                 Skipped_Turn_Action = 0;
-                                if (Team_Turn <= Previous_Turn)
-                                    next_turn();
                                 Previous_Turn = Team_Turn;
                                 break;
                         }
@@ -1557,6 +1570,7 @@ namespace FEXNA
             int change_to = determine_next_turn(Previous_Turn);
             if (Skipped_Turns.Count > 0)
                 return false;
+
             if (Turn <= 0)
                 Temp_Player_Loc = Global.player.loc;
             Team_Turn = change_to;
@@ -1573,7 +1587,9 @@ namespace FEXNA
                 Global.Audio.BgmFadeOut(60);
                 play_turn_theme();
             }
-            Previous_Turn = 0;
+            // Is there a reason this resets this to 0
+            // Maybe it should use -1 instead //@Debug
+            Previous_Turn = -1;
             // Autocursor
             if (is_player_turn)
                 Global.player.autocursor(Temp_Player_Loc);
@@ -1614,6 +1630,7 @@ namespace FEXNA
             while (!cont)
             {
                 cont = true;
+                // Team turn is 0 on turn 0
                 if (change_from == Constants.Team.PLAYER_TEAM)
                 {
                     Temp_Player_Loc = Global.player.loc;
@@ -1625,8 +1642,7 @@ namespace FEXNA
                     Global.game_map.units[id].end_turn();
                 }
 
-                if (!Global.game_map.teams[next_turn_value]
-                    .Any(x => !Global.game_map.units[x].is_rescued))
+                if (SkipTeamTurn(next_turn_value))
                 {
                     Skipped_Turns.Add(next_turn_value);
                     cont = false;
@@ -1634,6 +1650,13 @@ namespace FEXNA
                 }
             }
             return next_turn_value;
+        }
+
+        private bool SkipTeamTurn(int team)
+        {
+            // Check if team has any non-rescued units
+            return !Global.game_map.teams[team]
+                .Any(x => !Global.game_map.units[x].is_rescued);
         }
 
         protected void next_turn()
