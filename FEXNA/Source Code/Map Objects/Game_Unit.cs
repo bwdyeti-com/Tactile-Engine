@@ -491,6 +491,10 @@ namespace FEXNA
         internal void change_team(int team)
         {
             Team = team;
+            // Clear item drop flag if switching to an allied team
+            if (!is_attackable_team(Constants.Team.PLAYER_TEAM))
+                Drops_Item = false;
+
             if (!Global.scene.is_test_battle)
             {
                 Global.game_map.team_add(Team, this);
