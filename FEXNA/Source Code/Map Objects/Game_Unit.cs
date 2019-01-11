@@ -1012,6 +1012,10 @@ namespace FEXNA
 
         protected void new_turn_support_gain_display()
         {
+            // Only if standing near on new turn gives support points
+            if (Constants.Support.ADJACENT_SUPPORT_POINTS <= 0)
+                return;
+
             var support_partners = support_range_units()
                 .Where(x => x != Rescuing &&
                     Global.game_map.units[x].team == this.team &&
@@ -1022,6 +1026,10 @@ namespace FEXNA
 
         internal void same_target_support_gain_display(int id)
         {
+            // Only if attacking the same target gives support points
+            if (Constants.Support.SAME_TARGET_SUPPORT_POINTS <= 0)
+                return;
+
             var support_partners = Global.game_map.teams[Team]
                 .Where(x => Global.game_map.units[x].Attack_Targets_This_Turn.Contains(id) &&
                     support_possible(Global.game_map.units[x]));
@@ -1029,6 +1037,10 @@ namespace FEXNA
         }
         internal void same_target_support_gain_display(IEnumerable<int> ids)
         {
+            // Only if attacking the same target gives support points
+            if (Constants.Support.SAME_TARGET_SUPPORT_POINTS <= 0)
+                return;
+
             var support_partners = Global.game_map.teams[Team]
                 .Where(x => !Global.game_map.units[x].Attack_Targets_This_Turn.Intersect(ids).Any() &&
                     support_possible(Global.game_map.units[x]));
@@ -1037,6 +1049,10 @@ namespace FEXNA
 
         internal void heal_support_gain_display(int id)
         {
+            // Only if healing gives support points
+            if (Constants.Support.HEAL_SUPPORT_POINTS <= 0)
+                return;
+
             if (Staff_Data.get_staff_mode(this.actor.weapon_id) == Staff_Modes.Heal)
                 if (support_possible(Global.game_map.units[id]))
                     display_support_gain(id);
@@ -1044,12 +1060,20 @@ namespace FEXNA
 
         internal void talk_support_gain_display(int id)
         {
+            // Only if talks give support points
+            if (Constants.Support.TALK_SUPPORT_POINTS <= 0)
+                return;
+
             if (support_possible(Global.game_map.units[id]))
                 display_support_gain(id);
         }
 
         internal void rescue_support_gain_display(int id)
         {
+            // Only if rescuing gives support points
+            if (Constants.Support.RESCUE_SUPPORT_POINTS <= 0)
+                return;
+            
             if (support_possible(Global.game_map.units[id]))
                 display_support_gain(id);
         }
