@@ -785,6 +785,7 @@ namespace FEXNA
             Unit_Locations = new int[this.width, this.height];
             Siege_Locations = new int[this.width, this.height];
             Destroyable_Locations = new int[this.width, this.height];
+
             Objects.reset();
             Deployment_Points.Clear();
             Forced_Deployment.Clear();

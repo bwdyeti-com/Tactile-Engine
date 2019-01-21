@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.IO;
 using FEXNAVector2Extension;
+using FEXNAVersionExtension;
+using HashSetExtension;
 
 namespace FEXNA
 {
@@ -11,6 +13,8 @@ namespace FEXNA
         protected string Event_Name;
         protected int MaxHp, Hp;
         protected int Def = 0;
+        // Teams whose AI units should attack this object
+        private HashSet<int> EnemyTeams = new HashSet<int>();
 
         #region Serialization
         public void write(BinaryWriter writer)
@@ -21,6 +25,7 @@ namespace FEXNA
             writer.Write(Event_Name);
             writer.Write(MaxHp);
             writer.Write(Hp);
+            EnemyTeams.write(writer);
         }
 
         public void read(BinaryReader reader)
@@ -31,6 +36,10 @@ namespace FEXNA
             Event_Name = reader.ReadString();
             MaxHp = reader.ReadInt32();
             Hp = reader.ReadInt32();
+            if (!Global.LOADED_VERSION.older_than(0, 6, 4, 1)) // This is a suspend load, so this isn't needed for public release //Debug
+            {
+                EnemyTeams.read(reader);
+            }
         }
         #endregion
 
@@ -67,6 +76,11 @@ namespace FEXNA
             force_loc(loc);
             MaxHp = Hp = hp;
             Event_Name = event_name;
+        }
+
+        public void AddEnemyTeam(int team)
+        {
+            EnemyTeams.Add(team);
         }
     }
 }
