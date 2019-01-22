@@ -1056,6 +1056,14 @@ namespace FEXNA
                 if (Global.game_map.fow && !Global.game_system.preparations)
                     if (unit == null || !unit.vision_penalized())
                         return true;
+            if (item.is_placeable())
+            {
+                if (unit != null)
+                {
+                    if (unit.placeable_targets().Any())
+                        return true;
+                }
+            }
             // Promotion Items
             if (item.Promotes.Contains(actor.class_id) && actor.promotes_to() != null)
                 return true;

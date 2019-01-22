@@ -1428,6 +1428,21 @@ namespace FEXNA
             return result;
         }
 
+        public List<Vector2> placeable_targets()
+        {
+            List<Vector2> result = new List<Vector2>();
+            foreach (Vector2 offset in new Vector2[] {
+                    new Vector2(0, 1), new Vector2(0, -1),
+                    new Vector2(1, 0), new Vector2(-1, 0) })
+                if (!Global.game_map.is_off_map(offset + Loc))
+                    if (!Global.game_map.is_blocked(offset + Loc, Rescuing))
+                        if (Global.game_map.get_siege(offset + Loc) == null)
+                            if (Global.game_map.terrain_cost(
+                                    MovementTypes.Armor, offset + Loc) >= 0)
+                                result.Add(offset + Loc);
+            return result;
+        }
+
         public bool is_member()
         {
             // Skills: Member
