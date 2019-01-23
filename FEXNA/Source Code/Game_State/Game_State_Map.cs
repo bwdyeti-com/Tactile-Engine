@@ -219,9 +219,16 @@ namespace FEXNA
                 if (Constants.Support.NEW_MAP_COUNTS_AS_SEPARATE_CHAPTER)
                     reset_support_data();
                 Home_Base_Events.Clear();
+
+                // Reset unsaved data
+                Update_Victory_Theme = false;
                 Screen_Tone = new Tone(0, 0, 0, 0);
                 Source_Screen_Tone = new Tone(0, 0, 0, 0);
                 Target_Screen_Tone = new Tone(0, 0, 0, 0);
+                Tone_Timer = 0;
+                Tone_Time_Max = 0;
+                prev_player_loc = null;
+                Moving_Editor_Unit = false;
             }
         }
 

@@ -21,8 +21,8 @@ namespace FEXNA.Constants
         public const int ADJACENT_SUPPORT_POINTS = 3;
         public const int SAME_TARGET_SUPPORT_POINTS = 2;
         public const int HEAL_SUPPORT_POINTS = 3;
-        public const int RESCUE_SUPPORT_POINTS = 5;
         public const int TALK_SUPPORT_POINTS = 5;
+        public const int RESCUE_SUPPORT_POINTS = 5;
         public const int CHAPTER_SUPPORT_POINTS = 10;
 
         public const bool ONE_SUPPORT_PER_CHAPTER = true;

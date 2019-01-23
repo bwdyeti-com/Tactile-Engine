@@ -304,6 +304,12 @@ namespace FEXNA
                     update_repair_item_menu();
                     return true;
                 }
+                else if (Loc_Target_Window != null)
+                {
+                    Loc_Target_Window.update();
+                    update_placeable_target_menu();
+                    return true;
+                }
                 else if (Item_Options != null && Item_Options.active)
                 {
                     Item_Window.update_graphics();
@@ -1792,7 +1798,7 @@ namespace FEXNA
                 Global.game_map.clear_move_range();
                 Global.game_map.range_start_timer = 0;
 
-                Vector2 target_loc = Loc_Target_Window.targets[Loc_Target_Window.index];
+                Vector2 target_loc = Loc_Target_Window.target;
                 switch ((Loc_Target_Window as Window_Target_Construct).Mode)
                 {
                     case ConstructionModes.Assemble:
@@ -2234,11 +2240,12 @@ namespace FEXNA
                         break;
                     // Use
                     case 1:
-                        if (Combat.can_use_item(unit, unit.actor.items[Item_Window.redirect()].Id))
+                        var itemData = unit.actor.items[Item_Window.redirect()];
+                        if (Combat.can_use_item(unit, itemData.Id))
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
                             Item_Window.restore_equipped();
-                            if (unit.actor.items[Item_Window.redirect()].to_item.targets_inventory())
+                            if (itemData.to_item.targets_inventory())
                             {
                                 Global.game_map.range_start_timer = 0;
                                 Repair_Item_Window = new Window_Command_Item_Target_Inventory(Unit_Id, new Vector2(24, 8), Item_Window.index);
@@ -2248,6 +2255,18 @@ namespace FEXNA
                                 Item_Options.active = false;
                                 Item_Options.visible = false;
                                 Item_Window.visible = false;
+                            }
+                            else if (itemData.to_item.is_placeable())
+                            {
+                                Item_Options.active = false;
+                                Item_Options.visible = false;
+                                Item_Window.visible = false;
+
+                                Global.game_system.play_se(System_Sounds.Confirm);
+                                Loc_Target_Window = new Window_Target_Placeable(
+                                    unit.id, new Vector2(4, 0));
+                                Global.player.facing = 4;
+                                Global.player.update_cursor_frame();
                             }
                             else
                             {
@@ -2322,13 +2341,23 @@ namespace FEXNA
             unit.cantoing = false;
             // Lock in unit movement
             unit.moved();
-            Global.game_state.call_item(Unit_Id, Item_Window.redirect());
+
+            if (Loc_Target_Window != null)
+            {
+                Vector2 target_loc = Loc_Target_Window.target;
+                Global.game_state.call_item(
+                    Unit_Id, Item_Window.redirect(), target_loc);
+            }
+            else
+                Global.game_state.call_item(Unit_Id, Item_Window.redirect());
 
             Global.game_temp.menuing = false;
             close_unit_menu(false);
             Item_Window = null;
             Item_Options = null;
+
             Repair_Item_Window = null;
+            Loc_Target_Window = null;
         }
 
         protected void update_discard_confirm()
@@ -2385,6 +2414,37 @@ namespace FEXNA
                         Item_Window.active = true;
                         break;
                 }
+            }
+        }
+
+        protected void update_placeable_target_menu()
+        {
+            Game_Unit unit = Global.game_map.units[Unit_Id];
+            if (Loc_Target_Window.is_canceled() || cancel_button_triggered)
+            {
+                Global.game_map.range_start_timer = 0;
+                Global.game_system.play_se(System_Sounds.Cancel);
+                // Sends cursor back to unit
+                Global.player.instant_move = true;
+                Global.player.loc = unit.loc;
+                // Makes cursor invisible again
+                Global.player.facing = 6;
+                Global.player.frame = 1;
+
+                Item_Options.active = true;
+                Item_Options.visible = true;
+                Item_Window.visible = true;
+                
+                Loc_Target_Window = null;
+                return;
+            }
+            else if (Loc_Target_Window.is_selected())
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+                Global.game_map.remove_updated_move_range(Unit_Id);
+                Global.game_map.range_start_timer = 0;
+
+                use_item(unit);
             }
         }
         #endregion

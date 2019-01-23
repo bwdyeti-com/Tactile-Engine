@@ -1778,10 +1778,14 @@ namespace FEXNA
                 }
                 if (unit != null && !unit.is_player_team)
                 {
-
-                    if (Global.game_state.visit_active)
-                        if (Global.game_state.visit_mode == State.Visit_Modes.Chest)
+                    bool playerAttackableTeam = unit.is_attackable_team(
+                        Constants.Team.PLAYER_TEAM);
+                    // If units the player can attack open chests
+                    if (playerAttackableTeam)
+                        if (Global.game_state.visit_active &&
+                            Global.game_state.visit_mode == State.Visit_Modes.Chest)
                         {
+                            // They can drop what they get from it
                             unit.drops_item = true;
                         }
                     while (actor.too_many_items)

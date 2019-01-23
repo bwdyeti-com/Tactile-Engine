@@ -1214,6 +1214,7 @@ namespace FEXNA
             {
                 return sort_by_toughness_distance(unit, a, b);
             });
+
             // Selects a target
             Game_Unit target = searched_targets[0].unit;
             bool offensive = unit.actor.can_attack();
@@ -2657,6 +2658,27 @@ namespace FEXNA
                     if (visible_tiles.Count > 0)
                         target_locs = visible_tiles;
                 }
+                // If more than two turns away from the target,
+                // cast a ray to the target, and if any locations are on that
+                // ray's path, remove any not on it
+                if (target_locs[0].dist > unit.mov * 2)
+                {
+                    // This would act more intelligently if, instead of using
+                    // target_loc as the end point for the ray, the pathfinding
+                    // determined all chokepoints along the path that every
+                    // target_loc would send the unit through, and then cast a
+                    // ray to the first point beyond one move range from the
+                    // chokepoint before it //@Debug
+                    var rayPath = new HashSet<Vector2>(
+                        Pathfind.bresenham_supercover(unit.loc, target_loc));
+                    if (rayPath.Intersect(target_locs.Select(x => x.loc)).Any())
+                    {
+                        target_locs = target_locs
+                            .Where(x => rayPath.Contains(x.loc))
+                            .ToList();
+                    }
+                }
+                
                 i = (int)((Global.game_state.ai_turn_rn / 100f) * target_locs.Count);
             }
             // If we have to move, but the selected location is the current one
