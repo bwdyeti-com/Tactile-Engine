@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using FEXNA_Library;
+using FEXNA_Library.Pathfinding;
 
 namespace FEXNA.Pathfinding
 {
@@ -172,7 +173,16 @@ namespace FEXNA.Pathfinding
         #region Interface
         public Pathfinder<Vector2> Pathfind()
         {
-            return new Pathfinder<Vector2>(this);
+            Pathfinder<Vector2> result;
+            if (Constants.Gameplay.MOVE_ARROW_WIGGLING)
+            {
+                Func<bool> wiggleChance = () => Global.game_system.roll_rng(50);
+                result = new Pathfinder<Vector2>(this, wiggleChance);
+            }
+            else
+                result = new Pathfinder<Vector2>(this);
+
+            return result;
         }
 
         public bool Passable(Vector2 loc)

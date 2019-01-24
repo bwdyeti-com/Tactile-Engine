@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using FEXNA.Map;
 using FEXNA.Pathfinding;
 using FEXNA_Library;
+using FEXNA_Library.Pathfinding;
 #if DEBUG
 using System.Diagnostics;
 #endif

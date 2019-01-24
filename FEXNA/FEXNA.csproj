@@ -135,13 +135,6 @@
     <Compile Include="Source Code\Menus\World Map\WorldmapMenu.cs" />
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuData.cs" />
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuManager.cs" />
-    <Compile Include="Source Code\Pathfinding\PassabilityMap3D.cs" />
-    <Compile Include="Source Code\Pathfinding\ClosedList.cs" />
-    <Compile Include="Source Code\Pathfinding\ClosedListRoute.cs" />
-    <Compile Include="Source Code\Pathfinding\IMovementMap.cs" />
-    <Compile Include="Source Code\Pathfinding\OpenItem.cs" />
-    <Compile Include="Source Code\Pathfinding\OpenList.cs" />
-    <Compile Include="Source Code\Pathfinding\Pathfinder.cs" />
     <Compile Include="Source Code\Services\Audio\MusicInstance.cs" />
     <Compile Include="Source Code\Services\Audio\MusicPlayer.cs" />
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
