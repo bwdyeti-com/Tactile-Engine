@@ -167,34 +167,42 @@ namespace FEXNA
             // Cycle through targets
             foreach (int targetId in targets)
             {
-                // This method doesn't check destroyable terrain, just units, so break on non-units
-                if (!Global.game_map.attackable_map_object(targetId).is_unit())
-                    continue;
-                Game_Unit targetUnit = Global.game_map.units[targetId];
+                var target = Global.game_map.attackable_map_object(targetId);
                 // Next if off map or target dead???
-                if (Global.game_map.is_off_map(targetUnit.loc) || targetUnit.is_dead)
+                if (Global.game_map.is_off_map(target.loc) || target.is_dead)
                     continue;
                 
                 // Cycle through weapons
                 foreach (int weapon_index in weapons)
                 {
-                    IEnumerable<int[]> targetUses;
-                    #region Regular Weapons
-                    if (weapon_index != Constants.Actor.NUM_ITEMS)
+                    IEnumerable<int[]> targetUses = null;
+                    // This part of the method doesn't check
+                    // destroyable terrain, just units
+                    if (target.is_unit())
                     {
-                        targetUses = check_target(
-                            attacker, targetUnit, can_move, best, retreating,
-                            damage_test, retreat_loc, weapon_index);
+                        Game_Unit targetUnit = Global.game_map.units[targetId];
+
+                        #region Regular Weapons
+                        if (weapon_index != Constants.Actor.NUM_ITEMS)
+                        {
+                            targetUses = check_target(
+                                attacker, targetUnit, can_move, best, retreating,
+                                damage_test, retreat_loc, weapon_index);
+                        }
+                        #endregion
+                        #region Siege Weapons
+                        else
+                        {
+                            targetUses = check_siege_target(
+                                attacker, targetUnit, can_move, best,
+                                damage_test, weapon_index);
+                        }
+                        #endregion
                     }
-                    #endregion
-                    #region Siege Weapons
+                    else if (target is LightRune)
+                    { }
                     else
-                    {
-                        targetUses = check_siege_target(
-                            attacker, targetUnit, can_move, best,
-                            damage_test, weapon_index);
-                    }
-                    #endregion
+                    { }
                     if (targetUses != null)
                     {
                         target_ary.AddRange(targetUses);
