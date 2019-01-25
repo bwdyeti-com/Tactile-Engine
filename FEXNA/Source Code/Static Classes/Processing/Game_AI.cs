@@ -1098,8 +1098,12 @@ namespace FEXNA
         {
             var temp_locs = locs.ToList();
             List<HashSet<Vector2>> result = new List<HashSet<Vector2>>();
-
-            var unit_map = new UnitMovementMap(unit.id, ignoreUnits: true, throughDoors: true);
+            
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithIgnoreUnits(true)
+                .WithThroughDoors(true)
+                .Build(unit.id);
+            
             while (temp_locs.Any())
             {
                 Vector2 loc = temp_locs[0];
@@ -1109,7 +1113,7 @@ namespace FEXNA
                 // Group any locations that can be reached from this location
                 for (int i = 0; i < temp_locs.Count;)
                 {
-                    if (unit_map.get_distance(temp_locs[i], -1, loc).IsSomething)
+                    if (unitMap.get_distance(temp_locs[i], -1, loc).IsSomething)
                     {
                         group.Add(temp_locs[i]);
                         temp_locs.RemoveAt(i);
@@ -1276,7 +1280,9 @@ namespace FEXNA
         public static Maybe<Vector2>[] search_attack_through_walls(Game_Unit unit, HashSet<Vector2> enemy_tiles)
         {
             // This method could probably be modified to have this as a HashSet //Yeti
-            var pathfinder = new Pathfinding.UnitMovementMap(unit.id).Pathfind();
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
             List<Vector2> total_move_range = new List<Vector2>(
                 pathfinder.get_range(unit.loc, unit.loc, -1));
             /* //Debug
@@ -1852,8 +1858,10 @@ namespace FEXNA
                     targets = new List<Vector2> { actual_target_loc };
                 }
             }
-
-            var map = new UnitMovementMap(unit.id, throughDoors: false);
+            
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(false)
+                .Build(unit.id);
             targets = targets.Where(target =>
                 {
                     var distance = map.get_distance(target, -1);
@@ -1864,8 +1872,14 @@ namespace FEXNA
             if (targets.Any() ||
                 (move_loc.IsSomething && Global.game_state.ai_enemy_attack_range.Contains(move_loc)))
             {
-                var unit_map = new UnitMovementMap(unit.id, throughDoors: true);
-                var rescuee_map = new UnitMovementMap(unit.rescuing, ignoreUnits: true, throughDoors: true);
+                var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithThroughDoors(true)
+                    .Build(unit.id);
+                var rescueeMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithIgnoreUnits(true)
+                    .WithThroughDoors(true)
+                    .Build(unit.rescuing);
+                
                 Game_Unit rescued_unit = Global.game_map.units[unit.rescuing];
                 // Gets the distance from all tiles in the move range to the target
                 HashSet<Vector2> move_range = unit.move_range;
@@ -1878,7 +1892,7 @@ namespace FEXNA
                 // Switching back and forth in the pathfinder between two units introduces a lot of lag
                 // So check all the tiles for the rescuer first, then check if they're open for the rescuee
                 List<Vector2> rescuer_tiles = move_range
-                    .Where(x => targets.Any(target => unit_map.get_distance(target, -1, x).IsSomething))
+                    .Where(x => targets.Any(target => unitMap.get_distance(target, -1, x).IsSomething))
                     .ToList();
 
                 if (Global.game_system.Difficulty_Mode >= Difficulty_Modes.Hard)
@@ -1886,14 +1900,14 @@ namespace FEXNA
                     foreach (Vector2 loc in rescuer_tiles)
                     {
                         min_dist = -1;
-                        foreach (Vector2 potential_target in rescuee_map.AdjacentLocations(loc))
+                        foreach (Vector2 potential_target in rescueeMap.AdjacentLocations(loc))
                             if (!Global.game_state.ai_enemy_attack_range.Contains(potential_target) &&
                                 !Global.game_map.is_off_map(potential_target) &&
                                 !Global.game_map.is_blocked(potential_target, unit.id) &&
-                                rescuee_map.Passable(potential_target))
+                                rescueeMap.Passable(potential_target))
                             {
                                 var distances = targets.Select(target =>
-                                        rescuee_map.get_distance(target, -1, potential_target))
+                                        rescueeMap.get_distance(target, -1, potential_target))
                                     .Where(x => x.IsSomething)
                                     .OrderBy(x => x.ValueOrDefault);
                                 if (distances.Any())
@@ -1917,15 +1931,15 @@ namespace FEXNA
                     foreach (Vector2 loc in rescuer_tiles)
                     {
                         min_dist = -1;
-                        foreach (Vector2 potential_target in rescuee_map.AdjacentLocations(loc))
+                        foreach (Vector2 potential_target in rescueeMap.AdjacentLocations(loc))
                         {
                             // Don't need to check is_off_map(), because is_blocked() already does
                             if (!Global.game_map.is_off_map(potential_target) &&
                                 !Global.game_map.is_blocked(potential_target, unit.id) &&
-                                rescuee_map.Passable(potential_target))
+                                rescueeMap.Passable(potential_target))
                             {
                                 var distances = targets.Select(target =>
-                                        rescuee_map.get_distance(target, -1, potential_target))
+                                        rescueeMap.get_distance(target, -1, potential_target))
                                     .Where(x => x.IsSomething)
                                     .OrderBy(x => x.ValueOrDefault);
                                 if (distances.Any())
@@ -1953,16 +1967,20 @@ namespace FEXNA
                 Vector2 target_loc = target_locs[(int)((Global.game_state.ai_turn_rn / 100.0f) * target_locs.Count)].loc;
 
                 target_locs.Clear();
-                rescuee_map = new UnitMovementMap(unit.rescuing, ignoreUnits: true, throughDoors: false);
+                
+                rescueeMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithIgnoreUnits(true)
+                    .WithThroughDoors(false)
+                    .Build(unit.rescuing);
                 // Check the tiles around the target
-                foreach (Vector2 potential_target in rescuee_map.AdjacentLocations(target_loc))
+                foreach (Vector2 potential_target in rescueeMap.AdjacentLocations(target_loc))
                 {
                     if (!Global.game_map.is_off_map(potential_target) &&
                         !Global.game_map.is_blocked(potential_target, unit.id) &&
-                        rescuee_map.Passable(potential_target))
+                        rescueeMap.Passable(potential_target))
                     {
                                 var distances = targets.Select(target =>
-                                        rescuee_map.get_distance(target, -1, potential_target))
+                                        rescueeMap.get_distance(target, -1, potential_target))
                                     .Where(x => x.IsSomething)
                                     .OrderBy(x => x.ValueOrDefault);
                                 if (distances.Any())

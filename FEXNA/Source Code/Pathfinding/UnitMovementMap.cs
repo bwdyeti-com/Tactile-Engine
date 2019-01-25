@@ -23,35 +23,26 @@ namespace FEXNA.Pathfinding
         private HashSet<Vector2> Doors = new HashSet<Vector2>();
 
         private Game_Unit Unit { get { return Map.units[UnitId]; } }
-
-        internal UnitMovementMap(int unitId,
-                bool ignoreUnits = false,
-                bool throughDoors = false,
-                bool ignoreDoors = false) :
-            this(unitId, Global.game_map, ignoreUnits, throughDoors, ignoreDoors) { }
-        internal UnitMovementMap(int unitId, Game_Map map,
-            bool ignoreUnits = false,
-            bool throughDoors = false,
-            bool ignoreDoors = false)
+        
+        private UnitMovementMap(int unitId, Game_Map map)
         {
             UnitId = unitId;
             Map = map;
-            IgnoreUnits = ignoreUnits;
-            ThroughDoors = throughDoors;
-            IgnoreDoors = ignoreDoors;
+            
+            reset_move_costs();
+        }
 
+        private void initialize_unit_locs()
+        {
             var unit = this.Unit;
             initialize_unit_locs(unit);
 
             // Doors
-            if (throughDoors)
-                if ((unit.can_open_door() || ignoreDoors) && !unit.is_player_team)
+            if (ThroughDoors)
+                if ((unit.can_open_door() || IgnoreDoors) && !unit.is_player_team)
                     foreach (var door in Map.door_locations)
                         Doors.Add(door.Key);
-
-            reset_move_costs();
         }
-
         private void initialize_unit_locs(Game_Unit unit)
         {
             // Goes through all units and sets a passable tag for the tile that unit is on
@@ -64,7 +55,8 @@ namespace FEXNA.Pathfinding
 #if DEBUG
                     if (!Global.game_system.is_interpreter_running)
                         // if the location is already occupied, problems
-                        Debug.Assert(!UnitLocs.ContainsKey(loc), "Two units share a location when trying to start pathfinding");
+                        Debug.Assert(!UnitLocs.ContainsKey(loc),
+                            "Two units share a location when trying to start pathfinding");
                     UnitLocs[loc] = tile_unit_passability(unit, loc, test_unit);
 #else
                     if (!UnitLocs.ContainsKey(loc))
@@ -170,7 +162,7 @@ namespace FEXNA.Pathfinding
                 .ToList();
         }
 
-        #region Interface
+        #region IMovementMap
         public Pathfinder<Vector2> Pathfind()
         {
             Pathfinder<Vector2> result;
@@ -243,8 +235,11 @@ namespace FEXNA.Pathfinding
         private int terrain_cost(Vector2 loc)
         {
             int terr_cost = this.Unit.move_cost(loc);
-            // If this is an event move and a unit is blocking but they can be passed through, prefer to move around them if possible
-            if (UnitLocs.ContainsKey(loc) && UnitLocs[loc] == Unit_Passable.PassableEventedEnemy)
+            // If this is an event move and a unit is blocking
+            // but they can be passed through,
+            // prefer to move around them if possible
+            if (UnitLocs.ContainsKey(loc) &&
+                    UnitLocs[loc] == Unit_Passable.PassableEventedEnemy)
                 terr_cost += Math.Max(1, this.Unit.mov);
             return terr_cost * 10 *
                 (Map.is_off_map(loc) ? OFF_MAP_PENALTY_MULT : 1);
@@ -314,5 +309,44 @@ namespace FEXNA.Pathfinding
             return false;
         }
         #endregion
+
+        public class Builder
+        {
+            Game_Map Map = null;
+            bool IgnoreUnits = false;
+            bool ThroughDoors = false;
+            bool IgnoreDoors = false;
+
+            public Builder WithIgnoreUnits(bool value)
+            {
+                IgnoreUnits = value;
+                return this;
+            }
+            public Builder WithThroughDoors(bool value)
+            {
+                ThroughDoors = value;
+                return this;
+            }
+            public Builder WithIgnoreDoors(bool value)
+            {
+                IgnoreDoors = value;
+                return this;
+            }
+
+            public UnitMovementMap Build(
+                int unitId)
+            {
+                var result = new UnitMovementMap(
+                    unitId,
+                    Map == null ? Global.game_map : Map)
+                {
+                    IgnoreUnits = IgnoreUnits,
+                    ThroughDoors = ThroughDoors,
+                    IgnoreDoors = IgnoreDoors
+                };
+                result.initialize_unit_locs();
+                return result;
+            }
+        }
     }
 }

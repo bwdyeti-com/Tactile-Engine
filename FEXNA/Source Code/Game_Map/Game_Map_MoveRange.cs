@@ -595,8 +595,8 @@ namespace FEXNA
             var move_arrow = new List<Move_Arrow_Data>(Move_Arrow);
 #endif
             Move_Arrow.Clear();
-            var map = new Pathfinding.UnitMovementMap(
-                Global.game_system.Selected_Unit_Id);
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .Build(Global.game_system.Selected_Unit_Id);
             List<Vector2> route2 = map.convert_to_motions(
                 map.get_route(target_loc, range));
             List<Vector2> route = map.convert_to_motions(

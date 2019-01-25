@@ -1249,7 +1249,9 @@ namespace FEXNA
         {
             bool cantoing = Cantoing;
             Cantoing = true;
-            var pathfinder = new Pathfinding.UnitMovementMap(Id).Pathfind();
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .Build(Id);
+            var pathfinder = map.Pathfind();
             HashSet<Vector2> locs = pathfinder.get_range(loc, loc, this.canto_mov);
             //HashSet<Vector2> locs = Pathfind.get_range(Loc, canto_mov, Id); //Debug
             Cantoing = cantoing;
@@ -2875,7 +2877,9 @@ namespace FEXNA
         private void update_move_range(Vector2 loc, Vector2 baseLoc)
         {
             // Use locks for thread safety? //Yeti
-            var pathfinder = new Pathfinding.UnitMovementMap(Id).Pathfind();
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .Build(Id);
+            var pathfinder = map.Pathfind();
             Move_Range = pathfinder.get_range(baseLoc, loc, this.canto_mov);
             //Move_Range = new HashSet<Vector2>( //Debug
             //    Pathfind.get_range(loc, canto_mov, Id, baseLoc)); //HashSet
