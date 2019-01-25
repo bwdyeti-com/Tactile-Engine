@@ -157,7 +157,6 @@ namespace FEXNA
             // usefulness of attacking there
             // [enemy, weapon, usefulness, x, y]
             List<int[]> target_ary = new List<int[]>();
-            Game_Actor actor1 = attacker.actor;
 
             targets = check_targets_target_list(attacker, targets, best);
 
@@ -166,190 +165,233 @@ namespace FEXNA
                 retreat_loc = retreat(attacker, no_move_okay: false);
 
             // Cycle through targets
-            foreach (int id in targets)
+            foreach (int targetId in targets)
             {
                 // This method doesn't check destroyable terrain, just units, so break on non-units
-                if (!Global.game_map.attackable_map_object(id).is_unit())
+                if (!Global.game_map.attackable_map_object(targetId).is_unit())
                     continue;
-                Game_Unit target = Global.game_map.units[id];
+                Game_Unit targetUnit = Global.game_map.units[targetId];
                 // Next if off map or target dead???
-                if (Global.game_map.is_off_map(target.loc) || target.is_dead)
+                if (Global.game_map.is_off_map(targetUnit.loc) || targetUnit.is_dead)
                     continue;
-
-                Game_Actor actor2 = target.actor;
+                
                 // Cycle through weapons
                 foreach (int weapon_index in weapons)
                 {
-                    int distance = Global.game_map.unit_distance(attacker.id, id);
-                    Data_Weapon weapon1 = null, weapon2 = null;
-                    int min_range, max_range;
-                    bool ever_counter;
-
+                    IEnumerable<int[]> targetUses;
                     #region Regular Weapons
                     if (weapon_index != Constants.Actor.NUM_ITEMS)
                     {
-                        // Gets range
-                        if (Global.data_weapons.ContainsKey(actor1.items[weapon_index].Id))
-                            weapon1 = Global.data_weapons[actor1.items[weapon_index].Id];
-                        min_range = attacker.min_range(weapon_index);
-                        max_range = attacker.max_range(weapon_index);
-
-                        attacker.reset_ai_loc();
-                        HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
-                        // If just checking damage as a percent of target health
-                        if (damage_test)
-                        {
-                            ever_counter = true;
-                            weapon2 = actor2.weapon;
-                        }
-                        else
-                        {
-                            if (can_move)
-                            {
-                                // If unable to hit the target, continue
-                                if (!can_move_to_hit(target, Global.game_state.ai_move_range, attacker, weapon_index))
-                                    continue;
-                                attack_move_range = attacker.hit_from_loc(target.loc, Global.game_state.ai_move_range, weapon_index, "");
-                                // If retreat attacking
-                                if (retreating)
-                                {
-                                    if (retreat_loc.IsSomething)
-                                    {
-                                        // Remove tiles from the attacking range that are not already on the way to the retreat point
-                                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
-                                        {
-                                            var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
-                                            // If somehow can't move to the target tile (what), break
-                                            if (move_cost.IsNothing)
-                                                return false;
-                                            else
-                                                return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
-                                        }));
-                                    }
-
-                                    /*// Remove tiles from the attacking range that the attacker cannot then retreat to safety from //Debug
-                                    attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
-                                    {
-                                        var move_cost = Pathfinding.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
-                                        // If somehow can't move to the target tile (what), break
-                                        if (!move_cost.Key)
-                                            return false;
-                                        var post_attack_move_range = Pathfinding.get_range(x, attacker.mov - move_cost.Value, attacker.id, x);
-                                        return post_attack_move_range.Except(Global.game_state.ai_enemy_attack_range).Any();
-                                    }));*/
-                                }
-                            }
-                            else
-                            {
-                                // If the target can't be hit from this tile, continue
-                                if (distance > max_range || distance < min_range ||
-                                        !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { attacker.loc }, "").Contains(target.loc))
-                                    continue;
-                            }
-
-                            // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
-                            ever_counter = !weapon1.No_Counter &&
-                                !(target.min_range_absolute() > attacker.max_range(weapon_index) ||
-                                target.max_range_absolute() < attacker.min_range(weapon_index));
-                            if (weapon1.No_Counter)
-                            {
-                                // Pares attack range to best terrain types
-                                // This allows selecting for the best damage output as well, not just for best defensive terrain
-                                best_terrain(ref attack_move_range);
-                            }
-                        }
-
-                        // Cycle through locations that can be attacked from
-                        foreach (Vector2 loc in attack_move_range)
-                        {
-                            attacker.reset_ai_loc();
-                            if (loc.X != Config.OFF_MAP.X)
-                            {
-                                Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
-                                if (move_distance.IsSomething)
-                                {
-                                    attacker.set_ai_base_loc(loc, move_distance);
-                                    distance = (int)(Math.Abs(loc.X - target.loc.X) + Math.Abs(loc.Y - target.loc.Y));
-                                }
-                            }
-
-                            target.target_unit(attacker, weapon1, distance);
-
-                            //test_ary.push blah blah
-                            var use = attack_use(attacker, target, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test);
-                            if (use.IsNothing)
-                                continue;
-                            target_ary.Add(new int[] { id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
-                            target.cancel_targeted();
-                        }
+                        targetUses = check_target(
+                            attacker, targetUnit, can_move, best, retreating,
+                            damage_test, retreat_loc, weapon_index);
                     }
                     #endregion
                     #region Siege Weapons
                     else
                     {
-                        attacker.reset_ai_loc();
-                        HashSet<Vector2> siege_move_range = can_move ? Global.game_map.remove_blocked(
-                            Global.game_state.ai_move_range, attacker.id) : new HashSet<Vector2> { attacker.loc };
-                        foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
-                        {
-                            // If siege engine has uses and is in the move range and can be equipped
-                            if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
-                                actor1.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
-                            {
-                                Maybe<int> move_distance = Pathfind.get_distance(siege.loc, attacker.id, attacker.canto_mov, false, attacker.loc);
-                                if (move_distance.IsSomething)
-                                {
-                                    // Set location to the siege engine and fix distance
-                                    attacker.set_ai_base_loc(siege.loc, move_distance);
-                                    distance = (int)(Math.Abs(siege.loc.X - target.loc.X) + Math.Abs(siege.loc.Y - target.loc.Y));
-
-                                    if (Global.data_weapons.ContainsKey(attacker.items[weapon_index].Id))
-                                        weapon1 = Global.data_weapons[attacker.items[weapon_index].Id];
-                                    min_range = attacker.min_range(weapon_index);
-                                    max_range = attacker.max_range(weapon_index);
-
-                                    // If just checking damage as a percent of target health
-                                    if (damage_test)
-                                    {
-                                        ever_counter = true;
-                                        weapon2 = actor2.weapon;
-                                    }
-                                    else
-                                    {
-                                        if (distance > max_range || distance < min_range ||
-                                            !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { siege.loc }, "").Contains(target.loc))
-                                        {
-                                            attacker.reset_ai_loc();
-                                            continue;
-                                        }
-
-                                        // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
-                                        ever_counter = !weapon1.No_Counter &&
-                                            !(target.min_range_absolute() > attacker.max_range(weapon_index) ||
-                                            target.max_range_absolute() < attacker.min_range(weapon_index));
-                                    }
-
-                                    target.target_unit(attacker, weapon1, distance);
-
-                                    var use = attack_use(attacker, target, weapon_index, weapon1, siege.loc, ever_counter, distance, best, damage_test);
-                                    if (use.IsNothing)
-                                    {
-                                        attacker.reset_ai_loc();
-                                        continue;
-                                    }
-                                    target_ary.Add(new int[] { id, weapon_index + 1, (int)use, (int)siege.loc.X, (int)siege.loc.Y });
-                                    target.cancel_targeted();
-
-                                    attacker.reset_ai_loc();
-                                }
-                            }
-                        }
+                        targetUses = check_siege_target(
+                            attacker, targetUnit, can_move, best,
+                            damage_test, weapon_index);
                     }
                     #endregion
+                    if (targetUses != null)
+                    {
+                        target_ary.AddRange(targetUses);
+                    }
                 }
             }
             attacker.reset_ai_loc();
             return target_ary;
+        }
+
+        private static IEnumerable<int[]> check_target(
+            Game_Unit attacker,
+            Game_Unit targetUnit,
+            bool can_move,
+            bool best,
+            bool retreating,
+            bool damage_test,
+            Maybe<Vector2> retreat_loc,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, targetUnit.id);
+            Data_Weapon weapon1 = null, weapon2 = null;
+            int min_range, max_range;
+            bool ever_counter;
+
+
+            // Gets range
+            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
+                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            min_range = attacker.min_range(weapon_index);
+            max_range = attacker.max_range(weapon_index);
+
+            attacker.reset_ai_loc();
+            HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
+            // If just checking damage as a percent of target health
+            if (damage_test)
+            {
+                ever_counter = true;
+                weapon2 = targetUnit.actor.weapon;
+            }
+            else
+            {
+                if (can_move)
+                {
+                    // If unable to hit the target, continue
+                    if (!can_move_to_hit(targetUnit, Global.game_state.ai_move_range, attacker, weapon_index))
+                        return null;
+                    attack_move_range = attacker.hit_from_loc(targetUnit.loc, Global.game_state.ai_move_range, weapon_index, "");
+                    // If retreat attacking
+                    if (retreating)
+                    {
+                        if (retreat_loc.IsSomething)
+                        {
+                            // Remove tiles from the attacking range that are not already on the way to the retreat point
+                            attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                            {
+                                var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                                // If somehow can't move to the target tile (what), break
+                                if (move_cost.IsNothing)
+                                    return false;
+                                else
+                                    return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
+                            }));
+                        }
+
+                        /*// Remove tiles from the attacking range that the attacker cannot then retreat to safety from //Debug
+                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                        {
+                            var move_cost = Pathfinding.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                            // If somehow can't move to the target tile (what), break
+                            if (!move_cost.Key)
+                                return false;
+                            var post_attack_move_range = Pathfinding.get_range(x, attacker.mov - move_cost.Value, attacker.id, x);
+                            return post_attack_move_range.Except(Global.game_state.ai_enemy_attack_range).Any();
+                        }));*/
+                    }
+                }
+                else
+                {
+                    // If the target can't be hit from this tile, continue
+                    if (distance > max_range || distance < min_range ||
+                            !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { attacker.loc }, "").Contains(targetUnit.loc))
+                        return null;
+                }
+
+                // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
+                ever_counter = !weapon1.No_Counter &&
+                    !(targetUnit.min_range_absolute() > attacker.max_range(weapon_index) ||
+                    targetUnit.max_range_absolute() < attacker.min_range(weapon_index));
+                if (weapon1.No_Counter)
+                {
+                    // Pares attack range to best terrain types
+                    // This allows selecting for the best damage output as well, not just for best defensive terrain
+                    best_terrain(ref attack_move_range);
+                }
+            }
+
+            // Cycle through locations that can be attacked from
+            List<int[]> results = new List<int[]>();
+            foreach (Vector2 loc in attack_move_range)
+            {
+                attacker.reset_ai_loc();
+                if (loc.X != Config.OFF_MAP.X)
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        attacker.set_ai_base_loc(loc, move_distance);
+                        distance = (int)(Math.Abs(loc.X - targetUnit.loc.X) + Math.Abs(loc.Y - targetUnit.loc.Y));
+                    }
+                }
+
+                targetUnit.target_unit(attacker, weapon1, distance);
+
+                //test_ary.push blah blah
+                var use = attack_use(attacker, targetUnit, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test);
+                if (use.IsNothing)
+                    continue;
+                results.Add(new int[] { targetUnit.id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
+                targetUnit.cancel_targeted();
+            }
+
+            return results;
+        }
+        private static IEnumerable<int[]> check_siege_target(
+            Game_Unit attacker,
+            Game_Unit targetUnit,
+            bool can_move,
+            bool best,
+            bool damage_test,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, targetUnit.id);
+            Data_Weapon weapon1 = null, weapon2 = null;
+            int min_range, max_range;
+            bool ever_counter;
+
+
+            attacker.reset_ai_loc();
+            HashSet<Vector2> siege_move_range = can_move ? Global.game_map.remove_blocked(
+                Global.game_state.ai_move_range, attacker.id) : new HashSet<Vector2> { attacker.loc };
+            List<int[]> results = new List<int[]>();
+            foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
+            {
+                // If siege engine has uses and is in the move range and can be equipped
+                if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
+                    attacker.actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(siege.loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        // Set location to the siege engine and fix distance
+                        attacker.set_ai_base_loc(siege.loc, move_distance);
+                        distance = (int)(Math.Abs(siege.loc.X - targetUnit.loc.X) + Math.Abs(siege.loc.Y - targetUnit.loc.Y));
+
+                        if (Global.data_weapons.ContainsKey(attacker.items[weapon_index].Id))
+                            weapon1 = Global.data_weapons[attacker.items[weapon_index].Id];
+                        min_range = attacker.min_range(weapon_index);
+                        max_range = attacker.max_range(weapon_index);
+
+                        // If just checking damage as a percent of target health
+                        if (damage_test)
+                        {
+                            ever_counter = true;
+                            weapon2 = targetUnit.actor.weapon;
+                        }
+                        else
+                        {
+                            if (distance > max_range || distance < min_range ||
+                                !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { siege.loc }, "").Contains(targetUnit.loc))
+                            {
+                                attacker.reset_ai_loc();
+                                continue;
+                            }
+
+                            // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
+                            ever_counter = !weapon1.No_Counter &&
+                                !(targetUnit.min_range_absolute() > attacker.max_range(weapon_index) ||
+                                targetUnit.max_range_absolute() < attacker.min_range(weapon_index));
+                        }
+
+                        targetUnit.target_unit(attacker, weapon1, distance);
+
+                        var use = attack_use(attacker, targetUnit, weapon_index, weapon1, siege.loc, ever_counter, distance, best, damage_test);
+                        if (use.IsNothing)
+                        {
+                            attacker.reset_ai_loc();
+                            continue;
+                        }
+                        results.Add(new int[] { targetUnit.id, weapon_index + 1, (int)use, (int)siege.loc.X, (int)siege.loc.Y });
+                        targetUnit.cancel_targeted();
+
+                        attacker.reset_ai_loc();
+                    }
+                }
+            }
+            return results;
         }
 
         private static List<int> check_targets_target_list(Game_Unit attacker, List<int> targets, bool best)
