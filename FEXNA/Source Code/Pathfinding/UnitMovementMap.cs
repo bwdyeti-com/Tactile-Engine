@@ -8,7 +8,7 @@ using FEXNA_Library.Pathfinding;
 
 namespace FEXNA.Pathfinding
 {
-    enum Unit_Passable { Clear, Blocked, PassableEventedEnemy, PassableEnemy, PassableAlly }
+    enum Unit_Passable { Clear, Blocked, PassableFullMoveEnemy, PassableEnemy, PassableAlly }
 
     class UnitMovementMap : IMovementMap<Vector2>
     {
@@ -17,6 +17,7 @@ namespace FEXNA.Pathfinding
         private int UnitId;
         private Game_Map Map;
         private bool IgnoreUnits, ThroughDoors, IgnoreDoors;
+        private Maybe<bool> FullMoveThroughEnemies;
 
         Dictionary<Vector2, int> MoveCosts;
         private Dictionary<Vector2, Unit_Passable> UnitLocs = new Dictionary<Vector2, Unit_Passable>(); // should maybe be an array?
@@ -35,6 +36,9 @@ namespace FEXNA.Pathfinding
         private void initialize_unit_locs()
         {
             var unit = this.Unit;
+
+            if (FullMoveThroughEnemies.IsNothing)
+                FullMoveThroughEnemies = unit.is_evented_move;
             initialize_unit_locs(unit);
 
             // Doors
@@ -81,8 +85,8 @@ namespace FEXNA.Pathfinding
                 return Unit_Passable.PassableAlly;
             else
             {
-                if (unit.is_evented_move)
-                    return Unit_Passable.PassableEventedEnemy;
+                if (FullMoveThroughEnemies)
+                    return Unit_Passable.PassableFullMoveEnemy;
                 else if (unit.can_pass_enemies())
                     return Unit_Passable.PassableAlly;
                 if (IgnoreUnits)
@@ -96,8 +100,8 @@ namespace FEXNA.Pathfinding
                 return Unit_Passable.PassableAlly;
             else
             {
-                if (unit.is_evented_move)
-                    return Unit_Passable.PassableEventedEnemy;
+                if (FullMoveThroughEnemies)
+                    return Unit_Passable.PassableFullMoveEnemy;
                 else if (unit.can_pass_enemies())
                     return Unit_Passable.PassableAlly;
                 if (IgnoreUnits)
@@ -239,7 +243,7 @@ namespace FEXNA.Pathfinding
             // but they can be passed through,
             // prefer to move around them if possible
             if (UnitLocs.ContainsKey(loc) &&
-                    UnitLocs[loc] == Unit_Passable.PassableEventedEnemy)
+                    UnitLocs[loc] == Unit_Passable.PassableFullMoveEnemy)
                 terr_cost += Math.Max(1, this.Unit.mov);
             return terr_cost * 10 *
                 (Map.is_off_map(loc) ? OFF_MAP_PENALTY_MULT : 1);
@@ -316,6 +320,7 @@ namespace FEXNA.Pathfinding
             bool IgnoreUnits = false;
             bool ThroughDoors = false;
             bool IgnoreDoors = false;
+            Maybe<bool> FullMoveThroughEnemies;
 
             public Builder WithIgnoreUnits(bool value)
             {
@@ -332,6 +337,11 @@ namespace FEXNA.Pathfinding
                 IgnoreDoors = value;
                 return this;
             }
+            public Builder WithFullMoveThroughEnemies(bool value)
+            {
+                FullMoveThroughEnemies = value;
+                return this;
+            }
 
             public UnitMovementMap Build(
                 int unitId)
@@ -342,7 +352,8 @@ namespace FEXNA.Pathfinding
                 {
                     IgnoreUnits = IgnoreUnits,
                     ThroughDoors = ThroughDoors,
-                    IgnoreDoors = IgnoreDoors
+                    IgnoreDoors = IgnoreDoors,
+                    FullMoveThroughEnemies = FullMoveThroughEnemies.IsSomething
                 };
                 result.initialize_unit_locs();
                 return result;

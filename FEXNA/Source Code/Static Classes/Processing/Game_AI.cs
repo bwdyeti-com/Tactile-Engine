@@ -2370,7 +2370,13 @@ namespace FEXNA
             List<int> target_team = target_units(unit, searching_for_enemies);
             // Gets targets that can be reached and their distance
             List<UnitDistance> searched_team = new List<UnitDistance>();
-            Pathfind.reset();
+
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithFullMoveThroughEnemies(searching_for_enemies)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
             foreach (int unit_id in target_team)
             {
                 // I sure hope nothing that calls this wants a unit to find a path to itself! //Debug
@@ -2380,11 +2386,10 @@ namespace FEXNA
                 Game_Unit target = Global.game_map.units[unit_id];
 
                 // Check if the target can be reached and get the distance
-                Maybe<int> check = Pathfind.get_distance(target.loc, unit.id, -1, true, ignore_doors);
+                Maybe<int> check = check = pathfinder.get_distance(unit.loc, target.loc, -1);
                 if (check.IsSomething)
                     searched_team.Add(new UnitDistance(unit_id, check));
             }
-            Pathfind.reset();
             return searched_team;
         }
 
