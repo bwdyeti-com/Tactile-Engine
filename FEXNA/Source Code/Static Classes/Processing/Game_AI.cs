@@ -1479,14 +1479,16 @@ namespace FEXNA
         {
             // add defending area hashset
             // Gets targets that can be reached and their distance
-            List<UnitDistance> searched_targets = search_for_target(unit);
+            List<CombatObjectDistance> searched_targets = search_for_target(unit)
+                    .ToList<CombatObjectDistance>();
             bool ignore_doors = false;
             // If no targets were found, try again looking through doors that this unit can't open; moving closer to doors would still be useful
             if (searched_targets.Count == 0)
             {
                 if (Global.game_map.door_locations.Count > 0)
                 {
-                    searched_targets = search_for_target(unit, ignore_doors: true);
+                    searched_targets = search_for_target(unit, ignore_doors: true)
+                        .ToList<CombatObjectDistance>();
                     ignore_doors = true;
                 }
             }
@@ -1495,9 +1497,9 @@ namespace FEXNA
             // If defending an area, only check the ones in the area (unless that's nobody)
             if (enemy_tiles != null)
             {
-                List<UnitDistance> defend_targets = new List<UnitDistance>();
-                foreach (UnitDistance i in searched_targets)
-                    if (enemy_tiles.Contains(i.unit.loc))
+                var defend_targets = new List<CombatObjectDistance>();
+                foreach (CombatObjectDistance i in searched_targets)
+                    if (enemy_tiles.Contains(i.Loc))
                         defend_targets.Add(i);
                 if (defend_targets.Count > 0)
                     searched_targets = defend_targets;
@@ -1508,7 +1510,9 @@ namespace FEXNA
             if (cares_about_damage)
             {
                 HashSet<UnitDistance> no_damage = new HashSet<UnitDistance>();
-                foreach (UnitDistance i in searched_targets)
+                foreach (UnitDistance i in searched_targets
+                    .Where(x => x is UnitDistance)
+                    .Select(x => x as UnitDistance))
                 {
                     // Temporarily adds the value to a list of targets that cannot be damaged
                     no_damage.Add(i);
@@ -1538,23 +1542,35 @@ namespace FEXNA
                     return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
             }
             // Sorts the target units by toughness and distance
-            searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
+            searched_targets.Sort(delegate (CombatObjectDistance a, CombatObjectDistance b)
             {
                 return sort_by_toughness_distance(unit, a, b);
             });
 
             // Selects a target
-            Game_Unit target = searched_targets[0].unit;
+            var target = searched_targets[0];
+            if (target is UnitDistance)
+            {
+                return search_for_enemy(unit, target as UnitDistance, ignore_doors);
+            }
+
+            // Nothing suitable found
+            return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
+        }
+
+        private static Maybe<Vector2>[] search_for_enemy(Game_Unit unit, UnitDistance target, bool ignore_doors)
+        {
+            Game_Unit targetUnit = target.unit;
             bool offensive = unit.actor.can_attack();
             // Try finding a path around enemies in the way first
             Maybe<Vector2> path_loc = path_to_target(
-                unit, target.loc, offensive : offensive,
+                unit, targetUnit.loc, offensive: offensive,
                 no_move_okay: unit.cantoing, ignore_doors: ignore_doors,
                 ignore_blocking: false);
             if (path_loc.IsNothing)
             {
                 path_loc = path_to_target(
-                    unit, target.loc, offensive: offensive,
+                    unit, targetUnit.loc, offensive: offensive,
                     no_move_okay: unit.cantoing, ignore_doors: ignore_doors,
                     ignore_blocking: true);
             }
@@ -1568,7 +1584,7 @@ namespace FEXNA
                 }
                 else
                 {
-                    Vector2? door_target = Game_AI.door_target(unit, target.loc, path_loc, -1);
+                    Vector2? door_target = Game_AI.door_target(unit, targetUnit.loc, path_loc, -1);
                     // If a door is in the way, but the door tile is not adjacent to the tile we would normally end our move on
                     if (door_target != null && Global.game_map.distance((Vector2)door_target, path_loc) != 1)
                         door_target = null;
@@ -1577,7 +1593,7 @@ namespace FEXNA
                         return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
                 }
             }
-            return new Maybe<Vector2>[] { target.loc, path_loc };
+            return new Maybe<Vector2>[] { targetUnit.loc, path_loc };
         }
 
         public static Maybe<Vector2>[] search_for_seize(Game_Unit unit, bool ignore_blocking)
@@ -1730,22 +1746,28 @@ namespace FEXNA
             return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
         }
 
-        private static int sort_by_toughness_distance(Game_Unit unit, UnitDistance a, UnitDistance b)
+        private static int sort_by_toughness_distance(Game_Unit unit, CombatObjectDistance a, CombatObjectDistance b)
         {
             int comparison = toughness_distance(unit, a) - toughness_distance(unit, b);
             return comparison;
         }
-        private static int toughness_distance(Game_Unit unit, UnitDistance target)
+        private static int toughness_distance(Game_Unit unit, CombatObjectDistance target)
         {
             // test how this works with targets on impassable terrain //Yeti
             // The cost of moving onto the target's tile
-            int target_tile_cost = unit.move_cost(target.unit.loc);
+            int target_tile_cost = unit.move_cost(target.Loc);
             // Gets the total move cost to move up to the target
             int route_cost = target.Dist - target_tile_cost;
 
             int turns_to_reach = (int)Math.Ceiling(route_cost / (float)unit.mov);
-            return (int)(target.unit.toughness() *
-                Math.Pow(turns_to_reach, 1.5f));
+            int toughness = 2 * (Constants.Actor.MAX_HP + Constants.Actor.MAX_STAT * 2);
+            if (target is UnitDistance)
+            {
+                var targetUnit = (target as UnitDistance).unit;
+                toughness = targetUnit.toughness();
+            }
+
+            return (int)(toughness * Math.Pow(turns_to_reach, 1.5f));
         }
 
         public static Maybe<Vector2>[] search_for_ally(Game_Unit unit)
