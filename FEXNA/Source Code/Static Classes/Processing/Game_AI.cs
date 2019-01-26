@@ -165,6 +165,7 @@ namespace FEXNA
                 retreat_loc = retreat(attacker, no_move_okay: false);
 
             bool attacksLightRunes = AttackLightRunes(attacker, can_move);
+            bool attacksDestroyables = AttackDestroyables(attacker, can_move);
 
             // Cycle through targets
             foreach (int targetId in targets)
@@ -212,6 +213,22 @@ namespace FEXNA
                             {
                                 targetUses = check_target(
                                     attacker, lightRune, can_move, best, retreating,
+                                    damage_test, retreat_loc, weapon_index);
+                            }
+                            #endregion
+                        }
+                    }
+                    else if (target is Destroyable_Object)
+                    {
+                        Destroyable_Object destroyable =
+                            Global.game_map.get_destroyable(target.loc);
+                        if (attacksDestroyables && destroyable.HasEnemyTeam(attacker))
+                        {
+                            #region Regular Weapons
+                            if (weapon_index != Constants.Actor.NUM_ITEMS)
+                            {
+                                targetUses = check_target(
+                                    attacker, destroyable, can_move, best, retreating,
                                     damage_test, retreat_loc, weapon_index);
                             }
                             #endregion
@@ -287,6 +304,16 @@ namespace FEXNA
                     }
                 }
                 return attacksLightRunes;
+            }
+            return false;
+        }
+        private static bool AttackDestroyables(Game_Unit attacker, bool canMove)
+        {
+            // Only moving units should attack destroyables
+            //@Debug: // parts should be passed in
+            if (canMove && MOVING_MISSIONS.Contains(attacker.mission))
+            {
+                return true;
             }
             return false;
         }
@@ -555,6 +582,91 @@ namespace FEXNA
                 //test_ary.push blah blah
                 //var use = attack_use(attacker, target, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test); //@Debug
                 Maybe<int> use = 0;
+                if (use.IsNothing)
+                    continue;
+                results.Add(new int[] { target.id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
+            }
+
+            return results;
+        }
+
+        private static IEnumerable<int[]> check_target(
+            Game_Unit attacker,
+            Destroyable_Object target,
+            bool can_move,
+            bool best,
+            bool retreating,
+            bool damage_test,
+            Maybe<Vector2> retreat_loc,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, target.id);
+            Data_Weapon weapon1 = null;
+            int min_range, max_range;
+            
+            // Gets range
+            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
+                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            min_range = attacker.min_range(weapon_index);
+            max_range = attacker.max_range(weapon_index);
+
+            attacker.reset_ai_loc();
+            HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
+            if (can_move)
+            {
+                // If unable to hit the target, continue
+                if (!can_move_to_hit(target.loc, Global.game_state.ai_move_range, attacker, weapon_index))
+                    return null;
+                attack_move_range = attacker.hit_from_loc(target.loc, Global.game_state.ai_move_range, weapon_index, "");
+                // If retreat attacking
+                if (retreating)
+                {
+                    if (retreat_loc.IsSomething)
+                    {
+                        // Remove tiles from the attacking range that are not already on the way to the retreat point
+                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                        {
+                            var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                        // If somehow can't move to the target tile (what), break
+                        if (move_cost.IsNothing)
+                                return false;
+                            else
+                                return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
+                        }));
+                    }
+                }
+            }
+            else
+            {
+                // If the target can't be hit from this tile, continue
+                if (distance > max_range || distance < min_range ||
+                        !attacker.get_weapon_range(
+                                new List<int> { weapon_index },
+                                new HashSet<Vector2> { attacker.loc }, "")
+                            .Contains(target.loc))
+                    return null;
+            }
+            // Pares attack range to best terrain types
+            best_terrain(ref attack_move_range);
+
+            // Cycle through locations that can be attacked from
+            List<int[]> results = new List<int[]>();
+            foreach (Vector2 loc in attack_move_range)
+            {
+                attacker.reset_ai_loc();
+                if (loc.X != Config.OFF_MAP.X)
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        attacker.set_ai_base_loc(loc, move_distance);
+                        distance = (int)(Math.Abs(loc.X - target.loc.X) + Math.Abs(loc.Y - target.loc.Y));
+                    }
+                }
+
+                //test_ary.push blah blah
+                //var use = attack_use(attacker, target, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test); //@Debug
+                Maybe<int> use = -5; // Less value than attacking light runes
                 if (use.IsNothing)
                     continue;
                 results.Add(new int[] { target.id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
