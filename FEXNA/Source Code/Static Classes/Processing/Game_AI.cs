@@ -1519,7 +1519,7 @@ namespace FEXNA
                             if (unit.actor.is_equippable(weapon))
                             {
                                 var stats = new CombatStats(
-                                    unit.id, i.UnitId, weapon, weapon.Min_Range);
+                                    unit.id, i.Id, weapon, weapon.Min_Range);
 
                                 if ((stats.dmg() > 0 || weapon.Status_Inflict.Any()) &&
                                     stats.hit() > 0)
@@ -1741,7 +1741,7 @@ namespace FEXNA
             // The cost of moving onto the target's tile
             int target_tile_cost = unit.move_cost(target.unit.loc);
             // Gets the total move cost to move up to the target
-            int route_cost = target.dist - target_tile_cost;
+            int route_cost = target.Dist - target_tile_cost;
 
             int turns_to_reach = (int)Math.Ceiling(route_cost / (float)unit.mov);
             return (int)(target.unit.toughness() *
@@ -1813,7 +1813,7 @@ namespace FEXNA
                 case Search_For_Ally_Modes.Anyone:
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_To_Heal:
@@ -1831,13 +1831,13 @@ namespace FEXNA
 
                     // Gets the distance from each heal target to the nearest enemy unit
                     var distance_to_enemies = searched_targets.ToDictionary(
-                        x => x.UnitId, x =>
+                        x => x.Id, x =>
                             {
                                 var targets = search_for_target(x.unit, true);
                                 // If no enemies can be reached, return an arbitrarily high value
                                 if (!targets.Any())
                                     return 2 * (Global.game_map.width + Global.game_map.height);
-                                return targets.Min(y => y.dist);
+                                return targets.Min(y => y.Dist);
                             });
                     /* //Debug
                     // Don't heal allies who can't reach any enemies...?
@@ -1851,8 +1851,8 @@ namespace FEXNA
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
                         return (int)(ATTACK_WEIGHT_PRECISION * (
-                            heal_distance(unit, a, distance_to_enemies[a.UnitId]) -
-                            heal_distance(unit, b, distance_to_enemies[b.UnitId])));
+                            heal_distance(unit, a, distance_to_enemies[a.Id]) -
+                            heal_distance(unit, b, distance_to_enemies[b.Id])));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_For_Healing:
@@ -1867,7 +1867,7 @@ namespace FEXNA
                     }
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_For_Healing_Item:
@@ -1879,7 +1879,7 @@ namespace FEXNA
                             // Changed this to only work within on move, otherwise there was infinite looping // Yeti
                             // Maybe change it later
                             // I don't actually understand how this is infinite looping though //Debug
-                            x.dist <= unit.canto_mov && unit.same_team(x.unit) &&
+                            x.Dist <= unit.canto_mov && unit.same_team(x.unit) &&
                             !x.unit.no_ai_item_trading &&
                             x.unit.can_heal_self(unit))
                         .ToList();
@@ -1903,7 +1903,7 @@ namespace FEXNA
                     }*/
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_To_Dance:
@@ -1921,7 +1921,7 @@ namespace FEXNA
                     }*/
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
             }
@@ -1931,7 +1931,7 @@ namespace FEXNA
         private static double heal_distance(
             Game_Unit unit, UnitDistance target, int distanceToEnemy)
         {
-            int turns_to_reach = target.dist / unit.mov + 1;
+            int turns_to_reach = target.Dist / unit.mov + 1;
             float health_percent = target.unit.actor.hp / (float)target.unit.actor.maxhp;
             // Will prefer healing targets with the lowest result of this function
             // Higher hp, further away from the healer, and further away from any enemies increase the result
@@ -1967,7 +1967,7 @@ namespace FEXNA
             // Remove the allies that aren't within one turn of movement
             while (i < allies.Count)
             {
-                if (allies[i].dist - unit.move_cost(allies[i].unit.loc) <= unit.mov)
+                if (allies[i].Dist - unit.move_cost(allies[i].unit.loc) <= unit.mov)
                     i++;
                 else
                     allies.RemoveAt(i);
@@ -2547,9 +2547,9 @@ namespace FEXNA
 
             if (talk_targets.Count > 0)
             {
-                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.dist - b.dist; });
+                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.Dist - b.Dist; });
 
-                int target_id = talk_targets[0].UnitId;
+                int target_id = talk_targets[0].Id;
                 Game_Unit target = Global.game_map.units[target_id];
                 List<KeyValuePair<Vector2, int>> target_locs = new List<KeyValuePair<Vector2, int>>();
                 // Check the tiles around the target
@@ -2580,9 +2580,9 @@ namespace FEXNA
 
             if (talk_targets.Count > 0)
             {
-                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.dist - b.dist; });
+                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.Dist - b.Dist; });
 
-                int target_id = talk_targets[0].UnitId;
+                int target_id = talk_targets[0].Id;
                 Game_Unit target = Global.game_map.units[target_id];
                 List<LocationDistance> target_locs = new List<LocationDistance>();
                 // Check the tiles around the target
