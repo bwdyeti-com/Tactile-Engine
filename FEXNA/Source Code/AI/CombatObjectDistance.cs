@@ -1,4 +1,5 @@
-﻿namespace FEXNA.AI
+﻿using Microsoft.Xna.Framework;
+namespace FEXNA.AI
 {
     /// <summary>
     /// Represents an attackable object on a map, and the travel distance to get there.
@@ -10,8 +11,11 @@
 
         #region Accessors
         public Combat_Map_Object MapObject { get { return Global.game_map.attackable_map_object(_objectId); } }
+
         public int Id { get { return _objectId; } }
         public int Dist { get { return _Dist; } }
+
+        public virtual Vector2 Loc { get { return this.MapObject.loc; } }
         #endregion
 
         public override string ToString()

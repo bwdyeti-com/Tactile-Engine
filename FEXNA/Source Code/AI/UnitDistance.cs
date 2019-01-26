@@ -1,4 +1,6 @@
-﻿namespace FEXNA.AI
+﻿using Microsoft.Xna.Framework;
+
+namespace FEXNA.AI
 {
     /// <summary>
     /// Represents a unit on a map, and the travel distance to get there.
@@ -7,6 +9,8 @@
     {
         #region Accessors
         public Game_Unit unit { get { return Global.game_map.units[this.Id]; } }
+
+        public override Vector2 Loc { get { return this.unit.loc; } }
         #endregion
 
         public override string ToString()
