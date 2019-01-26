@@ -18,6 +18,7 @@ namespace FEXNA.Pathfinding
         private Game_Map Map;
         private bool IgnoreUnits, ThroughDoors, IgnoreDoors;
         private Maybe<bool> FullMoveThroughEnemies;
+        private bool ForceGoalPassable;
 
         Dictionary<Vector2, int> MoveCosts;
         private Dictionary<Vector2, Unit_Passable> UnitLocs = new Dictionary<Vector2, Unit_Passable>(); // should maybe be an array?
@@ -195,7 +196,7 @@ namespace FEXNA.Pathfinding
             if (loc == goalLoc && Map.is_off_map(goalLoc, false))
                 return true;
 
-            int move_cost = TileCost(loc);
+            int move_cost = TileCost(loc, goalLoc);
             bool pass = move_cost >= 0;
             if (pass)
             {
@@ -213,9 +214,9 @@ namespace FEXNA.Pathfinding
             return UnitLocs[loc] != Unit_Passable.Blocked;
         }
 
-        public int TileCost(Vector2 loc)
+        public int TileCost(Vector2 loc, Vector2 goalLoc)
         {
-            if (MoveCosts.ContainsKey(loc))
+            if (MoveCosts.ContainsKey(loc) && loc != goalLoc)
                 return MoveCosts[loc];
             else
             {
@@ -225,15 +226,26 @@ namespace FEXNA.Pathfinding
                     return terrain_cost(loc);
 
                 // If the terrain cost for this tile hasn't been cached yet
-                MoveCosts[loc] = terrain_cost(loc);
-                // If unit is off map and the tile is impassable, make it passable but costly so they can always get onto the map
-                if (MoveCosts[loc] < 0 &&
-                    Map.is_off_map(this.Unit.loc) &&
-                    Map.is_off_map(loc))
+                int cost = MoveCosts[loc] = terrain_cost(loc);
+
+                if (cost < 0)
                 {
-                    MoveCosts[loc] = (this.Unit.mov * 2) * 10 * OFF_MAP_PENALTY_MULT;
+                    // If the goal should be forced passable
+                    if (loc == goalLoc && ForceGoalPassable)
+                    {
+                        cost = 10;
+                    }
+                    // If unit is off map and the tile is impassable,
+                    // make it passable but costly so they can always
+                    // get onto the map
+                    else if (Map.is_off_map(this.Unit.loc) && Map.is_off_map(loc))
+                    {
+                        cost = MoveCosts[loc] =
+                            (this.Unit.mov * 2) * 10 * OFF_MAP_PENALTY_MULT;
+                    }
+
                 }
-                return MoveCosts[loc];
+                return cost;
             }
         }
         private int terrain_cost(Vector2 loc)
@@ -263,10 +275,10 @@ namespace FEXNA.Pathfinding
                 (loc.Y == targetLoc.Y && Math.Abs(loc.X - targetLoc.X) <= 1);
         }
 
-        public int HeuristicPenalty(Vector2 loc)
+        public int HeuristicPenalty(Vector2 loc, Vector2 goalLoc)
         {
             int heuristic = 0;
-            if (Doors.Contains(loc) && TileCost(loc) < 0)
+            if (Doors.Contains(loc) && TileCost(loc, goalLoc) < 0)
             {
                 heuristic = (this.Unit.mov + 1) * 10;
             }
@@ -321,6 +333,7 @@ namespace FEXNA.Pathfinding
             bool ThroughDoors = false;
             bool IgnoreDoors = false;
             Maybe<bool> FullMoveThroughEnemies;
+            bool ForceGoalPassable = false;
 
             public Builder WithIgnoreUnits(bool value)
             {
@@ -342,6 +355,11 @@ namespace FEXNA.Pathfinding
                 FullMoveThroughEnemies = value;
                 return this;
             }
+            public Builder WithForceGoalPassable(bool value)
+            {
+                ForceGoalPassable = value;
+                return this;
+            }
 
             public UnitMovementMap Build(
                 int unitId)
@@ -353,7 +371,8 @@ namespace FEXNA.Pathfinding
                     IgnoreUnits = IgnoreUnits,
                     ThroughDoors = ThroughDoors,
                     IgnoreDoors = IgnoreDoors,
-                    FullMoveThroughEnemies = FullMoveThroughEnemies.IsSomething
+                    FullMoveThroughEnemies = FullMoveThroughEnemies.IsSomething,
+                    ForceGoalPassable = ForceGoalPassable
                 };
                 result.initialize_unit_locs();
                 return result;
