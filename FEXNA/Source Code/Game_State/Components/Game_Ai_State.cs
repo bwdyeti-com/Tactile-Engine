@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using Microsoft.Xna.Framework;
+using FEXNA.AI;
 using FEXNA_Library;
 using HashSetExtension;
 using ListExtension;

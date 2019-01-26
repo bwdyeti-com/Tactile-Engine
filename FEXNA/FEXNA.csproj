@@ -78,6 +78,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Source Code\AI\LocationDistance.cs" />
+    <Compile Include="Source Code\AI\UnitDistance.cs" />
     <Compile Include="Source Code\Calculations\Level Up\LevelUpProcessor.cs" />
     <Compile Include="Source Code\Calculations\Level Up\PromotionProcessor.cs" />
     <Compile Include="Source Code\Calculations\Level Up\Stats\LevelUpStatSet.cs" />

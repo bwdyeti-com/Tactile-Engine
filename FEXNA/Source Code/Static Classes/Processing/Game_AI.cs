@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using FEXNA.AI;
 using FEXNA.Calculations.Stats;
 using FEXNA.Pathfinding;
 using FEXNA_Library;
@@ -3196,56 +3197,5 @@ namespace FEXNA
             //temp_range.Clear();
         }
         #endregion
-    }
-
-    /// <summary>
-    /// Represents a location on a map, and the travel distance to get there.
-    /// </summary>
-    struct LocationDistance
-    {
-        private Vector2 Loc;
-        private int Dist;
-
-        #region Accessors
-        public Vector2 loc { get { return Loc; } }
-        public int dist { get { return Dist; } }
-        #endregion
-
-        public override string ToString()
-        {
-            return string.Format("Loc: {0}; Dist: {1}", Loc, Dist);
-        }
-
-        public LocationDistance(Vector2 loc, int dist)
-        {
-            Loc = loc;
-            Dist = dist;
-        }
-    }
-
-    /// <summary>
-    /// Represents a unit on a map, and the travel distance to get there.
-    /// </summary>
-    struct UnitDistance
-    {
-        private int _unitId;
-        private int Dist;
-
-        #region Accessors
-        public Game_Unit unit { get { return Global.game_map.units[_unitId]; } }
-        public int UnitId { get { return _unitId; } }
-        public int dist { get { return Dist; } }
-        #endregion
-
-        public override string ToString()
-        {
-            return string.Format("Unit: {0}; Dist: {1}", unit, Dist);
-        }
-
-        public UnitDistance(int unitId, int dist)
-        {
-            _unitId = unitId;
-            Dist = dist;
-        }
     }
 }
