@@ -1480,7 +1480,7 @@ namespace FEXNA
             // add defending area hashset
             // Gets targets that can be reached and their distance
             List<CombatObjectDistance> searched_targets = search_for_target(unit)
-                    .ToList<CombatObjectDistance>();
+                .ToList<CombatObjectDistance>();
             bool ignore_doors = false;
             // If no targets were found, try again looking through doors that this unit can't open; moving closer to doors would still be useful
             if (searched_targets.Count == 0)
@@ -1492,6 +1492,15 @@ namespace FEXNA
                     ignore_doors = true;
                 }
             }
+
+            // Add destroyable terrain
+            bool attacksDestroyables = AttackDestroyables(unit, true);
+            if (attacksDestroyables)
+            {
+                List<DestroyableDistance> searchedDestroyables = search_for_destroyable(unit);
+                searched_targets.AddRange(searchedDestroyables);
+            }
+
             if (searched_targets.Count == 0)
                 return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
             // If defending an area, only check the ones in the area (unless that's nobody)
@@ -2852,8 +2861,6 @@ namespace FEXNA
             // Can't open doors if cantoing
             if (unit.cantoing)
                 ignore_doors = false;
-            // Gets the distance from all tiles in the move range to the target
-            List<LocationDistance> target_locs = new List<LocationDistance>();
             int dist = -1;
             // Remove blocked
             HashSet<Vector2> move_range = new HashSet<Vector2>(unit.move_range.Where(v => !Global.game_map.is_blocked(v, unit.id, false)));
@@ -2918,8 +2925,13 @@ namespace FEXNA
                     move_range.ExceptWith(Global.game_state.ai_enemy_attack_range);
 
             // Check if the route to the target is blocked, because if so we need to get fancy
-            Pathfind.reset();
-            Maybe<int> check = Pathfind.get_distance(target_loc, unit.id, -1, true, unit.loc, ignore_doors);
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
+            Maybe<int> check = pathfinder.get_distance(unit.loc, target_loc, -1);
             bool path_blocked = check.IsNothing, path_blocked_by_unit = false;
             if (path_blocked)
             {
@@ -2927,8 +2939,14 @@ namespace FEXNA
                 Console.WriteLine(string.Format(
                     "\nPathfinding for a unit is blocked,\nchecking if it's just units in the way\nUnit: {0}\n", unit));
 #endif
-                Pathfind.ignore_units = true;
-                check = Pathfind.get_distance(target_loc, unit.id, -1, true, unit.loc, ignore_doors);
+                unitMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithIgnoreUnits(true)
+                    .WithThroughDoors(true)
+                    .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                    .Build(unit.id);
+                pathfinder = unitMap.Pathfind();
+                check = pathfinder.get_distance(unit.loc, target_loc, -1);
                 path_blocked_by_unit = check.IsSomething;
 #if DEBUG
                 if (!path_blocked_by_unit)
@@ -2938,20 +2956,28 @@ namespace FEXNA
 
             // Get the distance from the base tile to each move_range tile
 
+            // Gets the distance from all tiles in the move range to the target
+            List<LocationDistance> target_locs = new List<LocationDistance>();
+
             // At least that's the sensible thing this would do, it was checking the
             //     distance from the target to where the unit is standing, which
             //     crashes when the unit is on impassable terrain //Debug
+            unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithIgnoreUnits(ignore_blocking || path_blocked_by_unit)
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            pathfinder = unitMap.Pathfind();
             foreach (Vector2 loc in move_range)
             {
-                Pathfind.ignore_units = ignore_blocking || path_blocked_by_unit;
-                //check = Pathfinding.get_distance(target_loc, unit.id, -1, true, loc, ignore_doors); //Debug
-                check = Pathfind.get_distance(loc, unit.id, -1, true, target_loc, ignore_doors);
+                //@Debug: //check = pathfinder.get_distance(target_loc, loc, -1);
+                check = pathfinder.get_distance(loc, target_loc, -1);
                 if (check.IsSomething)
                 {
                     target_locs.Add(new LocationDistance(loc, check));
                 }
             }
-            Pathfind.reset();
             // Raise an error if target_locs.Count == 0 ? //Yeti
             if (target_locs.Count == 0)
                 throw new IndexOutOfRangeException("No valid locations to move to");
@@ -3030,14 +3056,9 @@ namespace FEXNA
             else
             {
                 // Pares list down to tiles at the optimal distance
-                int index = 0;
-                while (index < target_locs.Count)
-                {
-                    if (target_locs[index].dist != dist)
-                        target_locs.RemoveAt(index);
-                    else
-                        index++;
-                }
+                target_locs = target_locs
+                    .Where(x => x.dist == dist)
+                    .ToList();
                 // If one of the valid locations is the current location, why move //Debug
                 if (no_move_okay)
                     foreach (LocationDistance pair in target_locs)
@@ -3095,11 +3116,27 @@ namespace FEXNA
         }
         public static Vector2? door_target(Game_Unit unit, Vector2 target_loc, Vector2 loc, int range)
         {
-            List<Vector2> route = unit.actual_move_route(loc, Pathfind.get_route(target_loc, range, unit.id, loc, true, true));
-            Pathfind.reset();
-            if (route.Count == 0)
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(true)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
+            var route = pathfinder.get_route(loc, target_loc, range);
+            if (route == null)
+            {
+                unitMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithFullMoveThroughEnemies(true)
+                    .WithThroughDoors(true)
+                    .WithIgnoreDoors(true)
+                    .WithForceGoalPassable(true)
+                    .Build(unit.id);
+                pathfinder = unitMap.Pathfind();
+                route = pathfinder.get_route(loc, target_loc, range);
+            }
+            if (route == null || route.Count == 0)
                 return null;
-            foreach(Vector2 move_loc in route)
+            foreach (Vector2 move_loc in route.Reverse<Vector2>())
             {
                 if (unit.move_cost(move_loc) >= 0)
                     continue;
