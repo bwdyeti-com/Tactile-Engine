@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using Microsoft.Xna.Framework;
+using FEXNA.AI;
 using FEXNA_Library;
 using HashSetExtension;
 using ListExtension;
@@ -929,7 +930,9 @@ namespace FEXNA.State
                         case Ai_Actions.Wait_For_Move:
                             if (!unit.is_in_motion() && Temp_Ai_Loc == unit.loc)
                             {
-                                Vector2 target_loc = Units[Temp_Ai_Target[0]].loc;
+                                Vector2 target_loc = Global.game_map
+                                    .attackable_map_object(Temp_Ai_Target[0])
+                                    .loc;
                                 if (!is_off_screen(target_loc))
                                     Ai_Timer = Constants.Map.AI_WAIT_TIME;
                                 if (Ai_Timer < ai_wait_time)
@@ -3977,18 +3980,22 @@ namespace FEXNA.State
                     Temp_Ai_Target[1] - 1 == Siege_Engine.SIEGE_INVENTORY_INDEX;
                 // Unit movement locked in
                 unit.moved();
-                Game_Unit target = Units[Temp_Ai_Target[0]];
-                foreach (string skill in unit.ready_masteries())
+                var target = Global.game_map.attackable_map_object(Temp_Ai_Target[0]);
+                if (target.is_unit())
                 {
-                    if (unit.valid_mastery_target(skill, target, Global.game_map.unit_distance(unit.id, target.id)))
-                        if (!Game_Unit.HEALING_MASTERIES.Contains(skill) || !unit.actor.is_full_hp())
-                        {
-                            unit.call_mastery(skill);
-                            break;
-                        }
+                    Game_Unit targetUnit = Units[Temp_Ai_Target[0]];
+                    foreach (string skill in unit.ready_masteries())
+                    {
+                        if (unit.valid_mastery_target(skill, targetUnit, Global.game_map.unit_distance(unit.id, target.id)))
+                            if (!Game_Unit.HEALING_MASTERIES.Contains(skill) || !unit.actor.is_full_hp())
+                            {
+                                unit.call_mastery(skill);
+                                break;
+                            }
+                    }
+                    targetUnit.target_unit(unit, unit.actor.weapon, Global.game_map.combat_distance(unit.id, target.id));
+                    targetUnit.accept_targeting();
                 }
-                target.target_unit(unit, unit.actor.weapon, Global.game_map.combat_distance(unit.id, target.id));
-                target.accept_targeting();
                 Global.game_state.call_battle(unit.id, Temp_Ai_Target[0]);
                 Ai_Action = Ai_Actions.Wait_For_Combat;
             }

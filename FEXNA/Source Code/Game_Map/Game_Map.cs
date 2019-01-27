@@ -1456,6 +1456,11 @@ namespace FEXNA
 
         }
 
+        public Destroyable_Object get_destroyable(int id)
+        {
+            return Objects.destroyable(id);
+
+        }
         public Destroyable_Object get_destroyable(Vector2 loc)
         {
             if (this.width == 0 || this.height == 0)
@@ -1472,6 +1477,11 @@ namespace FEXNA
                 return get_destroyable(loc);
             }
             return Objects.destroyable(id);
+        }
+
+        public IEnumerable<Destroyable_Object> enumerate_destroyables()
+        {
+            return Objects.enumerate_destroyables();
         }
 
         // This is not particularly performant, consider refactoring later

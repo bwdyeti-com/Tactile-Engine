@@ -66,6 +66,12 @@ namespace FEXNA
         public override int team { get { return Team; } }
         #endregion
 
+        public override string ToString()
+        {
+                return String.Format("LightRune, Loc: {4} {5}",
+                    (int)Loc.X, (int)Loc.Y);
+        }
+
         public LightRune() { }
         public LightRune(int id, Vector2 loc, int team, bool degrades = true)
         {

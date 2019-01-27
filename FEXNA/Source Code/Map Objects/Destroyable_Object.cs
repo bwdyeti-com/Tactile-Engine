@@ -82,5 +82,14 @@ namespace FEXNA
         {
             EnemyTeams.Add(team);
         }
+
+        public bool HasEnemyTeam(int team)
+        {
+            return EnemyTeams.Contains(team);
+        }
+        public bool HasEnemyTeam(Game_Unit unit)
+        {
+            return EnemyTeams.Contains(unit.team);
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using FEXNA.AI;
 using FEXNA.Calculations.Stats;
 using FEXNA.Pathfinding;
 using FEXNA_Library;
@@ -157,7 +158,6 @@ namespace FEXNA
             // usefulness of attacking there
             // [enemy, weapon, usefulness, x, y]
             List<int[]> target_ary = new List<int[]>();
-            Game_Actor actor1 = attacker.actor;
 
             targets = check_targets_target_list(attacker, targets, best);
 
@@ -165,191 +165,515 @@ namespace FEXNA
             if (retreating)
                 retreat_loc = retreat(attacker, no_move_okay: false);
 
+            bool attacksLightRunes = AttackLightRunes(attacker, can_move);
+            bool attacksDestroyables = AttackDestroyables(attacker, can_move);
+
             // Cycle through targets
-            foreach (int id in targets)
+            foreach (int targetId in targets)
             {
-                // This method doesn't check destroyable terrain, just units, so break on non-units
-                if (!Global.game_map.attackable_map_object(id).is_unit())
-                    continue;
-                Game_Unit target = Global.game_map.units[id];
+                var target = Global.game_map.attackable_map_object(targetId);
                 // Next if off map or target dead???
                 if (Global.game_map.is_off_map(target.loc) || target.is_dead)
                     continue;
 
-                Game_Actor actor2 = target.actor;
                 // Cycle through weapons
                 foreach (int weapon_index in weapons)
                 {
-                    int distance = Global.game_map.unit_distance(attacker.id, id);
-                    Data_Weapon weapon1 = null, weapon2 = null;
-                    int min_range, max_range;
-                    bool ever_counter;
-
-                    #region Regular Weapons
-                    if (weapon_index != Constants.Actor.NUM_ITEMS)
+                    IEnumerable<int[]> targetUses = null;
+                    // This part of the method doesn't check
+                    // destroyable terrain, just units
+                    if (target.is_unit())
                     {
-                        // Gets range
-                        if (Global.data_weapons.ContainsKey(actor1.items[weapon_index].Id))
-                            weapon1 = Global.data_weapons[actor1.items[weapon_index].Id];
-                        min_range = attacker.min_range(weapon_index);
-                        max_range = attacker.max_range(weapon_index);
+                        Game_Unit targetUnit = Global.game_map.units[targetId];
 
-                        attacker.reset_ai_loc();
-                        HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
-                        // If just checking damage as a percent of target health
-                        if (damage_test)
+                        #region Regular Weapons
+                        if (weapon_index != Constants.Actor.NUM_ITEMS)
                         {
-                            ever_counter = true;
-                            weapon2 = actor2.weapon;
+                            targetUses = check_target(
+                                attacker, targetUnit, can_move, best, retreating,
+                                damage_test, retreat_loc, weapon_index);
                         }
+                        #endregion
+                        #region Siege Weapons
                         else
                         {
-                            if (can_move)
-                            {
-                                // If unable to hit the target, continue
-                                if (!can_move_to_hit(target, Global.game_state.ai_move_range, attacker, weapon_index))
-                                    continue;
-                                attack_move_range = attacker.hit_from_loc(target.loc, Global.game_state.ai_move_range, weapon_index, "");
-                                // If retreat attacking
-                                if (retreating)
-                                {
-                                    if (retreat_loc.IsSomething)
-                                    {
-                                        // Remove tiles from the attacking range that are not already on the way to the retreat point
-                                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
-                                        {
-                                            var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
-                                            // If somehow can't move to the target tile (what), break
-                                            if (move_cost.IsNothing)
-                                                return false;
-                                            else
-                                                return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
-                                        }));
-                                    }
-
-                                    /*// Remove tiles from the attacking range that the attacker cannot then retreat to safety from //Debug
-                                    attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
-                                    {
-                                        var move_cost = Pathfinding.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
-                                        // If somehow can't move to the target tile (what), break
-                                        if (!move_cost.Key)
-                                            return false;
-                                        var post_attack_move_range = Pathfinding.get_range(x, attacker.mov - move_cost.Value, attacker.id, x);
-                                        return post_attack_move_range.Except(Global.game_state.ai_enemy_attack_range).Any();
-                                    }));*/
-                                }
-                            }
-                            else
-                            {
-                                // If the target can't be hit from this tile, continue
-                                if (distance > max_range || distance < min_range ||
-                                        !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { attacker.loc }, "").Contains(target.loc))
-                                    continue;
-                            }
-
-                            // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
-                            ever_counter = !weapon1.No_Counter &&
-                                !(target.min_range_absolute() > attacker.max_range(weapon_index) ||
-                                target.max_range_absolute() < attacker.min_range(weapon_index));
-                            if (weapon1.No_Counter)
-                            {
-                                // Pares attack range to best terrain types
-                                // This allows selecting for the best damage output as well, not just for best defensive terrain
-                                best_terrain(ref attack_move_range);
-                            }
+                            targetUses = check_siege_target(
+                                attacker, targetUnit, can_move, best,
+                                damage_test, weapon_index);
                         }
-
-                        // Cycle through locations that can be attacked from
-                        foreach (Vector2 loc in attack_move_range)
-                        {
-                            attacker.reset_ai_loc();
-                            if (loc.X != Config.OFF_MAP.X)
-                            {
-                                Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
-                                if (move_distance.IsSomething)
-                                {
-                                    attacker.set_ai_base_loc(loc, move_distance);
-                                    distance = (int)(Math.Abs(loc.X - target.loc.X) + Math.Abs(loc.Y - target.loc.Y));
-                                }
-                            }
-
-                            target.target_unit(attacker, weapon1, distance);
-
-                            //test_ary.push blah blah
-                            var use = attack_use(attacker, target, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test);
-                            if (use.IsNothing)
-                                continue;
-                            target_ary.Add(new int[] { id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
-                            target.cancel_targeted();
-                        }
+                        #endregion
                     }
-                    #endregion
-                    #region Siege Weapons
-                    else
+                    else if (target is LightRune)
                     {
-                        attacker.reset_ai_loc();
-                        HashSet<Vector2> siege_move_range = can_move ? Global.game_map.remove_blocked(
-                            Global.game_state.ai_move_range, attacker.id) : new HashSet<Vector2> { attacker.loc };
-                        foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
+                        if (attacksLightRunes)
                         {
-                            // If siege engine has uses and is in the move range and can be equipped
-                            if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
-                                actor1.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
+                            LightRune lightRune = Global.game_map.get_light_rune(target.loc);
+
+                            #region Regular Weapons
+                            if (weapon_index != Constants.Actor.NUM_ITEMS)
                             {
-                                Maybe<int> move_distance = Pathfind.get_distance(siege.loc, attacker.id, attacker.canto_mov, false, attacker.loc);
-                                if (move_distance.IsSomething)
-                                {
-                                    // Set location to the siege engine and fix distance
-                                    attacker.set_ai_base_loc(siege.loc, move_distance);
-                                    distance = (int)(Math.Abs(siege.loc.X - target.loc.X) + Math.Abs(siege.loc.Y - target.loc.Y));
-
-                                    if (Global.data_weapons.ContainsKey(attacker.items[weapon_index].Id))
-                                        weapon1 = Global.data_weapons[attacker.items[weapon_index].Id];
-                                    min_range = attacker.min_range(weapon_index);
-                                    max_range = attacker.max_range(weapon_index);
-
-                                    // If just checking damage as a percent of target health
-                                    if (damage_test)
-                                    {
-                                        ever_counter = true;
-                                        weapon2 = actor2.weapon;
-                                    }
-                                    else
-                                    {
-                                        if (distance > max_range || distance < min_range ||
-                                            !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { siege.loc }, "").Contains(target.loc))
-                                        {
-                                            attacker.reset_ai_loc();
-                                            continue;
-                                        }
-
-                                        // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
-                                        ever_counter = !weapon1.No_Counter &&
-                                            !(target.min_range_absolute() > attacker.max_range(weapon_index) ||
-                                            target.max_range_absolute() < attacker.min_range(weapon_index));
-                                    }
-
-                                    target.target_unit(attacker, weapon1, distance);
-
-                                    var use = attack_use(attacker, target, weapon_index, weapon1, siege.loc, ever_counter, distance, best, damage_test);
-                                    if (use.IsNothing)
-                                    {
-                                        attacker.reset_ai_loc();
-                                        continue;
-                                    }
-                                    target_ary.Add(new int[] { id, weapon_index + 1, (int)use, (int)siege.loc.X, (int)siege.loc.Y });
-                                    target.cancel_targeted();
-
-                                    attacker.reset_ai_loc();
-                                }
+                                targetUses = check_target(
+                                    attacker, lightRune, can_move, best, retreating,
+                                    damage_test, retreat_loc, weapon_index);
                             }
+                            #endregion
                         }
                     }
-                    #endregion
+                    else if (target is Destroyable_Object)
+                    {
+                        Destroyable_Object destroyable =
+                            Global.game_map.get_destroyable(target.loc);
+                        if (attacksDestroyables && destroyable.HasEnemyTeam(attacker))
+                        {
+                            #region Regular Weapons
+                            if (weapon_index != Constants.Actor.NUM_ITEMS)
+                            {
+                                targetUses = check_target(
+                                    attacker, destroyable, can_move, best, retreating,
+                                    damage_test, retreat_loc, weapon_index);
+                            }
+                            #endregion
+                        }
+                    }
+                    else
+                    { }
+                    if (targetUses != null)
+                    {
+                        target_ary.AddRange(targetUses);
+                    }
                 }
             }
             attacker.reset_ai_loc();
             return target_ary;
+        }
+
+        private static bool AttackLightRunes(Game_Unit attacker, bool canMove)
+        {
+            List<int> targetTeam = target_units(attacker, true);
+
+            // Only moving units should attack light runes
+            //@Debug: // parts should be passed in
+            if (canMove && MOVING_MISSIONS.Contains(attacker.mission))
+            {
+                var pathfinder = new UnitMovementMap.Builder()
+                    .WithThroughDoors(true)
+                    .Build(attacker.id)
+                    .Pathfind();
+                var throughEnemiesPathfinder = new UnitMovementMap.Builder()
+                    .WithThroughDoors(true)
+                    .WithFullMoveThroughEnemies(true)
+                    .Build(attacker.id)
+                    .Pathfind();
+                
+                foreach (int unitId in targetTeam)
+                {
+                    // I sure hope nothing that calls this wants a unit to find a path to itself! //Debug
+                    if (unitId == attacker.id)
+                        continue;
+
+                    var target = Global.game_map.attackable_map_object(unitId);
+
+                    // Check if the target can be reached and get the distance
+                    Maybe<int> check = check = pathfinder.get_distance(attacker.loc, target.loc, -1);
+                    if (check.IsSomething)
+                    {
+                        // Don't need to attack light runes if other enemies
+                        // can be reached
+                        return false;
+                    }
+                }
+
+                bool attacksLightRunes = false;
+                var lightRunes = Global.game_map.enumerate_light_runes();
+                foreach (int unitId in targetTeam)
+                {
+                    // I sure hope nothing that calls this wants a unit to find a path to itself! //Debug
+                    if (unitId == attacker.id)
+                        continue;
+
+                    var target = Global.game_map.attackable_map_object(unitId);
+
+                    // Check if the target can be reached and get the distance
+                    List<Vector2> route = throughEnemiesPathfinder.get_route(attacker.loc, target.loc, -1);
+                    if (route != null)
+                    {
+                        if (route.Any(x => lightRunes.Any(y => y.loc == x)))
+                        {
+                            attacksLightRunes = true;
+                            break;
+                        }
+                    }
+                }
+                return attacksLightRunes;
+            }
+            return false;
+        }
+        private static bool AttackDestroyables(Game_Unit attacker, bool canMove)
+        {
+            // Only moving units should attack destroyables
+            //@Debug: // parts should be passed in
+            if (canMove && MOVING_MISSIONS.Contains(attacker.mission))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static IEnumerable<int[]> check_target(
+            Game_Unit attacker,
+            Game_Unit targetUnit,
+            bool can_move,
+            bool best,
+            bool retreating,
+            bool damage_test,
+            Maybe<Vector2> retreat_loc,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, targetUnit.id);
+            Data_Weapon weapon1 = null, weapon2 = null;
+            int min_range, max_range;
+            bool ever_counter;
+            
+            // Gets range
+            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
+                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            min_range = attacker.min_range(weapon_index);
+            max_range = attacker.max_range(weapon_index);
+
+            attacker.reset_ai_loc();
+            HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
+            // If just checking damage as a percent of target health
+            if (damage_test)
+            {
+                ever_counter = true;
+                weapon2 = targetUnit.actor.weapon;
+            }
+            else
+            {
+                if (can_move)
+                {
+                    // If unable to hit the target, continue
+                    if (!can_move_to_hit(targetUnit, Global.game_state.ai_move_range, attacker, weapon_index))
+                        return null;
+                    attack_move_range = attacker.hit_from_loc(targetUnit.loc, Global.game_state.ai_move_range, weapon_index, "");
+                    // If retreat attacking
+                    if (retreating)
+                    {
+                        if (retreat_loc.IsSomething)
+                        {
+                            // Remove tiles from the attacking range that are not already on the way to the retreat point
+                            attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                            {
+                                var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                                // If somehow can't move to the target tile (what), break
+                                if (move_cost.IsNothing)
+                                    return false;
+                                else
+                                    return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
+                            }));
+                        }
+
+                        /*// Remove tiles from the attacking range that the attacker cannot then retreat to safety from //Debug
+                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                        {
+                            var move_cost = Pathfinding.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                            // If somehow can't move to the target tile (what), break
+                            if (!move_cost.Key)
+                                return false;
+                            var post_attack_move_range = Pathfinding.get_range(x, attacker.mov - move_cost.Value, attacker.id, x);
+                            return post_attack_move_range.Except(Global.game_state.ai_enemy_attack_range).Any();
+                        }));*/
+                    }
+                }
+                else
+                {
+                    // If the target can't be hit from this tile, continue
+                    if (distance > max_range || distance < min_range ||
+                            !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { attacker.loc }, "").Contains(targetUnit.loc))
+                        return null;
+                }
+
+                // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
+                ever_counter = !weapon1.No_Counter &&
+                    !(targetUnit.min_range_absolute() > attacker.max_range(weapon_index) ||
+                    targetUnit.max_range_absolute() < attacker.min_range(weapon_index));
+                if (weapon1.No_Counter)
+                {
+                    // Pares attack range to best terrain types
+                    // This allows selecting for the best damage output as well, not just for best defensive terrain
+                    best_terrain(ref attack_move_range);
+                }
+            }
+
+            // Cycle through locations that can be attacked from
+            List<int[]> results = new List<int[]>();
+            foreach (Vector2 loc in attack_move_range)
+            {
+                attacker.reset_ai_loc();
+                if (loc.X != Config.OFF_MAP.X)
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        attacker.set_ai_base_loc(loc, move_distance);
+                        distance = (int)(Math.Abs(loc.X - targetUnit.loc.X) + Math.Abs(loc.Y - targetUnit.loc.Y));
+                    }
+                }
+
+                targetUnit.target_unit(attacker, weapon1, distance);
+
+                //test_ary.push blah blah
+                var use = attack_use(attacker, targetUnit, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test);
+                if (use.IsNothing)
+                    continue;
+                results.Add(new int[] { targetUnit.id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
+                targetUnit.cancel_targeted();
+            }
+
+            return results;
+        }
+        private static IEnumerable<int[]> check_siege_target(
+            Game_Unit attacker,
+            Game_Unit targetUnit,
+            bool can_move,
+            bool best,
+            bool damage_test,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, targetUnit.id);
+            Data_Weapon weapon1 = null, weapon2 = null;
+            int min_range, max_range;
+            bool ever_counter;
+            
+            attacker.reset_ai_loc();
+            HashSet<Vector2> siege_move_range = can_move ? Global.game_map.remove_blocked(
+                Global.game_state.ai_move_range, attacker.id) : new HashSet<Vector2> { attacker.loc };
+            List<int[]> results = new List<int[]>();
+            foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
+            {
+                // If siege engine has uses and is in the move range and can be equipped
+                if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
+                    attacker.actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(siege.loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        // Set location to the siege engine and fix distance
+                        attacker.set_ai_base_loc(siege.loc, move_distance);
+                        distance = (int)(Math.Abs(siege.loc.X - targetUnit.loc.X) + Math.Abs(siege.loc.Y - targetUnit.loc.Y));
+
+                        if (Global.data_weapons.ContainsKey(attacker.items[weapon_index].Id))
+                            weapon1 = Global.data_weapons[attacker.items[weapon_index].Id];
+                        min_range = attacker.min_range(weapon_index);
+                        max_range = attacker.max_range(weapon_index);
+
+                        // If just checking damage as a percent of target health
+                        if (damage_test)
+                        {
+                            ever_counter = true;
+                            weapon2 = targetUnit.actor.weapon;
+                        }
+                        else
+                        {
+                            if (distance > max_range || distance < min_range ||
+                                !attacker.get_weapon_range(new List<int> { weapon_index }, new HashSet<Vector2> { siege.loc }, "").Contains(targetUnit.loc))
+                            {
+                                attacker.reset_ai_loc();
+                                continue;
+                            }
+
+                            // For the target to ever counter, this weapon can't disallow counters and the target's attack range has to have overlap
+                            ever_counter = !weapon1.No_Counter &&
+                                !(targetUnit.min_range_absolute() > attacker.max_range(weapon_index) ||
+                                targetUnit.max_range_absolute() < attacker.min_range(weapon_index));
+                        }
+
+                        targetUnit.target_unit(attacker, weapon1, distance);
+
+                        var use = attack_use(attacker, targetUnit, weapon_index, weapon1, siege.loc, ever_counter, distance, best, damage_test);
+                        if (use.IsNothing)
+                        {
+                            attacker.reset_ai_loc();
+                            continue;
+                        }
+                        results.Add(new int[] { targetUnit.id, weapon_index + 1, (int)use, (int)siege.loc.X, (int)siege.loc.Y });
+                        targetUnit.cancel_targeted();
+
+                        attacker.reset_ai_loc();
+                    }
+                }
+            }
+            return results;
+        }
+
+        private static IEnumerable<int[]> check_target(
+            Game_Unit attacker,
+            LightRune target,
+            bool can_move,
+            bool best,
+            bool retreating,
+            bool damage_test,
+            Maybe<Vector2> retreat_loc,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, target.id);
+            Data_Weapon weapon1 = null;
+            int min_range, max_range;
+            
+            // Gets range
+            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
+                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            min_range = attacker.min_range(weapon_index);
+            max_range = attacker.max_range(weapon_index);
+
+            attacker.reset_ai_loc();
+            HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
+            if (can_move)
+            {
+                // If unable to hit the target, continue
+                if (!can_move_to_hit(target.loc, Global.game_state.ai_move_range, attacker, weapon_index))
+                    return null;
+                attack_move_range = attacker.hit_from_loc(target.loc, Global.game_state.ai_move_range, weapon_index, "");
+                // If retreat attacking
+                if (retreating)
+                {
+                    if (retreat_loc.IsSomething)
+                    {
+                        // Remove tiles from the attacking range that are not already on the way to the retreat point
+                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                        {
+                            var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                        // If somehow can't move to the target tile (what), break
+                        if (move_cost.IsNothing)
+                                return false;
+                            else
+                                return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
+                        }));
+                    }
+                }
+            }
+            else
+            {
+                // If the target can't be hit from this tile, continue
+                if (distance > max_range || distance < min_range ||
+                        !attacker.get_weapon_range(
+                                new List<int> { weapon_index },
+                                new HashSet<Vector2> { attacker.loc }, "")
+                            .Contains(target.loc))
+                    return null;
+            }
+            // Pares attack range to best terrain types
+            best_terrain(ref attack_move_range);
+
+            // Cycle through locations that can be attacked from
+            List<int[]> results = new List<int[]>();
+            foreach (Vector2 loc in attack_move_range)
+            {
+                attacker.reset_ai_loc();
+                if (loc.X != Config.OFF_MAP.X)
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        attacker.set_ai_base_loc(loc, move_distance);
+                        distance = (int)(Math.Abs(loc.X - target.loc.X) + Math.Abs(loc.Y - target.loc.Y));
+                    }
+                }
+
+                //test_ary.push blah blah
+                //var use = attack_use(attacker, target, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test); //@Debug
+                Maybe<int> use = 0;
+                if (use.IsNothing)
+                    continue;
+                results.Add(new int[] { target.id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
+            }
+
+            return results;
+        }
+
+        private static IEnumerable<int[]> check_target(
+            Game_Unit attacker,
+            Destroyable_Object target,
+            bool can_move,
+            bool best,
+            bool retreating,
+            bool damage_test,
+            Maybe<Vector2> retreat_loc,
+            int weapon_index)
+        {
+            int distance = Global.game_map.unit_distance(attacker.id, target.id);
+            Data_Weapon weapon1 = null;
+            int min_range, max_range;
+            
+            // Gets range
+            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
+                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            min_range = attacker.min_range(weapon_index);
+            max_range = attacker.max_range(weapon_index);
+
+            attacker.reset_ai_loc();
+            HashSet<Vector2> attack_move_range = new HashSet<Vector2> { attacker.loc };
+            if (can_move)
+            {
+                // If unable to hit the target, continue
+                if (!can_move_to_hit(target.loc, Global.game_state.ai_move_range, attacker, weapon_index))
+                    return null;
+                attack_move_range = attacker.hit_from_loc(target.loc, Global.game_state.ai_move_range, weapon_index, "");
+                // If retreat attacking
+                if (retreating)
+                {
+                    if (retreat_loc.IsSomething)
+                    {
+                        // Remove tiles from the attacking range that are not already on the way to the retreat point
+                        attack_move_range = new HashSet<Vector2>(attack_move_range.Where(x =>
+                        {
+                            var move_cost = Pathfind.get_distance(x, attacker.id, attacker.mov, false, attacker.loc);
+                        // If somehow can't move to the target tile (what), break
+                        if (move_cost.IsNothing)
+                                return false;
+                            else
+                                return Pathfind.get_distance(retreat_loc, attacker.id, attacker.mov - move_cost, false, x).IsSomething;
+                        }));
+                    }
+                }
+            }
+            else
+            {
+                // If the target can't be hit from this tile, continue
+                if (distance > max_range || distance < min_range ||
+                        !attacker.get_weapon_range(
+                                new List<int> { weapon_index },
+                                new HashSet<Vector2> { attacker.loc }, "")
+                            .Contains(target.loc))
+                    return null;
+            }
+            // Pares attack range to best terrain types
+            best_terrain(ref attack_move_range);
+
+            // Cycle through locations that can be attacked from
+            List<int[]> results = new List<int[]>();
+            foreach (Vector2 loc in attack_move_range)
+            {
+                attacker.reset_ai_loc();
+                if (loc.X != Config.OFF_MAP.X)
+                {
+                    Maybe<int> move_distance = Pathfind.get_distance(loc, attacker.id, attacker.canto_mov, false, attacker.loc);
+                    if (move_distance.IsSomething)
+                    {
+                        attacker.set_ai_base_loc(loc, move_distance);
+                        distance = (int)(Math.Abs(loc.X - target.loc.X) + Math.Abs(loc.Y - target.loc.Y));
+                    }
+                }
+
+                //test_ary.push blah blah
+                //var use = attack_use(attacker, target, weapon_index, weapon1, loc, ever_counter, distance, best, damage_test); //@Debug
+                Maybe<int> use = -5; // Less value than attacking light runes
+                if (use.IsNothing)
+                    continue;
+                results.Add(new int[] { target.id, weapon_index + 1, (int)use, (int)loc.X, (int)loc.Y });
+            }
+
+            return results;
         }
 
         private static List<int> check_targets_target_list(Game_Unit attacker, List<int> targets, bool best)
@@ -1098,8 +1422,12 @@ namespace FEXNA
         {
             var temp_locs = locs.ToList();
             List<HashSet<Vector2>> result = new List<HashSet<Vector2>>();
-
-            var unit_map = new UnitMovementMap(unit.id, ignoreUnits: true, throughDoors: true);
+            
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithIgnoreUnits(true)
+                .WithThroughDoors(true)
+                .Build(unit.id);
+            
             while (temp_locs.Any())
             {
                 Vector2 loc = temp_locs[0];
@@ -1109,7 +1437,7 @@ namespace FEXNA
                 // Group any locations that can be reached from this location
                 for (int i = 0; i < temp_locs.Count;)
                 {
-                    if (unit_map.get_distance(temp_locs[i], -1, loc).IsSomething)
+                    if (unitMap.get_distance(temp_locs[i], -1, loc).IsSomething)
                     {
                         group.Add(temp_locs[i]);
                         temp_locs.RemoveAt(i);
@@ -1151,25 +1479,36 @@ namespace FEXNA
         {
             // add defending area hashset
             // Gets targets that can be reached and their distance
-            List<UnitDistance> searched_targets = search_for_target(unit);
+            List<CombatObjectDistance> searched_targets = search_for_target(unit)
+                .ToList<CombatObjectDistance>();
             bool ignore_doors = false;
             // If no targets were found, try again looking through doors that this unit can't open; moving closer to doors would still be useful
             if (searched_targets.Count == 0)
             {
                 if (Global.game_map.door_locations.Count > 0)
                 {
-                    searched_targets = search_for_target(unit, ignore_doors: true);
+                    searched_targets = search_for_target(unit, ignore_doors: true)
+                        .ToList<CombatObjectDistance>();
                     ignore_doors = true;
                 }
             }
+
+            // Add destroyable terrain
+            bool attacksDestroyables = AttackDestroyables(unit, true);
+            if (attacksDestroyables)
+            {
+                List<DestroyableDistance> searchedDestroyables = search_for_destroyable(unit);
+                searched_targets.AddRange(searchedDestroyables);
+            }
+
             if (searched_targets.Count == 0)
                 return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
             // If defending an area, only check the ones in the area (unless that's nobody)
             if (enemy_tiles != null)
             {
-                List<UnitDistance> defend_targets = new List<UnitDistance>();
-                foreach (UnitDistance i in searched_targets)
-                    if (enemy_tiles.Contains(i.unit.loc))
+                var defend_targets = new List<CombatObjectDistance>();
+                foreach (CombatObjectDistance i in searched_targets)
+                    if (enemy_tiles.Contains(i.Loc))
                         defend_targets.Add(i);
                 if (defend_targets.Count > 0)
                     searched_targets = defend_targets;
@@ -1180,7 +1519,9 @@ namespace FEXNA
             if (cares_about_damage)
             {
                 HashSet<UnitDistance> no_damage = new HashSet<UnitDistance>();
-                foreach (UnitDistance i in searched_targets)
+                foreach (UnitDistance i in searched_targets
+                    .Where(x => x is UnitDistance)
+                    .Select(x => x as UnitDistance))
                 {
                     // Temporarily adds the value to a list of targets that cannot be damaged
                     no_damage.Add(i);
@@ -1191,7 +1532,7 @@ namespace FEXNA
                             if (unit.actor.is_equippable(weapon))
                             {
                                 var stats = new CombatStats(
-                                    unit.id, i.UnitId, weapon, weapon.Min_Range);
+                                    unit.id, i.Id, weapon, weapon.Min_Range);
 
                                 if ((stats.dmg() > 0 || weapon.Status_Inflict.Any()) &&
                                     stats.hit() > 0)
@@ -1210,23 +1551,29 @@ namespace FEXNA
                     return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
             }
             // Sorts the target units by toughness and distance
-            searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
+            searched_targets.Sort(delegate (CombatObjectDistance a, CombatObjectDistance b)
             {
                 return sort_by_toughness_distance(unit, a, b);
             });
 
             // Selects a target
-            Game_Unit target = searched_targets[0].unit;
+            var target = searched_targets[0];
+            return search_for_enemy(unit, target, ignore_doors);
+        }
+        
+        private static Maybe<Vector2>[] search_for_enemy(Game_Unit unit, CombatObjectDistance target, bool ignore_doors)
+        {
+            Combat_Map_Object targetObject = target.MapObject;
             bool offensive = unit.actor.can_attack();
             // Try finding a path around enemies in the way first
             Maybe<Vector2> path_loc = path_to_target(
-                unit, target.loc, offensive : offensive,
+                unit, targetObject.loc, offensive: offensive,
                 no_move_okay: unit.cantoing, ignore_doors: ignore_doors,
                 ignore_blocking: false);
             if (path_loc.IsNothing)
             {
                 path_loc = path_to_target(
-                    unit, target.loc, offensive: offensive,
+                    unit, targetObject.loc, offensive: offensive,
                     no_move_okay: unit.cantoing, ignore_doors: ignore_doors,
                     ignore_blocking: true);
             }
@@ -1240,7 +1587,7 @@ namespace FEXNA
                 }
                 else
                 {
-                    Vector2? door_target = Game_AI.door_target(unit, target.loc, path_loc, -1);
+                    Vector2? door_target = Game_AI.door_target(unit, targetObject.loc, path_loc, -1);
                     // If a door is in the way, but the door tile is not adjacent to the tile we would normally end our move on
                     if (door_target != null && Global.game_map.distance((Vector2)door_target, path_loc) != 1)
                         door_target = null;
@@ -1249,7 +1596,7 @@ namespace FEXNA
                         return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
                 }
             }
-            return new Maybe<Vector2>[] { target.loc, path_loc };
+            return new Maybe<Vector2>[] { targetObject.loc, path_loc };
         }
 
         public static Maybe<Vector2>[] search_for_seize(Game_Unit unit, bool ignore_blocking)
@@ -1276,7 +1623,9 @@ namespace FEXNA
         public static Maybe<Vector2>[] search_attack_through_walls(Game_Unit unit, HashSet<Vector2> enemy_tiles)
         {
             // This method could probably be modified to have this as a HashSet //Yeti
-            var pathfinder = new Pathfinding.UnitMovementMap(unit.id).Pathfind();
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
             List<Vector2> total_move_range = new List<Vector2>(
                 pathfinder.get_range(unit.loc, unit.loc, -1));
             /* //Debug
@@ -1400,22 +1749,28 @@ namespace FEXNA
             return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
         }
 
-        private static int sort_by_toughness_distance(Game_Unit unit, UnitDistance a, UnitDistance b)
+        private static int sort_by_toughness_distance(Game_Unit unit, CombatObjectDistance a, CombatObjectDistance b)
         {
             int comparison = toughness_distance(unit, a) - toughness_distance(unit, b);
             return comparison;
         }
-        private static int toughness_distance(Game_Unit unit, UnitDistance target)
+        private static int toughness_distance(Game_Unit unit, CombatObjectDistance target)
         {
             // test how this works with targets on impassable terrain //Yeti
             // The cost of moving onto the target's tile
-            int target_tile_cost = unit.move_cost(target.unit.loc);
+            int target_tile_cost = unit.move_cost(target.Loc);
             // Gets the total move cost to move up to the target
-            int route_cost = target.dist - target_tile_cost;
+            int route_cost = target.Dist - target_tile_cost;
 
             int turns_to_reach = (int)Math.Ceiling(route_cost / (float)unit.mov);
-            return (int)(target.unit.toughness() *
-                Math.Pow(turns_to_reach, 1.5f));
+            int toughness = 2 * (Constants.Actor.MAX_HP + Constants.Actor.MAX_STAT * 2);
+            if (target is UnitDistance)
+            {
+                var targetUnit = (target as UnitDistance).unit;
+                toughness = targetUnit.toughness();
+            }
+
+            return (int)(toughness * Math.Pow(turns_to_reach, 1.5f));
         }
 
         public static Maybe<Vector2>[] search_for_ally(Game_Unit unit)
@@ -1483,7 +1838,7 @@ namespace FEXNA
                 case Search_For_Ally_Modes.Anyone:
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_To_Heal:
@@ -1501,13 +1856,13 @@ namespace FEXNA
 
                     // Gets the distance from each heal target to the nearest enemy unit
                     var distance_to_enemies = searched_targets.ToDictionary(
-                        x => x.UnitId, x =>
+                        x => x.Id, x =>
                             {
                                 var targets = search_for_target(x.unit, true);
                                 // If no enemies can be reached, return an arbitrarily high value
                                 if (!targets.Any())
                                     return 2 * (Global.game_map.width + Global.game_map.height);
-                                return targets.Min(y => y.dist);
+                                return targets.Min(y => y.Dist);
                             });
                     /* //Debug
                     // Don't heal allies who can't reach any enemies...?
@@ -1521,8 +1876,8 @@ namespace FEXNA
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
                         return (int)(ATTACK_WEIGHT_PRECISION * (
-                            heal_distance(unit, a, distance_to_enemies[a.UnitId]) -
-                            heal_distance(unit, b, distance_to_enemies[b.UnitId])));
+                            heal_distance(unit, a, distance_to_enemies[a.Id]) -
+                            heal_distance(unit, b, distance_to_enemies[b.Id])));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_For_Healing:
@@ -1537,7 +1892,7 @@ namespace FEXNA
                     }
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_For_Healing_Item:
@@ -1549,7 +1904,7 @@ namespace FEXNA
                             // Changed this to only work within on move, otherwise there was infinite looping // Yeti
                             // Maybe change it later
                             // I don't actually understand how this is infinite looping though //Debug
-                            x.dist <= unit.canto_mov && unit.same_team(x.unit) &&
+                            x.Dist <= unit.canto_mov && unit.same_team(x.unit) &&
                             !x.unit.no_ai_item_trading &&
                             x.unit.can_heal_self(unit))
                         .ToList();
@@ -1573,7 +1928,7 @@ namespace FEXNA
                     }*/
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
                 case Search_For_Ally_Modes.Looking_To_Dance:
@@ -1591,7 +1946,7 @@ namespace FEXNA
                     }*/
                     searched_targets.Sort(delegate(UnitDistance a, UnitDistance b)
                     {
-                        return ((a.dist / unit.mov + 1) - (b.dist / unit.mov + 1));
+                        return ((a.Dist / unit.mov + 1) - (b.Dist / unit.mov + 1));
                     });
                     break;
             }
@@ -1601,7 +1956,7 @@ namespace FEXNA
         private static double heal_distance(
             Game_Unit unit, UnitDistance target, int distanceToEnemy)
         {
-            int turns_to_reach = target.dist / unit.mov + 1;
+            int turns_to_reach = target.Dist / unit.mov + 1;
             float health_percent = target.unit.actor.hp / (float)target.unit.actor.maxhp;
             // Will prefer healing targets with the lowest result of this function
             // Higher hp, further away from the healer, and further away from any enemies increase the result
@@ -1637,7 +1992,7 @@ namespace FEXNA
             // Remove the allies that aren't within one turn of movement
             while (i < allies.Count)
             {
-                if (allies[i].dist - unit.move_cost(allies[i].unit.loc) <= unit.mov)
+                if (allies[i].Dist - unit.move_cost(allies[i].unit.loc) <= unit.mov)
                     i++;
                 else
                     allies.RemoveAt(i);
@@ -1852,8 +2207,10 @@ namespace FEXNA
                     targets = new List<Vector2> { actual_target_loc };
                 }
             }
-
-            var map = new UnitMovementMap(unit.id, throughDoors: false);
+            
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(false)
+                .Build(unit.id);
             targets = targets.Where(target =>
                 {
                     var distance = map.get_distance(target, -1);
@@ -1864,8 +2221,14 @@ namespace FEXNA
             if (targets.Any() ||
                 (move_loc.IsSomething && Global.game_state.ai_enemy_attack_range.Contains(move_loc)))
             {
-                var unit_map = new UnitMovementMap(unit.id, throughDoors: true);
-                var rescuee_map = new UnitMovementMap(unit.rescuing, ignoreUnits: true, throughDoors: true);
+                var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithThroughDoors(true)
+                    .Build(unit.id);
+                var rescueeMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithIgnoreUnits(true)
+                    .WithThroughDoors(true)
+                    .Build(unit.rescuing);
+                
                 Game_Unit rescued_unit = Global.game_map.units[unit.rescuing];
                 // Gets the distance from all tiles in the move range to the target
                 HashSet<Vector2> move_range = unit.move_range;
@@ -1878,7 +2241,7 @@ namespace FEXNA
                 // Switching back and forth in the pathfinder between two units introduces a lot of lag
                 // So check all the tiles for the rescuer first, then check if they're open for the rescuee
                 List<Vector2> rescuer_tiles = move_range
-                    .Where(x => targets.Any(target => unit_map.get_distance(target, -1, x).IsSomething))
+                    .Where(x => targets.Any(target => unitMap.get_distance(target, -1, x).IsSomething))
                     .ToList();
 
                 if (Global.game_system.Difficulty_Mode >= Difficulty_Modes.Hard)
@@ -1886,14 +2249,14 @@ namespace FEXNA
                     foreach (Vector2 loc in rescuer_tiles)
                     {
                         min_dist = -1;
-                        foreach (Vector2 potential_target in rescuee_map.AdjacentLocations(loc))
+                        foreach (Vector2 potential_target in rescueeMap.AdjacentLocations(loc))
                             if (!Global.game_state.ai_enemy_attack_range.Contains(potential_target) &&
                                 !Global.game_map.is_off_map(potential_target) &&
                                 !Global.game_map.is_blocked(potential_target, unit.id) &&
-                                rescuee_map.Passable(potential_target))
+                                rescueeMap.Passable(potential_target))
                             {
                                 var distances = targets.Select(target =>
-                                        rescuee_map.get_distance(target, -1, potential_target))
+                                        rescueeMap.get_distance(target, -1, potential_target))
                                     .Where(x => x.IsSomething)
                                     .OrderBy(x => x.ValueOrDefault);
                                 if (distances.Any())
@@ -1917,15 +2280,15 @@ namespace FEXNA
                     foreach (Vector2 loc in rescuer_tiles)
                     {
                         min_dist = -1;
-                        foreach (Vector2 potential_target in rescuee_map.AdjacentLocations(loc))
+                        foreach (Vector2 potential_target in rescueeMap.AdjacentLocations(loc))
                         {
                             // Don't need to check is_off_map(), because is_blocked() already does
                             if (!Global.game_map.is_off_map(potential_target) &&
                                 !Global.game_map.is_blocked(potential_target, unit.id) &&
-                                rescuee_map.Passable(potential_target))
+                                rescueeMap.Passable(potential_target))
                             {
                                 var distances = targets.Select(target =>
-                                        rescuee_map.get_distance(target, -1, potential_target))
+                                        rescueeMap.get_distance(target, -1, potential_target))
                                     .Where(x => x.IsSomething)
                                     .OrderBy(x => x.ValueOrDefault);
                                 if (distances.Any())
@@ -1953,16 +2316,20 @@ namespace FEXNA
                 Vector2 target_loc = target_locs[(int)((Global.game_state.ai_turn_rn / 100.0f) * target_locs.Count)].loc;
 
                 target_locs.Clear();
-                rescuee_map = new UnitMovementMap(unit.rescuing, ignoreUnits: true, throughDoors: false);
+                
+                rescueeMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithIgnoreUnits(true)
+                    .WithThroughDoors(false)
+                    .Build(unit.rescuing);
                 // Check the tiles around the target
-                foreach (Vector2 potential_target in rescuee_map.AdjacentLocations(target_loc))
+                foreach (Vector2 potential_target in rescueeMap.AdjacentLocations(target_loc))
                 {
                     if (!Global.game_map.is_off_map(potential_target) &&
                         !Global.game_map.is_blocked(potential_target, unit.id) &&
-                        rescuee_map.Passable(potential_target))
+                        rescueeMap.Passable(potential_target))
                     {
                                 var distances = targets.Select(target =>
-                                        rescuee_map.get_distance(target, -1, potential_target))
+                                        rescueeMap.get_distance(target, -1, potential_target))
                                     .Where(x => x.IsSomething)
                                     .OrderBy(x => x.ValueOrDefault);
                                 if (distances.Any())
@@ -2205,9 +2572,9 @@ namespace FEXNA
 
             if (talk_targets.Count > 0)
             {
-                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.dist - b.dist; });
+                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.Dist - b.Dist; });
 
-                int target_id = talk_targets[0].UnitId;
+                int target_id = talk_targets[0].Id;
                 Game_Unit target = Global.game_map.units[target_id];
                 List<KeyValuePair<Vector2, int>> target_locs = new List<KeyValuePair<Vector2, int>>();
                 // Check the tiles around the target
@@ -2238,9 +2605,9 @@ namespace FEXNA
 
             if (talk_targets.Count > 0)
             {
-                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.dist - b.dist; });
+                talk_targets.Sort(delegate(UnitDistance a, UnitDistance b) { return a.Dist - b.Dist; });
 
-                int target_id = talk_targets[0].UnitId;
+                int target_id = talk_targets[0].Id;
                 Game_Unit target = Global.game_map.units[target_id];
                 List<LocationDistance> target_locs = new List<LocationDistance>();
                 // Check the tiles around the target
@@ -2352,7 +2719,13 @@ namespace FEXNA
             List<int> target_team = target_units(unit, searching_for_enemies);
             // Gets targets that can be reached and their distance
             List<UnitDistance> searched_team = new List<UnitDistance>();
-            Pathfind.reset();
+
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithFullMoveThroughEnemies(searching_for_enemies)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
             foreach (int unit_id in target_team)
             {
                 // I sure hope nothing that calls this wants a unit to find a path to itself! //Debug
@@ -2362,11 +2735,10 @@ namespace FEXNA
                 Game_Unit target = Global.game_map.units[unit_id];
 
                 // Check if the target can be reached and get the distance
-                Maybe<int> check = Pathfind.get_distance(target.loc, unit.id, -1, true, ignore_doors);
+                Maybe<int> check = check = pathfinder.get_distance(unit.loc, target.loc, -1);
                 if (check.IsSomething)
                     searched_team.Add(new UnitDistance(unit_id, check));
             }
-            Pathfind.reset();
             return searched_team;
         }
 
@@ -2416,6 +2788,39 @@ namespace FEXNA
             return target_team;
         }
 
+        public static List<DestroyableDistance> search_for_destroyable(Game_Unit unit,
+            bool ignore_doors = false)
+        {
+            List<int> target_team = Global.game_map.enumerate_destroyables()
+                .Where(x => x.HasEnemyTeam(unit))
+                .Select(x => x.id)
+                .ToList();
+            
+            // Gets targets that can be reached and their distance
+            List<DestroyableDistance> searched_team = new List<DestroyableDistance>();
+
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
+            foreach (int id in target_team)
+            {
+                // I sure hope nothing that calls this wants a unit to find a path to itself! //Debug
+                if (id == unit.id)
+                    continue;
+
+                var target = Global.game_map.attackable_map_object(id);
+
+                // Check if the target can be reached and get the distance
+                Maybe<int> check = check = pathfinder.get_distance(unit.loc, target.loc, -1);
+                if (check.IsSomething)
+                    searched_team.Add(new DestroyableDistance(id, check));
+            }
+            return searched_team;
+        }
+
         public static List<LocationDistance> distance_to_locations(
             Game_Unit unit, HashSet<Vector2> target_array,
             bool ignore_units = false, Vector2? base_loc = null)
@@ -2456,8 +2861,6 @@ namespace FEXNA
             // Can't open doors if cantoing
             if (unit.cantoing)
                 ignore_doors = false;
-            // Gets the distance from all tiles in the move range to the target
-            List<LocationDistance> target_locs = new List<LocationDistance>();
             int dist = -1;
             // Remove blocked
             HashSet<Vector2> move_range = new HashSet<Vector2>(unit.move_range.Where(v => !Global.game_map.is_blocked(v, unit.id, false)));
@@ -2522,8 +2925,13 @@ namespace FEXNA
                     move_range.ExceptWith(Global.game_state.ai_enemy_attack_range);
 
             // Check if the route to the target is blocked, because if so we need to get fancy
-            Pathfind.reset();
-            Maybe<int> check = Pathfind.get_distance(target_loc, unit.id, -1, true, unit.loc, ignore_doors);
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
+            Maybe<int> check = pathfinder.get_distance(unit.loc, target_loc, -1);
             bool path_blocked = check.IsNothing, path_blocked_by_unit = false;
             if (path_blocked)
             {
@@ -2531,8 +2939,14 @@ namespace FEXNA
                 Console.WriteLine(string.Format(
                     "\nPathfinding for a unit is blocked,\nchecking if it's just units in the way\nUnit: {0}\n", unit));
 #endif
-                Pathfind.ignore_units = true;
-                check = Pathfind.get_distance(target_loc, unit.id, -1, true, unit.loc, ignore_doors);
+                unitMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithIgnoreUnits(true)
+                    .WithThroughDoors(true)
+                    .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                    .Build(unit.id);
+                pathfinder = unitMap.Pathfind();
+                check = pathfinder.get_distance(unit.loc, target_loc, -1);
                 path_blocked_by_unit = check.IsSomething;
 #if DEBUG
                 if (!path_blocked_by_unit)
@@ -2542,20 +2956,28 @@ namespace FEXNA
 
             // Get the distance from the base tile to each move_range tile
 
+            // Gets the distance from all tiles in the move range to the target
+            List<LocationDistance> target_locs = new List<LocationDistance>();
+
             // At least that's the sensible thing this would do, it was checking the
             //     distance from the target to where the unit is standing, which
             //     crashes when the unit is on impassable terrain //Debug
+            unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithIgnoreUnits(ignore_blocking || path_blocked_by_unit)
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            pathfinder = unitMap.Pathfind();
             foreach (Vector2 loc in move_range)
             {
-                Pathfind.ignore_units = ignore_blocking || path_blocked_by_unit;
-                //check = Pathfinding.get_distance(target_loc, unit.id, -1, true, loc, ignore_doors); //Debug
-                check = Pathfind.get_distance(loc, unit.id, -1, true, target_loc, ignore_doors);
+                //@Debug: //check = pathfinder.get_distance(target_loc, loc, -1);
+                check = pathfinder.get_distance(loc, target_loc, -1);
                 if (check.IsSomething)
                 {
                     target_locs.Add(new LocationDistance(loc, check));
                 }
             }
-            Pathfind.reset();
             // Raise an error if target_locs.Count == 0 ? //Yeti
             if (target_locs.Count == 0)
                 throw new IndexOutOfRangeException("No valid locations to move to");
@@ -2634,14 +3056,9 @@ namespace FEXNA
             else
             {
                 // Pares list down to tiles at the optimal distance
-                int index = 0;
-                while (index < target_locs.Count)
-                {
-                    if (target_locs[index].dist != dist)
-                        target_locs.RemoveAt(index);
-                    else
-                        index++;
-                }
+                target_locs = target_locs
+                    .Where(x => x.dist == dist)
+                    .ToList();
                 // If one of the valid locations is the current location, why move //Debug
                 if (no_move_okay)
                     foreach (LocationDistance pair in target_locs)
@@ -2699,11 +3116,27 @@ namespace FEXNA
         }
         public static Vector2? door_target(Game_Unit unit, Vector2 target_loc, Vector2 loc, int range)
         {
-            List<Vector2> route = unit.actual_move_route(loc, Pathfind.get_route(target_loc, range, unit.id, loc, true, true));
-            Pathfind.reset();
-            if (route.Count == 0)
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(true)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
+            var route = pathfinder.get_route(loc, target_loc, range);
+            if (route == null)
+            {
+                unitMap = new Pathfinding.UnitMovementMap.Builder()
+                    .WithFullMoveThroughEnemies(true)
+                    .WithThroughDoors(true)
+                    .WithIgnoreDoors(true)
+                    .WithForceGoalPassable(true)
+                    .Build(unit.id);
+                pathfinder = unitMap.Pathfind();
+                route = pathfinder.get_route(loc, target_loc, range);
+            }
+            if (route == null || route.Count == 0)
                 return null;
-            foreach(Vector2 move_loc in route)
+            foreach (Vector2 move_loc in route.Reverse<Vector2>())
             {
                 if (unit.move_cost(move_loc) >= 0)
                     continue;
@@ -2738,7 +3171,8 @@ namespace FEXNA
                 return true;
             return false;
         }
-        protected static bool can_move_to_hit(Vector2 target, HashSet<Vector2> move_range, Game_Unit attacker, int weapon_index)
+        protected static bool can_move_to_hit(
+            Vector2 target, HashSet<Vector2> move_range, Game_Unit attacker, int weapon_index)
         {
             int min_range = attacker.min_range(weapon_index);
             int max_range = attacker.max_range(weapon_index);
@@ -2849,56 +3283,5 @@ namespace FEXNA
             //temp_range.Clear();
         }
         #endregion
-    }
-
-    /// <summary>
-    /// Represents a location on a map, and the travel distance to get there.
-    /// </summary>
-    struct LocationDistance
-    {
-        private Vector2 Loc;
-        private int Dist;
-
-        #region Accessors
-        public Vector2 loc { get { return Loc; } }
-        public int dist { get { return Dist; } }
-        #endregion
-
-        public override string ToString()
-        {
-            return string.Format("Loc: {0}; Dist: {1}", Loc, Dist);
-        }
-
-        public LocationDistance(Vector2 loc, int dist)
-        {
-            Loc = loc;
-            Dist = dist;
-        }
-    }
-
-    /// <summary>
-    /// Represents a unit on a map, and the travel distance to get there.
-    /// </summary>
-    struct UnitDistance
-    {
-        private int _unitId;
-        private int Dist;
-
-        #region Accessors
-        public Game_Unit unit { get { return Global.game_map.units[_unitId]; } }
-        public int UnitId { get { return _unitId; } }
-        public int dist { get { return Dist; } }
-        #endregion
-
-        public override string ToString()
-        {
-            return string.Format("Unit: {0}; Dist: {1}", unit, Dist);
-        }
-
-        public UnitDistance(int unitId, int dist)
-        {
-            _unitId = unitId;
-            Dist = dist;
-        }
     }
 }
