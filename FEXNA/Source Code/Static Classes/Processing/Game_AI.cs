@@ -1549,28 +1549,22 @@ namespace FEXNA
 
             // Selects a target
             var target = searched_targets[0];
-            if (target is UnitDistance)
-            {
-                return search_for_enemy(unit, target as UnitDistance, ignore_doors);
-            }
-
-            // Nothing suitable found
-            return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
+            return search_for_enemy(unit, target, ignore_doors);
         }
-
-        private static Maybe<Vector2>[] search_for_enemy(Game_Unit unit, UnitDistance target, bool ignore_doors)
+        
+        private static Maybe<Vector2>[] search_for_enemy(Game_Unit unit, CombatObjectDistance target, bool ignore_doors)
         {
-            Game_Unit targetUnit = target.unit;
+            Combat_Map_Object targetObject = target.MapObject;
             bool offensive = unit.actor.can_attack();
             // Try finding a path around enemies in the way first
             Maybe<Vector2> path_loc = path_to_target(
-                unit, targetUnit.loc, offensive: offensive,
+                unit, targetObject.loc, offensive: offensive,
                 no_move_okay: unit.cantoing, ignore_doors: ignore_doors,
                 ignore_blocking: false);
             if (path_loc.IsNothing)
             {
                 path_loc = path_to_target(
-                    unit, targetUnit.loc, offensive: offensive,
+                    unit, targetObject.loc, offensive: offensive,
                     no_move_okay: unit.cantoing, ignore_doors: ignore_doors,
                     ignore_blocking: true);
             }
@@ -1584,7 +1578,7 @@ namespace FEXNA
                 }
                 else
                 {
-                    Vector2? door_target = Game_AI.door_target(unit, targetUnit.loc, path_loc, -1);
+                    Vector2? door_target = Game_AI.door_target(unit, targetObject.loc, path_loc, -1);
                     // If a door is in the way, but the door tile is not adjacent to the tile we would normally end our move on
                     if (door_target != null && Global.game_map.distance((Vector2)door_target, path_loc) != 1)
                         door_target = null;
@@ -1593,7 +1587,7 @@ namespace FEXNA
                         return new Maybe<Vector2>[] { default(Maybe<Vector2>), default(Maybe<Vector2>) };
                 }
             }
-            return new Maybe<Vector2>[] { targetUnit.loc, path_loc };
+            return new Maybe<Vector2>[] { targetObject.loc, path_loc };
         }
 
         public static Maybe<Vector2>[] search_for_seize(Game_Unit unit, bool ignore_blocking)
@@ -2783,6 +2777,39 @@ namespace FEXNA
                     temp_team.Add(unit_id);
             target_team = target_team.Except(temp_team).ToList();
             return target_team;
+        }
+
+        public static List<DestroyableDistance> search_for_destroyable(Game_Unit unit,
+            bool ignore_doors = false)
+        {
+            List<int> target_team = Global.game_map.enumerate_destroyables()
+                .Where(x => x.HasEnemyTeam(unit))
+                .Select(x => x.id)
+                .ToList();
+            
+            // Gets targets that can be reached and their distance
+            List<DestroyableDistance> searched_team = new List<DestroyableDistance>();
+
+            var unitMap = new Pathfinding.UnitMovementMap.Builder()
+                .WithThroughDoors(true)
+                .WithIgnoreDoors(ignore_doors)
+                .WithForceGoalPassable(true)
+                .Build(unit.id);
+            var pathfinder = unitMap.Pathfind();
+            foreach (int id in target_team)
+            {
+                // I sure hope nothing that calls this wants a unit to find a path to itself! //Debug
+                if (id == unit.id)
+                    continue;
+
+                var target = Global.game_map.attackable_map_object(id);
+
+                // Check if the target can be reached and get the distance
+                Maybe<int> check = check = pathfinder.get_distance(unit.loc, target.loc, -1);
+                if (check.IsSomething)
+                    searched_team.Add(new DestroyableDistance(id, check));
+            }
+            return searched_team;
         }
 
         public static List<LocationDistance> distance_to_locations(
