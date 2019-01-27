@@ -1626,6 +1626,29 @@ namespace FEXNA
             return true;
         }
 
+        // 48: AI Target Map Object
+        private bool command_ai_target_map_object()
+        {
+            // Value[0] = Type
+            // Value[1] = x, y
+            // Value[2] = team
+            Vector2 loc = process_vector2(command.Value[1]);
+            int team = process_number(command.Value[2]);
+            switch (command.Value[0])
+            {
+                case "Destroyable":
+                case "Destructible":
+                    Global.game_map.destroyable_add_enemy_team(loc, team);
+                    break;
+#if DEBUG
+                default:
+                    throw event_case_missing_exception(command.Value[0], command.Key);
+#endif
+            }
+            Index++;
+            return true;
+        }
+
         // Class Change
         private bool command_class_change()
         {

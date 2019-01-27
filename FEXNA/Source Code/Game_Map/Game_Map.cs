@@ -1484,6 +1484,13 @@ namespace FEXNA
             return Objects.enumerate_destroyables();
         }
 
+        public void destroyable_add_enemy_team(Vector2 loc, int team)
+        {
+            var destroyable = get_destroyable(loc);
+            if (destroyable != null)
+                destroyable.AddEnemyTeam(team);
+        }
+
         // This is not particularly performant, consider refactoring later
         public LightRune get_light_rune(Vector2 loc)
         {
