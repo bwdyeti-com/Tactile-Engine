@@ -1069,11 +1069,20 @@ namespace FEXNA
 
         internal Color stat_color(Stat_Labels stat_label)
         {
-            switch (Constants.Actor.STAT_LABEL_COLORING)
+            return stat_color(stat_label, Constants.Actor.STAT_LABEL_COLORING);
+        }
+        internal Color stat_color(
+            Stat_Labels stat_label,
+            Constants.StatLabelColoring labelColoring,
+            int levels = 0,
+            float multiplier = 1f)
+        {
+            switch (labelColoring)
             {
                 case Constants.StatLabelColoring.Averages:
                     // Stat labels are colored based on how far from the average the stat value is
-                    float stat_quality = this.stat_quality(stat_label);
+                    float stat_quality = this.stat_quality(stat_label, levels) * multiplier;
+                    // If capped, don't go below yellow
                     if (this.get_capped(stat_label))
                         stat_quality = Math.Max(0, stat_quality);
                     int r = 255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255);
@@ -1099,15 +1108,17 @@ namespace FEXNA
                         {
                             growth -= Constants.Actor.GROWTH_AVERAGE_COLOR_MIN;
                             int mid = Constants.Actor.GROWTH_AVERAGE_COLOR_MED - Constants.Actor.GROWTH_AVERAGE_COLOR_MIN;
-                            int green = (int)MathHelper.Clamp(63 +
-                                192 * growth / mid, 0, 255);
+                            float value = (growth * multiplier) / mid;
+                            int green = (int)MathHelper.Clamp(
+                                63 + 192 * value, 0, 255);
                             return new Color(255, green, 255);
                         } else
                         {
                             growth -= Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
-                            int max = Constants.Actor.GROWTH_AVERAGE_COLOR_MAX-Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
-                            int red = (int)MathHelper.Clamp(255 -
-                                192 * growth / max, 0, 255);
+                            int max = Constants.Actor.GROWTH_AVERAGE_COLOR_MAX - Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
+                            float value = (growth * multiplier) / max;
+                            int red = (int)MathHelper.Clamp(
+                                255 - 192 * value, 0, 255);
                             return new Color(red, 255, 255);
                         }
                     }
