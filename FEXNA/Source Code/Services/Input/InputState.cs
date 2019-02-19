@@ -8,7 +8,7 @@ namespace FEXNA.Services.Input
 {
     class InputState
     {
-        const int INITIAL_WAIT = 16;
+        const int INITIAL_WAIT = 12;
         const int REPEAT_WAIT = 4;
 
         private float StickDeadZone;
@@ -170,7 +170,7 @@ namespace FEXNA.Services.Input
             if (InputsHeldTime[(int)inputName] == 0)
                 return false;
             // If the input was pressed this tick
-            if (InputsHeldTime[(int)inputName] == 1)
+            if (Triggered(inputName))
                 return true;
             // If repeating is locked
             if (LockedRepeats.Contains((int)inputName))
@@ -191,7 +191,7 @@ namespace FEXNA.Services.Input
         /// <summary>
         /// Gets whether any buttons other than the given list are pressed.
         /// </summary>
-        public bool OtherPressed(List<Inputs> inputNames)
+        public bool OtherPressed(HashSet<Inputs> inputNames)
         {
             foreach (Inputs input in Enum_Values.GetEnumValues(typeof(Inputs)))
                 if (!inputNames.Contains(input) && Pressed(input))

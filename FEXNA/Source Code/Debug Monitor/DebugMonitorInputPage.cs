@@ -14,7 +14,7 @@ namespace FEXNA.Debug_Monitor
         {
             var diagnostics = Input.InputDiagnostics();
 
-            List<int> keys = diagnostics.Inputs.Keys.ToList();
+            List<Inputs> keys = diagnostics.Inputs.Keys.ToList();
 
             // Labels
             DebugStringDisplay pressedLabel = new DebugStringDisplay(
@@ -33,17 +33,17 @@ namespace FEXNA.Debug_Monitor
             for (int i = 0; i < keys.Count; i++)
             {
                 // Pressed Buttons
-                int key = keys[i];
+                Inputs key = keys[i];
                 Inputs input = (Inputs)key;
                 DebugBooleanDisplay pressedButton = new DebugBooleanDisplay(() =>
-                    diagnostics.Inputs[key],
+                    diagnostics.Inputs[key](),
                     input.ToString(),
                     48);
                 pressedButton.loc = new Vector2(0, 16 + i * 16);
                 DebugDisplays.Add(pressedButton);
                 // Button Held Timers
                 DebugIntDisplay heldTimer = new DebugIntDisplay(
-                    () => diagnostics.HeldInputsTime[key],
+                    () => diagnostics.HeldInputsTime[key](),
                     "", 3, 0);
                 heldTimer.loc = new Vector2(104, 16 + i * 16);
                 DebugDisplays.Add(heldTimer);

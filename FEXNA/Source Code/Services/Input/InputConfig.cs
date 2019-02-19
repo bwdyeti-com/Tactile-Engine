@@ -57,13 +57,17 @@ namespace FEXNA.Services.Input
             // Up
             PadRedirect.Add(Inputs.Up, Buttons.DPadUp);
             // A
-            PadRedirect.Add(Inputs.A, Buttons.A);
+            PadRedirect.Add(Inputs.A, Buttons.B);
             // B
-            PadRedirect.Add(Inputs.B, Buttons.B);
+#if __ANDROID__
+            PadRedirect.Add(Inputs.B, Buttons.Back);
+#else
+            PadRedirect.Add(Inputs.B, Buttons.A);
+#endif
             // Y
-            PadRedirect.Add(Inputs.Y, Buttons.Y);
+            PadRedirect.Add(Inputs.Y, Buttons.X);
             // X
-            PadRedirect.Add(Inputs.X, Buttons.X);
+            PadRedirect.Add(Inputs.X, Buttons.Y);
             // L
             PadRedirect.Add(Inputs.L, Buttons.LeftShoulder);
             // R
@@ -79,7 +83,11 @@ namespace FEXNA.Services.Input
             // Start
             PadRedirect.Add(Inputs.Start, Buttons.Start);
             // Select
+#if __ANDROID__
+            PadRedirect.Add(Inputs.Select, Buttons.A);
+#else
             PadRedirect.Add(Inputs.Select, Buttons.Back);
+#endif
 
             DefaultKeys();
         }
@@ -88,18 +96,18 @@ namespace FEXNA.Services.Input
         {
             KeyRedirect.Clear();
 
-            KeyRedirect.Add(Inputs.Down, Keys.S);
-            KeyRedirect.Add(Inputs.Left, Keys.A);
-            KeyRedirect.Add(Inputs.Right, Keys.D);
-            KeyRedirect.Add(Inputs.Up, Keys.W);
-            KeyRedirect.Add(Inputs.A, Keys.Space);
-            KeyRedirect.Add(Inputs.B, Keys.Q);
-            KeyRedirect.Add(Inputs.Y, Keys.F);
-            KeyRedirect.Add(Inputs.X, Keys.E);
-            KeyRedirect.Add(Inputs.L, Keys.Z);
-            KeyRedirect.Add(Inputs.R, Keys.X);
-            /*KeyRedirect.Add(Inputs.L2, Keys.C); //@Debug
-            KeyRedirect.Add(Inputs.R2, Keys.V);
+            KeyRedirect.Add(Inputs.Down, Keys.NumPad2);
+            KeyRedirect.Add(Inputs.Left, Keys.NumPad4);
+            KeyRedirect.Add(Inputs.Right, Keys.NumPad6);
+            KeyRedirect.Add(Inputs.Up, Keys.NumPad8);
+            KeyRedirect.Add(Inputs.A, Keys.X);
+            KeyRedirect.Add(Inputs.B, Keys.Z);
+            KeyRedirect.Add(Inputs.Y, Keys.D);
+            KeyRedirect.Add(Inputs.X, Keys.C);
+            KeyRedirect.Add(Inputs.L, Keys.A);
+            KeyRedirect.Add(Inputs.R, Keys.S);
+            /*KeyRedirect.Add(Inputs.L2, Keys.Q); //@Debug
+            KeyRedirect.Add(Inputs.R2, Keys.W);
             KeyRedirect.Add(Inputs.L3, Keys.LeftShift);
             KeyRedirect.Add(Inputs.R3, Keys.LeftControl);*/
             KeyRedirect.Add(Inputs.Start, Keys.Enter);
@@ -137,6 +145,9 @@ namespace FEXNA.Services.Input
 
             for (PlayerIndex i = PlayerIndex.One; i <= PlayerIndex.Four; i++)
             {
+                if ((int)i >= result.Length)
+                    break;
+
                 GamePadState controllerState = GamePad.GetState(i, GamePadDeadZone.None);
                 if (i == PlayerIndex.One)
                     result[(int)i] = new InputState(
