@@ -1153,5 +1153,40 @@ namespace FEXNA
                     return DirectionFlags.None;
             }
         }
+
+#if DEBUG && WINDOWS
+        public static InputDiagnostics InputDiagnostics()
+        {
+            return new InputDiagnostics(
+                inputs,
+                held_inputs_time,
+                input_repeat_timer,
+                input_repeat_timer
+                    .ToDictionary(p => p.Key, p => new Func<bool>(() => repeated((Inputs)p.Key))));
+        }
+#endif
     }
+
+#if DEBUG && WINDOWS
+    public struct InputDiagnostics
+    {
+        public Dictionary<int, bool> Inputs { get; private set; }
+        public Dictionary<int, int> HeldInputsTime { get; private set; }
+        public Dictionary<int, int> InputRepeatTimer { get; private set; }
+        public Dictionary<int, Func<bool>> Repeated { get; private set; }
+
+        public InputDiagnostics(
+                Dictionary<int, bool> inputs,
+                Dictionary<int, int> heldInputsTime,
+                Dictionary<int, int> inputRepeatTimer,
+                Dictionary<int, Func<bool>> repeated)
+            : this()
+        {
+            Inputs = inputs; //@Debug: .ToDictionary(p => p.Key, p => p.Value);
+            HeldInputsTime = heldInputsTime;
+            InputRepeatTimer = inputRepeatTimer;
+            Repeated = repeated;
+        }
+    }
+#endif
 }
