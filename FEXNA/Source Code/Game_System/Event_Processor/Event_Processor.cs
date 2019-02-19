@@ -444,6 +444,9 @@ namespace FEXNA
                 // Edit Tile Outlines
                 case 47:
                     return command_edit_tile_outlines();
+                // AI Target Map Object
+                case 48:
+                    return command_ai_target_map_object();
                 // Change class
                 case 51:
                     return command_class_change();

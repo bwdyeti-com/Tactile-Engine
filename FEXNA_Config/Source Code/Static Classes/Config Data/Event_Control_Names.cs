@@ -55,6 +55,7 @@ namespace FEXNA_Config
             {  45, "Import Map Area" },
             {  46, "Add Siege Engine" },
             {  47, "Edit Tile Outlines" },
+            {  48, "AI Target Map Object" },
             // Actors
             {  51, "Change Class" },          
             {  52, "Exp Gain" },              
