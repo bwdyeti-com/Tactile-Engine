@@ -71,12 +71,13 @@ namespace FEXNA
     {
         const int INITIAL_WAIT = 16;
         const int REPEAT_WAIT = 4;
-        const float STICK_DEAD_ZONE = 0.2f;
+        internal const float STICK_DEAD_ZONE = 0.2f;
         const float CLICK_TRAVEL_DIST = 8f;
 
-        const bool INVERSE_DIRECTIONS_CANCEL = true;
+        internal const bool INVERSE_DIRECTIONS_CANCEL = true;
 
-        readonly static Dictionary<Inputs, Keys> INPUT_OVERRIDES = new Dictionary<Inputs, Keys> {
+        internal readonly static HashSet<Inputs> DIRECTIONS = new HashSet<Inputs> { Inputs.Up, Inputs.Down, Inputs.Left, Inputs.Right };
+        internal readonly static Dictionary<Inputs, Keys> INPUT_OVERRIDES = new Dictionary<Inputs, Keys> {
             { Inputs.Down, Keys.Down },
             { Inputs.Left, Keys.Left },
             { Inputs.Right, Keys.Right },
