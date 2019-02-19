@@ -12,8 +12,8 @@ using FEXNA.Windows.UserInterface.Command.Config;
 
 namespace FEXNA.Windows.Command
 {
-    enum Config_Options { Zoom, Fullscreen, Stereoscopic, Anaglyph, Metrics, Check_For_Updates, Rumble }
-    enum ConfigTypes { Number, OnOffSwitch, Button, Input }
+    enum Config_Options { Zoom, Fullscreen, Stereoscopic, Anaglyph, Metrics, Check_For_Updates, Rumble, ResetControls, Controls }
+    enum ConfigTypes { None, Number, OnOffSwitch, Button, Input }
     class Window_Config_Options : Window_Command_Scrollbar
     {
         const int VALUE_OFFSET = 120;
@@ -23,6 +23,7 @@ namespace FEXNA.Windows.Command
         private bool OptionSelected;
         internal int NonControlOptions { get; private set; }
         private Hand_Cursor SelectedOptionCursor;
+        private Dictionary<int, Config_Options> OptionIndices;
 
         internal int Zoom { get; private set; }
         internal int StereoscopicLevel { get; private set; }
@@ -33,11 +34,13 @@ namespace FEXNA.Windows.Command
         internal bool Rumble { get; private set; }
 
         #region Accessors
+        private Config_Options ActiveOption { get { return OptionIndices[this.index]; } }
+
         public bool is_option_enabled
         {
             get
             {
-                if (this.index == (int)Config_Options.Anaglyph)
+                if (this.ActiveOption == Config_Options.Anaglyph)
                     return Fullscreen && (StereoscopicLevel > 0);
                 return true;
             }
@@ -66,8 +69,6 @@ namespace FEXNA.Windows.Command
                         strs.Add("  Red-Cyan (3D)");
                         break;
                     case Config_Options.Metrics:
-                        if (!Global.metrics_allowed)
-                            break;
                         strs.Add("Metrics");
                         break;
                     case Config_Options.Check_For_Updates:
@@ -75,6 +76,11 @@ namespace FEXNA.Windows.Command
                         break;
                     case Config_Options.Rumble:
                         strs.Add("Rumble");
+                        break;
+                    case Config_Options.ResetControls:
+                        strs.Add("Controls:");
+                        break;
+                    case Config_Options.Controls:
                         break;
                     default:
 #if DEBUG
@@ -84,8 +90,6 @@ namespace FEXNA.Windows.Command
                         break;
                 }
             }
-            NonControlOptions = strs.Count;
-            strs.Add("Controls:");
             strs.AddRange(new List<string> { "Down", "Left", "Right", "Up",
                 "A\nSelect/Confirm", "B\nCancel", "Y\nCursor Speed", "X\nEnemy Range",
                 "L\nNext Unit", "R\nStatus", "Start\nSkip/Map", "Select\nMenu" });
@@ -114,42 +118,64 @@ namespace FEXNA.Windows.Command
                 return;
 
             base.set_items(strs);
-            initialize_scrollbar();
-            refresh_scroll_visibility();
             reset_all();
         }
 
         protected override void add_commands(List<string> strs)
         {
+            NonControlOptions = 0;
+            OptionIndices = new Dictionary<int, Config_Options>();
+
             var nodes = new List<CommandUINode>();
+            int options = Enum_Values.GetEnumCount(typeof(Config_Options));
             for (int i = 0; i < strs.Count; i++)
             {
-                ConfigTypes value;
-                int options = Enum_Values.GetEnumCount(typeof(Config_Options));
+                ConfigTypes value = ConfigTypes.None;
+                Config_Options option;
                 if (i < options)
-                    switch ((Config_Options)i)
+                {
+                    option = (Config_Options)i;
+                    switch (option)
                     {
                         case Config_Options.Zoom:
                             value = ConfigTypes.Number;
                             break;
+                        case Config_Options.Metrics:
+                            if (Global.metrics_allowed)
+                                value = ConfigTypes.OnOffSwitch;
+                            break;
+                        case Config_Options.ResetControls:
+                            value = ConfigTypes.Button;
+                            break;
+                        case Config_Options.Controls:
+                            value = ConfigTypes.Input;
+                            break;
                         case Config_Options.Fullscreen:
                         case Config_Options.Stereoscopic:
                         case Config_Options.Anaglyph:
-                        case Config_Options.Metrics:
                         case Config_Options.Check_For_Updates:
                         case Config_Options.Rumble:
                         default:
                             value = ConfigTypes.OnOffSwitch;
                             break;
                     }
+
+                    if (value == ConfigTypes.None)
+                        continue;
+
+                    if (option != Config_Options.ResetControls &&
+                            option != Config_Options.Controls)
+                        NonControlOptions++;
+                }
                 else
                 {
-                    if (i == options)
-                        value = ConfigTypes.Button;
-                    else
-                        value = ConfigTypes.Input;
+                    // Controls
+                    value = ConfigTypes.Input;
+                    option = Config_Options.Controls;
                 }
-                var node = item(new Tuple<string, ConfigTypes>(strs[i], value), i);
+
+                OptionIndices.Add(nodes.Count, option);
+                var node = item(new Tuple<string, ConfigTypes>(strs[i], value), nodes.Count);
                 nodes.Add(node);
             }
 
@@ -246,7 +272,7 @@ namespace FEXNA.Windows.Command
         {
             if (OptionSelected)
             {
-                switch ((Config_Options)this.index)
+                switch (this.ActiveOption)
                 {
                     // Zoom
                     case Config_Options.Zoom:
@@ -381,34 +407,34 @@ namespace FEXNA.Windows.Command
         #region Controls
         public void reset()
         {
-            switch (this.index)
+            switch (this.ActiveOption)
             {
                 // Zoom
-                case (int)Config_Options.Zoom:
+                case Config_Options.Zoom:
                     reset_zoom();
                     break;
                 // Fullscreen
-                case (int)Config_Options.Fullscreen:
+                case Config_Options.Fullscreen:
                     reset_fullscreen();
                     break;
                 // Stereoscopic
-                case (int)Config_Options.Stereoscopic:
+                case Config_Options.Stereoscopic:
                     reset_stereoscopic();
                     break;
                 // Anaglyph
-                case (int)Config_Options.Anaglyph:
+                case Config_Options.Anaglyph:
                     reset_anaglyph();
                     break;
                 // Metrics
-                case (int)Config_Options.Metrics:
+                case Config_Options.Metrics:
                     reset_metrics();
                     break;
                 // Check for Updates
-                case (int)Config_Options.Check_For_Updates:
+                case Config_Options.Check_For_Updates:
                     reset_updates();
                     break;
                 // Rumble
-                case (int)Config_Options.Rumble:
+                case Config_Options.Rumble:
                     reset_rumble();
                     break;
             }
@@ -425,6 +451,11 @@ namespace FEXNA.Windows.Command
             reset_rumble();
         }
 
+        private ConfigUINode OptionUINode(Config_Options option)
+        {
+            return Items[OptionIndices.First(x => x.Value == option).Key] as ConfigUINode;
+        }
+
         // Zoom
         private void reset_zoom()
         {
@@ -433,7 +464,7 @@ namespace FEXNA.Windows.Command
         private void reset_zoom(int value)
         {
             Zoom = value;
-            (Items[(int)Config_Options.Zoom] as NumberUINode).set_value(Zoom);
+            (OptionUINode(Config_Options.Zoom) as NumberUINode).set_value(Zoom);
         }
 
         // Fullscreen
@@ -444,7 +475,7 @@ namespace FEXNA.Windows.Command
         private void reset_fullscreen(bool value)
         {
             Fullscreen = value;
-            (Items[(int)Config_Options.Fullscreen] as SwitchUINode).set_switch(Fullscreen);
+            (OptionUINode(Config_Options.Fullscreen) as SwitchUINode).set_switch(Fullscreen);
 
             reset_anaglyph();
         }
@@ -458,7 +489,7 @@ namespace FEXNA.Windows.Command
         {
             StereoscopicLevel = value;
             bool stereoscopy = StereoscopicLevel > 0;
-            (Items[(int)Config_Options.Stereoscopic] as SwitchUINode).set_switch(
+            (OptionUINode(Config_Options.Stereoscopic) as SwitchUINode).set_switch(
                 stereoscopy, stereoscopy ? StereoscopicLevel.ToString() : "");
 
             reset_anaglyph();
@@ -473,15 +504,15 @@ namespace FEXNA.Windows.Command
         {
             if (!Fullscreen || StereoscopicLevel == 0)
             {
-                (Items[(int)Config_Options.Anaglyph] as SwitchUINode).locked = true;
+                (OptionUINode(Config_Options.Anaglyph) as SwitchUINode).locked = true;
             }
             else
             {
-                (Items[(int)Config_Options.Anaglyph] as SwitchUINode).locked = false;
+                (OptionUINode(Config_Options.Anaglyph) as SwitchUINode).locked = false;
             }
 
             Anaglyph = value;
-            (Items[(int)Config_Options.Anaglyph] as SwitchUINode).set_switch(
+            (OptionUINode(Config_Options.Anaglyph) as SwitchUINode).set_switch(
                 StereoscopicLevel > 0 && (!Fullscreen || Anaglyph));
         }
 
@@ -493,7 +524,7 @@ namespace FEXNA.Windows.Command
         private void reset_metrics(bool value)
         {
             Metrics = value;
-            (Items[(int)Config_Options.Metrics] as SwitchUINode).set_switch(Metrics);
+            (OptionUINode(Config_Options.Metrics) as SwitchUINode).set_switch(Metrics);
         }
 
         // Check for Updates
@@ -504,7 +535,7 @@ namespace FEXNA.Windows.Command
         private void reset_updates(bool value)
         {
             Updates = value;
-            (Items[(int)Config_Options.Check_For_Updates] as SwitchUINode).set_switch(Updates);
+            (OptionUINode(Config_Options.Check_For_Updates) as SwitchUINode).set_switch(Updates);
         }
 
         // Rumble
@@ -515,7 +546,7 @@ namespace FEXNA.Windows.Command
         private void reset_rumble(bool value)
         {
             Rumble = value;
-            (Items[(int)Config_Options.Rumble] as SwitchUINode).set_switch(Rumble);
+            (OptionUINode(Config_Options.Rumble) as SwitchUINode).set_switch(Rumble);
         }
         #endregion
 
