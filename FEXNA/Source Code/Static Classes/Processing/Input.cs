@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace FEXNA
 {
-    public enum Inputs { Down, Left, Right, Up, A, B, Y, X, L, R, Start, Select }
+    public enum Inputs : byte { Down, Left, Right, Up, A, B, Y, X, L, R, Start, Select }
     public enum MouseButtons
     {
         None = 0,
@@ -140,9 +140,6 @@ namespace FEXNA
         private static InputState[] PlayerInputs;
         private static InputState PlayerOneInputs { get { return PlayerInputs[0]; } }
         
-        private static Dictionary<int, Keys> key_redirect = new Dictionary<int, Keys>();
-        private static Dictionary<int, Buttons> pad_redirect = new Dictionary<int, Buttons>();
-
         private static MouseState MouseState, LastMouseState;
         private static MouseButtons MouseComboHeld;
         private static Dictionary<MouseButtons, Maybe<Vector2>> MouseClickLocs = new Dictionary<MouseButtons, Maybe<Vector2>>
@@ -209,58 +206,29 @@ namespace FEXNA
         #region Serialization
         public static void write(BinaryWriter writer)
         {
-            for (int i = 0; i < (int)Inputs.Select; i++)
-                writer.Write((int)key_redirect[i]);
+            InputConfig.write(writer);
         }
 
         public static void read(BinaryReader reader)
         {
-            for (int i = 0; i < (int)Inputs.Select; i++)
-                key_redirect[i] = (Keys)reader.ReadInt32();
+            InputConfig.read(reader);
         }
         #endregion
 
         #region Config
-        public static void set_defaults()
+        public static void default_controls()
         {
-            default_keys();
+            InputConfig.SetDefaults();
         }
 
-        public static void default_keys()
+        public static string key_name(Inputs input)
         {
-            key_redirect.Clear();
-            key_redirect.Add((int)Inputs.Down, Keys.NumPad2);
-            key_redirect.Add((int)Inputs.Left, Keys.NumPad4);
-            key_redirect.Add((int)Inputs.Right, Keys.NumPad6);
-            key_redirect.Add((int)Inputs.Up, Keys.NumPad8);
-            key_redirect.Add((int)Inputs.A, Keys.X);
-            key_redirect.Add((int)Inputs.B, Keys.Z);
-            key_redirect.Add((int)Inputs.Y, Keys.D);
-            key_redirect.Add((int)Inputs.X, Keys.C);
-            key_redirect.Add((int)Inputs.L, Keys.A);
-            key_redirect.Add((int)Inputs.R, Keys.S);
-            key_redirect.Add((int)Inputs.Start, Keys.Enter);
-            key_redirect.Add((int)Inputs.Select, Keys.RightShift);
+            return InputConfig.KeyName(input);
         }
 
-        public static string key_name(int i)
+        public static bool remap_key(Inputs input, Keys key)
         {
-            return REMAPPABLE_KEYS[key_redirect[i]];
-        }
-
-        public static bool remap_key(int i, Keys key)
-        {
-            if (!REMAPPABLE_KEYS.ContainsKey(key))
-                return false;
-            if (key_redirect.ContainsValue(key))
-                foreach (KeyValuePair<int, Keys> pair in key_redirect)
-                    if (pair.Value == key)
-                    {
-                        key_redirect[pair.Key] = key_redirect[i];
-                        break;
-                    }
-            key_redirect[i] = key;
-            return true;
+            return InputConfig.RemapKey(input, key);
         }
         #endregion
 

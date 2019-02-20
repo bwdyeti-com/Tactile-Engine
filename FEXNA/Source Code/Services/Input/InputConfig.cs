@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using FEXNAVersionExtension;
 using FEXNA_Library;
 
 namespace FEXNA.Services.Input
@@ -27,20 +28,37 @@ namespace FEXNA.Services.Input
 
             foreach (var pair in KeyRedirect)
             {
-                writer.Write((int)pair.Key);
+                writer.Write((byte)pair.Key);
                 writer.Write((int)pair.Value);
             }
         }
 
         public void read(BinaryReader reader)
         {
-            int count = reader.ReadInt32();
+            SetDefaults();
 
-            for (int i = 0; i < count; i++)
+            if (Global.LOADED_VERSION.older_than(0, 6, 5, 0))
             {
-                Inputs key = (Inputs)reader.ReadInt32();
-                Keys value = (Keys)reader.ReadInt32();
-                KeyRedirect[key] = value;
+                var keyRedirect = new Dictionary<byte, Keys>();
+                for (byte i = 0; i < (byte)Inputs.Select; i++)
+                    keyRedirect[i] = (Keys)reader.ReadInt32();
+                foreach (var pair in keyRedirect)
+                {
+                    if (FEXNA.Input.REMAPPABLE_KEYS.ContainsKey(pair.Value))
+                        KeyRedirect[(Inputs)pair.Key] = pair.Value;
+                }
+            }
+            else
+            {
+                int count = reader.ReadInt32();
+
+                for (int i = 0; i < count; i++)
+                {
+                    Inputs key = (Inputs)reader.ReadByte();
+                    Keys value = (Keys)reader.ReadInt32();
+                    if (FEXNA.Input.REMAPPABLE_KEYS.ContainsKey(value))
+                        KeyRedirect[key] = value;
+                }
             }
         }
         #endregion
@@ -48,6 +66,8 @@ namespace FEXNA.Services.Input
         #region Config
         public void SetDefaults()
         {
+            PadRedirect.Clear();
+
             // Down
             PadRedirect.Add(Inputs.Down, Buttons.DPadDown);
             // Left
