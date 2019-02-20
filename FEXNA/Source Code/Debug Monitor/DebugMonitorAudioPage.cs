@@ -12,6 +12,11 @@ namespace FEXNA.Debug_Monitor
     {
         public DebugMonitorAudioPage()
         {
+            // I'm somewhat confused as to how exactly this works,
+            // and gets the current state of the audio despite getting
+            // a struct once //@Debug
+            // I guess the properties hook references into the underlying
+            // variables and don't lose them
             var diagnostics = Global.Audio.AudioDiagnostics();
 
             // Music tracks
