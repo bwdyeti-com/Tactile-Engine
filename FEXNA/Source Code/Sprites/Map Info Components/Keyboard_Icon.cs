@@ -71,7 +71,7 @@ namespace FEXNA.Graphics.Help
 
         internal void refresh()
         {
-            this.letter = Input.key_name((int)Key);
+            this.letter = Input.key_name(Key);
         }
 
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))

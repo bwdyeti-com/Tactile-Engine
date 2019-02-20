@@ -302,7 +302,7 @@ namespace FE7x
             Global.set_update_uri(Update_Checker.GAME_DOWNLOAD);
 
             camera = new Camera(Window_Width, Window_Height, Vector2.Zero);
-            FEXNA.Input.set_defaults();
+            FEXNA.Input.default_controls();
 
             base.Initialize();
 
@@ -3590,7 +3590,7 @@ namespace FE7x
             Global.fullscreen = false;
             Global.stereoscopic_level = 0;
             Global.anaglyph = true;
-            FEXNA.Input.default_keys();
+            FEXNA.Input.default_controls();
         }
         #endregion
 

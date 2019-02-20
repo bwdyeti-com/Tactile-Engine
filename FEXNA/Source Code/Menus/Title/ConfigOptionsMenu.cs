@@ -141,7 +141,7 @@ namespace FEXNA.Menus.Title
                         Global.game_system.play_se(System_Sounds.Confirm);
                         // Reset to default controls 
                         if (OptionsWindow.index == OptionsWindow.NonControlOptions)
-                            Input.default_keys();
+                            Input.default_controls();
                         else
                             SelectOption();
                     }
@@ -251,13 +251,16 @@ namespace FEXNA.Menus.Title
                 var pressed_keys = Global.Input.PressedKeys();
                 foreach (Keys key in Input.REMAPPABLE_KEYS.Keys
                         .Intersect(pressed_keys))
-                    if (Input.remap_key(OptionsWindow.index -
-                        (OptionsWindow.NonControlOptions + 1), key))
+                {
+                    Inputs input = (Inputs)(OptionsWindow.index -
+                        (OptionsWindow.NonControlOptions + 1));
+                    if (Input.remap_key(input, key))
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
                         CancelSelecting();
                         break;
                     }
+                }
             }
 
             if (!Accepting)
