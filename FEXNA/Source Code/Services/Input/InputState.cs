@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using FEXNA_Library;
@@ -16,7 +17,7 @@ namespace FEXNA.Services.Input
         private GamePadState GamePad;
         private KeyboardState KeyState;
 
-        private int[] InputsHeldTime;
+        private int[] InputsHeldTime, InputsRepeatTime;
         private bool[] InputsReleased;
 
         private HashSet<int> LockedRepeats = new HashSet<int>();
@@ -25,6 +26,7 @@ namespace FEXNA.Services.Input
         {
             int inputCount = Enum_Values.GetEnumValues(typeof(Inputs)).Length;
             InputsHeldTime = new int[inputCount];
+            InputsRepeatTime = new int[inputCount];
             InputsReleased = new bool[inputCount];
             GamePad = new GamePadState();
         }
@@ -35,6 +37,7 @@ namespace FEXNA.Services.Input
         {
             int inputCount = Enum_Values.GetEnumValues(typeof(Inputs)).Length;
             InputsHeldTime = new int[inputCount];
+            InputsRepeatTime = new int[inputCount];
             InputsReleased = new bool[inputCount];
 
             GamePad = padState;
@@ -100,8 +103,11 @@ namespace FEXNA.Services.Input
 
                 // Set data to state
                 if (keyPressed)
+                {
                     // If pressed, set input held time to previous frame's hold time plus 1
                     InputsHeldTime[key] = previousState.InputsHeldTime[key] + 1;
+                    InputsRepeatTime[key] = previousState.InputsRepeatTime[key] + 1;
+                }
                 else if (previousState.Pressed(input))
                     // If not pressed and was pressed last frame, set released value
                     InputsReleased[key] = true;
@@ -113,11 +119,17 @@ namespace FEXNA.Services.Input
                 {
                     InputsHeldTime[(int)Inputs.Down] = 0;
                     InputsHeldTime[(int)Inputs.Up] = 0;
+
+                    InputsRepeatTime[(int)Inputs.Down] = 0;
+                    InputsRepeatTime[(int)Inputs.Up] = 0;
                 }
                 if (Pressed(Inputs.Left) && Pressed(Inputs.Right))
                 {
                     InputsHeldTime[(int)Inputs.Left] = 0;
                     InputsHeldTime[(int)Inputs.Right] = 0;
+
+                    InputsRepeatTime[(int)Inputs.Left] = 0;
+                    InputsRepeatTime[(int)Inputs.Right] = 0;
                 }
             }
             foreach (Inputs key in FEXNA.Input.DIRECTIONS)
@@ -128,6 +140,15 @@ namespace FEXNA.Services.Input
                     ClearLockedRepeats();
                     break;
                 }
+            }
+            // If any direction was just pressed or released,
+            // reset the repeat value for all pressed directions to 1
+            if (FEXNA.Input.DIRECTIONS.Any(x => Triggered(x) || Released(x)))
+            {
+                foreach (Inputs key in FEXNA.Input.DIRECTIONS)
+                    if (InputsRepeatTime[(int)key] > 0)
+                        InputsRepeatTime[(int)key] = 1;
+
             }
         }
 
@@ -176,8 +197,8 @@ namespace FEXNA.Services.Input
             if (LockedRepeats.Contains((int)inputName))
                 return false;
             // If it was pressed INITIAL_WAIT ticks ago, or every REPEAT_WAIT ticks after that
-            return InputsHeldTime[(int)inputName] - (INITIAL_WAIT + 1) >= 0 &&
-                ((InputsHeldTime[(int)inputName] - (INITIAL_WAIT + 1)) % REPEAT_WAIT) == 0;
+            return InputsRepeatTime[(int)inputName] - (INITIAL_WAIT + 1) >= 0 &&
+                ((InputsRepeatTime[(int)inputName] - (INITIAL_WAIT + 1)) % REPEAT_WAIT) == 0;
         }
 
         /// <summary>
