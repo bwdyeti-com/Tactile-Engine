@@ -228,7 +228,9 @@ namespace FEXNA
                 Tone_Timer = 0;
                 Tone_Time_Max = 0;
                 prev_player_loc = null;
+#if !MONOGAME && DEBUG
                 Moving_Editor_Unit = false;
+#endif
             }
         }
 

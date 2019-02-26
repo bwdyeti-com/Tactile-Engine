@@ -623,7 +623,8 @@ namespace FEXNA
 
             // If canto state is null but the unit is cantoing, set to horse canto
             if (canto == Canto_Records.None && Canto == Canto_Records.None)
-                Canto = (unit.cantoing && unit.has_canto() ? Canto_Records.Horse : Canto_Records.None);
+                //Canto = (unit.cantoing && unit.has_canto() ? Canto_Records.Horse : Canto_Records.None); //@Debug
+                Canto = (unit.cantoing ? Canto_Records.Horse : Canto_Records.None);
             else if (canto != Canto_Records.None)
                 Canto = canto;
 
