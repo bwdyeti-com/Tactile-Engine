@@ -17,7 +17,7 @@
     <XnaProfile>Reach</XnaProfile>
     <XnaCrossPlatformGroupID>e8efade1-387e-4104-9ea5-c451dd60fced</XnaCrossPlatformGroupID>
     <XnaOutputType>Library</XnaOutputType>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -660,7 +660,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" Eazfuscator.NET.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 3.1</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Release" "$(SolutionDir)Confuser\Confuser.CLI.exe" -n -o="$(TargetDir) " "$(TargetPath)" "$(SolutionDir)Confuser\Confuser.crproj"</PostBuildEvent>
   </PropertyGroup>
   <!--
       To modify your build process, add your task inside one of the targets below and uncomment it. 

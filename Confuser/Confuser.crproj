@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project baseDir="obj\Release" outputDir="..\Release" xmlns="http://confuser.codeplex.com">
+    <rule preset="none" pattern="true">
+        <protection id="anti debug" />
+        <protection id="rename" />
+        <protection id="constants" />
+        <protection id="ref proxy" />
+    </rule>
+</project>
