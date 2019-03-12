@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using FEXNA_Library;
+using System;
 
 namespace FEXNA
 {
@@ -29,6 +31,11 @@ namespace FEXNA
         public bool scripted_battle = false;
         public int preparations_item_index;
         internal Scripted_Combat_Script scripted_battle_stats;
+        // Context sensitive unit control
+        public Maybe<Vector2> SelectedMoveLoc { get; private set; }
+        public Maybe<int> SelectedMoveMenuChoice { get; private set; }
+        public Maybe<Vector2> SelectedMoveAttackLoc { get; private set; }
+        public Maybe<int> SelectedMoveAttackItemIndex { get; private set; }
         // Ranges
         public HashSet<Vector2> temp_attack_range = new HashSet<Vector2>();
         public HashSet<Vector2> temp_staff_range = new HashSet<Vector2>();
@@ -62,5 +69,38 @@ namespace FEXNA
             shop_call = false;
             secret_shop_call = false;
         }
+
+        #region Context Sensitive Menus
+        internal void ContextSensitiveUnitMenuAttack(
+            Vector2 moveLoc,
+            Vector2 attackLoc,
+            int weaponIndex)
+        {
+            SelectedMoveLoc = moveLoc;
+            SelectedMoveAttackLoc = attackLoc;
+            SelectedMoveAttackItemIndex = weaponIndex;
+
+            SelectedMoveMenuChoice = 0; // Attack
+        }
+
+        internal void ResetContextSensitiveUnitMenu()
+        {
+            SelectedMoveMenuChoice = Maybe<int>.Nothing;
+            SelectedMoveAttackLoc = Maybe<Vector2>.Nothing;
+            SelectedMoveAttackItemIndex = Maybe<int>.Nothing;
+        }
+
+        internal void ResetContextSensitiveUnitControl()
+        {
+            SelectedMoveLoc = Maybe<Vector2>.Nothing;
+
+            ResetContextSensitiveUnitMenu();
+        }
+
+        internal void ResetContextSensitiveSelectedItem()
+        {
+            SelectedMoveAttackItemIndex = Maybe<int>.Nothing;
+        }
+        #endregion
     }
 }
