@@ -1342,6 +1342,46 @@ namespace FEXNA
             return false;
         }
 
+        public Maybe<int> distance_to_siege(Siege_Engine siege)
+        {
+            return distance_to_siege(siege, this.canto_mov);
+        }
+        public Maybe<int> distance_to_siege(Siege_Engine siege, int mov)
+        {
+            return Pathfind.get_distance(siege.loc, Id, mov, false, Loc);
+        }
+
+        public IEnumerable<Siege_Engine> siege_weapons_in_range(IEnumerable<Siege_Engine> sieges, HashSet<Vector2> moveRange)
+        {
+            return sieges
+                .Where(x => x.item.is_weapon)
+                .Where(x => this.actor.is_equippable_as_siege(x.item.to_weapon))
+                .Where(x => moveRange.Contains(x.loc));
+        }
+
+        public IEnumerable<Siege_Engine> sieges_in_range_of_target(IEnumerable<Siege_Engine> sieges, Vector2 targetLoc)
+        {
+            return sieges.Where(x =>
+            {
+                Maybe<int> move_distance = distance_to_siege(x, -1);
+                if (move_distance.IsSomething)
+                {
+                    set_ai_base_loc(x.loc, move_distance);
+
+                    int min = min_range(Siege_Engine.SIEGE_INVENTORY_INDEX);
+                    int max = max_range(Siege_Engine.SIEGE_INVENTORY_INDEX);
+
+                    int dist = Global.game_map.distance(x.loc, targetLoc);
+                    bool inRange = dist >= min && dist <= max;
+
+                    reset_ai_loc();
+
+                    return inRange;
+                }
+                return false;
+            });
+        }
+
         public bool can_assemble()
         {
             // If no siege engines in the convoy and none in this actor's inventory
@@ -2945,7 +2985,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         !Global.data_weapons[siege.item.Id].is_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -2988,7 +3028,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         Global.data_weapons[siege.item.Id].is_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -3127,6 +3167,21 @@ namespace FEXNA
                 return false;
 
             return moveRange.Contains(loc);
+        }
+
+        internal int first_weapon_with_range(int distance)
+        {
+            var useable = actor.useable_weapons();
+            foreach(int index in useable)
+            {
+                int min = min_range(index);
+                int max = max_range(index);
+
+                bool inRange = distance >= min && distance <= max;
+                if (inRange)
+                    return index;
+            }
+            return -1;
         }
         #endregion
 
@@ -3801,13 +3856,25 @@ namespace FEXNA
             Pathfind.reset();
             Global.player.force_loc(Loc);
             // Get movement path
-            List<Move_Arrow_Data> move_arrow = Global.game_map.move_arrow;
             Move_Route = new List<Vector2>();
-            for (int i = move_arrow.Count - 1; i >= 1; i--)
+            List<Move_Arrow_Data> move_arrow =
+                new List<Move_Arrow_Data>(Global.game_map.move_arrow);
+            // If target is not on the move arrow, pathfind to it
+            if (!move_arrow.Any(x => x.Loc == loc))
             {
-                Move_Route.Add(new Vector2(move_arrow[i].X, move_arrow[i].Y) -
-                    new Vector2(move_arrow[i - 1].X, move_arrow[i - 1].Y));
-                Temp_Moved += move_cost(new Vector2(move_arrow[i].X, move_arrow[i].Y));
+                pathfind_move_to(loc);
+            }
+            else
+            {
+                // If only moving a subset of the total move arrow
+                while (move_arrow.Last().Loc != loc)
+                    move_arrow.pop();
+                for (int i = move_arrow.Count - 1; i >= 1; i--)
+                {
+                    Move_Route.Add(new Vector2(move_arrow[i].X, move_arrow[i].Y) -
+                        new Vector2(move_arrow[i - 1].X, move_arrow[i - 1].Y));
+                    Temp_Moved += move_cost(new Vector2(move_arrow[i].X, move_arrow[i].Y));
+                }
             }
             Global.game_map.move_range_visible = false;
             Move_Loc = loc;
@@ -3992,13 +4059,22 @@ namespace FEXNA
 
         public void command_menu_close()
         {
-            if (Global.player.loc != Move_Loc)
+            // Context sensitive move
+            if (!Cantoing && Global.game_temp.SelectedMoveLoc.IsSomething)
+                Global.player.force_loc(Global.game_temp.SelectedMoveLoc);
+            // Selected move location is not the current cursor position
+            else if (!Cantoing && Global.game_map.move_arrow.Any() &&
+                    Global.player.loc != Global.game_map.move_arrow.Last().Loc)
+                Global.player.force_loc(Global.game_map.move_arrow.Last().Loc);
+            else if (Global.player.loc != Move_Loc)
                 Global.player.force_loc(Move_Loc); // the centering on this might cause problems with below //Debug
+
             force_loc(Prev_Loc);
             Move_Loc = Prev_Loc;
             //Global.player.center(Loc, true); //Debug
             Temp_Moved = Moved_So_Far;
-            if (!Cantoing) selection_facing();
+            if (!Cantoing)
+                selection_facing();
             Global.game_map.range_start_timer = 0;
             Global.game_map.move_range_visible = true;
             update_map_animation(true);
@@ -4451,7 +4527,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         !Global.data_weapons[siege.item.Id].is_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -4533,7 +4609,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         Global.data_weapons[siege.item.Id].is_attack_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
