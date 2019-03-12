@@ -1004,6 +1004,12 @@ namespace FEXNA
 
         protected virtual void unit_menu_select(int option, Game_Unit unit)
         {
+            // If the player selects a menu option other than the
+            // context sensitive one, reset context sensitive values
+            if (Global.game_temp.SelectedMoveMenuChoice.IsSomething &&
+                    Global.game_temp.SelectedMoveMenuChoice != option)
+                Global.game_temp.ResetContextSensitiveUnitMenu();
+
             if (unit_menu_select_skill(option, unit))
                 return;
             switch (option)
@@ -1015,6 +1021,14 @@ namespace FEXNA
                     unit_command_window_visible = false;
                     Global.game_map.range_start_timer = 0;
                     Attack_Item_Window = new Window_Command_Item_Attack(Unit_Id, new Vector2(24, 8));
+                    // Automatically select a specific weapon
+                    if (Global.game_temp.SelectedMoveAttackItemIndex.IsSomething)
+                    {
+                        int index = Attack_Item_Window.GetRedirect(
+                            Global.game_temp.SelectedMoveAttackItemIndex);
+                        if (index != -1)
+                            Attack_Item_Window.immediate_index = index;
+                    }
                     Attack_Item_Window.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
                     Attack_Item_Window.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
                     Attack_Item_Window.data_stereoscopic = Config.MAPCOMMAND_DATA_DEPTH;
@@ -1312,18 +1326,28 @@ namespace FEXNA
                     unit.equip(Attack_Item_Window.redirect() + 1);
                     unit.actor.organize_items();
 
+                    // A weapon was selected and probably moved to the top of
+                    // the list, so reset this
+                    Global.game_temp.ResetContextSensitiveSelectedItem();
+
                     unit.using_siege_engine = Attack_Item_Window.redirect() ==
                         Siege_Engine.SIEGE_INVENTORY_INDEX;
                     int item_index = unit.using_siege_engine ? Attack_Item_Window.redirect() : 0;
 
+                    // Automatically select initial target location
+                    Maybe<Vector2> attackLoc = Global.game_temp.SelectedMoveAttackLoc;
+
                     if (Global.game_options.combat_window == 1)
                         Unit_Target_Window = new Window_Target_Combat_Detail(
                             Unit_Id, item_index, new Vector2(4, 4),
-                            (Attack_Item_Window as Window_Command_Item_Attack).skill);
+                            (Attack_Item_Window as Window_Command_Item_Attack).skill,
+                            attackLoc);
                     else
                         Unit_Target_Window = new Window_Target_Combat(
                             Unit_Id, item_index, new Vector2(4, 4),
-                            (Attack_Item_Window as Window_Command_Item_Attack).skill);
+                            (Attack_Item_Window as Window_Command_Item_Attack).skill,
+                            attackLoc);
+
                     Attack_Item_Window.active = false;
                     Attack_Item_Window.visible = false;
                     Global.player.facing = 4;
@@ -2607,6 +2631,9 @@ namespace FEXNA
                 Canto = Canto_Records.None;
 
             CancelButton = null;
+
+            // Reset context sensitive values on unit menu close
+            Global.game_temp.ResetContextSensitiveUnitControl();
         }
 
         protected void new_unit_command_window(List<string> commands, int width)
@@ -2615,6 +2642,14 @@ namespace FEXNA
                 new Vector2(8 + (Global.player.is_on_left() ? (Config.WINDOW_WIDTH - (width + 16)) : 0), 24), width, commands);
             Unit_Command_Window.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
             Unit_Command_Window.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
+
+            // Automatically selects a specific menu option
+            if (Global.game_temp.SelectedMoveMenuChoice.IsSomething)
+            {
+                if (Index_Redirect.Contains(Global.game_temp.SelectedMoveMenuChoice))
+                    Unit_Command_Window.immediate_index =
+                        Index_Redirect.IndexOf(Global.game_temp.SelectedMoveMenuChoice);
+            }
 
             create_cancel_button();
         }

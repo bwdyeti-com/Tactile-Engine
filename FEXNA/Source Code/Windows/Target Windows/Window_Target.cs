@@ -305,6 +305,41 @@ namespace FEXNA.Windows.Target
             Global.player.loc = loc;
             get_unit().face(loc);
         }
+        
+        public bool ChangeIndex(Vector2 loc)
+        {
+            var index = IndexOfLoc(loc);
+            if (index.IsSomething)
+            {
+                _lastTargetIndex = index;
+                move_to(index);
+                    
+                Global.player.instant_move = true;
+                Global.player.force_loc(loc);
+
+                refresh();
+                this.index = Temp_Index;
+                set_images();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        protected Maybe<int> IndexOfLoc(Vector2 loc)
+        {
+            for (int i = 0; i < Targets.Count; i++)
+            {
+                T target = Targets[i];
+                if (target_loc(target) == loc)
+                {
+                    return i;
+                }
+            }
+
+            return Maybe<int>.Nothing;
+        }
 
         public Maybe<int> selected_index()
         {
