@@ -1803,7 +1803,7 @@ namespace FEXNA
                 {
                     bool playerAttackableTeam = unit.is_attackable_team(
                         Constants.Team.PLAYER_TEAM);
-                    // If units the player can attack open chests
+                    // If a chest was opened by a unit the player can attack
                     if (playerAttackableTeam)
                         if (Global.game_state.visit_active &&
                             Global.game_state.visit_mode == State.Visit_Modes.Chest)
@@ -1822,6 +1822,7 @@ namespace FEXNA
                             "(keep at least one weapon and then\n" +
                             "throw out least valuable)");
 #endif
+                        //@Debug: actually select the best item to discard
                         actor.discard_item(actor.num_items - 1);
                     }
                 }
