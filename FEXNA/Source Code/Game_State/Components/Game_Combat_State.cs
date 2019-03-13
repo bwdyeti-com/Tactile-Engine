@@ -760,6 +760,7 @@ namespace FEXNA.State
                                             Global.player.loc = Battler_1.loc;
                                             Global.player.instant_move = true;
                                             Global.game_system.Selected_Unit_Id = Battler_1_Id;
+                                            Battler_1.update_move_range();
                                             Battler_1.open_move_range();
                                         }
                                     }
@@ -1696,6 +1697,7 @@ namespace FEXNA.State
                                                     Global.player.loc = Battler_1.loc;
                                                     Global.player.instant_move = true;
                                                     Global.game_system.Selected_Unit_Id = Battler_1_Id;
+                                                    Battler_1.update_move_range();
                                                     Battler_1.open_move_range();
                                                 }
                                             }
@@ -2002,6 +2004,7 @@ namespace FEXNA.State
                                                     Global.player.loc = Battler_1.loc;
                                                     Global.player.instant_move = true;
                                                     Global.game_system.Selected_Unit_Id = Battler_1_Id;
+                                                    Battler_1.update_move_range();
                                                     Battler_1.open_move_range();
                                                 }
                                             }

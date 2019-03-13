@@ -16,8 +16,10 @@ namespace FEXNA
         {
             Ai_Base_Loc = Loc;
             Ai_Base_Temp_Moved = Temp_Moved;
+
             Loc = new_loc;
             Temp_Moved = Temp_Moved + move_distance;
+
             Saving_Ai_Loc = true;
         }
 
@@ -27,6 +29,7 @@ namespace FEXNA
             {
                 Loc = Ai_Base_Loc;
                 Temp_Moved = Ai_Base_Temp_Moved;
+
                 Saving_Ai_Loc = false;
             }
         }

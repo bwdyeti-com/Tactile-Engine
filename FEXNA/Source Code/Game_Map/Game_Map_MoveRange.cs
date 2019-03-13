@@ -243,8 +243,9 @@ namespace FEXNA
             }
             Game_Unit unit = get_unit(loc);
             // Falsely returns that no unit is at this tile if the unit can't see it
-            if (unit != null && fow && !unit.visible_by(this.units[id].team))
-                unit = null;
+            if (unit != null)
+                if (fow && !unit.visible_by(this.units[id].team))
+                    unit = null;
             // If there is a unit here and it's not the tested one
             if (unit != null && unit.id != id)
                 return true;
@@ -806,7 +807,7 @@ namespace FEXNA
         public int Y;
         public int Frame;
 
-        #region Accessors
+        #region Serialization
         public void write(BinaryWriter writer)
         {
             writer.Write(X);
@@ -826,5 +827,12 @@ namespace FEXNA
             Y = y;
             Frame = frame;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Move_Arrow_Data: {0}", this.Loc);
+        }
+
+        public Vector2 Loc { get { return new Vector2(X, Y); } }
     }
 }

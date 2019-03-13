@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Calculations.Stats;
 using FEXNA.Graphics.Text;
+using FEXNAWeaponExtension;
 using FEXNA_Library;
 
 namespace FEXNA.Windows.Map.Info
@@ -10,6 +11,7 @@ namespace FEXNA.Windows.Map.Info
     class Window_Unit_Info_Combat_Preview : Window_Unit_Info_Burst
     {
         private Item_Icon_Sprite Item, TargetItem;
+        private Effective_WT_Arrow WTA1, WTA2;
         private Unit_Info_Hp_Gauge_Damage TargetHpGauge;
         private FE_Text TargetName;
         private Sprite VsLabel;
@@ -18,6 +20,12 @@ namespace FEXNA.Windows.Map.Info
 
         protected override void initialize_images()
         {
+            WTA1 = new Effective_WT_Arrow();
+            WTA2 = new Effective_WT_Arrow();
+
+            WTA1.draw_offset = new Vector2(40, 16);
+            WTA2.draw_offset = new Vector2(56 + 16, 16);
+
             Window_Width = 56 + 72;
             Window_Height = 32;
             //Window_Width = 56 + 32; //Debug
@@ -55,6 +63,16 @@ namespace FEXNA.Windows.Map.Info
             //Hp_Gauge.gauge_visible = false; //Debug
         }
 
+        public override void update()
+        {
+            base.update();
+
+            WTA1.update();
+            WTA2.update();
+            Item.update();
+            TargetItem.update();
+        }
+
         #region Refresh
         protected override void draw_images(Game_Unit unit)
         {
@@ -72,26 +90,36 @@ namespace FEXNA.Windows.Map.Info
                 player_selected = false;
             }
 
+            Item.flash = false;
+            TargetItem.flash = false;
+
             // Name
             set_name(unit);
             Name.offset = new Vector2(Name.text_width / 2, 0); //Debug
 
+            Weapon_Triangle_Arrow.ResetWeaponTriangle(WTA1, WTA2);
+
             Item.texture = null;
-            var weapon = unit.actor.weapon;
+            var unitWeapon = unit.actor.weapon;
             if (!player_selected && unit.is_on_siege())
-                weapon = unit.items[Siege_Engine.SIEGE_INVENTORY_INDEX].to_weapon;
-            if (weapon != null)
+                unitWeapon = unit.items[Siege_Engine.SIEGE_INVENTORY_INDEX].to_weapon;
+            if (unitWeapon != null)
             {
-                string filename = string.Format(@"Graphics/Icons/{0}", weapon.Image_Name);
+                string filename = string.Format(@"Graphics/Icons/{0}", unitWeapon.Image_Name);
                 if (Global.content_exists(filename))
                     Item.texture = Global.Content.Load<Texture2D>(filename);
-                Item.index = weapon.Image_Index;
+                Item.index = unitWeapon.Image_Index;
             }
+
+            var playerUnitWeapon = player_unit.actor.weapon;
+            if (player_selected && player_unit.is_on_siege())
+                playerUnitWeapon = player_unit.items[Siege_Engine.SIEGE_INVENTORY_INDEX].to_weapon;
+
+            var selectedUnitWeapon = player_selected ? playerUnitWeapon : unitWeapon;
 
             // HP
             if (player_unit == null || player_unit == unit ||
-                selected_unit.actor.weapon == null || selected_unit.actor.weapon.is_staff())
-                //player_unit.actor.weapon == null || player_unit.actor.weapon.is_staff()) //Debug
+                selectedUnitWeapon == null || selectedUnitWeapon.is_staff())
             {
                 Window_Width = 56;
                 Window_Img.set_width(Window_Width);
@@ -110,60 +138,75 @@ namespace FEXNA.Windows.Map.Info
                 //TargetName.offset = new Vector2(24, 0);
 
                 TargetItem.texture = null;
-                weapon = player_unit.actor.weapon;
-                if (player_selected && player_unit.is_on_siege())
-                    weapon = player_unit.items[Siege_Engine.SIEGE_INVENTORY_INDEX].to_weapon;
-                if (weapon != null)
+                if (playerUnitWeapon != null)
                 {
-                    string filename = string.Format(@"Graphics/Icons/{0}", weapon.Image_Name);
+                    string filename = string.Format(@"Graphics/Icons/{0}", playerUnitWeapon.Image_Name);
                     if (Global.content_exists(filename))
                         TargetItem.texture = Global.Content.Load<Texture2D>(filename);
-                    TargetItem.index = weapon.Image_Index;
+                    TargetItem.index = playerUnitWeapon.Image_Index;
                 }
-
-                if (player_unit.actor.weapon == null || player_unit.actor.weapon.is_staff())
+                
+                // Player unit has no weapon
+                if (playerUnitWeapon == null || playerUnitWeapon.is_staff())
                 {
                     (Hp_Gauge as Unit_Info_Hp_Gauge_Damage).set_val(
                         unit.actor.hp, unit.actor.maxhp);
                 }
                 else
                 {
+                    int distance = playerUnitWeapon != null ?
+                        playerUnitWeapon.Min_Range : 1;
                     var stats = new CombatStats(player_unit.id, unit.id,
                         itemIndex: player_selected && player_unit.is_on_siege() ?
                             Siege_Engine.SIEGE_INVENTORY_INDEX : -1,
-                        distance: player_unit.actor.weapon != null ?
-                        player_unit.actor.weapon.Min_Range : 1)
+                        distance: distance)
                     {
                         location_bonuses = CombatLocationBonuses.NoAttackerBonus
                     };
-                    //(Hp_Gauge as Unit_Info_Hp_Gauge_Damage).set_val( //Debug
-                    //    unit.actor.hp, unit.actor.maxhp,
-                    //    stats.avg_dmg_per_round() / (float)unit.actor.maxhp);
                     (Hp_Gauge as Unit_Info_Hp_Gauge_Damage).set_val(
                         unit.actor.hp, unit.actor.maxhp,
                         stats.inverse_rounds_to_kill());
-                }
 
-                if (unit.actor.weapon == null || unit.actor.weapon.is_staff())
+                    Weapon_Triangle_Arrow.SetWeaponTriangle(
+                        WTA2,
+                        player_unit,
+                        unit,
+                        playerUnitWeapon,
+                        unitWeapon,
+                        distance);
+                    if (playerUnitWeapon.effective_multiplier(player_unit, unit) > 1)
+                        TargetItem.flash = true;
+                } 
+
+                // Target has no weapon
+                if (unitWeapon == null || unitWeapon.is_staff())
                 {
                     TargetHpGauge.set_val(unit.actor.hp, unit.actor.maxhp);
                 }
                 else
                 {
+                    int distance = unitWeapon != null ?
+                        unitWeapon.Min_Range : 1;
                     var target_stats = new CombatStats(unit.id, player_unit.id,
                         itemIndex: !player_selected && unit.is_on_siege() ?
                             Siege_Engine.SIEGE_INVENTORY_INDEX : -1,
-                        distance: unit.actor.weapon != null ?
-                        unit.actor.weapon.Min_Range : 1)
+                        distance: distance)
                     {
                         location_bonuses = CombatLocationBonuses.NoDefenderBonus
                     };
-                    //TargetHpGauge.set_val(
-                    //    player_unit.actor.hp, player_unit.actor.maxhp,
-                    //    target_stats.avg_dmg_per_round() / (float)player_unit.actor.maxhp);
                     TargetHpGauge.set_val(
                         player_unit.actor.hp, player_unit.actor.maxhp,
                         target_stats.inverse_rounds_to_kill());
+
+                    Weapon_Triangle_Arrow.SetWeaponTriangle(
+                        WTA1,
+                        unit,
+                        player_unit,
+                        unitWeapon,
+                        playerUnitWeapon,
+                        distance);
+                    if (unitWeapon.effective_multiplier(unit, player_unit) > 1)
+                        Item.flash = true;
                 }
             }
         }
@@ -201,6 +244,9 @@ namespace FEXNA.Windows.Map.Info
                 TargetItem.draw(sprite_batch, -loc);
 
                 sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                WTA1.draw(sprite_batch, -loc);
+                WTA2.draw(sprite_batch, -loc);
+
                 VsLabel.draw(sprite_batch, -loc);
                 sprite_batch.End();
             }

@@ -356,6 +356,11 @@ namespace FEXNA.Windows.Command.Items
             return Index_Redirect[index];
         }
 
+        public int GetRedirect(int index)
+        {
+            return Index_Redirect.IndexOf(index);
+        }
+
         public void refresh_equipped_tag()
         {
             Equipped = actor().equipped;

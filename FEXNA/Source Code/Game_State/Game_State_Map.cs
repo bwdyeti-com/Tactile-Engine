@@ -228,7 +228,9 @@ namespace FEXNA
                 Tone_Timer = 0;
                 Tone_Time_Max = 0;
                 prev_player_loc = null;
+#if !MONOGAME && DEBUG
                 Moving_Editor_Unit = false;
+#endif
             }
         }
 
@@ -1109,6 +1111,7 @@ namespace FEXNA
                 {
                     if (Talk_Events[i].for_these_units(unit1, unit2))
                     {
+                        // This will pop up after the talk event
                         unit1.talk_support_gain_display(unitId2);
 
                         unit1.actor.talk_support_gain(unit2.actor.id);

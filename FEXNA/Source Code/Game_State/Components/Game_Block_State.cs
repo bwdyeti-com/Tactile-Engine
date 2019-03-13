@@ -69,6 +69,9 @@ namespace FEXNA.State
                         case 2:
                             if (!get_scene_map().is_map_effect_active())
                             {
+                                // Reset since this unit couldn't open the menu
+                                Global.game_temp.ResetContextSensitiveUnitControl();
+
                                 blocked_unit.start_wait();
                                 blocked_unit.mission = -1;
                                 Blocked_Id = -1;
