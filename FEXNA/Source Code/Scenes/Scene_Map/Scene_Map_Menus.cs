@@ -1335,7 +1335,7 @@ namespace FEXNA
                     int item_index = unit.using_siege_engine ? Attack_Item_Window.redirect() : 0;
 
                     // Automatically select initial target location
-                    Maybe<Vector2> attackLoc = Global.game_temp.SelectedMoveAttackLoc;
+                    Maybe<Vector2> attackLoc = Global.game_temp.SelectedAttackLoc;
 
                     if (Global.game_options.combat_window == 1)
                         Unit_Target_Window = new Window_Target_Combat_Detail(

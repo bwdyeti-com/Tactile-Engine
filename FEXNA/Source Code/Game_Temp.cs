@@ -34,7 +34,7 @@ namespace FEXNA
         // Context sensitive unit control
         public Maybe<Vector2> SelectedMoveLoc { get; private set; }
         public Maybe<int> SelectedMoveMenuChoice { get; private set; }
-        public Maybe<Vector2> SelectedMoveAttackLoc { get; private set; }
+        public Maybe<Vector2> SelectedAttackLoc { get; private set; }
         public Maybe<int> SelectedMoveAttackItemIndex { get; private set; }
         // Ranges
         public HashSet<Vector2> temp_attack_range = new HashSet<Vector2>();
@@ -77,7 +77,7 @@ namespace FEXNA
             int weaponIndex)
         {
             SelectedMoveLoc = moveLoc;
-            SelectedMoveAttackLoc = attackLoc;
+            SelectedAttackLoc = attackLoc;
             SelectedMoveAttackItemIndex = weaponIndex;
 
             SelectedMoveMenuChoice = 0; // Attack
@@ -86,7 +86,7 @@ namespace FEXNA
         internal void ResetContextSensitiveUnitMenu()
         {
             SelectedMoveMenuChoice = Maybe<int>.Nothing;
-            SelectedMoveAttackLoc = Maybe<Vector2>.Nothing;
+            SelectedAttackLoc = Maybe<Vector2>.Nothing;
             SelectedMoveAttackItemIndex = Maybe<int>.Nothing;
         }
 

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Map;
+using FEXNA.Menus.Map.ContextSensitive;
 using FEXNA_Library;
 using ArrayExtension;
 using HashSetExtension;
@@ -2205,47 +2206,151 @@ namespace FEXNA
 
         internal void move_selected_unit(Game_Unit selected_unit)
         {
+            Global.game_temp.ResetContextSensitiveUnitControl();
+
             // Move the selected unit if possible
             selected_unit = get_selected_unit();
-            if (selected_unit.is_active_team && !selected_unit.unselectable && Global.player.is_on_square) // && !menu_call //Yeti //Multi
+            if (selected_unit.is_active_team &&
+                !selected_unit.unselectable &&
+                Global.player.is_on_square) // && !menu_call //Yeti //Multi
             {
-                Game_Unit unit_here = get_unit(Global.player.loc);
-                // If tile is in range
-                if (selected_unit.can_move_to(Global.player.loc, Move_Range))
-                {
-                    // Tile okay to move to
-                    if (unit_here == null || unit_here == selected_unit)
-                    {
-                        selected_unit.menu(Global.player.loc);
-                    }
-                    // Someone hidden is on the tile, go crash into them
-                    else if (!unit_here.visible_by(selected_unit.team))
-                    {
-                        selected_unit.menu(Global.player.loc);
-                    }
-                    // Tile is blocked
-                    else
-                    {
-                        Global.game_system.play_se(System_Sounds.Buzzer);
-                    }
-                }
-                else
-                {
-                    if (Input.ControlScheme == ControlSchemes.Buttons ||
-                            selected_unit.cannot_cancel_move() ||
-                            !no_unit_at_location(Global.player.loc))
-                        // Can't clear move range
-                        Global.game_system.play_se(System_Sounds.Buzzer);
-                    else
-                    {
-                        selected_unit.cancel_move();
-                    }
-                }
+                Vector2 moveLoc = Global.player.loc;
+                move_selected_unit_to(selected_unit, moveLoc);
             }
             else if (!selected_unit.is_active_team || selected_unit.unselectable) //Multi
             {
                 deselect_unit();
             }
+        }
+
+        private void move_selected_unit_to(Game_Unit selected_unit, Vector2 moveLoc)
+        {
+            var attack = context_sensitive_attack(selected_unit, moveLoc);
+            if (attack != null)
+            {
+                attack.Apply();
+                moveLoc = attack.MoveLoc;
+            }
+            
+            Game_Unit unit_here = get_unit(moveLoc);
+
+            // If tile is in range
+            if (selected_unit.can_move_to(moveLoc, Move_Range))
+            {
+                // Tile okay to move to
+                if (unit_here == null || unit_here == selected_unit)
+                {
+                    selected_unit.menu(moveLoc);
+                }
+                // Someone hidden is on the tile, go crash into them
+                else if (!unit_here.visible_by(selected_unit.team))
+                {
+                    selected_unit.menu(moveLoc);
+                }
+                // Tile is blocked
+                else
+                {
+                    // Reset if didn't move
+                    Global.game_temp.ResetContextSensitiveUnitControl();
+
+                    Global.game_system.play_se(System_Sounds.Buzzer);
+                }
+            }
+            else
+            {
+                // Reset if didn't move
+                Global.game_temp.ResetContextSensitiveUnitControl();
+
+                // If using a pointing input scheme, and can cancel move, and no unit at cursor
+                if (Input.ControlScheme != ControlSchemes.Buttons &&
+                    !selected_unit.cannot_cancel_move() &&
+                    no_unit_at_location(Global.player.loc))
+                {
+                    selected_unit.cancel_move();
+                }
+                // else buzz
+                else
+                {
+                    // Can't clear move range
+                    Global.game_system.play_se(System_Sounds.Buzzer);
+                }
+            }
+        }
+
+        private CSUnitAttack context_sensitive_attack(Game_Unit selectedUnit, Vector2 moveLoc)
+        {
+            Game_Unit unit_here = get_unit(moveLoc);
+
+            // If should be trying to attack the unit that is here
+            if (unit_here != null && unit_here != selectedUnit &&
+                unit_here.visible_by() &&
+                unit_here.is_attackable_team(selectedUnit))
+            {
+                // Determine if the target is in range
+                if (selectedUnit.attack_range.Contains(moveLoc))
+                {
+                    // Check siege engines first
+                    if (selectedUnit.can_use_siege())
+                    {
+                        var sieges = selectedUnit.siege_weapons_in_range(
+                                this.siege_engines.Values, Move_Range)
+                            .Where(x => !is_blocked(x.loc, selectedUnit.id));
+                        sieges = selectedUnit.sieges_in_range_of_target(sieges, moveLoc);
+                        sieges = sieges
+                            .OrderBy(x => distance(x.loc, moveLoc))
+                            .ThenBy(x => distance(x.loc, selectedUnit.loc))
+                            .ToList();
+
+                        if (sieges.Any())
+                        {
+                            return new CSUnitAttack(
+                                sieges.First().loc,
+                                Global.player.loc,
+                                Siege_Engine.SIEGE_INVENTORY_INDEX);
+                        }
+                    }
+                    
+                    // Get attack range around the target for all weapons
+                    HashSet<Vector2> attackRange =
+                        selectedUnit.get_weapon_range(
+                            selectedUnit.actor.useable_weapons(),
+                            new HashSet<Vector2> { moveLoc });
+                    // First check if any tile on the move arrow can reach attack range
+                    for (int i = 0; i < Move_Arrow.Count; i++)
+                    {
+                        Vector2 arrowLoc = Move_Arrow[i].Loc;
+                        int atkDist = distance(arrowLoc, moveLoc);
+                        if (!is_blocked(arrowLoc, selectedUnit.id))
+                            if (attackRange.Contains(arrowLoc))
+                            {
+                                return new CSUnitAttack(
+                                    arrowLoc,
+                                    Global.player.loc,
+                                    selectedUnit.first_weapon_with_range(atkDist));
+                            }
+                    }
+
+                    // Then check what movable tiles are in attack range
+                    var moveRange = Move_Range
+                        .Intersect(attackRange)
+                        .Where(x => !is_blocked(x, selectedUnit.id))
+                        .OrderBy(x => distance(x, selectedUnit.loc))
+                        .ThenBy(x => distance(x, moveLoc))
+                        .ToList();
+                    if (moveRange.Any())
+                    {
+                        Vector2 loc = moveRange.First();
+                        int atkDist = distance(loc, moveLoc);
+                                
+                        return new CSUnitAttack(
+                            loc,
+                            Global.player.loc,
+                            selectedUnit.first_weapon_with_range(atkDist));
+                    }
+                }
+            }
+            
+            return null;
         }
 
         // B
