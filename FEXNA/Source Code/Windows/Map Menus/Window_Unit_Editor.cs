@@ -320,18 +320,12 @@ namespace FEXNA.Windows.Map
                 Data[9].text = test_battler.Name;
                 Data[10].text = test_battler.Con.ToString();
                 Data[11].text = test_battler.WLvls[WLvl_Index].ToString();
-
+                
+                // Color prepromote levels based on if they're in range
                 int prelevel_expected_min = 0, prelevel_expected_max = 0;
-                if (actor.tier > 0)
-                {
-                    prelevel_expected_min += Constants.Actor.TIER0_LVL_CAP;
-                    prelevel_expected_min += (actor.tier - 1) * Config.PROMOTION_LVL;
-                }
-                if (actor.tier > 0)
-                {
-                    prelevel_expected_max += Constants.Actor.TIER0_LVL_CAP;
-                    prelevel_expected_max += (actor.tier - 1) * Constants.Actor.LVL_CAP;
-                }
+                PrepromoteLevels(test_battler,
+                    out prelevel_expected_min, out prelevel_expected_max);
+                
                 bool in_prelevel_range =
                     test_battler.Prepromote_Levels >= prelevel_expected_min &&
                     test_battler.Prepromote_Levels <= prelevel_expected_max;
@@ -657,52 +651,90 @@ namespace FEXNA.Windows.Map
                 actor = Global.game_actors[test_battler.Actor_Id];
                 int level = actor.level;
                 Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
-                // Loops level up many times (subtracts the one free level per promotion)
-                int prepromote_offset = Math.Max(test_battler.Tier - (Global.data_classes[actor_data.ClassId].Tier + 1), 0);
-                int exp_gain = 0;
-                for (int i = 0; i < (test_battler.Prepromote_Levels - prepromote_offset); i++)
+                
+                List<int> promotions = ActorPromotions(actor_data);
+                int levels;
+                if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
                 {
-                    // If the actor is at their level cap and trying to gain another level, they want to promote
-                    if (actor.level + (exp_gain / Constants.Actor.EXP_TO_LVL) == actor.level_cap())
-                    {
-                        actor.instant_level = true;
-                        actor.exp += exp_gain;
-                        exp_gain = 0;
-                        if (actor.can_promote() && test_battler.Tier > actor.tier)
-                            actor.quick_promotion((int)actor.promotes_to());
-                        // If they're trying to gain a level at level cap, they want to promote, but don't have a promotion class?
-                        else
-                            actor.level_down(); //Yeti
-                    }
-                    exp_gain += Constants.Actor.EXP_TO_LVL;
+                    if (test_battler.Promotion == 0)
+                        levels = test_battler.Level - actor_data.Level;
+                    else
+                        // The extra 1 level for the starting level will be removed on promotion
+                        levels = test_battler.Level;
                 }
-                if (exp_gain > 0)
-                {
-                    // why was a break point here I don't know //Debug
-                    // It has something to do with promoted player units in test battles, idk lol!
-                    // This whole block doesn't quite work right when the PC doesn't use full promotion levels
-                    int x = exp_gain;
-                }
-                actor.instant_level = true;
-                actor.exp += exp_gain;
-                exp_gain = 0;
-                actor.level_down(); //Yeti
-                while (actor.can_promote() && test_battler.Tier > actor.tier)
-                {
-                    actor.quick_promotion((int)actor.promotes_to(false));
-                }
-                //while (actor.level < test_battler.Level)
-                //{
-                //    actor.instant_level = true;
-                //    actor.exp += Config.EXP_TO_LVL;
-                //}
+                else
+                    levels = test_battler.Level - actor.level;
+                int prepromoteLevels = test_battler.Prepromote_Levels;
 
-                actor.instant_level = true;
-                // If promoted any, level up from 1 instead of wherever the actor started
-                int base_level = test_battler.Tier != Global.data_classes[actor_data.ClassId].Tier ?
-                    1 : Global.data_actors[actor.id].Level;
-                actor.exp += Constants.Actor.EXP_TO_LVL * (test_battler.Level - base_level);
-                actor.level = test_battler.Level;
+                for (int i = 1; i <= test_battler.Promotion; i++)
+                {
+                    var classData = Global.data_classes[promotions[i]];
+                    int expGain;
+                    int possibleLevels = actor.level_cap() - actor.level;
+
+                    if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                    {
+                        expGain = Math.Min(prepromoteLevels, possibleLevels);
+                        prepromoteLevels -= expGain;
+                    }
+                    else
+                    {
+                        expGain = Math.Min(levels, possibleLevels);
+                        levels -= expGain;
+                        if (prepromoteLevels < 0)
+                        {
+                            int minLevelGain = Constants.Actor.LevelsBeforeTier(actor.tier) +
+                                Constants.Actor.PromotionLevel(actor.tier) -
+                                actor.level;
+                            int adjustment = Math.Max(prepromoteLevels, minLevelGain - expGain);
+                            expGain += adjustment;
+                            prepromoteLevels -= adjustment;
+
+                            if (-prepromoteLevels > levels)
+                            {
+                                adjustment = Math.Max(prepromoteLevels + levels, -expGain);
+                                expGain += adjustment;
+                                prepromoteLevels -= adjustment;
+                            }
+                        }
+                    }
+
+                    expGain *= Constants.Actor.EXP_TO_LVL;
+                    actor.instant_level = true;
+                    actor.exp += expGain;
+                    expGain = 0;
+                    
+                    actor.quick_promotion(classData.Id);
+
+                    if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                    {
+                        // Remove promotion level
+                        if (prepromoteLevels > 0)
+                            prepromoteLevels--;
+                        else
+                            levels--;
+
+                    }
+                    else
+                        // Set level to minimum for tier
+                        actor.level = Math.Max(actor.level,
+                            Constants.Actor.LevelsBeforeTier(actor.tier));
+                }
+
+                levels += prepromoteLevels;
+                prepromoteLevels = 0;
+                while (levels > 0)
+                {
+                    if (!actor.can_level(false))
+                        actor.level--;
+
+                    actor.instant_level = true;
+                    actor.exp = Constants.Actor.EXP_TO_LVL;
+                    levels--;
+                }
+
+                actor.level = test_battler.level;
+                
                 for (int i = 1; i < Global.weapon_types.Count; i++)
                     if (actor.weapon_level_cap(Global.weapon_types[i]) > 0)
                         actor.wexp_gain(Global.weapon_types[i],
@@ -728,7 +760,6 @@ namespace FEXNA.Windows.Map
         protected virtual void update_option_change(bool right, bool trigger)
         {
             Test_Battle_Character_Data test_battler = this.test_battler;
-            Data_Class class_data;
             switch (Index)
             {
                 // Generic
@@ -794,16 +825,21 @@ namespace FEXNA.Windows.Map
                     }
                     else
                     {
+                        int min = 1;
+                        if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                            min = Math.Max(1,
+                                Constants.Actor.LevelsBeforeTier(test_battler.Tier));
+
                         if (test_battler.Generic)
                         {
-                            if (test_battler.Level > 1)
+                            if (test_battler.Level > min)
                                 test_battler.Level--;
                         }
                         else
                         {
                             Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
                             if (test_battler.Level > (actor.tier == Global.data_classes[actor_data.ClassId].Tier ?
-                                    Global.data_actors[test_battler.Actor_Id].Level  : 1))
+                                    Global.data_actors[test_battler.Actor_Id].Level : min))
                                 test_battler.Level--;
                         }
                     }
@@ -811,58 +847,33 @@ namespace FEXNA.Windows.Map
                     break;
                 // Prepromote levels
                 case 6:
+                    int minLevel, maxLevel;
+                    PrepromoteLevels(test_battler, out minLevel, out maxLevel);
                     if (test_battler.Generic)
                     {
-                        if (right)
+
+                        if (Global.Input.pressed(Inputs.Y))
                         {
-                            int max_level = 0;
-                            if (actor.tier > 0)
-                            {
-                                max_level += Constants.Actor.TIER0_LVL_CAP;
-                                max_level += (actor.tier - 1) * Constants.Actor.LVL_CAP;
-                            }
-                            if (Global.Input.pressed(Inputs.Y))
-                                max_level = 100;
-                            if (test_battler.Prepromote_Levels < max_level)
-                                test_battler.Prepromote_Levels++;
-                        }
-                        else
-                        {
-                            int min_level = actor.tier;
-                            if (test_battler.Prepromote_Levels > min_level)
-                                test_battler.Prepromote_Levels--;
+                            maxLevel = Constants.Actor.RESET_LEVEL_ON_PROMOTION ?
+                                Math.Min(100, maxLevel * 2) : 100;
+                            minLevel = Constants.Actor.RESET_LEVEL_ON_PROMOTION ?
+                                actor.tier : -100;
                         }
                     }
+
+                    // Increase
+                    if (right)
+                    {
+                        if (test_battler.Prepromote_Levels < maxLevel)
+                            test_battler.Prepromote_Levels++;
+                    }
+                    // Decrease
                     else
                     {
-                        Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
-                        class_data = Global.data_classes[actor_data.ClassId];
-                        if (right)
-                        {
-                            int max_level = -actor_data.Level;
-                            if (test_battler.Tier > 0 && class_data.Tier <= 0)
-                                max_level += Constants.Actor.TIER0_LVL_CAP;
-                            if (test_battler.Tier > 1 && class_data.Tier <= 1)
-                            {
-                                max_level += (test_battler.Tier - Math.Max(class_data.Tier, 1)) * Constants.Actor.LVL_CAP;
-                            }
-                            if (test_battler.Prepromote_Levels < max_level)
-                                test_battler.Prepromote_Levels++;
-                        }
-                        else
-                        {
-                            int min_level = -actor_data.Level;
-                            if (test_battler.Tier > 0 && class_data.Tier <= 0)
-                                min_level += Constants.Actor.TIER0_LVL_CAP;
-                            if (test_battler.Tier > 1 && class_data.Tier <= 1)
-                            {
-                                min_level += (test_battler.Tier - Math.Max(class_data.Tier, 1)) * Config.PROMOTION_LVL;
-                            }
-                            min_level = Math.Max(min_level, 0);
-                            if (test_battler.Prepromote_Levels > min_level)
-                                test_battler.Prepromote_Levels--;
-                        }
+                        if (test_battler.Prepromote_Levels > minLevel)
+                            test_battler.Prepromote_Levels--;
                     }
+
                     setup_actor(test_battler);
                     break;
                 case 7:
@@ -875,45 +886,7 @@ namespace FEXNA.Windows.Map
                     // Tier
                     else
                     {
-                        Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
-                        class_data = Global.data_classes[actor_data.ClassId];
-                        if (right)
-                        {
-                            int new_class = actor_data.ClassId;
-                            int max_tier = class_data.Tier;
-                            while (Global.data_classes[new_class].can_promote())
-                            {
-                                new_class = Global.data_classes[new_class].promotion_keys.Min();
-                                max_tier = Global.data_classes[new_class].Tier;
-                            }
-                            if (test_battler.Tier < max_tier)
-                                test_battler.Tier++;
-                        }
-                        else
-                        {
-                            if (test_battler.Tier > class_data.Tier)
-                            {
-                                test_battler.Tier--;
-                                test_battler.Level = Math.Max(test_battler.Level, actor_data.Level);
-                            }
-                        }
-                        int max_level = -actor_data.Level;
-                        int min_level = -actor_data.Level;
-                        if (test_battler.Tier > 0 && class_data.Tier <= 0)
-                        {
-                            max_level += Constants.Actor.TIER0_LVL_CAP;
-                            min_level += Constants.Actor.TIER0_LVL_CAP;
-                        }
-                        if (test_battler.Tier > 1 && class_data.Tier <= 1)
-                        {
-                            max_level += (test_battler.Tier -
-                                Math.Max(class_data.Tier, 1)) * Constants.Actor.LVL_CAP;
-                            min_level += (test_battler.Tier -
-                                Math.Max(class_data.Tier, 1)) * Config.PROMOTION_LVL;
-                        }
-                        min_level = Math.Max(min_level, 0);
-                        max_level = Math.Max(max_level, min_level);
-                        test_battler.Prepromote_Levels = (int)MathHelper.Clamp(test_battler.Prepromote_Levels, min_level, max_level);
+                        ChangeTier(test_battler, right);
                     }
                     setup_actor(test_battler);
                     break;
@@ -995,6 +968,178 @@ namespace FEXNA.Windows.Map
                     break;
             }
             refresh();
+        }
+
+        protected void PrepromoteLevels(
+            Test_Battle_Character_Data test_battler,
+            out int minLevel, out int maxLevel)
+        {
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+            {
+                // Minimum is the minimum number of levels gained in previous
+                // tiers to be able to promote, max is the maximum possible
+                if (test_battler.Generic)
+                {
+                    maxLevel = Constants.Actor.LevelsBeforeTier(actor.tier);
+                    minLevel = Enumerable
+                        .Range(Constants.Actor.LOWEST_TIER, actor.tier - Constants.Actor.LOWEST_TIER)
+                        .Sum(x => Constants.Actor.PromotionLevel(x));
+                }
+                else
+                {
+                    Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
+                    List<int> promotions = ActorPromotions(actor_data);
+
+                    minLevel = 0;
+                    maxLevel = 0;
+                    for (int i = 0; i < test_battler.Promotion; i++)
+                    {
+                        Data_Class class_data = Global.data_classes[promotions[i]];
+                        int promotion = Constants.Actor.PromotionLevel(class_data.Tier);
+                        int cap = Constants.Actor.RawLevelCap(class_data.Tier);
+
+                        if (i == 0)
+                        {
+                            minLevel += promotion - actor_data.Level;
+                            maxLevel += cap - actor_data.Level;
+                        }
+                        else
+                        {
+                            minLevel += promotion;
+                            maxLevel += cap;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Returns a negative minimum and 0 maximum for no reset
+                // promotions, to represent early promotion
+                int baseLevel;
+                if (test_battler.Generic)
+                {
+                    baseLevel = 1;
+                    int classTier = Constants.Actor.LOWEST_TIER;
+                    minLevel = 0;
+
+                    for (int i = classTier; i < test_battler.Tier; i++)
+                    {
+                        int promotion = Constants.Actor.PromotionLevel(i);
+                        int cap = Constants.Actor.RawLevelCap(i);
+                        if (i == classTier)
+                        {
+                            int baseClassActualLevel = baseLevel - Constants.Actor.LevelsBeforeTier(i);
+                            minLevel += cap - Math.Max(baseClassActualLevel, promotion);
+                        }
+                        else
+                            minLevel += cap - promotion;
+                    }
+                    minLevel = -minLevel;
+                }
+                else
+                {
+                    Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
+
+                    baseLevel = actor_data.Level;
+                    List<int> promotions = ActorPromotions(actor_data);
+                    minLevel = 0;
+
+                    for (int i = 0; i < test_battler.Promotion; i++)
+                    {
+                        Data_Class class_data = Global.data_classes[promotions[i]];
+                        int promotion = Constants.Actor.PromotionLevel(class_data.Tier);
+                        int cap = Constants.Actor.RawLevelCap(class_data.Tier);
+
+                        if (i == 0)
+                        {
+                            int baseClassActualLevel = baseLevel - Constants.Actor.LevelsBeforeTier(class_data.Tier);
+                            minLevel += cap - Math.Max(baseClassActualLevel, promotion);
+                        }
+                        else
+                            minLevel += cap - promotion;
+                    }
+                    minLevel = -minLevel;
+                }
+
+                maxLevel = 0;
+            }
+        }
+
+        protected void ChangeTier(Test_Battle_Character_Data test_battler, bool right)
+        {
+            // adjust current level by promotion
+            Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
+            var class_data = Global.data_classes[actor_data.ClassId];
+            
+            List<int> promotions = ActorPromotions(actor_data);
+            
+            // Increase tier
+            if (right)
+            {
+                if (test_battler.Promotion < promotions.Count - 1)
+                {
+                    // Adjust level
+                    if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                    {
+                        var oldClass = Global.data_classes[promotions[test_battler.Promotion]];
+                        var newClass = Global.data_classes[promotions[test_battler.Promotion + 1]];
+                        test_battler.Tier = newClass.Tier;
+
+                        test_battler.Level +=
+                            Constants.Actor.RawLevelCap(oldClass.Tier);
+                    }
+
+                    test_battler.Promotion++;
+                }
+            }
+            // Decrease tier
+            else
+            {
+                if (test_battler.Promotion > 0)
+                {
+                    // Adjust level
+                    if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                    {
+                        var newClass = Global.data_classes[promotions[test_battler.Promotion - 1]];
+
+                        test_battler.Tier = newClass.Tier;
+                        test_battler.Level -=
+                            Constants.Actor.RawLevelCap(newClass.Tier);
+                    }
+
+                    test_battler.Promotion--;
+                    test_battler.Level = Math.Max(test_battler.Level, actor_data.Level);
+                }
+            }
+
+            test_battler.Level = Math.Min(test_battler.Level,
+                Constants.Actor.LevelCap(test_battler.Tier));
+            if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                if (test_battler.Tier > Constants.Actor.LOWEST_TIER)
+                    test_battler.Level = Math.Max(test_battler.Level,
+                        Constants.Actor.LevelCap(test_battler.Tier - 1));
+
+            int minLevel, maxLevel;
+            PrepromoteLevels(test_battler, out minLevel, out maxLevel);
+            
+            test_battler.Prepromote_Levels = (int)MathHelper.Clamp(
+                test_battler.Prepromote_Levels, minLevel, maxLevel);
+        }
+
+        private List<int> ActorPromotions(Data_Actor actor)
+        {
+            int new_class = actor.ClassId;
+            List<int> promotions = new List<int> { new_class };
+            while (Global.data_classes[new_class].can_promote())
+            {
+                new_class = Global.data_classes[new_class].promotion_keys.Min();
+                bool promotionLoop = promotions.Contains(new_class);
+                promotions.Add(new_class);
+                if (promotionLoop)
+                    break;
+            }
+
+            return promotions;
         }
 
         private int next_equipment_group(bool right, Item_Data item_data)
@@ -1124,13 +1269,19 @@ namespace FEXNA.Windows.Map
             Game_Actor temp_actor;
             temp_actor = Global.game_actors.new_actor();
             temp_actor.class_id = test_battler.Class_Id;
-            test_battler.Level = Math.Min(test_battler.Level, temp_actor.level_cap());
-            test_battler.Prepromote_Levels = 0;
-            if (temp_actor.tier > 0)
-            {
-                test_battler.Prepromote_Levels += Constants.Actor.TIER0_LVL_CAP;
-                test_battler.Prepromote_Levels += (temp_actor.tier - 1) * Constants.Actor.LVL_CAP;
-            }
+            test_battler.Tier = temp_actor.tier;
+            test_battler.Promotion = 0;
+            int minLevel = 1;
+            if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                minLevel = Math.Max(1,
+                    Constants.Actor.LevelsBeforeTier(test_battler.Tier));
+            test_battler.Level = Math.Max(minLevel,
+                Math.Min(test_battler.Level, temp_actor.level_cap()));
+
+            int maxLevel;
+            PrepromoteLevels(test_battler, out minLevel, out maxLevel);
+            test_battler.Prepromote_Levels = maxLevel;
+            
             for (int i = 1; i < Global.weapon_types.Count; i++)
             {
                 if (Global.scene.scene_type == "Scene_Title")
@@ -1182,6 +1333,7 @@ namespace FEXNA.Windows.Map
             test_battler.Level = actor_data.Level;
             test_battler.Prepromote_Levels = 0;
             test_battler.Tier = Global.data_classes[actor_data.ClassId].Tier;
+            test_battler.Promotion = 0;
         }
 
         protected void update_inventory()
