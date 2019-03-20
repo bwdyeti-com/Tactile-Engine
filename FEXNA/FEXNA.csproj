@@ -87,6 +87,7 @@
     <Compile Include="Source Code\Calculations\Level Up\Stats\LevelUpStatSet.cs" />
     <Compile Include="Source Code\Calculations\Level Up\Stats\FixedLevelUpStats.cs" />
     <Compile Include="Source Code\Calculations\Level Up\Stats\NoZeroLevelUpStats.cs" />
+    <Compile Include="Source Code\Calculations\Level Up\Stats\Roll50LevelUpStats.cs" />
     <Compile Include="Source Code\Calculations\Level Up\Stats\SemifixedLevelUpStats.cs" />
     <Compile Include="Source Code\Calculations\Level Up\Stats\LevelUpStats.cs" />
     <Compile Include="Source Code\Calculations\Level Up\FixedLevelUp.cs" />
