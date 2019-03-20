@@ -38,7 +38,7 @@ namespace FEXNA
         {
             LevelUp = actor.promotion(Old_Class_Id);
             Old_Class_Name = actor.class_name;
-            actor.level_down();
+            actor.promotion_reset_level();
         }
 
         protected override void set_class_name()

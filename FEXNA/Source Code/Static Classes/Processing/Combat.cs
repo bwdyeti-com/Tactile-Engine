@@ -882,21 +882,7 @@ namespace FEXNA
 
         private static int level_difference(Game_Unit battler_1, Game_Unit battler_2)
         {
-            // Get levels of both battlers
-            bool tier_0s = true; //Global.game_system.has_tier_0s //Yeti
-            int level_1 = battler_1.actor.level;
-            int level_2 = battler_2.actor.level;
-            if (tier_0s)
-            {
-                if (battler_1.actor.tier > 0)
-                    level_1 += Constants.Actor.TIER0_LVL_CAP;
-                if (battler_2.actor.tier > 0)
-                    level_2 += Constants.Actor.TIER0_LVL_CAP;
-            }
-            level_1 += Constants.Actor.LVL_CAP * Math.Max(0, battler_1.actor.tier - 1);
-            level_2 += Constants.Actor.LVL_CAP * Math.Max(0, battler_2.actor.tier - 1);
-
-            return level_2 - level_1;
+            return battler_2.actor.full_level - battler_1.actor.full_level;
         }
 
         public static int staff_exp(Game_Actor actor, Data_Weapon weapon)
