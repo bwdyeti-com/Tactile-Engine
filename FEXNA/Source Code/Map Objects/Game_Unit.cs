@@ -3860,15 +3860,16 @@ namespace FEXNA
             List<Move_Arrow_Data> move_arrow =
                 new List<Move_Arrow_Data>(Global.game_map.move_arrow);
             // If target is not on the move arrow, pathfind to it
-            if (!move_arrow.Any(x => x.Loc == loc))
+            if (!move_arrow.Any(x => x.Loc == loc) && loc != Loc)
             {
                 pathfind_move_to(loc);
             }
             else
             {
-                // If only moving a subset of the total move arrow
-                while (move_arrow.Last().Loc != loc)
-                    move_arrow.pop();
+                if (move_arrow.Any())
+                    // If only moving a subset of the total move arrow
+                    while (move_arrow.Last().Loc != loc)
+                        move_arrow.pop();
                 for (int i = move_arrow.Count - 1; i >= 1; i--)
                 {
                     Move_Route.Add(new Vector2(move_arrow[i].X, move_arrow[i].Y) -
