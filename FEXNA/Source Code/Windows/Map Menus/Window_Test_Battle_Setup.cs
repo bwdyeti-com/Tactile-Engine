@@ -407,7 +407,6 @@ namespace FEXNA.Windows.Map
         protected override void update_option_change(bool right, bool trigger)
         {
             Test_Battle_Character_Data test_battler = this.test_battler;
-            Data_Class class_data;
             switch (Index)
             {
                 // Generic
@@ -473,16 +472,21 @@ namespace FEXNA.Windows.Map
                     }
                     else
                     {
+                        int min = 1;
+                        if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                            min = Math.Max(1,
+                                Constants.Actor.LevelsBeforeTier(test_battler.Tier));
+
                         if (test_battler.Generic)
                         {
-                            if (test_battler.Level > 1)
+                            if (test_battler.Level > min)
                                 test_battler.Level--;
                         }
                         else
                         {
                             Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
                             if (test_battler.Level > (actor.tier == Global.data_classes[actor_data.ClassId].Tier ?
-                                    Global.data_actors[test_battler.Actor_Id].Level : 1))
+                                    Global.data_actors[test_battler.Actor_Id].Level : min))
                                 test_battler.Level--;
                         }
                     }
@@ -490,61 +494,22 @@ namespace FEXNA.Windows.Map
                     break;
                 // Prepromote levels
                 case 4:
-                    if (test_battler.Generic)
+                    int minLevel, maxLevel;
+                    PrepromoteLevels(test_battler, out minLevel, out maxLevel);
+
+                    // Increase
+                    if (right)
                     {
-                        if (right)
-                        {
-                            int max_level = 0;
-                            if (actor.tier > 0)
-                            {
-                                max_level += Constants.Actor.TIER0_LVL_CAP;
-                                max_level += (actor.tier - 1) * Constants.Actor.LVL_CAP;
-                            }
-                            if (test_battler.Prepromote_Levels < max_level)
-                                test_battler.Prepromote_Levels++;
-                        }
-                        else
-                        {
-                            int min_level = 0;
-                            if (actor.tier > 0)
-                            {
-                                min_level += Constants.Actor.TIER0_LVL_CAP;
-                                min_level += (actor.tier - 1) * Config.PROMOTION_LVL;
-                            }
-                            if (test_battler.Prepromote_Levels > min_level)
-                                test_battler.Prepromote_Levels--;
-                        }
+                        if (test_battler.Prepromote_Levels < maxLevel)
+                            test_battler.Prepromote_Levels++;
                     }
+                    // Decrease
                     else
                     {
-                        Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
-                        class_data = Global.data_classes[actor_data.ClassId];
-                        if (right)
-                        {
-                            int max_level = -actor_data.Level;
-                            if (test_battler.Tier > 0 && class_data.Tier <= 0)
-                                max_level += Constants.Actor.TIER0_LVL_CAP;
-                            if (test_battler.Tier > 1 && class_data.Tier <= 1)
-                            {
-                                max_level += (test_battler.Tier - Math.Max(class_data.Tier, 1)) * Constants.Actor.LVL_CAP;
-                            }
-                            if (test_battler.Prepromote_Levels < max_level)
-                                test_battler.Prepromote_Levels++;
-                        }
-                        else
-                        {
-                            int min_level = -actor_data.Level;
-                            if (test_battler.Tier > 0 && class_data.Tier <= 0)
-                                min_level += Constants.Actor.TIER0_LVL_CAP;
-                            if (test_battler.Tier > 1 && class_data.Tier <= 1)
-                            {
-                                min_level += (test_battler.Tier - Math.Max(class_data.Tier, 1)) * Config.PROMOTION_LVL;
-                            }
-                            min_level = Math.Max(min_level, 0);
-                            if (test_battler.Prepromote_Levels > min_level)
-                                test_battler.Prepromote_Levels--;
-                        }
+                        if (test_battler.Prepromote_Levels > minLevel)
+                            test_battler.Prepromote_Levels--;
                     }
+
                     setup_actor(test_battler);
                     break;
                 case 5:
@@ -557,45 +522,7 @@ namespace FEXNA.Windows.Map
                     // Tier
                     else
                     {
-                        Data_Actor actor_data = Global.data_actors[test_battler.Actor_Id];
-                        class_data = Global.data_classes[actor_data.ClassId];
-                        if (right)
-                        {
-                            int new_class = actor_data.ClassId;
-                            int max_tier = class_data.Tier;
-                            while (Global.data_classes[new_class].can_promote())
-                            {
-                                new_class = Global.data_classes[new_class].promotion_keys.Min();
-                                max_tier = Global.data_classes[new_class].Tier;
-                            }
-                            if (test_battler.Tier < max_tier)
-                                test_battler.Tier++;
-                        }
-                        else
-                        {
-                            if (test_battler.Tier > class_data.Tier)
-                            {
-                                test_battler.Tier--;
-                                test_battler.Level = Math.Max(test_battler.Level, actor_data.Level);
-                            }
-                        }
-                        int max_level = -actor_data.Level;
-                        int min_level = -actor_data.Level;
-                        if (test_battler.Tier > 0 && class_data.Tier <= 0)
-                        {
-                            max_level += Constants.Actor.TIER0_LVL_CAP;
-                            min_level += Constants.Actor.TIER0_LVL_CAP;
-                        }
-                        if (test_battler.Tier > 1 && class_data.Tier <= 1)
-                        {
-                            max_level += (test_battler.Tier -
-                                Math.Max(class_data.Tier, 1)) * Constants.Actor.LVL_CAP;
-                            min_level += (test_battler.Tier -
-                                Math.Max(class_data.Tier, 1)) * Config.PROMOTION_LVL;
-                        }
-                        min_level = Math.Max(min_level, 0);
-                        max_level = Math.Max(max_level, min_level);
-                        test_battler.Prepromote_Levels = (int)MathHelper.Clamp(test_battler.Prepromote_Levels, min_level, max_level);
+                        ChangeTier(test_battler, right);
                     }
                     setup_actor(test_battler);
                     break;

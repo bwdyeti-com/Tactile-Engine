@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework;
 using FEXNA.Calculations.LevelUp;
 using FEXNA_Library;
 using ListExtension;
-using FEXNAClassExtension;
 using FEXNADictionaryExtension;
 using FEXNAWeaponExtension;
 using FEXNAVersionExtension;
@@ -115,30 +114,30 @@ namespace FEXNA
                 int loaded_class = reader.ReadInt32();
                 if (is_generic_actor)
                     Data.ClassId = loaded_class;
-                if (loaded_class != class_id)
+                if (loaded_class != this.class_id)
                 {
                     if (!Global.data_classes.ContainsKey(loaded_class))
                         throw new IndexOutOfRangeException("Invalid class id: " + loaded_class);
-                    int tier = Global.data_classes[loaded_class].Tier;
-                    if (tier > actor_class.Tier)
+
+                    //@Debug: no reason to care if promotions are higher tier than base classes, I guess
+                    //int tier = Global.data_classes[loaded_class].Tier;
+                    //if (tier > actor_class.Tier)
+                    bool failed;
+                    while (loaded_class != this.class_id)
                     {
-                        bool failed;
-                        while (loaded_class != class_id)
+                        failed = true;
+                        List<int> promotions = Global.data_classes[this.class_id].promotion_keys.ToList();
+                        for (byte i = 0; i < promotions.Count; i++)
                         {
-                            failed = true;
-                            List<int> promotions = Global.data_classes[class_id].promotion_keys.ToList();
-                            for (byte i = 0; i < promotions.Count; i++)
+                            if (promotes_to(promotions, loaded_class, 0))
                             {
-                                if (promotes_to(promotions, loaded_class, 0))
-                                {
-                                    Promotion_Choices.Add(i);
-                                    failed = false;
-                                    break;
-                                }
-                            }
-                            if (failed)
+                                Promotion_Choices.Add(i);
+                                failed = false;
                                 break;
+                            }
                         }
+                        if (failed)
+                            break;
                     }
                 }
             }
@@ -424,12 +423,7 @@ namespace FEXNA
         {
             get
             {
-                int result = Level;
-                //for (int i = Global.game_system.has_tier_0s ? 0 : 1; i < tier; i++) //Yeti
-                for (int i = 0; i < tier; i++)
-                    result += level_cap_at_tier(i);
-                //result += Math.Max(0, tier - 1) * Constants.Actor.LVL_CAP; //Debug
-                return result;
+                return Constants.Actor.ActualLevel(this.tier, Level);
             }
         }
 
@@ -939,8 +933,10 @@ namespace FEXNA
 
         private int generic_exp(int level, int prepromote_levels)
         {
-            int result = ((prepromote_levels - this.tier) + (level - 1)) *
-                Constants.Actor.EXP_TO_LVL;
+            int levels = prepromote_levels + (level - 1);
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                levels -= (this.tier - Constants.Actor.LOWEST_TIER);
+            int result = levels * Constants.Actor.EXP_TO_LVL;
             return result;
         }
 
@@ -1004,25 +1000,44 @@ namespace FEXNA
 
         internal int gained_levels()
         {
-            int gained_levels;
-            if (is_generic_actor)
-            {
-                gained_levels = Level - Data.Level;
-                for (int tier = this.tier - 1; tier >= 0; tier--)
-                    gained_levels += (level_cap_at_tier(tier)) - 1;
-            }
-            else
-            {
-                if (this.tier == Global.data_classes[Data.ClassId].Tier)
-                    gained_levels = Level - Data.Level;
-                else
-                    gained_levels = (Level - 1) +
-                        (Global.data_classes[Data.ClassId].level_cap() - Data.Level);
+            int baseLevel = this.full_base_level;
+            int currentLevel = this.full_level;
 
-                for (int tier = this.tier - 1; tier > Global.data_classes[Data.ClassId].Tier; tier--)
-                    gained_levels += (level_cap_at_tier(tier)) - 1;
+            int gainedLevels = currentLevel - baseLevel;
+
+            // If resetting to level 1 on promotion
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+            {
+                int gainedTiers;
+                if (this.is_generic_actor)
+                    gainedTiers = this.tier - Constants.Actor.LOWEST_TIER;
+                else
+                {
+                    //gainedTiers = Promotion_Choices.Count; //@Debug: ???
+                    var baseClass = Global.data_classes[Data.ClassId];
+                    gainedTiers = this.tier - baseClass.Tier;
+                }
+
+                gainedLevels -= gainedTiers;
             }
-            return gained_levels;
+
+            return gainedLevels;
+        }
+
+        internal int full_base_level
+        {
+            get
+            {
+                if (is_generic_actor)
+                {
+                    return 1;
+                }
+                else
+                {
+                    var baseClass = Global.data_classes[Data.ClassId];
+                    return Constants.Actor.LevelsBeforeTier(baseClass.Tier) + Data.Level;
+                }
+            }
         }
 
         internal float stat_avg_comparison(int index, int level_offset = 0)
@@ -1163,7 +1178,15 @@ namespace FEXNA
 
         public bool promotion_level()
         {
-            return Level >= Config.PROMOTION_LVL;
+            int level;
+
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                level = Level;
+            else
+                level = this.full_level -
+                    Constants.Actor.LevelsBeforeTier(this.tier);
+
+            return level >= Constants.Actor.PromotionLevel(this.tier);
         }
 
         public int? promotes_to(bool confirm_possible = true)
@@ -1230,25 +1253,9 @@ namespace FEXNA
 
         internal int level_cap()
         {
-            //return level_cap(0); //Debug
-            return level_cap_at_tier(this.tier);
+            return Constants.Actor.LevelCap(this.tier);
         }
-        /*public int level_cap(int tier_mod) //Debug
-        {
-            if (tier + tier_mod == 0)
-                return Constants.Actor.TIER0_LVL_CAP;
-            else
-                return Constants.Actor.LVL_CAP;
-        }*/
         
-        internal static int level_cap_at_tier(int tier)
-        {
-            if (tier == 0)
-                return Constants.Actor.TIER0_LVL_CAP;
-            else
-                return Constants.Actor.LVL_CAP;
-        }
-
         public int exp_loss_possible()
         {
             return (Level - 1) * Constants.Actor.EXP_TO_LVL + exp;
@@ -1257,19 +1264,11 @@ namespace FEXNA
         public int exp_gain_possible()
         {
             int levels = level_cap() - Level;
-            // This code won't work properly if multiple tiers can promote through level up, the new version should though //Debug
-            //if (Config.LEVEL_UP_PROMOTION.Contains(tier))
-            //    levels += level_cap(1);
 
             // Check for level up promotion
-            int tier_mod = 0;
             if (Config.LEVEL_UP_PROMOTION.Contains(tier))
                 levels += 1;
-            //while (Config.LEVEL_UP_PROMOTION.Contains(tier + tier_mod))
-            //{
-            //    levels += level_cap(tier_mod + 1);
-            //    tier_mod++;
-            //}
+
             return levels * Constants.Actor.EXP_TO_LVL - exp;
         }
 
@@ -1300,6 +1299,15 @@ namespace FEXNA
             this.level = 1;
             Needed_Levels = 0;
             Exp = 0;
+        }
+
+        public void promotion_reset_level()
+        {
+            int level = this.level;
+            level_down();
+
+            if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                this.level = level;
         }
 
         public LevelUpProcessor full_level_up()
@@ -1503,7 +1511,7 @@ namespace FEXNA
                 {
                     List<int> promotions = actor_class.promotion_keys.ToList();
 
-                    level_down();
+                    promotion_reset_level();
                     int old_class = class_id;
                     int old_hp = this.maxhp;
                     //class_id = new_class;

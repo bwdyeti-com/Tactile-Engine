@@ -91,6 +91,7 @@ namespace FEXNA
         public FEXNA_Library.Item_Data[] Items = new FEXNA_Library.Item_Data[Constants.Actor.NUM_ITEMS];
         public int[] WLvls;
         public int Tier = 0;
+        public int Promotion = 0;
 
         private Data_Actor actor_data
         {
