@@ -1539,6 +1539,7 @@ namespace FEXNA
                         return false;
                     else if (test_only)
                         return Global.game_options.auto_turn_end == 0;
+
                     // If any team has units
                     if (Global.game_map.teams.Any(x => x.Any()))
                     {

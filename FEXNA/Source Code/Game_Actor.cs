@@ -2572,9 +2572,19 @@ namespace FEXNA
             // Repair
             if (item.can_repair && target_index >= 0)
                 if (!Items[target_index].infinite_uses)
+                {
+                    // Repair a percent of the total uses
+                    int repairPercent = (int)(Items[target_index].max_uses * item.Repair_Percent);
+                    // Repair a gold value worth of uses
+                    int repairValue = 0;
+                    if (Items[target_index].cost != 0)
+                        repairValue = item.Repair_Val / Items[target_index].cost;
+
+                    int repairUses = repairPercent + repairValue;
+
                     Items[target_index].set_uses(
-                        Items[target_index].Uses + Math.Max(1, (int)(Items[target_index].max_uses * item.Repair_Percent) +
-                        (Items[target_index].cost == 0 ? 0 : item.Repair_Val / Items[target_index].cost)));
+                        Items[target_index].Uses + Math.Max(1, repairUses));
+                }
         }
 
         /// <summary>

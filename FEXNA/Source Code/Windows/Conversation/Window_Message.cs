@@ -776,7 +776,7 @@ function normally. Suggested value is -3.",
             // Don't play text sound or make speaker talk on new line or when quick rendering
             if (!QuickRender && !new List<char> { '\n' }.Contains(current_character))
             {
-                if (!new List<char> { '.', '!', '?' }.Contains(current_character))
+                if (!new List<char> { ' ', '.', '!', '?' }.Contains(current_character))
                 {
                     speaker_talk();
                 }

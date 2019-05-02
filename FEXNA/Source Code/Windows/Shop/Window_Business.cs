@@ -251,6 +251,7 @@ namespace FEXNA
             if (_Visible)
             {
                 draw_background(spriteBatch);
+
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 Darkened_Bar.draw(spriteBatch);
                 spriteBatch.End();
