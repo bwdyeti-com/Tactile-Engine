@@ -23,10 +23,11 @@ namespace FEXNA.Windows.Map
             Label = new FE_Text("FE7_Text",
                 Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_Yellow"),
                 new Vector2(0, 0), "Ready Units");
+            string count_color = Global.game_map.ready_movable_units ? "Blue" : "Grey";
+
             int ready_units = Global.game_map.active_team
                 .Select(x => Global.game_map.units[x])
                 .Count(x => x.ready);
-            string count_color = ready_units > 0 ? "Blue" : "Grey";
             Count = new FE_Text_Int("FE7_Text",
                 Global.Content.Load<Texture2D>(
                     string.Format(@"Graphics\Fonts\FE7_Text_{0}", count_color)),
