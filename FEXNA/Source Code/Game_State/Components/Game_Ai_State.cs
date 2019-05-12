@@ -4105,7 +4105,7 @@ namespace FEXNA.State
             {
                 if (!Switching_Ai_Skip)
                 {
-                    // If cancelled AI skip while a unit is active, don't allow skipping
+                    // If canceled AI skip while a unit is active, don't allow skipping
                     // again until that unit is done
                     if (preventSkipForActive)
                     {

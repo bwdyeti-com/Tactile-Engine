@@ -130,12 +130,14 @@ namespace FEXNA.Menus.Map
         // Suspend confirmed
         private void suspendConfirmMenu_Confirmed(object sender, EventArgs e)
         {
+            Global.game_system.play_se(System_Sounds.Confirm);
             MenuHandler.MapMenuSuspend();
         }
 
         // End turn confirmed
         private void endTurnConfirmMenu_Confirmed(object sender, EventArgs e)
         {
+            Global.game_system.play_se(System_Sounds.Confirm);
             MenuHandler.MapMenuEndTurn();
         }
 

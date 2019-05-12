@@ -58,18 +58,18 @@ namespace FEXNA.Menus.Map
                 Config.MAPCOMMAND_WINDOW_DEPTH);
         }
 
-        protected override bool CanceledTriggered
+        protected override bool CanceledTriggered(bool active)
         {
-            get
+            bool cancel = base.CanceledTriggered(active);
+            if (active)
             {
-                bool cancel = base.CanceledTriggered;
                 // If right clicked or tapped on nothing in particular
                 cancel |= Global.Input.mouse_click(MouseButtons.Right) ||
                     Global.Input.gesture_triggered(TouchGestures.Tap);
-                return cancel;
             }
+            return cancel;
         }
-
+        
         private int new_team(int old_team, bool left)
         {
             if (left)
@@ -115,7 +115,7 @@ namespace FEXNA.Menus.Map
                     create_cancel_button();
                 CancelButton.Update(active);
             }
-            bool cancel = this.CanceledTriggered;
+            bool cancel = CanceledTriggered(active);
 
             if (cancel)
             {

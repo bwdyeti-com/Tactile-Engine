@@ -110,6 +110,7 @@
     <Compile Include="Source Code\Map Objects\LightRune.cs" />
     <Compile Include="Source Code\Map Objects\MapObjects.cs" />
     <Compile Include="Source Code\Menus\BaseMenu.cs" />
+    <Compile Include="Source Code\Menus\IHasCancelButton.cs" />
     <Compile Include="Source Code\Menus\CommandMenu.cs" />
     <Compile Include="Source Code\Menus\ConfirmationMenu.cs" />
     <Compile Include="Source Code\Menus\IFadeMenu.cs" />

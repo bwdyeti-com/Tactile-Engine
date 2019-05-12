@@ -495,6 +495,7 @@ namespace FEXNA.Windows.Command
                 Rectangle target_rect = new Rectangle(
                     (int)loc.X + 8, (int)loc.Y + 8,
                     SPACING * 2 - 16, Constants.Actor.NUM_ITEMS * 16);
+                // Right clicked on nothing
                 if (!Global.Input.mouse_in_rectangle(target_rect))
                     if (Global.Input.mouse_click(MouseButtons.Right))
                         Canceled = true;

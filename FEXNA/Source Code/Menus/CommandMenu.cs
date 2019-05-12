@@ -7,7 +7,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Menus
 {
-    class CommandMenu : BaseMenu
+    class CommandMenu : BaseMenu, IHasCancelButton
     {
         protected Window_Command Window;
         protected Button_Description CancelButton;
@@ -47,18 +47,15 @@ namespace FEXNA.Menus
             CancelButton.stereoscopic = depth;
         }
 
-        protected virtual bool CanceledTriggered
+        protected virtual bool CanceledTriggered(bool active)
         {
-            get
+            bool cancel = Window.is_canceled();
+            if (CancelButton != null)
             {
-                bool cancel = Window.is_canceled();
-                if (CancelButton != null)
-                {
-                    cancel |= CancelButton.consume_trigger(MouseButtons.Left) ||
-                        CancelButton.consume_trigger(TouchGestures.Tap);
-                }
-                return cancel;
+                cancel |= CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap);
             }
+            return cancel;
         }
 
         public event EventHandler<EventArgs> Selected;
@@ -94,7 +91,7 @@ namespace FEXNA.Menus
 
             if (CancelButton != null)
                 CancelButton.Update(active);
-            bool cancel = this.CanceledTriggered;
+            bool cancel = CanceledTriggered(active);
 
             if (cancel)
             {
@@ -116,6 +113,11 @@ namespace FEXNA.Menus
                 spriteBatch.End();
             }
         }
+        #endregion
+
+        #region IHasCancelButton
+        public bool HasCancelButton { get { return CancelButton != null; } }
+        public Vector2 CancelButtonLoc { get { return CancelButton.loc; } }
         #endregion
     }
 }
