@@ -107,7 +107,11 @@ namespace FEXNA.Menus
                 OnIndexChanged(new EventArgs());
 
             if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton(this);
                 CancelButton.Update(active);
+            }
             bool cancel = CanceledTriggered(active);
 
             if (cancel)
