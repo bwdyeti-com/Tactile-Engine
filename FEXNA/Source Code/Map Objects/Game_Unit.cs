@@ -3702,8 +3702,13 @@ namespace FEXNA
             Prev_Loc = canto_loc;
             if (!Cantoing)
                 selection_facing();
-            Global.game_map.clear_move_range();
             sprite_moving = true;
+            show_move_range();
+        }
+
+        public void show_move_range()
+        {
+            Global.game_map.clear_move_range();
             Global.game_map.show_move_range(Id);
             if (!Cantoing)
                 Global.game_map.show_attack_range(Id);
@@ -4074,9 +4079,14 @@ namespace FEXNA
             Move_Loc = Prev_Loc;
             //Global.player.center(Loc, true); //Debug
             Temp_Moved = Moved_So_Far;
-            if (!Cantoing)
+            //@Debug: why though, this means if you turn the unit by moving
+            // them with horse canto they'll be facing wrong when their
+            // position resets
+            // Is the desired functionality to preserve whatever facing
+            // they ended up in when moving into their canto position???
+            //if (!Cantoing) //@Debug
                 selection_facing();
-            Global.game_map.range_start_timer = 0;
+            show_move_range();
             Global.game_map.move_range_visible = true;
             update_map_animation(true);
         }
