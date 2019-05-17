@@ -11,11 +11,14 @@ namespace FEXNA.Menus
     {
         protected Window_Command Window;
         protected Button_Description CancelButton;
+        private bool _HidesParent = false;
 
         protected CommandMenu() { }
-        public CommandMenu(Window_Command window)
+        public CommandMenu(Window_Command window, IHasCancelButton menu = null)
         {
             Window = window;
+
+            CreateCancelButton(menu);
         }
 
         public Vector2 WindowLoc { get { return Window.loc; } }
@@ -40,6 +43,15 @@ namespace FEXNA.Menus
             }
         }
 
+        protected void CreateCancelButton(IHasCancelButton menu)
+        {
+            if (menu != null && menu.HasCancelButton)
+            {
+                CreateCancelButton(
+                    (int)menu.CancelButtonLoc.X,
+                    Config.MAPCOMMAND_WINDOW_DEPTH);
+            }
+        }
         public void CreateCancelButton(int x, float depth = 0)
         {
             CancelButton = Button_Description.button(Inputs.B, x);
@@ -56,6 +68,11 @@ namespace FEXNA.Menus
                     CancelButton.consume_trigger(TouchGestures.Tap);
             }
             return cancel;
+        }
+
+        public void HideParent(bool value)
+        {
+            _HidesParent = value;
         }
 
         public event EventHandler<EventArgs> Selected;
@@ -80,7 +97,7 @@ namespace FEXNA.Menus
         }
 
         #region IMenu
-        public override bool HidesParent { get { return false; } }
+        public override bool HidesParent { get { return _HidesParent; } }
 
         protected override void UpdateMenu(bool active)
         {

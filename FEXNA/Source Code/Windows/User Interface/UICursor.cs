@@ -27,6 +27,13 @@ namespace FEXNA.Windows.UserInterface
         }
         public void update(Vector2 scrollOffset)
         {
+            UpdateTargetLoc(scrollOffset);
+
+            base.update();
+        }
+
+        public void UpdateTargetLoc(Vector2 scrollOffset = default(Vector2))
+        {
             if (NodeSet.Any())
             {
                 Vector2 loc = NodeSet.ActiveNode.loc - scrollOffset;
@@ -38,8 +45,6 @@ namespace FEXNA.Windows.UserInterface
             {
                 move_to_target_loc();
             }
-
-            base.update();
         }
 
         /// <summary>

@@ -153,7 +153,6 @@ namespace FEXNA.Menus.Map
 
             var unitMenu = Menus.Peek() as Window_Unit;
             unitMenu.unit_index = currentUnit;
-
         }
 
         protected void menu_Closed(object sender, EventArgs e)

@@ -58,7 +58,7 @@ namespace FEXNA
             set { Trading = value; }
         }
 
-        public override bool HidesParent { get { return false; } }
+        public override bool HidesParent { get { return !Global.game_system.preparations; } }
         #endregion
 
         protected abstract int choice_offset();
@@ -181,7 +181,8 @@ namespace FEXNA
         protected void close()
         {
             Closing = true;
-            Shop_Close(this, new EventArgs());
+            if (Shop_Close != null)
+                Shop_Close(this, new EventArgs());
         }
 
         protected void update_cursor_location()

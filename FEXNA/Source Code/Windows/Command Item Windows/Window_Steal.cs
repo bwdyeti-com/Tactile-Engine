@@ -29,6 +29,11 @@ namespace FEXNA.Windows.Command.Items
             ItemInfo.loc = loc - new Vector2(136 - 40, 16);
         }
 
+        protected override List<Item_Data> get_equipment()
+        {
+            return actor().items;
+        }
+
         protected override CommandUINode item(string str, int i)
         {
             var item_data = get_equipment()[i];
