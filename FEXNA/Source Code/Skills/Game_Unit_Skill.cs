@@ -22,7 +22,7 @@ namespace FEXNA
         public readonly static List<string> MASTERIES = new List<string> { "ASTRA", "LUNA", "SOL", "SPRLDVE", "NOVA", "FLARE" };
         public readonly static List<string> HEALING_MASTERIES = new List<string> { "SOL" };
         const int MASTERY_MAX_CHARGE = 255;
-        const float MASTERY_RATE_NEW_TURN = 1f;
+        public const float MASTERY_RATE_NEW_TURN = 1f;
         public const float MASTERY_RATE_BATTLE_END = 0.5f;
 
         #region Serialization
@@ -984,13 +984,20 @@ namespace FEXNA
         public void charge_masteries(float mult)
         {
             foreach (string skill in MASTERIES)
-                if (actor.has_skill(skill))
-                {
-                    if (!Mastery_Gauges.ContainsKey(skill))
-                        Mastery_Gauges[skill] = 0;
-                    Mastery_Gauges[skill] = Math.Min(MASTERY_MAX_CHARGE,
-                        Mastery_Gauges[skill] + (int)(skill_rate(skill) * mult));
-                }
+                charge_masteries(skill, mult);
+        }
+        public void charge_masteries(string skill, float mult)
+        {
+            if (actor.has_skill(skill))
+            {
+                if (!Mastery_Gauges.ContainsKey(skill))
+                    Mastery_Gauges[skill] = 0;
+                int charge = Mastery_Gauges[skill] + (int)(skill_rate(skill) * mult);
+                // Clamp
+                charge = Math.Min(charge, MASTERY_MAX_CHARGE);
+                charge = Math.Max(0, charge);
+                Mastery_Gauges[skill] = charge;
+            }
         }
 
         public IEnumerable<string> ready_masteries()
