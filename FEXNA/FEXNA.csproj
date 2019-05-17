@@ -111,6 +111,13 @@
     <Compile Include="Source Code\Map Objects\MapObjects.cs" />
     <Compile Include="Source Code\Menus\BaseMenu.cs" />
     <Compile Include="Source Code\Menus\IHasCancelButton.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Item\AttackItemMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Item\ItemOptionsMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Item\ItemMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Item\StealMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Target\ITargetMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Item\TradeMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Target\TargetMenu.cs" />
     <Compile Include="Source Code\Menus\CommandMenu.cs" />
     <Compile Include="Source Code\Menus\ConfirmationMenu.cs" />
     <Compile Include="Source Code\Menus\IFadeMenu.cs" />
@@ -124,6 +131,10 @@
     <Compile Include="Source Code\Menus\Map\Unit Editor\UnitEditorMapCommandMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit Editor\UnitEditorMapMenuManager.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Context Sensitive\CSUnitAttack.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\UnitCommandMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\UnitMenuManager.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Target\LocationTargetMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Target\UnitTargetMenu.cs" />
     <Compile Include="Source Code\Menus\MenuManager.cs" />
     <Compile Include="Source Code\Menus\Preparations\BaseConvoMenu.cs" />
     <Compile Include="Source Code\Menus\Preparations\HomeBaseMenuManager.cs" />
