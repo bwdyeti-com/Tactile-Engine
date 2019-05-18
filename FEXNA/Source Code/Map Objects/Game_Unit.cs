@@ -3706,9 +3706,9 @@ namespace FEXNA
             show_move_range();
         }
 
-        public void show_move_range()
+        public void show_move_range(bool resetMoveArrow = true)
         {
-            Global.game_map.clear_move_range();
+            Global.game_map.clear_move_range(resetMoveArrow);
             Global.game_map.show_move_range(Id);
             if (!Cantoing)
                 Global.game_map.show_attack_range(Id);
@@ -4086,7 +4086,7 @@ namespace FEXNA
             // they ended up in when moving into their canto position???
             //if (!Cantoing) //@Debug
                 selection_facing();
-            show_move_range();
+            show_move_range(false);
             Global.game_map.move_range_visible = true;
             update_map_animation(true);
         }
