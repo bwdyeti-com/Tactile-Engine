@@ -13,7 +13,7 @@ using EnumExtension;
 
 namespace FEXNA.Menus.Map.Unit
 {
-    class UnitMenuManager : InterfaceHandledMenuManager<IUnitMenuHandler>
+    partial class UnitMenuManager : InterfaceHandledMenuManager<IUnitMenuHandler>
     {
         private Maybe<int> TradeInitialIndex = Maybe<int>.Nothing;
         private Maybe<int> DancerRingIndex = Maybe<int>.Nothing;
@@ -105,6 +105,8 @@ namespace FEXNA.Menus.Map.Unit
             TargetCommands.Add(13, (Game_Unit unit, UnitCommandMenu menu) => Steal(unit, menu));
             // 17: Support
             TargetCommands.Add(17, (Game_Unit unit, UnitCommandMenu menu) => Support(unit, menu));
+
+            AddSkillCommands();
         }
 
         private void unitMenu_IndexChanged(object sender, EventArgs e)
@@ -124,7 +126,12 @@ namespace FEXNA.Menus.Map.Unit
         {
             var unitMenu = (sender as UnitCommandMenu);
             Canto_Records canto = unitMenu.Canto;
-            
+
+            if (CancelCommandSkillCommand(unitMenu))
+            {
+                return;
+            }
+
             // If horse canto, cancels to wait only option
             if (canto != Canto_Records.Horse && canto.HasEnumFlag(Canto_Records.Horse))
                 canto = Canto_Records.Horse;
@@ -157,6 +164,9 @@ namespace FEXNA.Menus.Map.Unit
                 switch (selectedOption)
                 {
                     default:
+                        if (UnitMenuSelectSkill(selectedOption, unitMenu, unit))
+                            return;
+
                         Global.game_system.play_se(System_Sounds.Buzzer);
                         break;
                 }
@@ -287,6 +297,26 @@ namespace FEXNA.Menus.Map.Unit
 
             unit.using_siege_engine = false;
             attackMenu.Reset();
+            CancelAttackTargetSkills(unit);
+        }
+        private void CancelAttackTargetSkills(Game_Unit unit)
+        {
+            // Skills: Swoop
+            if (unit.swoop_activated)
+            {
+                Global.game_temp.temp_skill_ranges["SWOOP"] = unit.swoop_range();
+            }
+            // Skills: Trample
+            else if (unit.trample_activated)
+            {
+                Global.game_temp.temp_skill_ranges["TRAMPLE"] = unit.trample_range();
+                Global.game_temp.temp_skill_move_ranges["TRAMPLE"] = unit.trample_move_range();
+            }
+            // Skills: Old Swoop //Debug
+            else if (unit.old_swoop_activated)
+            {
+                Global.game_temp.temp_skill_ranges["OLDSWOOP"] = unit.old_swoop_range();
+            }
         }
         #endregion
 
@@ -1651,7 +1681,7 @@ namespace FEXNA.Menus.Map.Unit
         }
     }
 
-    interface IUnitMenuHandler : IMenuHandler
+    partial interface IUnitMenuHandler : IMenuHandler
     {
         void UnitMenuAttack(Game_Unit unit, int targetId);
         void UnitMenuStaff(Game_Unit unit, int targetId, Vector2 targetLoc);

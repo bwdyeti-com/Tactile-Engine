@@ -11,7 +11,7 @@ using FEXNAWeaponExtension;
 
 namespace FEXNA.Menus.Map.Unit
 {
-    class UnitCommandMenu : CommandMenu
+    partial class UnitCommandMenu : CommandMenu
     {
         internal int UnitId { get; private set; }
         private List<int> IndexRedirect;
@@ -352,8 +352,9 @@ namespace FEXNA.Menus.Map.Unit
                 AddWaitCommand(commands);
             }
 
-            //AddSkillCommands(ref commands, unit); //@Debug
+            AddSkillCommands(ref commands, unit);
 
+            //@Debug: why?
             Input.clear_locked_repeats();
 
             return commands;
