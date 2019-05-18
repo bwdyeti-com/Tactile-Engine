@@ -19,7 +19,7 @@ namespace FEXNA
         protected Sprite Black_Fill, White_Screen;
         protected Battle_Text_Spark Miss_Spark, NoDamage_Spark;
         protected Battle_Hit_Spark Hit_Spark;
-        private HashSet<Battle_Hit_Number> HitNumbers = new HashSet<Battle_Hit_Number>();
+        private List<Battle_Hit_Number> HitNumbers = new List<Battle_Hit_Number>();
         protected int White_Flash_Time, White_Flash_Timer;
         protected int Exp_Gain;
         protected bool Exp_Sound;
@@ -252,7 +252,7 @@ namespace FEXNA
             }
             foreach (var number in HitNumbers)
                 number.update();
-            HitNumbers.RemoveWhere(x => x.finished);
+            HitNumbers.RemoveAll(x => x.finished);
         }
 
         protected void create_miss_battle_spark(int team, bool reverse)

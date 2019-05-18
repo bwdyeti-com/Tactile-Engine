@@ -731,7 +731,7 @@ namespace FEXNA
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
             if (Hit_Spark != null)
                 Hit_Spark.draw(sprite_batch);
-            Vector2 number_vector = (Layer_3_Shake + Platform_1_Shake + Platform_2_Shake) * 0.67f + Pan_Vector;
+            Vector2 number_vector = (Layer_3_Shake + Platform_1_Shake + Platform_2_Shake) * 0.5f + Pan_Vector;
             foreach (var number in HitNumbers)
                 number.draw(sprite_batch, new Vector2((int)number_vector.X, (int)number_vector.Y));
             sprite_batch.End();
