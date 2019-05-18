@@ -831,6 +831,9 @@ namespace FEXNA
             // Skills: Trample
             if (Trample_Activated)
                 return true;
+            // Skills: Old Swoop //@Debug
+            if (Old_Swoop_Activated)
+                return true;
             return false;
         }
 
@@ -1322,6 +1325,9 @@ namespace FEXNA
             // Skills: Swoop
             if (Swoop_Activated)
                 return 1;
+            // Skills: Old Swoop //@Debug
+            if (Old_Swoop_Activated)
+                return 1;
             return -1;
         }
 
@@ -1392,7 +1398,7 @@ namespace FEXNA
         #endregion
 
         #region Old Swoop
-        const int OLD_SWOOP_RANGE = 5;
+        const int OLD_SWOOP_RANGE = 3;
         private bool Old_Swoop_Activated;
         private bool Old_Swoop_Attacked;
         public bool old_swoop_activated
