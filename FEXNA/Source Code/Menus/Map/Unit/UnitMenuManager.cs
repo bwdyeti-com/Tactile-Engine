@@ -41,7 +41,6 @@ namespace FEXNA.Menus.Map.Unit
         public static UnitMenuManager ResumeArena(IUnitMenuHandler handler)
         {
             var manager = new UnitMenuManager(handler);
-            manager.RemoveTopMenu();
 
             // Add arena menu
             Global.game_temp.menuing = true;

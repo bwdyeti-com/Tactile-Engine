@@ -111,6 +111,8 @@
     <Compile Include="Source Code\Map Objects\MapObjects.cs" />
     <Compile Include="Source Code\Menus\BaseMenu.cs" />
     <Compile Include="Source Code\Menus\IHasCancelButton.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit Editor\UnitEditorUnitCommandMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit Editor\UnitEditorUnitMenuManager.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\AttackItemMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\ItemOptionsMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\ItemMenu.cs" />

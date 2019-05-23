@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using FEXNA.Graphics.Map;
 using FEXNA.Graphics.Text;
 using FEXNA_Library;
@@ -24,6 +25,8 @@ namespace FEXNA.Windows.Map
         protected int Input_Cursor_Time = 0;
         bool Reinforcement = false;
         protected List<Inputs> locked_inputs = new List<Inputs>();
+        private bool EscTriggered;
+        private bool EscPressed;
         protected Vector2 Offset = Vector2.Zero;
         protected int WLvl_Index = 0;
         protected int Map_Sprite_Anim_Count;
@@ -449,6 +452,20 @@ namespace FEXNA.Windows.Map
             return new Vector2(8, 24 + (Index - Scroll) * 16);
         }
 
+        public event EventHandler<EventArgs> Confirmed;
+        protected void OnConfirmed(EventArgs e)
+        {
+            if (Confirmed != null)
+                Confirmed(this, e);
+        }
+
+        public event EventHandler<EventArgs> Canceled;
+        protected void OnCanceled(EventArgs e)
+        {
+            if (Canceled != null)
+                Canceled(this, e);
+        }
+
         #region Update
         protected void update_map_sprite()
         {
@@ -519,6 +536,10 @@ namespace FEXNA.Windows.Map
 
         protected override void update_input(bool active)
         {
+            bool esc = Global.Input.KeyPressed(Keys.Escape);
+            EscTriggered = !EscPressed && esc;
+            EscPressed = esc;
+
             if (active && this.ready_for_inputs)
             {
                 if (Option_Selected)
@@ -575,6 +596,19 @@ namespace FEXNA.Windows.Map
                     {
                         Global.game_system.play_se(System_Sounds.Menu_Move1);
                         move_up();
+                    }
+                    else if (Global.Input.triggered(Inputs.Start))
+                    {
+                        OnConfirmed(new EventArgs());
+                    }
+                    else if (Global.Input.triggered(Inputs.B))
+                    {
+                        OnCanceled(new EventArgs());
+                    }
+                    else if (EscTriggered)
+                    {
+                        Global.game_system.play_se(System_Sounds.Cancel);
+                        close();
                     }
                 }
             }
