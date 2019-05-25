@@ -3028,7 +3028,7 @@ namespace FEXNA
                 Global.game_state.play_turn_theme(command.Value[0], restart_theme);
             }
             else
-                Global.Audio.PlayBgm(command.Value[0]);
+                Global.Audio.PlayBgm(command.Value[0], forceRestart: restart_theme);
             Index++;
             return true;
         }

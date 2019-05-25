@@ -1029,7 +1029,7 @@ function normally. Suggested value is -3.",
                         case "Music":
                             Global.Audio.BgmFadeOut();
                             if (test_text != "nil")
-                                Global.Audio.PlayBgm(test_text);
+                                Global.Audio.PlayBgm(test_text, forceRestart: true);
                             return false;
                         #endregion
                         #region Name: Change name

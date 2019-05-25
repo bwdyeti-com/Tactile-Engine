@@ -1465,7 +1465,9 @@ namespace FEXNA
         }
         public void resume_turn_theme(bool fade)
         {
-            if (!Global.game_system.preparations && !Global.game_system.is_victory()) //Yeti
+            if (Global.game_system.preparations)
+                Global.Audio.ResumeMapTheme(Constants.Audio.Bgm.PREPARATIONS_THEME);
+            else if (!Global.game_system.is_victory()) //Yeti
                 Global.Audio.ResumeMapTheme(Turn_Theme);
         }
 
@@ -1498,7 +1500,8 @@ namespace FEXNA
 
         public void play_preparations_theme()
         {
-            Global.Audio.PlayBgm(Constants.Audio.Bgm.PREPARATIONS_THEME, forceRestart: true);
+            Global.Audio.PlayMapTheme(Constants.Audio.Bgm.PREPARATIONS_THEME);
+            //Global.Audio.PlayBgm(Constants.Audio.Bgm.PREPARATIONS_THEME, forceRestart: true); //@Debug
         }
         #endregion
 
