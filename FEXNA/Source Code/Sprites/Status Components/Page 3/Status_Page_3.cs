@@ -14,7 +14,7 @@ namespace FEXNA
     class Status_Page_3 : Status_Page
     {
         const int STATUS_ICONS_AT_ONCE = 3;
-        const int ACTOR_STATUSES = 4;
+        const int ACTOR_STATUSES = 5;
 
         private System_Color_Window Bonuses_Window, Supports_Window;
         private Status_Bonus_Background Bonus_Bg;
@@ -36,7 +36,7 @@ namespace FEXNA
             nodes.Add(new StatusTextUINode(
                 "Cond",
                 (Game_Unit unit) => "Status"));
-            nodes.Last().loc = Bonuses_Window.loc + new Vector2(24, 8);
+            nodes.Last().loc = Bonuses_Window.loc + new Vector2(16, 8);
             (nodes.Last() as StatusTextUINode).set_color("Yellow");
             nodes.Last().Size = new Vector2(32, 16);
             nodes.Last().stereoscopic = Config.STATUS_LEFT_WINDOW_DEPTH;
@@ -46,7 +46,7 @@ namespace FEXNA
             {
                 int j = i;
 
-                Vector2 loc = Bonuses_Window.loc + new Vector2(56 + i * 16, 8);
+                Vector2 loc = Bonuses_Window.loc + new Vector2(48 + i * 16, 8);
 
                 nodes.Add(new StatusStateUINode(
                     string.Format("Status{0}", i + 1),
