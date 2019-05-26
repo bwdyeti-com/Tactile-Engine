@@ -18,18 +18,15 @@ using FEXNA_Library;
 namespace FEXNA
 {
     enum Unit_Editor_Options { Unit, Add_Unit, Paste_Unit, Reinforcements, Options, Clear_Units, Mirror_Units, Playtest, Revert, Save, Quit }
-    class Scene_Map_Unit_Editor : Scene_Map, IUnitEditorMapMenuHandler
+    class Scene_Map_Unit_Editor : Scene_Map, IUnitEditorMapMenuHandler, IUnitEditorUnitMenuHandler
     {
-        Window_Unit_Editor Unit_Editor;
-
         private static string Save_Name, Map_Data_Key;
         internal static string UnitDataKey { get; private set; }
         private static Map_Unit_Data _unitData, LastSavedUnitData;
 
         int Reinforcement_Index = -1;
-        bool Esc_Pressed, Esc_Triggered;
-        Window_Confirmation Cancel_Editing_Confirm_Window;
 
+        //@Debug: actually should not ever be used
         internal static Map_Unit_Data UnitData { get { return new Map_Unit_Data(_unitData); } }
 
         public Scene_Map_Unit_Editor()
@@ -130,14 +127,7 @@ namespace FEXNA
             else
                 Global.game_map.highlight_test();
         }
-
-        public void update(KeyboardState key_state)
-        {
-            Esc_Triggered = !Esc_Pressed && key_state.IsKeyDown(Keys.Escape);
-            update();
-            Esc_Pressed = key_state.IsKeyDown(Keys.Escape);
-        }
-
+        
         protected override void open_map_menu()
         {
             MapMenu = new UnitEditorMapMenuManager(this, _unitData.Reinforcements);
@@ -153,33 +143,6 @@ namespace FEXNA
                 return true;
             }
 
-            return false;
-        }
-
-        protected override bool update_menu_unit()
-        {
-            if (is_unit_command_window_open)
-            {
-                if (unit_command_window_active)
-                {
-                    update_unit_command_window();
-                    update_unit_command_menu();
-                    return true;
-                }
-            }
-            if (Unit_Editor != null)
-            {
-                if (Unit_Editor.is_ready)
-                {
-                    Unit_Editor.Update(true);
-                    if (Cancel_Editing_Confirm_Window != null)
-                        Cancel_Editing_Confirm_Window.update();
-                    update_unit_edit_menu();
-                }
-                else
-                    Unit_Editor.Update(true);
-                return true;
-            }
             return false;
         }
 
@@ -221,78 +184,11 @@ namespace FEXNA
         }
 
         #region Unit Command Menu
-        protected override void open_unit_menu(Canto_Records canto)
+        protected override void open_unit_menu()
         {
-            List<string> commands = new List<string>();
-            // Actions:
-            //   0 = Edit Unit
-            //   1 = Move Unit
-            //   2 = Change Team
-            //   3 = Copy Unit
-            //  10 = Remove Unit
-            Index_Redirect = new List<int>();
-
-            // Edit Unit
-            commands.Add("Edit Unit");
-            Index_Redirect.Add(0);
-            // Move Unit
-            commands.Add("Move Unit");
-            Index_Redirect.Add(1);
-            // Change Team
-            commands.Add("Change Team");
-            Index_Redirect.Add(2);
-            // Copy Unit
-            commands.Add("Copy Unit");
-            Index_Redirect.Add(3);
-            // Remove
-            commands.Add("Remove Unit");
-            Index_Redirect.Add(10);
-
-            new_unit_command_window(commands, 80);
+            MapMenu = UnitEditorUnitMenuManager.CommandMenu(this);
         }
-
-        protected override void update_unit_command_menu()
-        {
-            Game_Unit unit = Global.game_map.units[Unit_Id];
-            if (unit_command_is_canceled)
-            {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                Global.game_temp.menuing = false;
-                close_unit_menu();
-                Global.game_system.Selected_Unit_Id = -1;
-                Global.game_map.move_range_visible = true;
-                Global.game_map.highlight_test();
-            }
-            else if (unit_command_is_selected)
-            {
-                unit_menu_select(Index_Redirect[unit_command_window_index], unit);
-            }
-            else
-            {
-                switch (Index_Redirect[unit_command_window_index])
-                {
-                    // Change Team
-                    case 2:
-                        if (Global.Input.repeated(Inputs.Left) || Global.Input.repeated(Inputs.Right))
-                        {
-                            Global.game_system.play_se(System_Sounds.Menu_Move2);
-                            int team = unit.team;
-                            team = new_team(team, Global.Input.repeated(Inputs.Left));
-
-                            Global.game_map.change_unit_team(unit.id, team);
-                            Global.game_map.refresh_move_ranges();
-                            Global.game_map.wait_for_move_update();
-
-                            Global.test_battler_1 = Test_Battle_Character_Data.from_data(
-                                _unitData.Units[unit.loc].type, _unitData.Units[unit.loc].identifier, _unitData.Units[unit.loc].data);
-                            string[] ary = Global.test_battler_1.to_string(unit.team);
-                            _unitData.Units[Global.player.loc] = new Data_Unit(ary[0], ary[1], ary[2]);
-                        }
-                        break;
-                }
-            }
-        }
-
+        
         private int new_team(int old_team, bool left)
         {
             if (left)
@@ -306,154 +202,101 @@ namespace FEXNA
 
             return old_team;
         }
-
-        protected override void unit_menu_select(int option, Game_Unit unit)
+        
+        public void move_unit()
         {
-            switch (option)
-            {
-                case 0: // Edit Unit
-                    Global.game_system.play_se(System_Sounds.Confirm);
+            _unitData.Units[Global.player.loc] = _unitData.Units[Global.game_map.get_selected_unit().loc];
+            _unitData.Units.Remove(Global.game_map.get_selected_unit().loc);
+        }
+        #endregion
 
-                    unit_command_window_visible = false;
-                    unit_command_window_active = false;
-                    Global.test_battler_1 = Test_Battle_Character_Data.from_data(
-                        _unitData.Units[unit.loc].type, _unitData.Units[unit.loc].identifier, _unitData.Units[unit.loc].data);
-                    Unit_Editor = new Window_Unit_Editor();
-                    break;
-                case 1: // Move Unit
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    Global.game_state.moving_editor_unit = true;
-                    Global.game_temp.menuing = false;
-                    close_unit_menu();
-                    Global.game_map.move_range_visible = true;
-                    Global.game_map.highlight_test();
-                    break;
-                case 3: // Copy Unit
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    Global.test_battler_1 = Test_Battle_Character_Data.from_data(
-                        _unitData.Units[unit.loc].type, _unitData.Units[unit.loc].identifier, _unitData.Units[unit.loc].data);
-                    if (Global.test_battler_1.Generic)
-                        Global.test_battler_1.Actor_Id = Global.game_actors.next_actor_id();
-                    Global.game_temp.menuing = false;
-                    close_unit_menu();
-                    Global.game_system.Selected_Unit_Id = -1;
-                    Global.game_map.move_range_visible = true;
-                    Global.game_map.highlight_test();
-                    break;
-                case 10: // Remove Unit
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    // Remove unit and refresh the map
-                    _unitData.Units.Remove(unit.loc);
-                    set_map(Global.game_system.New_Chapter_Id, Map_Data_Key, "", "");
-                    // Close menu
-                    Global.game_temp.menuing = false;
-                    Global.game_system.Selected_Unit_Id = -1;
-                    Global.game_map.move_range_visible = true;
-                    Global.game_map.highlight_test();
-                    break;
-            }
+        #region IUnitEditorUnitMenuHandler
+        public void UnitEditorUnitMenuEditUnit()
+        {
+            Game_Unit unit = Global.game_map.units[Global.game_system.Selected_Unit_Id];
+            MapMenu = UnitEditorUnitMenuManager.UnitEditor(this, _unitData.Units[unit.loc]);
         }
 
-        private void close_unit_editor()
+        public void UnitEditorUnitMenuConfirmEditUnit()
+        {
+            Game_Unit unit = Global.game_map.units[Global.game_system.Selected_Unit_Id];
+            if (Reinforcement_Index != -1)
+            {
+                string[] ary = Global.test_battler_1.to_string(unit.team);
+                _unitData.Reinforcements[Reinforcement_Index] = new Data_Unit(ary[0], ary[1], ary[2]);
+            }
+            else
+            {
+                string[] ary = Global.test_battler_1.to_string(unit.team);
+                _unitData.Units[Global.player.loc] = new Data_Unit(ary[0], ary[1], ary[2]);
+            }
+            UnitEditorUnitMenuClose();
+        }
+
+        public void UnitEditorUnitMenuMoveUnit()
+        {
+            Global.game_state.moving_editor_unit = true;
+            Global.game_temp.menuing = false;
+            close_map_menu();
+            Global.game_map.move_range_visible = true;
+            Global.game_map.highlight_test();
+        }
+
+        public void UnitEditorUnitMenuChangeTeam(bool increment)
+        {
+            Game_Unit unit = Global.game_map.units[Global.game_system.Selected_Unit_Id];
+            int team = unit.team;
+            team = new_team(team, !increment);
+
+            Global.game_map.change_unit_team(unit.id, team);
+            Global.game_map.refresh_move_ranges();
+            Global.game_map.wait_for_move_update();
+
+            Global.test_battler_1 = Test_Battle_Character_Data.from_data(
+                _unitData.Units[unit.loc].type,
+                _unitData.Units[unit.loc].identifier,
+                _unitData.Units[unit.loc].data);
+            string[] ary = Global.test_battler_1.to_string(unit.team);
+            _unitData.Units[Global.player.loc] = new Data_Unit(ary[0], ary[1], ary[2]);
+        }
+
+        public void UnitEditorUnitMenuCopyUnit()
+        {
+            Game_Unit unit = Global.game_map.units[Global.game_system.Selected_Unit_Id];
+            Global.test_battler_1 = Test_Battle_Character_Data.from_data(
+                _unitData.Units[unit.loc].type, _unitData.Units[unit.loc].identifier, _unitData.Units[unit.loc].data);
+            if (Global.test_battler_1.Generic)
+                Global.test_battler_1.Actor_Id = Global.game_actors.next_actor_id();
+            Global.game_temp.menuing = false;
+            close_map_menu();
+            Global.game_system.Selected_Unit_Id = -1;
+            Global.game_map.move_range_visible = true;
+            Global.game_map.highlight_test();
+        }
+
+        public void UnitEditorUnitMenuRemoveUnit()
+        {
+            Game_Unit unit = Global.game_map.units[Global.game_system.Selected_Unit_Id];
+            // Remove unit and refresh the map
+            _unitData.Units.Remove(unit.loc);
+            set_map(Global.game_system.New_Chapter_Id, Map_Data_Key, "", "");
+            // Close menu
+            Global.game_temp.menuing = false;
+            close_map_menu();
+            Global.game_system.Selected_Unit_Id = -1;
+            Global.game_map.move_range_visible = true;
+            Global.game_map.highlight_test();
+        }
+
+        public void UnitEditorUnitMenuClose()
         {
             Global.game_temp.menuing = false;
-            Unit_Editor = null;
-            close_unit_menu();
+            MapMenu = null;
             Global.game_system.Selected_Unit_Id = -1;
             Reinforcement_Index = -1;
             set_map(Global.game_system.New_Chapter_Id, Map_Data_Key, "", "");
             Global.game_map.move_range_visible = true;
             Global.game_map.highlight_test();
-        }
-
-        protected void update_unit_edit_menu()
-        {
-            if (Cancel_Editing_Confirm_Window != null)
-            {
-                if (Cancel_Editing_Confirm_Window.is_ready)
-                {
-                    if (Cancel_Editing_Confirm_Window.is_canceled())
-                    {
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        Cancel_Editing_Confirm_Window = null;
-                        Unit_Editor.active = true;
-                    }
-                    else if (Cancel_Editing_Confirm_Window.is_selected())
-                    {
-                        if (Cancel_Editing_Confirm_Window.index == 0)
-                        {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            close_unit_editor();
-                        }
-                        else
-                        {
-                            Global.game_system.play_se(System_Sounds.Cancel);
-                            Unit_Editor.active = true;
-                        }
-                        Cancel_Editing_Confirm_Window = null;
-                    }
-                }
-            }
-            else
-            {
-                Game_Unit unit = Global.game_map.units[Global.game_system.Selected_Unit_Id];
-                if (Global.Input.triggered(Inputs.B)) //Debug
-                {
-                    if (Unit_Editor.is_ready)
-                    {
-                        //Global.Audio.play_se("System Sounds", "Help_Open");
-                        //Global.game_system.play_se(System_Sounds.Help_Open);
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        Unit_Editor.active = false;
-                        Cancel_Editing_Confirm_Window = new Window_Confirmation();
-                        Cancel_Editing_Confirm_Window.loc = new Vector2(56, 32);
-                        Cancel_Editing_Confirm_Window.set_text("Cancel editing?\nChanges will be lost.");
-                        Cancel_Editing_Confirm_Window.add_choice("Yes", new Vector2(16, 32));
-                        Cancel_Editing_Confirm_Window.add_choice("No", new Vector2(56, 32));
-                        Cancel_Editing_Confirm_Window.size = new Vector2(104, 64);
-                        Cancel_Editing_Confirm_Window.index = 1;
-                    }
-                }
-                else if (Esc_Triggered) //Debug
-                {
-                    if (Unit_Editor.is_ready)
-                    {
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        close_unit_editor();
-                    }
-                }
-                else if (Global.Input.triggered(Inputs.Start)) //Global.Input.triggered(Inputs.A) //Debug
-                {
-                    if (Unit_Editor.is_ready)
-                    {
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        if (Reinforcement_Index != -1)
-                        {
-                            string[] ary = Global.test_battler_1.to_string(unit.team);
-                            _unitData.Reinforcements[Reinforcement_Index] = new Data_Unit(ary[0], ary[1], ary[2]);
-                        }
-                        else
-                        {
-                            string[] ary = Global.test_battler_1.to_string(unit.team);
-                            _unitData.Units[Global.player.loc] = new Data_Unit(ary[0], ary[1], ary[2]);
-                        }
-                        Global.game_temp.menuing = false;
-                        Unit_Editor = null;
-                        close_unit_menu();
-                        Global.game_system.Selected_Unit_Id = -1;
-                        Reinforcement_Index = -1;
-                        set_map(Global.game_system.New_Chapter_Id, Map_Data_Key, "", "");
-                        Global.game_map.move_range_visible = true;
-                        Global.game_map.highlight_test();
-                    }
-                }
-            }
-        }
-
-        public void move_unit()
-        {
-            _unitData.Units[Global.player.loc] = _unitData.Units[Global.game_map.get_selected_unit().loc];
-            _unitData.Units.Remove(Global.game_map.get_selected_unit().loc);
         }
         #endregion
 
@@ -486,16 +329,13 @@ namespace FEXNA
         public void UnitEditorMapMenuEditReinforcement(int index)
         {
             Reinforcement_Index = index;
-            MapMenu = null;
-
+            
             Global.game_map.add_reinforcement_unit(-1, Config.OFF_MAP, Reinforcement_Index, "");
             Global.game_system.Selected_Unit_Id = Global.game_map.last_added_unit.id;
-            Global.test_battler_1 = Test_Battle_Character_Data.from_data(
-                _unitData.Reinforcements[Reinforcement_Index].type,
-                _unitData.Reinforcements[Reinforcement_Index].identifier,
-                _unitData.Reinforcements[Reinforcement_Index].data);
-            Global.test_battler_1.Actor_Id = Global.game_map.last_added_unit.actor.id;
-            Unit_Editor = new Window_Unit_Editor(true);
+            MapMenu = UnitEditorUnitMenuManager.UnitEditor(
+                this,
+                _unitData.Reinforcements[Reinforcement_Index],
+                true);
         }
         public void UnitEditorMapMenuAddReinforcement(int index)
         {
@@ -629,21 +469,6 @@ namespace FEXNA
 #endif
 
         protected override bool update_soft_reset() { return false; }
-
-        protected override void draw_menus(SpriteBatch sprite_batch)
-        {
-            base.draw_menus(sprite_batch);
-
-            if (Unit_Editor != null) Unit_Editor.Draw(sprite_batch);
-            if (Cancel_Editing_Confirm_Window != null) Cancel_Editing_Confirm_Window.draw(sprite_batch);
-        }
-
-        protected override void clear_menus()
-        {
-            Unit_Editor = null;
-            Cancel_Editing_Confirm_Window = null;
-            base.clear_menus();
-        }
     }
 }
 #endif

@@ -746,10 +746,6 @@ namespace FEXNA
         {
             if (Scene.scene_type == "Scene_Title")
                 ((Scene_Title)Scene).update(key_state);
-#if !MONOGAME && DEBUG
-            else if (Scene.scene_type == "Scene_Map_Unit_Editor")
-                ((Scene_Map_Unit_Editor)Scene).update(key_state);
-#endif
             else
                 Scene.update();
         }

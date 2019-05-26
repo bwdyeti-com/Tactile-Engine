@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using FEXNA.Map;
 using FEXNA.Menus.Map.Unit.Item;
 using FEXNA.Menus.Map.Unit.Target;
 using FEXNA.Windows.Command;
@@ -17,6 +18,10 @@ namespace FEXNA.Menus.Map.Unit
     {
         private Maybe<int> TradeInitialIndex = Maybe<int>.Nothing;
         private Maybe<int> DancerRingIndex = Maybe<int>.Nothing;
+
+        // Make sure system menu canto is only ever used when the menu is
+        // closing before planning to reopen after completing an action;
+        // this ensures the value doesn't need to be reset
 
         private Dictionary<int, Action<Game_Unit>> SimpleCommands;
         private Dictionary<int, Action<Game_Unit, UnitCommandMenu>> TargetCommands;
@@ -54,6 +59,24 @@ namespace FEXNA.Menus.Map.Unit
             shopMenu.Closed += manager.arenaMenu_Closed;
             manager.AddMenu(shopMenu);
 
+            return manager;
+        }
+
+        public static UnitMenuManager PreviewShop(IUnitMenuHandler handler, Shop_Data shop)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            Window_Business shopMenu;
+            if (shop.arena)
+                // Arenas shouldn't be previewed, but //@Debug
+                shopMenu = new Window_Arena(-1, shop, false);
+            else
+            {
+                shopMenu = new Window_Shop(-1, shop);
+            }
+            shopMenu.Closed += manager.shopPreviewMenu_Closed;
+            manager.AddMenu(shopMenu);
+            
             return manager;
         }
 
@@ -980,7 +1003,17 @@ namespace FEXNA.Menus.Map.Unit
             if (!Global.game_system.In_Arena)
                 Global.game_state.resume_turn_theme(true);
         }
-        
+
+        // Shop menu closed
+        private void shopPreviewMenu_Closed(object sender, EventArgs e)
+        {
+            Global.game_temp.menuing = false;
+            Menus.Clear();
+            Global.game_map.move_range_visible = true;
+
+            Global.game_state.resume_turn_theme(true);
+        }
+
         private void arenaMenu_Closed(object sender, EventArgs e)
         {
             var arenaMenu = (sender as Window_Arena);
