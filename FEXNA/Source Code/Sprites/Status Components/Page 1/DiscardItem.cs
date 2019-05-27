@@ -9,7 +9,8 @@ namespace FEXNA
             base.set_text_color(actor, item);
 
             // Grey out if can't be discarded
-            bool canDiscard = actor.CanDiscard(item);
+            bool canDiscard = Global.battalion.convoy_ready_for_sending ||
+                actor.CanDiscard(item);
             string color = canDiscard ? "White" : "Grey";
             change_text_color(color);
         }

@@ -33,7 +33,8 @@ namespace FEXNA.Menus.Map.Unit.Item
         {
             var discardWindow = (this.Window as Window_Command_Item_Discard);
 
-            bool canDiscard = this.Unit.actor.CanDiscard(this.SelectedItem);
+            bool canDiscard = Global.battalion.convoy_ready_for_sending ||
+                this.Unit.actor.CanDiscard(this.SelectedItem);
             if (!canDiscard)
                 Global.game_system.play_se(System_Sounds.Buzzer);
             else

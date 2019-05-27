@@ -37,8 +37,6 @@ namespace FEXNA
     partial class Scene_Map : IMapMenuHandler, IUnitMenuHandler
 #endif
     {
-        Window_Command Unit_Command_Window;
-
         protected MenuManager MapMenu;
         protected UnitMenuManager UnitMenu;
         
@@ -301,17 +299,6 @@ namespace FEXNA
         
         protected bool is_unit_command_window_open { get { return UnitMenu != null; } }
         
-        protected bool unit_command_window_active
-        {
-            get { return Unit_Command_Window.active; }
-            set { Unit_Command_Window.active = value; }
-        }
-        protected bool unit_command_window_visible
-        {
-            get { return Unit_Command_Window.visible; }
-            set { Unit_Command_Window.visible = value; }
-        }
-
         // Draw Ranges
         protected void draw_menu_ranges(SpriteBatch sprite_batch)
         {
@@ -1172,7 +1159,8 @@ namespace FEXNA
             if (MapMenu != null)
                 MapMenu.Draw(sprite_batch);
             if (UnitMenu != null)
-                UnitMenu.Draw(sprite_batch);
+                if (!Global.game_temp.discard_menuing)
+                    UnitMenu.Draw(sprite_batch);
             
             if (Map_Save_Confirm_Window != null) Map_Save_Confirm_Window.draw(sprite_batch);
             if (Ranking_Window != null) Ranking_Window.draw(sprite_batch);
@@ -1181,16 +1169,13 @@ namespace FEXNA
         protected void draw_discard(SpriteBatch sprite_batch)
         {
             if (UnitMenu != null)
-                //@Yeti: need to draw this above conversations when discarding
-                if (false)
+                if (Global.game_temp.discard_menuing)
                     UnitMenu.Draw(sprite_batch);
         }
 
         protected virtual void clear_menus()
         {
             close_map_menu();
-            //close_unit_menu(); //Debug
-            Unit_Command_Window = null;
 
             MapMenu = null;
             UnitMenu = null;
