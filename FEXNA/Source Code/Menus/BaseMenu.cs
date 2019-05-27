@@ -25,6 +25,7 @@ namespace FEXNA.Menus
         {
             if (Active != active)
             {
+                // Active needs to be tracked for calling Activate() and Deactivate()
                 if (active)
                     Activate();
                 else
@@ -37,7 +38,8 @@ namespace FEXNA.Menus
         public void Update(bool active)
         {
             UpdateActive(active);
-            UpdateMenu(active);
+
+            UpdateMenu(Active);
         }
         public abstract void Draw(SpriteBatch spriteBatch);
         #endregion

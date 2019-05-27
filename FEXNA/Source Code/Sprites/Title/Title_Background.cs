@@ -10,12 +10,12 @@ namespace FEXNA
         const int BG_TEXTURE_COLUMNS = 5;
         const int BG_UPDATE = 2;
         const int BG_FRAMES = 16;
-        const int COLUMN_UPDATE = 2;
+        const int PILLAR_UPDATE = 2;
         const int INITIAL_DISTANCE = -260;
         const float SPACING = 2;
         const int INTERVAL = (int)(335 * SPACING);
-        const float DISTANCE_RATIO = (INTERVAL * 2 / SPACING) * ((float)COLUMN_UPDATE / (float)BG_UPDATE);
-        const int COLUMN_COUNT = (int)(12 / SPACING);
+        const float DISTANCE_RATIO = (INTERVAL * 2 / SPACING) * ((float)PILLAR_UPDATE / (float)BG_UPDATE);
+        const int PILLAR_COUNT = (int)(12 / SPACING);
 
         int Frame = 0;
         int Timer = -1;
@@ -23,21 +23,22 @@ namespace FEXNA
 
         public Title_Background()
         {
-            textures = new List<Texture2D> { Global.Content.Load<Texture2D>(@"Graphics/Titles/Title BG"),
-                Global.Content.Load<Texture2D>(@"Graphics/Pictures/Column") };
-            for (int i = 1; i <= COLUMN_COUNT; i++)
-                add_column(i * INTERVAL + INITIAL_DISTANCE, i == COLUMN_COUNT ? 0 : 255);
+            textures = new List<Texture2D>();
+            textures.Add(Global.Content.Load<Texture2D>(@"Graphics/Titles/Title BG"));
+            textures.Add(Global.Content.Load<Texture2D>(@"Graphics/Pictures/Column"));
+            for (int i = 1; i <= PILLAR_COUNT; i++)
+                add_pillar(i * INTERVAL + INITIAL_DISTANCE, i == PILLAR_COUNT ? 0 : 255);
             update();
         }
 
         public override void update()
         {
             Timer++;
-            if (Timer % COLUMN_UPDATE == 0)
+            if (Timer % PILLAR_UPDATE == 0)
             {
                 foreach (Title_Column column in Columns)
                 {
-                    column.distance -= ((DISTANCE_RATIO * COLUMN_UPDATE / (BG_FRAMES * BG_UPDATE)));
+                    column.distance -= ((DISTANCE_RATIO * PILLAR_UPDATE / (BG_FRAMES * BG_UPDATE)));
                     copy_stereo(column);
                     column.update();
                 }
@@ -47,14 +48,14 @@ namespace FEXNA
                     Columns.RemoveAt(0);
                     if (!Title_Column.SINGLE_PILLAR)
                         Columns.RemoveAt(0);
-                    add_column(INTERVAL + offset, 0);
+                    add_pillar(INTERVAL + offset, 0);
                 }
             }
             if (Timer % BG_UPDATE == 0)
                 Frame = (Frame + 1) % BG_FRAMES;
         }
 
-        protected void add_column(float distance, int opacity)
+        protected void add_pillar(float distance, int opacity)
         {
             Columns.Add(new Title_Column(textures[1]));
             Columns[Columns.Count - 1].distance = distance;

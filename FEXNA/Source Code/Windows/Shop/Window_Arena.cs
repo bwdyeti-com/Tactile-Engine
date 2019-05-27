@@ -25,7 +25,7 @@ namespace FEXNA
         private FE_Text[] Labels = new FE_Text[5];
 
         #region Accessors
-        private Game_Unit unit { get { return Global.game_map.units[Unit_Id]; } }
+        public Game_Unit unit { get { return Global.game_map.units[Unit_Id]; } }
 
         private Game_Unit opponent { get { return Opponent_Id == -1 ? null : Global.game_map.units[Opponent_Id]; } }
         #endregion

@@ -63,7 +63,7 @@ namespace FEXNA
                 //Talk_Range = Talk_Range.Distinct().ToList(); //ListOrEquals //HashSet
             }
 
-            Selected_Move_Total = 0;
+            ValidateMoveArrow();
             range_start_timer = 0;
         }
 
@@ -88,7 +88,9 @@ namespace FEXNA
                 Staff_Range.ExceptWith(Talk_Range);
                 Staff_Range.ExceptWith(Move_Range);
                 Staff_Range.ExceptWith(Attack_Range);
-                Selected_Move_Total = 0;
+
+                //@Debug: why
+                //Selected_Move_Total = 0;
             }
         }
 
@@ -758,7 +760,33 @@ namespace FEXNA
             return dir2;
         }
 
-        public void clear_move_range()
+        private bool ValidateMoveArrow()
+        {
+            Game_Unit selected_unit = get_selected_unit();
+            if (Move_Arrow.Any() && selected_unit != null)
+            {
+                int moveCost = 0;
+                for (int i = 1; i < Move_Arrow.Count; i++)
+                {
+                    Move_Arrow_Data loc = Move_Arrow[i];
+                    moveCost += selected_unit.move_cost(new Vector2(loc.X, loc.Y));
+                }
+
+                // If the arrow has exceeded the move score
+                if (moveCost > selected_unit.canto_mov)
+                {
+                    Move_Arrow.Clear();
+                    Selected_Move_Total = 0;
+                    return false;
+                }
+                else
+                    Selected_Move_Total = moveCost;
+            }
+
+            return true;
+        }
+
+        public void clear_move_range(bool resetMoveArrow = true)
         {
             lock (Move_Range_Lock)
             {
@@ -766,8 +794,12 @@ namespace FEXNA
                 Attack_Range.Clear();
                 Staff_Range.Clear();
                 Talk_Range.Clear();
-                Move_Arrow.Clear();
-                Selected_Move_Total = 0;
+
+                if (resetMoveArrow)
+                {
+                    Move_Arrow.Clear();
+                    Selected_Move_Total = 0;
+                }
             }
         }
 

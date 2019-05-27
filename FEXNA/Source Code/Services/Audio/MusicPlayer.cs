@@ -50,7 +50,7 @@ namespace FEXNA.Services.Audio
                 Volume = TargetVolume;
 
             // Resume the existing track
-            if (track.Resume && TrackPlayingCue(track))
+            if (track.Resume && CueAlreadyExists(track))
             {
                 // If this track is already playing normally or
                 // fading back in, do nothing
@@ -104,21 +104,29 @@ namespace FEXNA.Services.Audio
             }
         }
 
-        public void Restore(string bgmName, string trackName = "", bool fadeIn = false)
+        public void Restore(string bgmName, string trackName = "", bool fadeIn = false, bool forceRestart = false)
         {
-            // Resume if track exists
-            if (TrackPlayingCue(trackName, bgmName))
+            // If track exists
+            if (CueAlreadyExists(trackName, bgmName))
             {
                 // This is the active track again, so clear the other tracks
                 CuedTracks.Clear();
 
-                Restore(trackName, fadeIn);
+                // Resume if track playing
+                if (TrackPlayingCue(trackName, bgmName))
+                {
+                    Restore(trackName, fadeIn);
+                }
+                else
+                {
+                    // Fade in if other tracks are fading out first
+                    fadeIn |= this.TracksFadingOut;
+                    TryPlay(bgmName, trackName, fadeIn, !forceRestart);
+                }
             }
             // Play new track
             else
-            {
-                TryPlay(bgmName, trackName, fadeIn);
-            }
+                TryPlay(bgmName, trackName, fadeIn, !forceRestart);
         }
         private void Restore(string trackName, bool fadeIn)
         {
@@ -133,7 +141,7 @@ namespace FEXNA.Services.Audio
         public void Resume(string bgmName, string trackName)
         {
             // Resume and fade in if track exists
-            if (TrackPlayingCue(trackName, bgmName))
+            if (CueAlreadyExists(trackName, bgmName))
             {
                 TryPlay(bgmName, trackName, true, true);
             }
@@ -322,6 +330,7 @@ namespace FEXNA.Services.Audio
         {
             if (CuedTracks.Any())
             {
+                // Any cue wants to resume on a track that is fading out
                 bool replaceFadingTrack = CuedTracks
                     .Any(x => x.Resume && TrackPlayingCue(x) &&
                         Music[x.TrackName].IsFadeOut);
@@ -339,6 +348,15 @@ namespace FEXNA.Services.Audio
             return TrackPlayingCue(cue.TrackName, cue.CueName);
         }
         private bool TrackPlayingCue(string trackName, string cueName)
+        {
+            return CueAlreadyExists(trackName, cueName) && Music[trackName].IsPlaying;
+        }
+
+        private bool CueAlreadyExists(MusicCue cue)
+        {
+            return CueAlreadyExists(cue.TrackName, cue.CueName);
+        }
+        private bool CueAlreadyExists(string trackName, string cueName)
         {
             return Music.ContainsKey(trackName) && Music[trackName].BgmName == cueName;
         }

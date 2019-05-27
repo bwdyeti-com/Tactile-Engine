@@ -16,12 +16,12 @@ namespace FEXNA
         public Scene_Promotion() { }
 
         #region Platform/Background
-        protected override Texture2D platform(Game_Unit battler, int distance)
+        protected override Texture2D platform(int tag, int distance)
         {
             if (Global.game_system.preparations)
                 return battle_content.Load<Texture2D>(@"Graphics/Battlebacks/" + "Floor" + "-Melee"); //Debug
             else
-                return base.platform(battler, distance);
+                return base.platform(tag, distance);
         }
 
         protected override Texture2D background(Game_Unit battler)

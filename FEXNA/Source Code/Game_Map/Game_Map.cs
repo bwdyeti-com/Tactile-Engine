@@ -351,21 +351,48 @@ namespace FEXNA
 
         /// <summary>
         /// Returns whether the active team has any units still able to act.
-        /// This means ready, not rescued, controllable, and on the map.
         /// </summary>
         public bool active_team_turn_over
         {
             get
             {
-                return !Teams[team_turn]
-                    .Select(id => this.units[id])
+                if (Global.game_options.auto_turn_end == 2)
+                    return !this.ready_movable_units;
+                else
+                    return !this.active_team_ready_units.Any();
+            }
+        }
+        
+        public bool ready_movable_units
+        {
+            get
+            {
+                return this.active_team_ready_units
                     .Any(unit =>
-                        {
-                            if (!unit.ready || unit.is_rescued || is_off_map(unit.loc) ||
-                                    unit.uncontrollable || unit.unselectable)
-                                return false;
-                            return Global.game_options.auto_turn_end == 2 ? unit.mov > 0 : true;
-                        });
+                    {
+                        return unit.mov > 0;
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Returns the units on the active team who are able to act.
+        /// This means ready, not rescued, controllable, and on the map.
+        /// </summary>
+        public IEnumerable<Game_Unit> active_team_ready_units
+        {
+            get
+            {
+                return Teams[this.team_turn]
+                    .Select(id => this.units[id])
+                    .Where(unit =>
+                    {
+                        if (!unit.ready || unit.is_rescued || is_off_map(unit.loc) ||
+                                unit.uncontrollable || unit.unselectable)
+                            return false;
+                        return true;
+                    })
+                    .ToList();
             }
         }
 

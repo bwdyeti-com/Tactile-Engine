@@ -2,53 +2,33 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Help;
-using FEXNA.Windows.Command;
-using FEXNA_Library;
+using FEXNA.Windows.Target;
 
-namespace FEXNA.Menus
+namespace FEXNA.Menus.Map.Unit.Target
 {
-    class CommandMenu : BaseMenu, IHasCancelButton
+    abstract class TargetMenu<T> : BaseMenu, ITargetMenu, IHasCancelButton
     {
-        protected Window_Command Window;
+        protected Window_Target<T> Window;
         protected Button_Description CancelButton;
-        private bool _HidesParent = false;
-
-        protected CommandMenu() { }
-        public CommandMenu(Window_Command window, IHasCancelButton menu = null)
+        
+        protected TargetMenu(Window_Target<T> window, IHasCancelButton menu = null)
         {
             Window = window;
-
             CreateCancelButton(menu);
         }
-
-        public Vector2 WindowLoc { get { return Window.loc; } }
-
-        public Vector2 SelectedOptionLoc
-        {
-            get { return this.WindowLoc + new Vector2(0, 24 + this.SelectedIndex * 16); }
-        }
-
-        public int Index { get { return Window.index; } }
-
-        internal void SetTextColor(int index, string color)
-        {
-            Window.set_text_color(index, color);
-        }
-
-        public Maybe<int> SelectedIndex
-        {
-            get
-            {
-                return Window.selected_index();
-            }
-        }
-
-        protected void CreateCancelButton(IHasCancelButton menu)
+        
+        private void CreateCancelButton(IHasCancelButton menu = null)
         {
             if (menu != null && menu.HasCancelButton)
             {
                 CreateCancelButton(
                     (int)menu.CancelButtonLoc.X,
+                    Config.MAPCOMMAND_WINDOW_DEPTH);
+            }
+            else
+            {
+                CreateCancelButton(
+                    Global.player.is_on_left() ? Config.WINDOW_WIDTH - (32 + 48) : 32,
                     Config.MAPCOMMAND_WINDOW_DEPTH);
             }
         }
@@ -59,7 +39,7 @@ namespace FEXNA.Menus
             CancelButton.stereoscopic = depth;
         }
 
-        protected virtual bool CanceledTriggered(bool active)
+        protected bool CanceledTriggered(bool active)
         {
             bool cancel = Window.is_canceled();
             if (CancelButton != null)
@@ -67,12 +47,12 @@ namespace FEXNA.Menus
                 cancel |= CancelButton.consume_trigger(MouseButtons.Left) ||
                     CancelButton.consume_trigger(TouchGestures.Tap);
             }
+            if (active)
+            {
+                // If right clicked
+                cancel |= Global.Input.mouse_click(MouseButtons.Right);
+            }
             return cancel;
-        }
-
-        public void HideParent(bool value)
-        {
-            _HidesParent = value;
         }
 
         public event EventHandler<EventArgs> Selected;
@@ -96,13 +76,19 @@ namespace FEXNA.Menus
                 Canceled(this, e);
         }
 
-        #region IMenu
-        public override bool HidesParent { get { return _HidesParent; } }
+        public void Accept()
+        {
+            Window.accept();
+        }
 
+        #region IMenu
         protected override void UpdateMenu(bool active)
         {
+            //@Debug: target windows need to be refactored to pass in active to update()
+            Window.active = active;
+
             int index = Window.index;
-            Window.update(active);
+            Window.update();
             if (index != Window.index)
                 OnIndexChanged(new EventArgs());
 
@@ -117,6 +103,7 @@ namespace FEXNA.Menus
             if (cancel)
             {
                 Global.game_system.play_se(System_Sounds.Cancel);
+                Window.cancel();
                 OnCanceled(new EventArgs());
             }
             else if (Window.is_selected())
@@ -132,6 +119,42 @@ namespace FEXNA.Menus
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 CancelButton.Draw(spriteBatch);
                 spriteBatch.End();
+            }
+        }
+        #endregion
+
+        #region ITargetMenu
+        public int UnitId { get { return Window.get_unit().id; } }
+        
+        public bool IsWindowA<K>()
+        {
+            return Window is K;
+        }
+
+        public bool ManualTargeting { get { return Window.manual_targeting; } }
+        public bool HasTarget { get { return Window.has_target; } }
+
+        public Vector2 TargetLoc
+        {
+            get
+            {
+                return Window.target_loc(Window.target);
+            }
+        }
+        public Vector2 LastTargetLoc
+        {
+            get
+            {
+                return Window.target_loc(Window.targets[Window.LastTargetIndex]);
+            }
+        }
+
+        public bool IsRescueDropMenu
+        {
+            get
+            {
+                return Window is Window_Target_Rescue &&
+                    (Window as Window_Target_Rescue).mode == 1;
             }
         }
         #endregion

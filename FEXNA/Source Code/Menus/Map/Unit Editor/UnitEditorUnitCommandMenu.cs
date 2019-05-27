@@ -7,19 +7,14 @@ using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Help;
 using FEXNA.Windows.Command;
 using FEXNA.Windows.Map;
+using FEXNA_Library.EventArg;
 
 namespace FEXNA.Menus.Map
 {
-    class UnitEditorMapCommandMenu : CommandMenu
+    class UnitEditorUnitCommandMenu : CommandMenu
     {
-        public UnitEditorMapCommandMenu() : base(new_map_window(104))
+        public UnitEditorUnitCommandMenu() : base(new_map_window(104))
         {
-            if (Global.game_map.get_unit(Global.player.loc) != null)
-            {
-                Window.set_text_color(1, "Grey");
-                Window.set_text_color(2, "Grey");
-            }
-
             create_cancel_button();
         }
 
@@ -39,8 +34,7 @@ namespace FEXNA.Menus.Map
         private static Window_Command new_map_window(int width)
         {
             List<string> commands = new List<string> {
-                "Unit", "Add Unit", "Paste Unit", "Reinforcements", "Options",
-                "Clear Units", "Mirror Units", "Playtest", "Revert", "Save", "Quit" };
+                "Edit Unit", "Move Unit", "Change Team", "Copy Unit", "Remove Unit" };
             var window = new Window_Command_Scrollbar(
                 new Vector2(8 + (show_menu_on_right ?
                     (Config.WINDOW_WIDTH - (width + 16)) : 0), 24),
@@ -58,6 +52,13 @@ namespace FEXNA.Menus.Map
                 Config.MAPCOMMAND_WINDOW_DEPTH);
         }
 
+        public event EventHandler<BoolEventArgs> TeamChanged;
+        protected void OnTeamChanged(BoolEventArgs e)
+        {
+            if (TeamChanged != null)
+                TeamChanged(this, e);
+        }
+
         protected override bool CanceledTriggered(bool active)
         {
             bool cancel = base.CanceledTriggered(active);
@@ -69,28 +70,14 @@ namespace FEXNA.Menus.Map
             }
             return cancel;
         }
-        
-        private int new_team(int old_team, bool left)
-        {
-            if (left)
-                old_team--;
-            else
-                old_team++;
 
-            old_team--;
-            old_team = ((old_team + Constants.Team.NUM_TEAMS) % Constants.Team.NUM_TEAMS);
-            old_team++;
-
-            return old_team;
-        }
-
-        public Unit_Editor_Options SelectedOption
+        public UnitEditorUnitOptions SelectedOption
         {
             get
             {
                 if (Window.is_selected())
-                    return (Unit_Editor_Options)Window.selected_index().ValueOrDefault;
-                return Unit_Editor_Options.None;
+                    return (UnitEditorUnitOptions)Window.selected_index().ValueOrDefault;
+                return UnitEditorUnitOptions.None;
             }
         }
 
@@ -125,41 +112,12 @@ namespace FEXNA.Menus.Map
             }
             else if (Window.is_selected())
             {
-                switch ((Unit_Editor_Options)Window.selected_index().ValueOrDefault)
+                switch ((UnitEditorUnitOptions)Window.selected_index().ValueOrDefault)
                 {
-                    case Unit_Editor_Options.Unit:
-
-                        if (Global.game_map.teams[Window_Unit_Team.TEAM].Count > 0)
-                        {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
-                        }
-                        else
-                            Global.game_system.play_se(System_Sounds.Buzzer);
-                        break;
-                    case Unit_Editor_Options.Add_Unit: // Add Unit
-                    case Unit_Editor_Options.Paste_Unit: // Paste Unit
-                        if (Global.game_map.get_unit(Global.player.loc) != null)
-                            Global.game_system.play_se(System_Sounds.Buzzer);
-                        else
-                        {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
-                        }
-                        break;
-                    case Unit_Editor_Options.Reinforcements: // Reinforcements
-                    case Unit_Editor_Options.Options: // Options
-                    case Unit_Editor_Options.Clear_Units: // Clear Units
-                    case Unit_Editor_Options.Mirror_Units: // Mirror Units
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
-                        break;
-                    case Unit_Editor_Options.Playtest: // Playtest map
-                        OnSelected(new EventArgs());
-                        break;
-                    case Unit_Editor_Options.Revert: // Revert to last save
-                    case Unit_Editor_Options.Save: // Save
-                    case Unit_Editor_Options.Quit: // Quit
+                    case UnitEditorUnitOptions.EditUnit:
+                    case UnitEditorUnitOptions.MoveUnit:
+                    case UnitEditorUnitOptions.CopyUnit:
+                    case UnitEditorUnitOptions.RemoveUnit:
                         Global.game_system.play_se(System_Sounds.Confirm);
                         OnSelected(new EventArgs());
                         break;
@@ -170,16 +128,12 @@ namespace FEXNA.Menus.Map
                 switch (Window.index)
                 {
                     // Change Team
-                    case (int)Unit_Editor_Options.Unit:
+                    case (int)UnitEditorUnitOptions.ChangeTeam:
                         if (Global.Input.repeated(Inputs.Left) ||
                             Global.Input.repeated(Inputs.Right))
                         {
                             Global.game_system.play_se(System_Sounds.Menu_Move2);
-                            int team = Window_Unit_Team.TEAM;
-                            team = new_team(team, Global.Input.repeated(Inputs.Left));
-
-                            Window_Unit_Team.TEAM = team;
-                            Window.color_override = Window_Unit_Team.TEAM - 1;
+                            OnTeamChanged(new BoolEventArgs(Global.Input.repeated(Inputs.Right)));
                         }
                         break;
                 }

@@ -648,8 +648,7 @@ namespace FEXNA
                             !Global.game_map.get_shop(Global.player.loc).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
-                            Global.game_temp.call_shop(false);
-                            Global.game_system.Shopper_Id = -1;
+                            Global.game_temp.preview_shop();
                             Global.game_system.Shop_Loc = Global.player.loc;
                         }
                         else
@@ -748,8 +747,7 @@ namespace FEXNA
                             !Global.game_map.get_shop(Global.player.loc).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
-                            Global.game_temp.call_shop(false);
-                            Global.game_system.Shopper_Id = -1;
+                            Global.game_temp.preview_shop();
                             Global.game_system.Shop_Loc = Global.player.loc;
                         }
                         else
@@ -1465,7 +1463,9 @@ namespace FEXNA
         }
         public void resume_turn_theme(bool fade)
         {
-            if (!Global.game_system.preparations && !Global.game_system.is_victory()) //Yeti
+            if (Global.game_system.preparations)
+                Global.Audio.ResumeMapTheme(Constants.Audio.Bgm.PREPARATIONS_THEME);
+            else if (!Global.game_system.is_victory()) //Yeti
                 Global.Audio.ResumeMapTheme(Turn_Theme);
         }
 
@@ -1498,7 +1498,8 @@ namespace FEXNA
 
         public void play_preparations_theme()
         {
-            Global.Audio.PlayBgm(Constants.Audio.Bgm.PREPARATIONS_THEME, forceRestart: true);
+            Global.Audio.PlayMapTheme(Constants.Audio.Bgm.PREPARATIONS_THEME);
+            //Global.Audio.PlayBgm(Constants.Audio.Bgm.PREPARATIONS_THEME, forceRestart: true); //@Debug
         }
         #endregion
 
@@ -1539,6 +1540,7 @@ namespace FEXNA
                         return false;
                     else if (test_only)
                         return Global.game_options.auto_turn_end == 0;
+
                     // If any team has units
                     if (Global.game_map.teams.Any(x => x.Any()))
                     {

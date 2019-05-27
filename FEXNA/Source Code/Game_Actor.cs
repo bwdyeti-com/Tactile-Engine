@@ -2330,6 +2330,34 @@ namespace FEXNA
         }
 
         /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Index of the item to test</param>
+        public bool CanDiscard(int index)
+        {
+            return CanDiscard(Items[index]);
+        }
+        /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Item data to test</param>
+        public bool CanDiscard(Item_Data itemData)
+        {
+            if (itemData.non_equipment)
+                return false;
+
+            return CanDiscard(itemData.to_equipment);
+        }
+        /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Data_Equipment to test</param>
+        public bool CanDiscard(Data_Equipment item)
+        {
+            return item.Can_Sell;
+        }
+
+        /// <summary>
         /// Repairs all items in the inventory with uses from items in the convoy
         /// </summary>
         public bool restock()
@@ -2572,9 +2600,19 @@ namespace FEXNA
             // Repair
             if (item.can_repair && target_index >= 0)
                 if (!Items[target_index].infinite_uses)
+                {
+                    // Repair a percent of the total uses
+                    int repairPercent = (int)(Items[target_index].max_uses * item.Repair_Percent);
+                    // Repair a gold value worth of uses
+                    int repairValue = 0;
+                    if (Items[target_index].cost != 0)
+                        repairValue = item.Repair_Val / Items[target_index].cost;
+
+                    int repairUses = repairPercent + repairValue;
+
                     Items[target_index].set_uses(
-                        Items[target_index].Uses + Math.Max(1, (int)(Items[target_index].max_uses * item.Repair_Percent) +
-                        (Items[target_index].cost == 0 ? 0 : item.Repair_Val / Items[target_index].cost)));
+                        Items[target_index].Uses + Math.Max(1, repairUses));
+                }
         }
 
         /// <summary>

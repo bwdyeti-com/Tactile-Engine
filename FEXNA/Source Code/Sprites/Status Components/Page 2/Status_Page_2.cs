@@ -86,6 +86,30 @@ namespace FEXNA
                 nodes.Last().draw_offset = new Vector2(
                     0, -(Config.SKILL_ICON_SIZE - 16) / 2);
                 nodes.Last().stereoscopic = Config.STATUS_LEFT_WINDOW_DEPTH;
+#if DEBUG
+                // Charges skill gauges
+                Func<Game_Unit, DirectionFlags, bool> skill_cheat = (unit, dir) =>
+                {
+                    if (unit.actor.skills.Count > j)
+                    {
+                        var skill = Global.data_skills[unit.actor.skills[j]];
+                        if (Game_Unit.MASTERIES.Contains(skill.Abstract))
+                        {
+                            int charge = 0;
+                            if (dir.HasFlag(DirectionFlags.Right))
+                                charge = 1;
+                            else if (dir.HasFlag(DirectionFlags.Left))
+                                charge = -1;
+
+                            unit.charge_masteries(skill.Abstract,
+                                charge * Game_Unit.MASTERY_RATE_NEW_TURN);
+                            return charge != 0;
+                        }
+                    }
+                    return false;
+                };
+                nodes.Last().set_cheat(skill_cheat);
+#endif
             }
             for (int i = 0; i < ITEM_SKILLS; i++)
             {

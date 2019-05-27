@@ -276,7 +276,7 @@ namespace FEXNA
         protected override void play_shop_theme()
         {
             if (!string.IsNullOrEmpty(Shop.song) || !Global.game_system.preparations)
-                Global.Audio.PlayBgm(Shop.song);
+                Global.Audio.PlayBgm(Shop.song, forceRestart: true);
         }
 
         #region Update

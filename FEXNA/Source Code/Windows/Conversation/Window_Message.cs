@@ -776,7 +776,7 @@ function normally. Suggested value is -3.",
             // Don't play text sound or make speaker talk on new line or when quick rendering
             if (!QuickRender && !new List<char> { '\n' }.Contains(current_character))
             {
-                if (!new List<char> { '.', '!', '?' }.Contains(current_character))
+                if (!new List<char> { ' ', '.', '!', '?' }.Contains(current_character))
                 {
                     speaker_talk();
                 }
@@ -1029,7 +1029,7 @@ function normally. Suggested value is -3.",
                         case "Music":
                             Global.Audio.BgmFadeOut();
                             if (test_text != "nil")
-                                Global.Audio.PlayBgm(test_text);
+                                Global.Audio.PlayBgm(test_text, forceRestart: true);
                             return false;
                         #endregion
                         #region Name: Change name

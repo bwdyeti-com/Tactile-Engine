@@ -19,8 +19,7 @@ namespace FEXNA
         public bool end_turn_highlit = false;
         public bool unit_menu_call = false;
         public bool status_menu_call = false;
-        internal bool shop_call { get; private set; }
-        internal bool secret_shop_call { get; private set; }
+        internal bool preview_shop_call { get; private set; }
         public bool discard_menu_call = false;
         public bool force_send_to_convoy = false;
         public bool minimap_call = false;
@@ -60,16 +59,15 @@ namespace FEXNA
             temp_skill_move_ranges.Clear();
         }
 
-        internal void call_shop(bool secret = false)
+        internal void preview_shop()
         {
-            shop_call = true;
-            secret_shop_call = secret;
+            preview_shop_call = true;
+            Global.game_system.Shopper_Id = -1;
         }
 
         internal void reset_shop_call()
         {
-            shop_call = false;
-            secret_shop_call = false;
+            preview_shop_call = false;
         }
 
         #region Context Sensitive Menus

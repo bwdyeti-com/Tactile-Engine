@@ -762,6 +762,11 @@ namespace FEXNA
         }
         internal Maybe<int> terrain_def_bonus(Game_Unit target)
         {
+            int terrainDef = terrain_def_bonus();
+            // Skills: Swoop
+            if (target != null && Swoop_Activated)
+                terrainDef = target.terrain_def_bonus();
+
             Maybe<int> result = default(Maybe<int>);
             // Skills: Parity
             if (target != null)
@@ -776,11 +781,12 @@ namespace FEXNA
             // Skills: Commando
             if (target != null && !nihil(target))
                 if (actor.has_skill("CMNDO"))
-                    result = result.ValueOrDefault + (terrain_def_bonus() / 2);
+                    result = result.ValueOrDefault + (terrainDef / 2);
             // If terrain is ignored, return the result so far
             if (target != null && ignore_terrain_def())
                 return result;
-            return result.ValueOrDefault + terrain_def_bonus();
+
+            return result.ValueOrDefault + terrainDef;
         }
 
         internal int terrain_res_bonus()
@@ -789,6 +795,11 @@ namespace FEXNA
         }
         internal Maybe<int> terrain_res_bonus(Game_Unit target)
         {
+            int terrainRes = terrain_res_bonus();
+            // Skills: Swoop
+            if (target != null && Swoop_Activated)
+                terrainRes = target.terrain_res_bonus();
+
             Maybe<int> result = default(Maybe<int>);
             // Skills: Parity
             if (target != null)
@@ -803,12 +814,13 @@ namespace FEXNA
             // Skills: Commando
             if (target != null && !nihil(target))
                 if (actor.has_skill("CMNDO"))
-                    result = result.ValueOrDefault + (terrain_res_bonus() / 2);
+                    result = result.ValueOrDefault + (terrainRes / 2);
             // If terrain is ignored, return the result so far
             if (ignore_terrain_def())
                 //if (target != null && ignore_terrain_def()) //Debug
                 return result;
-            return result.ValueOrDefault + terrain_res_bonus();
+
+            return result.ValueOrDefault + terrainRes;
         }
 
         internal int terrain_avo_bonus()
@@ -817,6 +829,11 @@ namespace FEXNA
         }
         internal Maybe<int> terrain_avo_bonus(Game_Unit target, bool magicAttack)
         {
+            int terrainAvo = terrain_avo_bonus();
+            // Skills: Swoop
+            if (target != null && Swoop_Activated)
+                terrainAvo = target.terrain_avo_bonus();
+
             Maybe<int> result = default(Maybe<int>);
             // Skills: Parity
             if (target != null)
@@ -831,12 +848,13 @@ namespace FEXNA
             // Skills: Commando
             if (target != null && !nihil(target))
                 if (actor.has_skill("CMNDO"))
-                    result = result.ValueOrDefault + (terrain_avo_bonus() / 2);
+                    result = result.ValueOrDefault + (terrainAvo / 2);
             // If terrain is ignored, return the result so far
             if (ignore_terrain_avo())
                 //if (target != null && ignore_terrain_avo()) //Debug
                 return result;
-            return result.ValueOrDefault + terrain_avo_bonus();
+
+            return result.ValueOrDefault + terrainAvo;
         }
 
         internal bool terrain_heals()
@@ -3702,8 +3720,13 @@ namespace FEXNA
             Prev_Loc = canto_loc;
             if (!Cantoing)
                 selection_facing();
-            Global.game_map.clear_move_range();
             sprite_moving = true;
+            show_move_range();
+        }
+
+        public void show_move_range(bool resetMoveArrow = true)
+        {
+            Global.game_map.clear_move_range(resetMoveArrow);
             Global.game_map.show_move_range(Id);
             if (!Cantoing)
                 Global.game_map.show_attack_range(Id);
@@ -4074,9 +4097,14 @@ namespace FEXNA
             Move_Loc = Prev_Loc;
             //Global.player.center(Loc, true); //Debug
             Temp_Moved = Moved_So_Far;
-            if (!Cantoing)
+            //@Debug: why though, this means if you turn the unit by moving
+            // them with horse canto they'll be facing wrong when their
+            // position resets
+            // Is the desired functionality to preserve whatever facing
+            // they ended up in when moving into their canto position???
+            //if (!Cantoing) //@Debug
                 selection_facing();
-            Global.game_map.range_start_timer = 0;
+            show_move_range(false);
             Global.game_map.move_range_visible = true;
             update_map_animation(true);
         }

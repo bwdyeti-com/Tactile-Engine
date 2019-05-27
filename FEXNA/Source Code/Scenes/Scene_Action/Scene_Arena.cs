@@ -45,7 +45,7 @@ namespace FEXNA
         }
 
         #region Platform/Background
-        protected override Texture2D platform(Game_Unit battler, int distance)
+        protected override Texture2D platform(int tag, int distance)
         {
             return null;
         }
