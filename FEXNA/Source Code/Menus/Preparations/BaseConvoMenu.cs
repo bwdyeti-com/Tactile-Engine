@@ -38,6 +38,7 @@ namespace FEXNA.Menus.Preparations
         protected override void UpdateMenu(bool active)
         {
             base.UpdateMenu(active &&
+                !Event_Selected &&
                 !Global.game_system.is_interpreter_running);
 
             // Reset fade timer

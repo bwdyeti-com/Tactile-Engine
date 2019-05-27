@@ -648,8 +648,7 @@ namespace FEXNA
                             !Global.game_map.get_shop(Global.player.loc).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
-                            Global.game_temp.call_shop(false);
-                            Global.game_system.Shopper_Id = -1;
+                            Global.game_temp.preview_shop();
                             Global.game_system.Shop_Loc = Global.player.loc;
                         }
                         else
@@ -748,8 +747,7 @@ namespace FEXNA
                             !Global.game_map.get_shop(Global.player.loc).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
-                            Global.game_temp.call_shop(false);
-                            Global.game_system.Shopper_Id = -1;
+                            Global.game_temp.preview_shop();
                             Global.game_system.Shop_Loc = Global.player.loc;
                         }
                         else

@@ -2330,6 +2330,34 @@ namespace FEXNA
         }
 
         /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Index of the item to test</param>
+        public bool CanDiscard(int index)
+        {
+            return CanDiscard(Items[index]);
+        }
+        /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Item data to test</param>
+        public bool CanDiscard(Item_Data itemData)
+        {
+            if (itemData.non_equipment)
+                return false;
+
+            return CanDiscard(itemData.to_equipment);
+        }
+        /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Data_Equipment to test</param>
+        public bool CanDiscard(Data_Equipment item)
+        {
+            return item.Can_Sell;
+        }
+
+        /// <summary>
         /// Repairs all items in the inventory with uses from items in the convoy
         /// </summary>
         public bool restock()

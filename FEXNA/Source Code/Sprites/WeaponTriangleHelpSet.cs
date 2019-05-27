@@ -91,9 +91,12 @@ namespace FEXNA
 
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
-            Vector2 offset = this.loc + draw_vector();
-            foreach (var wta in WTSet)
-                wta.draw(sprite_batch, draw_offset - offset);
+            if (this.visible)
+            {
+                Vector2 offset = this.loc + draw_vector();
+                foreach (var wta in WTSet)
+                    wta.draw(sprite_batch, draw_offset - offset);
+            }
         }
     }
 }
