@@ -43,6 +43,48 @@ namespace FEXNA.Menus.Map.Unit
             return manager;
         }
 
+        public static UnitMenuManager StatusScreen(IUnitMenuHandler handler)
+        {
+            var manager = new UnitMenuManager(handler);
+            
+            // Add status menu
+            Global.game_temp.menuing = true;
+            Global.game_temp.menu_call = false;
+            Global.game_temp.status_menu_call = false;
+
+            List<int> team = new List<int>();
+            if (Global.game_map.preparations_unit_team != null)
+                team.AddRange(Global.game_map.preparations_unit_team);
+            else
+            {
+#if DEBUG
+                if (Global.scene.scene_type == "Scene_Map_Unit_Editor")
+                    team.AddRange(Global.game_map.teams[Global.game_temp.status_team]);
+                else
+#endif
+                    // Only list units that are on the map or rescued (rescued units can be off map)
+                    team.AddRange(Global.game_map.teams[Global.game_temp.status_team]
+                        .Where(x => x == Global.game_temp.status_unit_id ||
+                            !Global.game_map.is_off_map(Global.game_map.units[x].loc) || Global.game_map.units[x].is_rescued));
+            }
+            int id = 0;
+            for (int i = 0; i < team.Count; i++)
+            {
+                int unit_id = team[i];
+                if (Global.game_temp.status_unit_id == unit_id)
+                {
+                    id = i;
+                    break;
+                }
+            }
+            
+            var statusMenu = new Window_Status(team, id);
+            statusMenu.Closed += manager.statusScreen_Closed;
+            manager.AddMenu(statusMenu);
+
+            return manager;
+        }
+
         public static UnitMenuManager ResumeArena(IUnitMenuHandler handler)
         {
             var manager = new UnitMenuManager(handler);
@@ -66,6 +108,12 @@ namespace FEXNA.Menus.Map.Unit
         {
             var manager = new UnitMenuManager(handler);
 
+            // Add shop menu
+            Global.game_temp.menuing = true;
+            Global.game_temp.menu_call = false;
+            Global.game_system.SecretShop = false;
+            Global.game_temp.reset_shop_call();
+            
             Window_Business shopMenu;
             if (shop.arena)
                 // Arenas shouldn't be previewed, but //@Debug
@@ -1165,6 +1213,17 @@ namespace FEXNA.Menus.Map.Unit
             Global.game_temp.status_team = 0;
             statusMenu.close();
             RemoveTopMenu();
+        }
+
+        private void statusScreen_Closed(object sender, EventArgs e)
+        {
+            var statusMenu = (sender as Window_Status);
+
+            Global.game_temp.menuing = false;
+            Global.game_temp.status_team = 0;
+            statusMenu.jump_to_unit();
+            statusMenu.close();
+            Menus.Clear();
         }
         #endregion
 

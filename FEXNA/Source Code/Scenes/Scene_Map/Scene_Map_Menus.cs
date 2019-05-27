@@ -43,7 +43,6 @@ namespace FEXNA
         protected UnitMenuManager UnitMenu;
         
         Window_Command_Item Discard_Window; //@Debug  ?
-        Window_Status Status_Window; //@Debug  ?
         Parchment_Confirm_Window Map_Save_Confirm_Window;
         private Window_Ranking Ranking_Window;
         private Window_Minimap Minimap;
@@ -177,12 +176,6 @@ namespace FEXNA
                 return;
             if (update_menu_unit())
                 return;
-            if (Status_Window != null)
-            {
-                Status_Window.Update(true);
-                update_status_menu();
-                return;
-            }
             if (Discard_Window != null)
             {
                 if (Discard_Window.visible)
@@ -1034,56 +1027,8 @@ namespace FEXNA
         #region Status Menu
         protected void open_status_menu()
         {
-            Global.game_temp.menuing = true;
-            Global.game_temp.menu_call = false;
-            Global.game_temp.status_menu_call = false;
             Global.game_system.play_se(System_Sounds.Confirm);
-            List<int> team = new List<int>();
-            if (Global.game_map.preparations_unit_team != null)
-                team.AddRange(Global.game_map.preparations_unit_team);
-            else
-            { 
-#if DEBUG
-                if (Global.scene.scene_type == "Scene_Map_Unit_Editor")
-                    team.AddRange(Global.game_map.teams[Global.game_temp.status_team]);
-                else
-#endif
-                    // Only list units that are on the map or rescued (rescued units can be off map)
-                    team.AddRange(Global.game_map.teams[Global.game_temp.status_team]
-                        .Where(x => x == Global.game_temp.status_unit_id ||
-                            !Global.game_map.is_off_map(Global.game_map.units[x].loc) || Global.game_map.units[x].is_rescued));
-            }
-            int id = 0;
-            for (int i = 0; i < team.Count; i++)
-            {
-                int unit_id = team[i];
-                if (Global.game_temp.status_unit_id == unit_id)
-                {
-                    id = i;
-                    break;
-                }
-            }
-            Status_Window = new Window_Status(team, id);
-        }
-
-        protected void update_status_menu()
-        {
-            if (Status_Window.closed)
-            {
-                Global.game_temp.menuing = false;
-                Global.game_temp.status_team = 0;
-                close_status_menu();
-            }
-        }
-
-        protected void close_status_menu()
-        {
-            if (Status_Window != null)
-            {
-                Status_Window.jump_to_unit();
-                Status_Window.close();
-                Status_Window = null;
-            }
+            UnitMenu = UnitMenuManager.StatusScreen(this);
         }
         #endregion
 
@@ -1231,13 +1176,6 @@ namespace FEXNA
         #region Shop Menu
         protected void preview_shop()
         {
-            bool already_in_menu = Global.game_state.is_menuing;
-
-            Global.game_temp.menuing = true;
-            Global.game_temp.menu_call = false;
-            Global.game_system.SecretShop = false;
-            Global.game_temp.reset_shop_call();
-
             UnitMenu = UnitMenuManager.PreviewShop(this, Global.game_map.get_shop());
         }
         
@@ -1357,7 +1295,6 @@ namespace FEXNA
             if (UnitMenu != null)
                 UnitMenu.Draw(sprite_batch);
             
-            if (Status_Window != null) Status_Window.Draw(sprite_batch);
             if (Map_Save_Confirm_Window != null) Map_Save_Confirm_Window.draw(sprite_batch);
             if (Ranking_Window != null) Ranking_Window.draw(sprite_batch);
         }
@@ -1379,7 +1316,6 @@ namespace FEXNA
             UnitMenu = null;
             
             Discard_Window = null;
-            Status_Window = null;
 
             Map_Save_Confirm_Window = null;
         }
