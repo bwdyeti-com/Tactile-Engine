@@ -125,6 +125,11 @@ namespace FEXNA.Windows.Command.Items
             return item != null && item.is_weapon && !(item as Data_Weapon).is_staff();
         }
 
+        public void SetWTHelpVisible(bool visible)
+        {
+            WTHelp.visible = visible;
+        }
+
         public void Update()
         {
             Info_Window.update();

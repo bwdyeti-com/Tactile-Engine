@@ -42,13 +42,10 @@ namespace FEXNA
         protected MenuManager MapMenu;
         protected UnitMenuManager UnitMenu;
         
-        Window_Command_Item Discard_Window; //@Debug  ?
         Parchment_Confirm_Window Map_Save_Confirm_Window;
         private Window_Ranking Ranking_Window;
         private Window_Minimap Minimap;
-        private Button_Description CancelButton; //@Debug
 
-        private int Unit_Id = -1; //@Debug
         protected bool Overwriting_Checkpoint = false;
 
         #region Accessors
@@ -154,43 +151,16 @@ namespace FEXNA
         {
             if (update_preparations())
             {
-                if (Global.game_system.is_interpreter_running)
-                    if (Discard_Window != null)
-                    {
-                        if (Discard_Window.visible)
-                        {
-                            Discard_Window.update();
-                            update_cancel_button();
-                            update_discard_menu();
-                            return;
-                        }
-                        // If the inventory is still too full after discarding, the discard_window just goes inactive until the map popup closes
-                        else if (!is_map_popup_active())
-                        {
-                            open_discard_menu();
-                        }
-                    }
+                //@Debug: needed for discarding at least, shouldn't possibly
+                // interfere with anything else?
+                if (update_menu_unit())
+                    return;
                 return;
             }
             if (update_menu_map())
                 return;
             if (update_menu_unit())
                 return;
-            if (Discard_Window != null)
-            {
-                if (Discard_Window.visible)
-                {
-                    Discard_Window.update();
-                    update_cancel_button();
-                    update_discard_menu();
-                    return;
-                }
-                // If the inventory is still too full after discarding, the discard_window just goes inactive until the map popup closes
-                else if (!is_map_popup_active())
-                {
-                    open_discard_menu();
-                }
-            }
             if (Minimap != null)
             {
                 Minimap.update();
@@ -328,37 +298,9 @@ namespace FEXNA
             // Reset context sensitive values on unit menu close
             Global.game_temp.ResetContextSensitiveUnitControl();
         }
-
-        private void create_cancel_button()
-        {
-            CancelButton = Button_Description.button(Inputs.B,
-                Global.player.is_on_left() ? Config.WINDOW_WIDTH - (32 + 48) : 32);
-            CancelButton.description = "Cancel";
-            CancelButton.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
-        }
-
+        
         protected bool is_unit_command_window_open { get { return UnitMenu != null; } }
         
-        private void update_cancel_button()
-        {
-            if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    create_cancel_button();
-                CancelButton.Update(true);
-            }
-        }
-        
-        private bool cancel_button_triggered
-        {
-            get
-            {
-                return CancelButton.consume_trigger(MouseButtons.Left) ||
-                    CancelButton.consume_trigger(TouchGestures.Tap) ||
-                    Global.Input.mouse_click(MouseButtons.Right);
-            }
-        }
-
         protected bool unit_command_window_active
         {
             get { return Unit_Command_Window.active; }
@@ -856,6 +798,37 @@ namespace FEXNA
             if (unit.has_attack_canto() && !unit.full_move())
                 unit.cantoing = true;
         }
+
+        public void UnitMenuDiscard(Game_Unit unit, int index)
+        {
+            FEXNA_Library.Item_Data discarded_item =
+                unit.actor.whole_inventory[index];
+            if (Global.battalion.convoy_ready_for_sending)
+            {
+                Global.game_battalions.add_item_to_convoy(discarded_item);
+                set_item_sent_popup(discarded_item, 240);
+            }
+            else
+                set_item_drop_popup(discarded_item, 240);
+
+            unit.actor.discard_item(index);
+            unit.actor.organize_items();
+
+            // If the inventory is still too full after discarding,
+            // the discard menu just goes inactive until the map popup closes
+            if (unit.actor.too_many_items)
+            {
+                UnitMenu = UnitMenuManager.ReopenDiscard(this);
+            }
+            else
+            {
+                UnitMenu = null;
+                if (!Global.game_system.preparations)
+                    Global.game_temp.menuing = false;
+                Global.game_temp.discard_menuing = false;
+                Global.game_temp.force_send_to_convoy = false;
+            }
+        }
         #endregion
         #endregion
 
@@ -1035,102 +1008,8 @@ namespace FEXNA
         #region Discard Menu
         protected void open_discard_menu()
         {
-            Unit_Id = Global.game_system.Discarder_Id;
-            Global.game_temp.menuing = true;
-            Global.game_temp.discard_menuing = true;
-            Global.game_temp.menu_call = false;
-            Global.game_temp.discard_menu_call = false;
             Global.game_system.play_se(System_Sounds.Open);
-            if (Global.battalion.convoy_ready_for_sending)
-                Discard_Window = new Window_Command_Item_Send(Unit_Id, new Vector2(24, 8));
-            else
-                Discard_Window = new Window_Command_Item_Discard(Unit_Id, new Vector2(24, 8));
-            Discard_Window.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
-            Discard_Window.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
-            Discard_Window.data_stereoscopic = Config.MAPCOMMAND_DATA_DEPTH;
-
-            create_cancel_button();
-        }
-
-        protected void update_discard_menu()
-        {
-            Game_Unit unit = Global.game_map.units[Unit_Id];
-            if (((Window_Command_Item_Discard)Discard_Window).confirming)
-            {
-                if (((Window_Command_Item_Discard)Discard_Window).confirm_ready)
-                {
-                    if ((Discard_Window as Window_Command_Item_Discard).confirm_is_canceled())
-                    {
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        ((Window_Command_Item_Discard)Discard_Window).cancel();
-                        Discard_Window.active = true;
-                        return;
-                    }
-                    else if ((Discard_Window as Window_Command_Item_Discard).confirm_is_selected())
-                    {
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        switch (((Window_Command_Item_Discard)Discard_Window).confirm_index)
-                        {
-                            // Yes
-                            case 0:
-                                Discard_Window.restore_equipped();
-                                FEXNA_Library.Item_Data discarded_item =
-                                    unit.actor.whole_inventory[Discard_Window.redirect()];
-                                if (Global.battalion.convoy_ready_for_sending)
-                                {
-                                    Global.game_battalions.add_item_to_convoy(discarded_item);
-                                    set_item_sent_popup(discarded_item, 240);
-                                }
-                                else
-                                    set_item_drop_popup(discarded_item, 240);
-                                unit.actor.discard_item(Discard_Window.redirect());
-                                unit.actor.organize_items();
-                                if (unit.actor.too_many_items)
-                                {
-                                    Discard_Window.visible = false;
-                                    Discard_Window.active = false;
-                                }
-                                else
-                                {
-                                    Discard_Window = null;
-                                    CancelButton = null;
-                                    if (!Global.game_system.preparations)
-                                        Global.game_temp.menuing = false;
-                                    Global.game_temp.discard_menuing = false;
-                                    Global.game_temp.force_send_to_convoy = false;
-                                    Unit_Id = -1;
-                                }
-                                return;
-                            // No
-                            case 1:
-                                ((Window_Command_Item_Discard)Discard_Window).cancel();
-                                Discard_Window.active = true;
-                                return;
-                        }
-                    }
-                }
-            }
-            else if (Discard_Window.is_help_active)
-            {
-                if (Discard_Window.is_canceled() || cancel_button_triggered)
-                    Discard_Window.close_help();
-            }
-            else
-            {
-                if (Discard_Window.getting_help())
-                    Discard_Window.open_help();
-                else if (Discard_Window.is_canceled() || cancel_button_triggered)
-                {
-                    Global.game_system.play_se(System_Sounds.Buzzer);
-                    return;
-                }
-                else if (Discard_Window.is_selected())
-                {
-                    ((Window_Command_Item_Discard)Discard_Window).confirm();
-                    Discard_Window.active = false;
-                    
-                }
-            }
+            UnitMenu = UnitMenuManager.Discard(this);
         }
         #endregion
 
@@ -1301,8 +1180,10 @@ namespace FEXNA
 
         protected void draw_discard(SpriteBatch sprite_batch)
         {
-            if (Discard_Window != null)
-                Discard_Window.draw(sprite_batch);
+            if (UnitMenu != null)
+                //@Yeti: need to draw this above conversations when discarding
+                if (false)
+                    UnitMenu.Draw(sprite_batch);
         }
 
         protected virtual void clear_menus()
@@ -1310,12 +1191,9 @@ namespace FEXNA
             close_map_menu();
             //close_unit_menu(); //Debug
             Unit_Command_Window = null;
-            CancelButton = null;
 
             MapMenu = null;
             UnitMenu = null;
-            
-            Discard_Window = null;
 
             Map_Save_Confirm_Window = null;
         }

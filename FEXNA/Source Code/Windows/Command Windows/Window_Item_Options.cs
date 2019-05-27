@@ -67,7 +67,7 @@ namespace FEXNA.Windows.Command
                 strs.Add("Discard");
                 Index_Redirect.Add(3);
             }
-            Can_Discard = item_data.to_equipment.Can_Sell;
+            Can_Discard = unit.actor.CanDiscard(item_index);
             initialize(loc, WIDTH, strs);
             Window_Img.small = true;
             color_text(unit, item_data, strs);

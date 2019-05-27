@@ -9,6 +9,7 @@ using FEXNA.Windows.Command;
 using FEXNA.Windows.Command.Items;
 using FEXNA.Windows.Map.Items;
 using FEXNA.Windows.Target;
+using FEXNA.Windows.UserInterface.Command;
 using FEXNA_Library;
 using EnumExtension;
 
@@ -81,6 +82,41 @@ namespace FEXNA.Menus.Map.Unit
             var statusMenu = new Window_Status(team, id);
             statusMenu.Closed += manager.statusScreen_Closed;
             manager.AddMenu(statusMenu);
+
+            return manager;
+        }
+
+        public static UnitMenuManager Discard(IUnitMenuHandler handler)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            int unitId = Global.game_system.Discarder_Id;
+            Global.game_temp.menuing = true;
+            Global.game_temp.discard_menuing = true;
+            Global.game_temp.menu_call = false;
+            Global.game_temp.discard_menu_call = false;
+
+            Window_Command_Item_Discard discardWindow;
+            if (Global.battalion.convoy_ready_for_sending)
+                discardWindow = new Window_Command_Item_Send(unitId, new Vector2(24, 8));
+            else
+                discardWindow = new Window_Command_Item_Discard(unitId, new Vector2(24, 8));
+            discardWindow.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
+            discardWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
+            discardWindow.data_stereoscopic = Config.MAPCOMMAND_DATA_DEPTH;
+
+            var discardMenu = new DiscardMenu(discardWindow);
+            discardMenu.Selected += manager.discardMenu_Selected;
+            manager.AddMenu(discardMenu);
+
+            return manager;
+        }
+        public static UnitMenuManager ReopenDiscard(IUnitMenuHandler handler)
+        {
+            var manager = Discard(handler);
+
+            var discardMenu = (manager.Menus.ElementAt(0) as DiscardMenu);
+            discardMenu.WaitForPopup();
 
             return manager;
         }
@@ -779,6 +815,38 @@ namespace FEXNA.Menus.Map.Unit
                     Global.game_system.play_se(System_Sounds.Cancel);
                     break;
             }
+        }
+
+        private void discardMenu_Selected(object sender, EventArgs e)
+        {
+            var discardMenu = (sender as DiscardMenu);
+            string text = discardMenu.DropText;
+
+            var discardConfirmWindow = new Window_Confirmation();
+            discardConfirmWindow.loc = discardMenu.SelectedOptionLoc;
+            discardConfirmWindow.set_text(text);
+            discardConfirmWindow.add_choice("Yes", new Vector2(16, 16));
+            discardConfirmWindow.add_choice("No", new Vector2(56, 16));
+            discardConfirmWindow.index = 1;
+            if (discardConfirmWindow.loc.Y + discardConfirmWindow.size.Y >= Config.WINDOW_HEIGHT)
+                discardConfirmWindow.loc = discardMenu.SelectedOptionLoc -
+                    new Vector2(0, discardConfirmWindow.size.Y + 16);
+
+            var suspendConfirmMenu = new ConfirmationMenu(discardConfirmWindow);
+            suspendConfirmMenu.Confirmed += discardMenu_Confirmed;
+            suspendConfirmMenu.Canceled += menu_Closed;
+            AddMenu(suspendConfirmMenu);
+        }
+        private void discardMenu_Confirmed(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var discardMenu = (Menus.ElementAt(1) as DiscardMenu);
+            Game_Unit unit = discardMenu.Unit;
+            int index = discardMenu.SelectedItem;
+
+            discardMenu.RestoreEquipped();
+            Menus.Clear();
+            MenuHandler.UnitMenuDiscard(unit, index);
         }
         #endregion
 
@@ -1792,5 +1860,7 @@ namespace FEXNA.Menus.Map.Unit
         void UnitMenuAssemble(Game_Unit unit, int itemIndex, Vector2 targetLoc);
         void UnitMenuReload(Game_Unit unit, Vector2 targetLoc);
         void UnitMenuReclaim(Game_Unit unit, Vector2 targetLoc);
+
+        void UnitMenuDiscard(Game_Unit unit, int index);
     }
 }

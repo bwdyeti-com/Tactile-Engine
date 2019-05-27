@@ -116,6 +116,7 @@
     <Compile Include="Source Code\Menus\Map\Unit\Item\AttackItemMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\ItemOptionsMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\ItemMenu.cs" />
+    <Compile Include="Source Code\Menus\Map\Unit\Item\DiscardMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\StealMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Target\ITargetMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit\Item\TradeMenu.cs" />
@@ -173,6 +174,7 @@
     <Compile Include="Source Code\Sprites\Status Components\Page 1\Attack_Item.cs" />
     <Compile Include="Source Code\Sprites\Status Components\Page 1\ConvoyItemNothing.cs" />
     <Compile Include="Source Code\Sprites\Sparks\WeaponTriangleHelpReaverTypes.cs" />
+    <Compile Include="Source Code\Sprites\Status Components\Page 1\DiscardItem.cs" />
     <Compile Include="Source Code\Sprites\WeaponTriangleHelpSet.cs" />
     <Compile Include="Source Code\Static Classes\Global_IO.cs" />
     <Compile Include="Source Code\Scenes\SceneContentLoad.cs" />
