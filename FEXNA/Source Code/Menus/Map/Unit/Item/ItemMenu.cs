@@ -113,7 +113,7 @@ namespace FEXNA.Menus.Map.Unit.Item
             OnSelected(new EventArgs());
         }
 
-        protected virtual void Cancel()
+        protected override void Cancel()
         {
             var itemWindow = Window as Window_Command_Item;
 

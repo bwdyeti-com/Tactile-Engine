@@ -63,9 +63,7 @@ namespace FEXNA.Menus.Map
 
             if (Window.is_canceled())
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {

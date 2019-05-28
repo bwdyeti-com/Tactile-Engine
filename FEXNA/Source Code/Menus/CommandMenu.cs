@@ -116,14 +116,20 @@ namespace FEXNA.Menus
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
+                Cancel();
             }
             else if (Window.is_selected())
             {
                 OnSelected(new EventArgs());
             }
         }
+
+        protected virtual void Cancel()
+        {
+            Global.game_system.play_se(System_Sounds.Cancel);
+            OnCanceled(new EventArgs());
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             Window.draw(spriteBatch);
