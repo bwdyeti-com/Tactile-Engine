@@ -5,6 +5,7 @@ namespace FEXNA
     public enum Anim_Types { None, Sword, Lance, Axe, Bow, ThrowAxe, Magic, Staff, Unique }
     public class Class_Battler_Frames
     {
+        //@Yeti: does this do anything anymore?
         public static bool avoids_forward(int class_id)
         {
             switch (class_id)

@@ -169,7 +169,8 @@ namespace FEXNA
                         OldClass = Battler_1.actor.class_id;
                         OldLevel = Battler_1.actor.level;
                         Battler_1.actor.promotion_class_id = Global.game_system.Class_Change_To;
-                        Battler_1_Sprite = new Battler_Sprite(Battler_1, !Reverse, Distance, Reverse);
+                        var battler1Data = new BattlerSpriteData(Battler_1);
+                        Battler_1_Sprite = new Battler_Sprite(battler1Data, !Reverse, Distance, Reverse);
                         Battler_1_Sprite.start_battle();
                         Battler_1_Sprite.loc = Battler_1_Loc = new Vector2((!Reverse ? 184 + (Distance == 1 ? 0 : 56) :
                             136 - (Distance == 1 ? 0 : 56)) +

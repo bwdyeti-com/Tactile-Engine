@@ -4952,19 +4952,23 @@ namespace FEXNA
         #endregion
 
         #region Battle Animations
+        //@Yeti: should this all be moved into BattlerSpriteData?
         internal void preload_animations(int distance, bool dance = false)
         {
             var content = Global.Battler_Content as ContentManagers.ThreadSafeContentManager;
             // Get battler animation
-            Anim_Sprite_Data anim_data = get_anim_data(dance);
-            foreach(string name in preload_animation_names(anim_data, distance, dance))
+            foreach (string name in preload_animation_names(distance, dance)
+                .Distinct())
             {
                 content.Load<Texture2D>(string.Format(@"Graphics/Animations/{0}", name), null);
             }
         }
 
-        private IEnumerable<string> preload_animation_names(Anim_Sprite_Data anim_data, int distance, bool dance)
+        private IEnumerable<string> preload_animation_names(int distance, bool dance)
         {
+            var battlerData = new BattlerSpriteData(this);
+            var anim_data = battlerData.AnimData(dance);
+
             bool battler_animation_exists = !string.IsNullOrEmpty(anim_data.name);
             if (battler_animation_exists)
             {
@@ -4974,10 +4978,10 @@ namespace FEXNA
             // Get spells and added animations
             if (dance)
             {
-                var spells = animation_graphics(dance_effect_animation_ids());
+                var spells = animation_graphics(dance_effect_animation_ids(battlerData), battlerData);
                 foreach (string filename in spells)
                     yield return filename;
-                var anims = animation_graphics(dance_animation_ids(distance), true, true);
+                var anims = animation_graphics(dance_animation_ids(battlerData, distance), battlerData, true, true);
                 foreach (string filename in anims)
                     yield return filename;
             }
@@ -4985,35 +4989,28 @@ namespace FEXNA
             {
                 if (spell_animation())
                 {
-                    var spells = animation_graphics(spell_animation_ids());
+                    var spells = animation_graphics(spell_animation_ids(), battlerData);
                     foreach (string filename in spells)
                         yield return filename;
                 }
-                var skills = animation_graphics(skill_animation_ids());
+                var skills = animation_graphics(skill_animation_ids(battlerData), battlerData);
                 foreach (string filename in skills)
                     yield return filename;
-                var anims = animation_graphics(battler_animation_ids(distance), true, battler_animation_exists);
+                var anims = animation_graphics(battler_animation_ids(battlerData, distance), battlerData, true, battler_animation_exists);
                 foreach (string filename in anims)
                     yield return filename;
             }
         }
-
-        internal Anim_Sprite_Data get_anim_data(bool dance)
-        {
-            return (dance && Id == Global.game_state.dancer_id) ?
-                   FE_Battler_Image_Wrapper.anim_name(this, Global.weapon_types[0].AnimName) :
-                   FE_Battler_Image_Wrapper.anim_name(this);
-        }
-
-        internal HashSet<int> battler_animation_ids(int distance)
+        
+        private HashSet<int> battler_animation_ids(BattlerSpriteData battlerData, int distance)
         {
             HashSet<int> result = new HashSet<int>();
 
             var anim_set = FE_Battler_Image.animation_set(
-                FE_Battler_Image_Wrapper.animation_processor(this, distance));
+                FE_Battler_Image_Wrapper.animation_processor(battlerData, distance));
             if (anim_set != null)
             {
-                int offset = FE_Battler_Image_Wrapper.offset(this);
+                int offset = battlerData.AnimationGroupOffset;
                 result.UnionWith(anim_set.AttackAnimations
                     .SelectMany(x => x.all_anim_ids())
                     .Select(x => x + offset));
@@ -5024,22 +5021,22 @@ namespace FEXNA
                     foreach (int hit in Enumerable.Range(0, 2))
                         foreach (int crt in Enumerable.Range(0, 2))
                         {
-                            result.UnionWith(FE_Battler_Image_Wrapper.attack_animation_value(this, crt == 0, distance, hit == 0));
-                            result.UnionWith(FE_Battler_Image_Wrapper.still_animation_value(this, crt == 0, distance, hit == 0));
-                            result.UnionWith(FE_Battler_Image_Wrapper.return_animation_value(this, crt == 0, distance, hit == 0, false));
+                            result.UnionWith(FE_Battler_Image_Wrapper.attack_animation_value(battlerData, crt == 0, distance, hit == 0));
+                            result.UnionWith(FE_Battler_Image_Wrapper.still_animation_value(battlerData, crt == 0, distance, hit == 0));
+                            result.UnionWith(FE_Battler_Image_Wrapper.return_animation_value(battlerData, crt == 0, distance, hit == 0, false));
                         }
             }
 
-            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.avoid_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.avoid_return_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(this, false, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(this, true, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(this, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.avoid_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.avoid_return_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(battlerData, false, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(battlerData, true, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(battlerData, distance));
             return result;
         }
 
-        internal HashSet<int> spell_animation_ids()
+        private HashSet<int> spell_animation_ids()
         {
             HashSet<int> result = new HashSet<int>();
             // Anima spell starting effect
@@ -5077,41 +5074,41 @@ namespace FEXNA
                 yield return id;
         }
 
-        internal HashSet<int> dance_animation_ids(int distance)
+        private HashSet<int> dance_animation_ids(BattlerSpriteData battlerData, int distance)
         {
             HashSet<int> result = new HashSet<int>();
-            result.UnionWith(FE_Battler_Image_Wrapper.dance_attack_animation_value(this));
-            result.UnionWith(FE_Battler_Image_Wrapper.dance_still_animation_value(this));
-            result.UnionWith(FE_Battler_Image_Wrapper.dance_return_animation_value(this));
+            result.UnionWith(FE_Battler_Image_Wrapper.dance_attack_animation_value(battlerData));
+            result.UnionWith(FE_Battler_Image_Wrapper.dance_still_animation_value(battlerData));
+            result.UnionWith(FE_Battler_Image_Wrapper.dance_return_animation_value(battlerData));
 
-            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(this, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(battlerData, distance));
             return result;
         }
 
-        internal HashSet<int> dance_effect_animation_ids()
+        private HashSet<int> dance_effect_animation_ids(BattlerSpriteData battlerData)
         {
             HashSet<int> result = new HashSet<int>();
             int ring_id = Global.game_state.dance_item > -1 ? items[Global.game_state.dance_item].Id : -1;
-            result.UnionWith(FE_Battler_Image_Wrapper.refresh_animation_value(this, ring_id));
+            result.UnionWith(FE_Battler_Image_Wrapper.refresh_animation_value(battlerData, ring_id));
             return result;
         }
 
-        internal HashSet<int> skill_animation_ids()
+        private HashSet<int> skill_animation_ids(BattlerSpriteData battlerData)
         {
             HashSet<int> result = new HashSet<int>();
             foreach (int animation_id in actor.all_skills.Select(x => Global.data_skills[x].Animation_Id))
                 if (animation_id > -1)
                 {
                     int id = animation_id + Global.animation_group("Skills");
-                    List<int> anim = FE_Battler_Image_Wrapper.correct_animation_value(id, this);
+                    List<int> anim = FE_Battler_Image_Wrapper.correct_animation_value(id, battlerData);
                     if (anim.Count > 0)
                         result.UnionWith(anim);
                 }
             return result;
         }
 
-        internal HashSet<string> animation_graphics(HashSet<int> animation_ids, bool added_animations = false, bool only_added_animations = true)
+        private HashSet<string> animation_graphics(HashSet<int> animation_ids, BattlerSpriteData battlerData, bool added_animations = false, bool only_added_animations = true)
         {
             HashSet<Battle_Animation_Data> animations = new HashSet<Battle_Animation_Data>();
             foreach (int animation_id in animation_ids)
@@ -5129,7 +5126,7 @@ namespace FEXNA
                             // Correct animations for terrain, etc
                             for (int i = anims.Count - 1; i >= 0; i--)
                             {
-                                List<int> corrected = FE_Battler_Image_Wrapper.correct_animation_value(anims[i], this);
+                                List<int> corrected = FE_Battler_Image_Wrapper.correct_animation_value(anims[i], battlerData);
                                 anims.RemoveAt(i);
                                 anims.InsertRange(i, corrected);
                             }

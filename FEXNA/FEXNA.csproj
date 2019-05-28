@@ -162,6 +162,8 @@
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
     <Compile Include="Source Code\Skills\UnitCommandMenu.cs" />
     <Compile Include="Source Code\Skills\UnitMenuManager.cs" />
+    <Compile Include="Source Code\Sprites\Battler\Animation_Setup_Data_Processor.cs" />
+    <Compile Include="Source Code\Sprites\Battler\BattlerSpriteData.cs" />
     <Compile Include="Source Code\Services\Input\InputConfig.cs" />
     <Compile Include="Source Code\Services\Input\InputState.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\Button_Description_Touch.cs" />

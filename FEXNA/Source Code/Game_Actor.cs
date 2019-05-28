@@ -487,16 +487,6 @@ namespace FEXNA
                     Data.Gender = value;
             }
         }
-        public int battle_gender
-        {
-            get
-            {
-                int gender = this.gender;
-                if (FE_Battler_Image.Single_Gender_Battle_Sprite.Contains(class_id))
-                    gender = (gender / 2) * 2;
-                return gender;
-            }
-        }
 
         public int build { get { return Build; } }
 
