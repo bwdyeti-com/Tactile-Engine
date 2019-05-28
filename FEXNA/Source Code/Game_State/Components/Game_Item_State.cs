@@ -103,7 +103,7 @@ namespace FEXNA.State
                         case 1:
                             FEXNA_Library.Data_Item item = item_user.actor.items[Item_Used].to_item;
                             // Promotion
-                            if (item.Promotes.Count > 0)
+                            if (item_user.actor.PromotedBy(item))
                             {
                                 cont = update_item_promotion(item);
                             }

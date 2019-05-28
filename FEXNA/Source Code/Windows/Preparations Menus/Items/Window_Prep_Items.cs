@@ -847,7 +847,7 @@ namespace FEXNA
             Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Config.OFF_MAP, UnitWindow.actor_id, "");
 
             // If promoting
-            if (actor.promotes_to() != null && item.Promotes.Contains(actor.class_id))
+            if (actor.PromotedBy(item))
             {
                 // Apply any non-promotion effects of the item
                 actor.item_effect(item, inventory_target_index);

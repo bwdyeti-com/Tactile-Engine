@@ -2846,10 +2846,22 @@ namespace FEXNA
         {
             if (!prf_check(item))
                 return false;
-            if (item.Promotes.Count > 0)
-                if (!item.Promotes.Contains(class_id))
+            if (item.Promotes.Any())
+                if (!PromotedBy(item))
                     return false;
             return true;
+        }
+
+        /// <summary>
+        /// Returns true this item can be used for promotion,
+        /// and for this actor's class, and this class can promote
+        /// </summary>
+        /// <param name="weapon">Item to check</param>
+        public bool PromotedBy(Data_Item item)
+        {
+            return item.Promotes.Any() &&
+                item.Promotes.Contains(this.class_id) &&
+                promotes_to() != null;
         }
 
         /// <summary>
