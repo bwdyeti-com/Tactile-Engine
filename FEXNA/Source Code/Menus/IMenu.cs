@@ -12,5 +12,6 @@ namespace FEXNA.Menus
 
         void Update(bool active);
         void Draw(SpriteBatch spriteBatch);
+        void Draw(SpriteBatch spriteBatch, GraphicsDevice device, RenderTarget2D[] renderTargets);
     }
 }

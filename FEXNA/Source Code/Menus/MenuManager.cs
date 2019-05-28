@@ -59,13 +59,16 @@ namespace FEXNA.Menus
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
             // Stack needs reversed to draw the newest item last
             foreach (var menu in Menus.Reverse())
             {
                 if (menu.IsVisible)
-                    menu.Draw(spriteBatch);
+                    menu.Draw(spriteBatch, device, renderTargets);
             }
         }
     }

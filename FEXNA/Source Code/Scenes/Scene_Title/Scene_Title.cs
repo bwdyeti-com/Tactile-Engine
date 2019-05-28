@@ -242,7 +242,7 @@ namespace FEXNA
             device.Clear(Color.Transparent);
 
             if (MenuManager != null)
-                MenuManager.Draw(sprite_batch);
+                MenuManager.Draw(sprite_batch, device, render_targets);
 
             device.SetRenderTarget(render_targets[0]);
             device.Clear(Color.Transparent);

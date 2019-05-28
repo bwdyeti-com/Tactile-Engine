@@ -42,6 +42,13 @@ namespace FEXNA.Menus
             UpdateMenu(Active);
         }
         public abstract void Draw(SpriteBatch spriteBatch);
+        public virtual void Draw(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
+        {
+            Draw(spriteBatch);
+        }
         #endregion
     }
 }

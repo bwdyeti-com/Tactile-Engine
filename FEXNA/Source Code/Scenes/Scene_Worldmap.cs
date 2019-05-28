@@ -658,7 +658,10 @@ loaded in normal mode. Sorry!");
 
             // Draw world map event objects
             if (Phase >= Worldmap_Phases.Worldmap_Event && Phase != Worldmap_Phases.Return_To_Title)
+            {
                 draw_events(sprite_batch, Zoomed_Map_Visible ? Vector2.Zero : offset);
+                draw_message(sprite_batch, device, render_targets);
+            }
 
             if (!MenuData.Classic)
             {
@@ -683,7 +686,7 @@ loaded in normal mode. Sorry!");
                     {
                         device.SetRenderTarget(render_targets[0]);
                         device.Clear(Color.Transparent);
-                        MenuManager.Draw(sprite_batch);
+                        MenuManager.Draw(sprite_batch, device, render_targets);
                         draw_render_target(
                             sprite_batch, device,
                             render_targets[0], render_targets[1],
@@ -770,8 +773,6 @@ loaded in normal mode. Sorry!");
                 unit.draw(sprite_batch, offset);
                 sprite_batch.End();
             }
-
-            draw_message(sprite_batch);
         }
         #endregion
     }
