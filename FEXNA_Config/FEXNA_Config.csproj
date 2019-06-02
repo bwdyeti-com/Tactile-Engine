@@ -64,7 +64,6 @@
     <Compile Include="Source Code\ClassTypeSet.cs" />
     <Compile Include="Source Code\FaceCountryRecolor.cs" />
     <Compile Include="Source Code\FaceToGeneric.cs" />
-    <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Class_Battler_Frames.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Face_Recolor.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\FE_Battler_Image.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Recolor.cs" />

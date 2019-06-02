@@ -280,7 +280,7 @@ namespace FEXNA
         #endregion
 
         #region Draw
-        protected void draw_message(
+        protected virtual void draw_message(
             SpriteBatch sprite_batch,
             GraphicsDevice device,
             RenderTarget2D[] renderTargets)

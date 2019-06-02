@@ -1022,12 +1022,7 @@ namespace FEXNA
                 }
             }
         }
-
-        protected bool avoids_forward()
-        {
-            return Class_Battler_Frames.avoids_forward(Battler.ClassId); //@Yeti
-        }
-
+        
         protected void update_animation(ref Battle_Animation anim)
         {
             if (anim != null)

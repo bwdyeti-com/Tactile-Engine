@@ -1158,7 +1158,7 @@ namespace FEXNA
             }
         }
 
-        protected void draw_message(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
+        protected override void draw_message(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
         {
             // Message
             if (Message_Window != null)

@@ -136,15 +136,32 @@ namespace FEXNA
             get { return _Unit.actor.skill_activated && !_Unit.skip_skill_effect; }
         }
 
-        public int WeaponId { get { return _Unit.actor.weapon_id; } }
-        public Data_Weapon Weapon
+        public int WeaponId
         {
             get
             {
-                if (!Global.data_weapons.ContainsKey(this.WeaponId))
-                    return null;
-                return this.WeaponId == 0 ? null : Global.data_weapons[this.WeaponId];
+                int weaponId = _Unit.actor.weapon_id;
+
+                // Tries to get the weapon of the weapon id
+                Data_Weapon weapon = GetWeapon(weaponId);
+
+                // If it's null, return 0
+                if (weapon == null)
+                    return 0;
+                // Else if can't equip this weapon type
+                else if (this.ClassData.Max_WLvl[weapon.Main_Type - 1] == 0)
+                    return 0;
+
+                return weaponId;
             }
+        }
+        public Data_Weapon Weapon { get { return GetWeapon(this.WeaponId); } }
+
+        private Data_Weapon GetWeapon(int weaponId)
+        {
+            if (!Global.data_weapons.ContainsKey(weaponId))
+                return null;
+            return weaponId == 0 ? null : Global.data_weapons[weaponId];
         }
 
         public string UsedWeaponType
