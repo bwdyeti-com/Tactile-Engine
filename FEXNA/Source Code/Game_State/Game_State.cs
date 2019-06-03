@@ -337,6 +337,11 @@ namespace FEXNA
             call_item(id, item_index);
             Global.game_system.ItemTargetLoc = itemLoc;
         }
+        internal void call_item(int id, int item_index, int promotionId)
+        {
+            call_item(id, item_index);
+            Global.game_system.ItemPromotionId = promotionId;
+        }
 
         internal void call_talk(string event_name, int initiator_id)
         {
