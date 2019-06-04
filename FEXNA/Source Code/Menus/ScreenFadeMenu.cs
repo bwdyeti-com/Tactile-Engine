@@ -49,11 +49,11 @@ namespace FEXNA.Menus
         {
             if (active)
             {
-                bool alreadyAtMidPoint = Fade.AtFadeMidPoint;
+                bool alreadyAtHoldEnd = Fade.AtHoldEnd;
                 bool alreadyFinished = Fade.Finished;
                 Fade.update();
 
-                if (Fade.AtFadeMidPoint && !alreadyAtMidPoint)
+                if (Fade.AtHoldEnd && !alreadyAtHoldEnd)
                 {
                     if (ParentMenu != null)
                     {
