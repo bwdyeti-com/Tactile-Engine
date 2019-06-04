@@ -108,11 +108,6 @@ namespace FEXNA.Menus.Map.Unit.Item
             }
         }
 
-        protected virtual void SelectItem()
-        {
-            OnSelected(new EventArgs());
-        }
-
         protected override void Cancel()
         {
             var itemWindow = Window as Window_Command_Item;

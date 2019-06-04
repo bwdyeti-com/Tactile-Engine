@@ -29,7 +29,7 @@ namespace FEXNA.Menus.Map.Unit.Item
             }
         }
 
-        protected override void SelectItem()
+        protected override void SelectItem(bool playConfirmSound = false)
         {
             var discardWindow = (this.Window as Window_Command_Item_Discard);
 
@@ -39,7 +39,7 @@ namespace FEXNA.Menus.Map.Unit.Item
                 Global.game_system.play_se(System_Sounds.Buzzer);
             else
             {
-                OnSelected(new EventArgs());
+                base.SelectItem(playConfirmSound);
             }
         }
 

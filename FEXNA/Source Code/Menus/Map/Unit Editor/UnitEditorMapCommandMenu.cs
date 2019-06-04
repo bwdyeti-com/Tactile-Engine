@@ -129,8 +129,7 @@ namespace FEXNA.Menus.Map
 
                         if (Global.game_map.teams[Window_Unit_Team.TEAM].Count > 0)
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         else
                             Global.game_system.play_se(System_Sounds.Buzzer);
@@ -141,25 +140,22 @@ namespace FEXNA.Menus.Map
                             Global.game_system.play_se(System_Sounds.Buzzer);
                         else
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         break;
                     case Unit_Editor_Options.Reinforcements: // Reinforcements
                     case Unit_Editor_Options.Options: // Options
                     case Unit_Editor_Options.Clear_Units: // Clear Units
                     case Unit_Editor_Options.Mirror_Units: // Mirror Units
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     case Unit_Editor_Options.Playtest: // Playtest map
-                        OnSelected(new EventArgs());
+                        SelectItem();
                         break;
                     case Unit_Editor_Options.Revert: // Revert to last save
                     case Unit_Editor_Options.Save: // Save
                     case Unit_Editor_Options.Quit: // Quit
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                 }
             }

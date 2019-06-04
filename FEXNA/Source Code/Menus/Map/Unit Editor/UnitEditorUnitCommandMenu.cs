@@ -116,8 +116,7 @@ namespace FEXNA.Menus.Map
                     case UnitEditorUnitOptions.MoveUnit:
                     case UnitEditorUnitOptions.CopyUnit:
                     case UnitEditorUnitOptions.RemoveUnit:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                 }
             }

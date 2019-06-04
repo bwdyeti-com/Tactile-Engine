@@ -7,7 +7,7 @@ namespace FEXNA.Menus.Map.Unit.Item
     {
         public StealMenu(Window_Steal stealWindow, IHasCancelButton menu = null) : base(stealWindow, menu) { }
         
-        protected override void SelectItem()
+        protected override void SelectItem(bool playConfirmSound = false)
         {
             var stealWindow = (this.Window as Window_Steal);
 
@@ -17,7 +17,7 @@ namespace FEXNA.Menus.Map.Unit.Item
                 stealWindow.cant_steal_help();
             else
             {
-                OnSelected(new EventArgs());
+                base.SelectItem(playConfirmSound);
             }
         }
     }

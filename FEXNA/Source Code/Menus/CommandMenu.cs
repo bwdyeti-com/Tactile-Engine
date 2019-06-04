@@ -70,13 +70,15 @@ namespace FEXNA.Menus
             return cancel;
         }
 
+        protected virtual bool HideCursorWhileInactive { get { return true; } }
+
         public void HideParent(bool value)
         {
             _HidesParent = value;
         }
 
         public event EventHandler<EventArgs> Selected;
-        protected void OnSelected(EventArgs e)
+        private void OnSelected(EventArgs e)
         {
             if (Selected != null)
                 Selected(this, e);
@@ -101,6 +103,9 @@ namespace FEXNA.Menus
 
         protected override void UpdateMenu(bool active)
         {
+            if (this.HideCursorWhileInactive)
+                Window.active = active;
+
             int index = Window.index;
             Window.update(active);
             if (index != Window.index)
@@ -120,8 +125,15 @@ namespace FEXNA.Menus
             }
             else if (Window.is_selected())
             {
-                OnSelected(new EventArgs());
+                SelectItem();
             }
+        }
+
+        protected virtual void SelectItem(bool playConfirmSound = false)
+        {
+            if (playConfirmSound)
+                Global.game_system.play_se(System_Sounds.Confirm);
+            OnSelected(new EventArgs());
         }
 
         protected virtual void Cancel()
