@@ -54,6 +54,7 @@ namespace FEXNA
         private Dictionary<int, HashSet<Vector2>> Team_Range_Updates = new Dictionary<int, HashSet<Vector2>>();
         private List<int> Unit_Range_Updates = new List<int>();
         private int[,] Unit_Locations = new int[,] { };
+        internal bool UnitsHidden { get; private set; } = false;
         private bool Fow;
         private int Vision_Range;
         private Tone Fow_Color = new Tone(40, 40, 40, 72);
@@ -134,6 +135,7 @@ namespace FEXNA
             Team_Range_Updates.write(writer);
             Unit_Range_Updates.write(writer);
             Unit_Locations.write(writer);
+            writer.Write(UnitsHidden);
             writer.Write(Fow);
             writer.Write(Vision_Range);
             Fow_Color.write(writer);
@@ -215,6 +217,8 @@ namespace FEXNA
             Team_Range_Updates.read(reader);
             Unit_Range_Updates.read(reader);
             Unit_Locations = Unit_Locations.read(reader);
+            if (!Global.LOADED_VERSION.older_than(0, 6, 6, 0)) // This is a suspend load, so this isn't needed for public release //Debug
+                UnitsHidden = reader.ReadBoolean();
             Fow = reader.ReadBoolean();
             Vision_Range = reader.ReadInt32();
             Fow_Color = Tone.read(reader);
@@ -569,6 +573,7 @@ namespace FEXNA
         public bool move_range_visible
         {
             get { return Move_Range_Visible &&
+                !UnitsHidden &&
                 Waiting_Units.Count == 0 &&
                 !Global.game_system.is_interpreter_running &&
                 !Global.game_state.support_active; }
@@ -871,6 +876,7 @@ namespace FEXNA
             refresh_move_ranges(true);
 
             Window_Minimap.clear();
+            UnitsHidden = false;
 
             Light_Sources = new List<Vector2>[Constants.Map.ALPHA_MAX];
             for(int i = 0; i < Light_Sources.Length; i++)
@@ -3587,6 +3593,16 @@ namespace FEXNA
         public void update_sprites()
         {
             
+        }
+
+        public void HideUnits()
+        {
+            UnitsHidden = true;
+        }
+
+        public void ShowUnits()
+        {
+            UnitsHidden = false;
         }
         #endregion
 
