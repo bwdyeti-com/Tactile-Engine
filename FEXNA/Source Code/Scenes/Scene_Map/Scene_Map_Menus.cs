@@ -473,14 +473,19 @@ namespace FEXNA
             close_unit_menu(true);
         }
 
-        public void UnitMenuUseItem(Game_Unit unit, int itemIndex, Maybe<Vector2> targetLoc)
+        public void UnitMenuUseItem(Game_Unit unit, int itemIndex, Maybe<Vector2> targetLoc, Maybe<int> promotionId)
         {
             Global.game_map.clear_move_range();
             unit.cantoing = false;
             // Lock in unit movement
             unit.moved();
 
-            if (targetLoc.IsSomething)
+            if (promotionId.IsSomething)
+            {
+                Global.game_state.call_item(
+                    unit.id, itemIndex, promotionId);
+            }
+            else if (targetLoc.IsSomething)
             {
                 Global.game_state.call_item(
                     unit.id, itemIndex, targetLoc);
