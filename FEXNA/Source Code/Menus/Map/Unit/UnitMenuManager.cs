@@ -164,6 +164,24 @@ namespace FEXNA.Menus.Map.Unit
             return manager;
         }
 
+        public static UnitMenuManager PromotionChoice(
+            IUnitMenuHandler handler,
+            int unitId,
+            bool skipFadeIn = false,
+            bool animateConfirm = false)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            // Add promotion choice menu
+            Global.game_temp.menuing = true;
+            Global.game_temp.ResetPromotionChoiceCall();
+
+            var unit = Global.game_map.units[unitId];
+            manager.AddPromotionChoiceMenu(unit, true, skipFadeIn, animateConfirm);
+
+            return manager;
+        }
+
         private void SetCommands()
         {
             SimpleCommands = new Dictionary<int, Action<Game_Unit>>();
@@ -849,13 +867,21 @@ namespace FEXNA.Menus.Map.Unit
             var promotionChoiceMenu = (sender as PromotionChoiceMenu);
             var unit = promotionChoiceMenu.Unit;
             int promotion = promotionChoiceMenu.PromotionChoice;
-            
-            var itemMenu = (Menus.ElementAt(2) as ItemMenu);
 
-            int itemIndex = itemMenu.SelectedItem;
-            var itemData = unit.actor.items[itemIndex];
+            // If selecting promotion on its own
+            if (Menus.Count <= 2 || !(Menus.ElementAt(2) is ItemMenu))
+            {
+                MenuHandler.UnitMenuPromotionChoice(unit, promotion);
+            }
+            else
+            {
+                var itemMenu = (Menus.ElementAt(2) as ItemMenu);
 
-            MenuHandler.UnitMenuUseItem(unit, itemIndex, Maybe<Vector2>.Nothing, promotion);
+                int itemIndex = itemMenu.SelectedItem;
+                var itemData = unit.actor.items[itemIndex];
+
+                MenuHandler.UnitMenuUseItem(unit, itemIndex, Maybe<Vector2>.Nothing, promotion);
+            }
         }
 
         private void placeableTargetMenu_Selected(object sender, EventArgs e)
@@ -1974,5 +2000,6 @@ namespace FEXNA.Menus.Map.Unit
         void UnitMenuReclaim(Game_Unit unit, Vector2 targetLoc);
 
         void UnitMenuDiscard(Game_Unit unit, int index);
+        void UnitMenuPromotionChoice(Game_Unit unit, int promotionId);
     }
 }
