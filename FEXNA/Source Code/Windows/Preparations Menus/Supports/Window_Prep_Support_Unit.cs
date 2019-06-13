@@ -14,19 +14,24 @@ namespace FEXNA
             for (int i = 0; i < UnitNodes.Count(); i++)
                 refresh_map_sprite(i);
         }
-
-        protected override bool refresh_map_sprite(int index)
-        {
-            bool deployed = base.refresh_map_sprite(index);
-            UnitNodes[index].set_name_texture(
-                Global.game_actors[Global.battalion.actors[index]].is_support_maxed() ? "Green" : (
-                Global.game_actors[Global.battalion.actors[index]].any_supports_ready() ? "White" : "Grey"));
-            return deployed;
-        }
+        
         protected override bool map_sprite_ready(int index)
         {
             return Global.game_actors[Global.battalion.actors[index]].is_support_maxed() ||
                 Global.game_actors[Global.battalion.actors[index]].any_supports_ready();
+        }
+
+        protected override void refresh_font(int i)
+        {
+            int actor_id = Global.battalion.actors[i];
+
+            string textColor = "White";
+            if (Global.game_actors[actor_id].is_support_maxed())
+                textColor = "Green";
+            else if (!Global.game_actors[actor_id].any_supports_ready())
+                textColor = "Grey";
+
+            UnitNodes[i].set_name_texture(textColor);
         }
     }
 }
