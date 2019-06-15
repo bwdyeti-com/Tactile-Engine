@@ -44,6 +44,11 @@ namespace FEXNA.Menus.Preparations
                 var unitMenu = Menus.Peek() as Window_Unit;
                 unitMenu.unit_index = currentUnit;
             }
+            else if (Menus.Peek() is PreparationsBaseMenu)
+            {
+                var itemMenu = Menus.Peek() as PreparationsBaseMenu;
+                itemMenu.ActorId = currentActor;
+            }
             else if (Menus.Peek() is Window_Prep_Items)
             {
                 var itemMenu = Menus.Peek() as Window_Prep_Items;
@@ -126,13 +131,22 @@ namespace FEXNA.Menus.Preparations
         }
 
         // Open status screen from items menu
-        protected void itemsMenu_Status(object sender, EventArgs e)
+        protected void preparationsMenu_Status(object sender, EventArgs e)
         {
             Global.game_temp.menu_call = false;
             Global.game_temp.status_menu_call = false;
 
-            var itemsMenu = (sender as Window_Prep_Items);
-            int actorId = itemsMenu.actor_id;
+            int actorId;
+            if (sender is Window_Prep_Items)
+            {
+                var itemsMenu = (sender as Window_Prep_Items);
+                actorId = itemsMenu.actor_id;
+            }
+            else
+            {
+                var itemsMenu = (sender as PreparationsBaseMenu);
+                actorId = itemsMenu.ActorId;
+            }
 
             var statusMenu = new Window_Status(Global.battalion.actors, actorId, true);
             statusMenu.Closed += statusMenu_Closed;

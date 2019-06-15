@@ -141,8 +141,10 @@
     <Compile Include="Source Code\Menus\MenuManager.cs" />
     <Compile Include="Source Code\Menus\Preparations\BaseConvoMenu.cs" />
     <Compile Include="Source Code\Menus\Preparations\HomeBaseMenuManager.cs" />
+    <Compile Include="Source Code\Menus\Preparations\PreparationsBaseMenu.cs" />
     <Compile Include="Source Code\Menus\Preparations\PreparationsMenuManager.cs" />
     <Compile Include="Source Code\Menus\Preparations\SetupMenuManager.cs" />
+    <Compile Include="Source Code\Menus\Preparations\SupportCommandMenu.cs" />
     <Compile Include="Source Code\Menus\Save\SaveComparisonMenu.cs" />
     <Compile Include="Source Code\Menus\Save\SaveMenuManager.cs" />
     <Compile Include="Source Code\Menus\ScreenFadeMenu.cs" />

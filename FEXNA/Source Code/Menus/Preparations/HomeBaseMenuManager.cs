@@ -182,19 +182,89 @@ namespace FEXNA.Menus.Preparations
                 case HomeBaseManageChoices.Support:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     var supportMenu = new Window_Base_Support();
+                    supportMenu.UnitSelected += SupportMenu_UnitSelected;
                     supportMenu.Support += supportMenu_Support;
-                    supportMenu.Status += itemsMenu_Status;
+                    supportMenu.SupportEnded += SupportMenu_SupportEnded;
+                    supportMenu.Status += preparationsMenu_Status;
                     supportMenu.Closed += menu_Closed;
                     AddMenu(supportMenu);
                     break;
             }
         }
 
+        private void SupportMenu_UnitSelected(object sender, EventArgs e)
+        {
+            var supportMenu = (sender as Window_Base_Support);
+            var commandWindow = supportMenu.GetCommandWindow();
+
+            var supportPartnerMenu = new SupportCommandMenu(commandWindow);
+            supportPartnerMenu.Selected += SupportPartnerMenu_Selected;
+            supportPartnerMenu.Canceled += menu_Closed;
+            AddMenu(supportPartnerMenu);
+        }
+
+        private void SupportPartnerMenu_Selected(object sender, EventArgs e)
+        {
+            var supportPartnerMenu = (sender as SupportCommandMenu);
+            var supportMenu = (Menus.ElementAt(1) as Window_Base_Support);
+            int targetId = supportPartnerMenu.TargetId;
+
+            if (supportMenu.TrySelectPartner(targetId))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+
+                var supportConfirmWindow = new Preparations_Confirm_Window();
+                supportConfirmWindow.set_text(string.Format("Speak to {0}?",
+                    Global.game_actors[targetId].name));
+                supportConfirmWindow.add_choice("Yes", new Vector2(16, 12));
+                supportConfirmWindow.add_choice("No", new Vector2(64, 12));
+                supportConfirmWindow.size = new Vector2(112, 40);
+                supportConfirmWindow.loc = new Vector2(32, 24);
+                supportConfirmWindow.index = 1;
+
+                var supportConfirmMenu = new ConfirmationMenu(supportConfirmWindow);
+                supportConfirmMenu.Confirmed += SupportConfirmMenu_Confirmed;
+                supportConfirmMenu.Canceled += menu_Closed;
+                AddMenu(supportConfirmMenu);
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
+        private void SupportConfirmMenu_Confirmed(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var supportConfirmMenu = (sender as ConfirmationMenu);
+            var supportMenu = (Menus.ElementAt(2) as Window_Base_Support);
+
+            supportMenu.AcceptSupport();
+
+            var supportSceneFadeIn = supportMenu.SupportFadeIn();
+            supportSceneFadeIn.Finished += menu_Closed;
+            AddMenu(supportSceneFadeIn);
+        }
+
         void supportMenu_Support(object sender, EventArgs e)
         {
             var supportWindow = (sender as Window_Base_Support);
+            var supportPartnerMenu = (Menus.ElementAt(2) as SupportCommandMenu);
+            int targetId = supportPartnerMenu.TargetId;
+
+            menu_Closed(Menus.Peek(), e); // Screen Fade
+            menu_Closed(Menus.Peek(), e); // Confirmation Menu
+            menu_Closed(Menus.Peek(), e); // Command Menu
+
             MenuHandler.HomeBaseSupport(
-                supportWindow.actor_id, supportWindow.target_actor_id);
+                supportWindow.ActorId, targetId);
+        }
+
+        private void SupportMenu_SupportEnded(object sender, EventArgs e)
+        {
+            var supportMenu = (sender as Window_Base_Support);
+
+            var supportSceneFadeIn = supportMenu.SupportFadeOut();
+            supportSceneFadeIn.Finished += menu_Closed;
+            AddMenu(supportSceneFadeIn);
         }
         #endregion
 

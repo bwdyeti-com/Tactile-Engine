@@ -286,7 +286,7 @@ loaded in normal mode. Sorry!");
         private void AddItemManageMenu()
         {
             var itemManageMenu = new Window_Manage_Items();
-            itemManageMenu.Status += itemsMenu_Status;
+            itemManageMenu.Status += preparationsMenu_Status;
             itemManageMenu.Trade += itemsMenu_Trade;
             itemManageMenu.Convoy += itemsMenu_Convoy;
             itemManageMenu.List += itemsMenu_List;
