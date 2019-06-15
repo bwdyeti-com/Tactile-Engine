@@ -49,15 +49,16 @@ namespace FEXNA
 
         public override void refresh()
         {
-            CreateStatsWindow();
+            CreateSupportWindow();
 
             ItemHeader = new Pick_Units_Items_Header(this.ActorId, 144);
             ItemHeader.loc = (new Vector2(UnitWindow.loc.X + 4, ((Config.WINDOW_HEIGHT / 16) - 5) * 16 + 8)) - new Vector2(4, 36);
             ItemHeader.stereoscopic = Config.PREPITEM_UNIT_DEPTH;
         }
 
-        protected override void CreateStatsWindow()
+        protected void CreateSupportWindow()
         {
+            // This creates a temporary unit, try and get around this if possible //@Debug
             Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Config.OFF_MAP, this.ActorId, "");
 
             SupportStatsWindow = new Prep_Support_Stats_Window(Global.game_map.last_added_unit);
@@ -142,15 +143,23 @@ namespace FEXNA
         }
 
         #region Controls
-        public override bool SelectUnit()
+        public override void CancelUnitSelecting()
+        {
+            close();
+        }
+        public override bool SelectUnit(int index)
         {
             if (this.actor.support_candidates().Any())
             {
+                Global.game_system.play_se(System_Sounds.Confirm);
                 OnUnitSelected(new EventArgs());
                 return true;
             }
             else
+            {
+                Global.game_system.play_se(System_Sounds.Buzzer);
                 return false;
+            }
         }
 
         public Window_Command_Support GetCommandWindow()

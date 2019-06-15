@@ -12,7 +12,10 @@ namespace FEXNA
         internal void refresh_map_sprites()
         {
             for (int i = 0; i < UnitNodes.Count(); i++)
+            {
                 refresh_map_sprite(i);
+                refresh_font(i);
+            }
         }
         
         protected override bool map_sprite_ready(int index)

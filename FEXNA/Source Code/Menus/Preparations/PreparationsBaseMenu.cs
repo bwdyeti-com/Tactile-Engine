@@ -117,8 +117,6 @@ namespace FEXNA.Menus.Preparations
         }
 
         public abstract void refresh();
-        protected abstract void CreateStatsWindow();
-        
         public event EventHandler<EventArgs> UnitSelected;
         protected void OnUnitSelected(EventArgs e)
         {
@@ -175,7 +173,8 @@ namespace FEXNA.Menus.Preparations
             refresh();
         }
 
-        public abstract bool SelectUnit();
+        public abstract void CancelUnitSelecting();
+        public abstract bool SelectUnit(int index);
 
         protected abstract void UpdateUnitWindow(bool active);
         
@@ -188,7 +187,7 @@ namespace FEXNA.Menus.Preparations
                 if (Global.Input.triggered(Inputs.B))
                 {
                     Global.game_system.play_se(System_Sounds.Cancel);
-                    close();
+                    CancelUnitSelecting();
                     return;
                 }
 
@@ -197,8 +196,7 @@ namespace FEXNA.Menus.Preparations
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (selectedIndex.IsSomething)
                 {
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    SelectUnit();
+                    SelectUnit(selectedIndex);
                     return;
                 }
 
