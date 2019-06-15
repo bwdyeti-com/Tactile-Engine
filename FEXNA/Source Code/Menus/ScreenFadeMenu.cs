@@ -53,7 +53,9 @@ namespace FEXNA.Menus
                 bool alreadyFinished = Fade.Finished;
                 Fade.update();
 
-                if (Fade.AtHoldEnd && !alreadyAtHoldEnd)
+                if ((Fade.AtHoldEnd && !alreadyAtHoldEnd) ||
+                    // Hold End is supposed to happen on frame 0
+                    Fade.FrameOneHoldEnd)
                 {
                     if (ParentMenu != null)
                     {
