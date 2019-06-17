@@ -52,18 +52,6 @@ namespace FEXNA.Menus.Preparations
             AddSparringMenu(true);
         }
 
-        private void AddSparringMenu(bool resuming = false)
-        {
-            Window_Sparring.reset();
-            var sparringMenu = new Window_Sparring();
-            if (resuming)
-                sparringMenu.black_screen();
-            sparringMenu.Spar += sparringMenu_Spar;
-            sparringMenu.Status += preparationsMenu_Status;
-            sparringMenu.Closed += menu_Closed;
-            AddMenu(sparringMenu);
-        }
-
         public override void ResumeItemUse()
         {
             // Manage
@@ -242,15 +230,63 @@ namespace FEXNA.Menus.Preparations
         }
 
         //Sparring
+        #region Sparring
+        private void AddSparringMenu(bool resuming = false)
+        {
+            Window_Sparring.reset();
+            var sparringMenu = new Window_Sparring();
+            if (resuming)
+                sparringMenu.black_screen();
+            sparringMenu.Spar += sparringMenu_Spar;
+            sparringMenu.BattlersSelected += SparringMenu_BattlersSelected;
+            sparringMenu.Status += preparationsMenu_Status;
+            sparringMenu.Closed += menu_Closed;
+            AddMenu(sparringMenu);
+        }
+
         void sparringMenu_Spar(object sender, EventArgs e)
         {
             var sparringWindow = (sender as Window_Sparring);
+
+            menu_Closed(Menus.Peek(), e); // Screen Fade
+            menu_Closed(Menus.Peek(), e); // Confirmation Menu
 
             MenuHandler.HomeBaseTraining(
                 Window_Sparring.Healer_Id,
                 Window_Sparring.Battler_1_Id,
                 Window_Sparring.Battler_2_Id);
         }
+        
+        private void SparringMenu_BattlersSelected(object sender, EventArgs e)
+        {
+            var sparringWindow = (sender as Window_Sparring);
+
+            var sparringConfirmWindow = sparringWindow.ConfirmWindow();
+            var sparringConfirmMenu = new ConfirmationMenu(sparringConfirmWindow);
+            sparringConfirmMenu.Confirmed += SparringConfirmMenu_Confirmed;
+            sparringConfirmMenu.Canceled += SparringConfirmMenu_Canceled;
+            AddMenu(sparringConfirmMenu);
+        }
+        
+        private void SparringConfirmMenu_Confirmed(object sender, EventArgs e)
+        {
+            var sparringWindow = (Menus.ElementAt(1) as Window_Sparring);
+
+            if (sparringWindow.AcceptBattle())
+            {
+                var sparringSceneFadeIn = sparringWindow.SparringFadeIn();
+                sparringSceneFadeIn.Finished += menu_Closed;
+                AddMenu(sparringSceneFadeIn);
+            }
+        }
+
+        private void SparringConfirmMenu_Canceled(object sender, EventArgs e)
+        {
+            menu_Closed(sender, e);
+            var sparringWindow = (Menus.Peek() as Window_Sparring);
+            sparringWindow.CancelUnitSelecting();
+        }
+        #endregion
 
         private void SupportMenu_UnitSelected(object sender, EventArgs e)
         {
