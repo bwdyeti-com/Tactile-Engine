@@ -237,10 +237,10 @@ namespace FEXNA.Windows.Map.Items
 
         new public void close()
         {
-            OnClosing(new EventArgs());
-
             Item_Window.restore_equipped();
             unit.actor.staff_fix();
+
+            OnClosing(new EventArgs());
 
             Item_Window.active = false;
             Supply_Window.active = false;
