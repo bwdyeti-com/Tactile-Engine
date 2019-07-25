@@ -28,6 +28,13 @@ namespace FEXNA.Menus
             get { return this.WindowLoc + new Vector2(0, 24 + this.SelectedIndex * 16); }
         }
 
+        public Vector2 CurrentCursorLoc { get { return Window.current_cursor_loc; } }
+
+        public void SetCursorLoc(Vector2 loc)
+        {
+            Window.current_cursor_loc = loc;
+        }
+
         public int Index { get { return Window.index; } }
 
         internal void SetTextColor(int index, string color)

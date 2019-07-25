@@ -114,7 +114,8 @@ namespace FEXNA.Menus.Map.Unit.Item
 
             Global.game_system.play_se(System_Sounds.Cancel);
             itemWindow.restore_equipped();
-            itemWindow.unit.actor.staff_fix();
+            if (itemWindow.unit != null)
+                itemWindow.unit.actor.staff_fix();
             Global.game_map.range_start_timer = 0;
             OnCanceled(new EventArgs());
         }

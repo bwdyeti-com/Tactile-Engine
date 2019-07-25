@@ -19,6 +19,10 @@ namespace FEXNA.Menus
             Menus.Push(menu);
             RefreshVisibility();
         }
+
+        /// <summary>
+        /// Remove the topmost menu of the menu stack.
+        /// </summary>
         protected void RemoveTopMenu()
         {
             Menus.Pop();
@@ -26,6 +30,19 @@ namespace FEXNA.Menus
             if (Menus.Count > 0)
                 Menus.Peek().UpdateActive(true);
             RefreshVisibility();
+        }
+        /// <summary>
+        /// Remove the topmost menu of the menu stack, if it is the passed menu.
+        /// </summary>
+        protected bool RemoveTopMenu(IMenu menu)
+        {
+            if (Menus.Any() && Menus.Peek() == menu)
+            {
+                RemoveTopMenu();
+                return true;
+            }
+
+            return false;
         }
 
         private void RefreshVisibility()

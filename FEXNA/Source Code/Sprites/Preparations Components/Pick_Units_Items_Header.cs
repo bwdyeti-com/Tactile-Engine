@@ -93,49 +93,53 @@ namespace FEXNA.Graphics.Preparations
             if (texture != null)
                 if (visible)
                 {
+                    Vector2 offset = draw_vector() - draw_offset;
+
                     sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                     int x = 0;
                     // Left
-                    sprite_batch.Draw(texture, (loc + draw_vector() + new Vector2(x, 0)) - draw_offset,
-                        new Rectangle(32, 0, 48, 41), tint, angle, offset, scale,
+                    sprite_batch.Draw(texture, (loc + offset + new Vector2(x, 0)),
+                        new Rectangle(32, 0, 48, 41), tint, angle, this.offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     x += 48;
                     // Center
                     while (x + 16 <= Width)
                     {
-                        sprite_batch.Draw(texture, (loc + draw_vector() + new Vector2(x, 0)) - draw_offset,
-                            new Rectangle(80, 0, 8, 41), tint, angle, offset, scale,
+                        sprite_batch.Draw(texture, (loc + offset + new Vector2(x, 0)),
+                            new Rectangle(80, 0, 8, 41), tint, angle, this.offset, scale,
                             mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                         x += 8;
                     }
                     // Right
-                    sprite_batch.Draw(texture, (loc + draw_vector() + new Vector2(x, 0)) - draw_offset,
-                        new Rectangle(88, 0, 16, 41), tint, angle, offset, scale,
+                    sprite_batch.Draw(texture, (loc + offset + new Vector2(x, 0)),
+                        new Rectangle(88, 0, 16, 41), tint, angle, this.offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     sprite_batch.End();
                     // Miniface
-                    Face.draw(sprite_batch, -(loc + draw_vector()));
+                    Face.draw(sprite_batch, -(loc + offset));
 
                     sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                     // Affinity
-                    Affinity_Icon.draw(sprite_batch, -(loc + draw_vector()));
+                    Affinity_Icon.draw(sprite_batch, -(loc + offset));
                     // Labels
-                    Lvl_Label.draw(sprite_batch, -(loc + draw_vector()));
-                    Exp_Label.draw(sprite_batch, -(loc + draw_vector()));
+                    Lvl_Label.draw(sprite_batch, -(loc + offset));
+                    Exp_Label.draw(sprite_batch, -(loc + offset));
                     // Data
-                    Name.draw(sprite_batch, -(loc + draw_vector()));
-                    Lvl.draw(sprite_batch, -(loc + draw_vector()));
-                    Exp.draw(sprite_batch, -(loc + draw_vector()));
+                    Name.draw(sprite_batch, -(loc + offset));
+                    Lvl.draw(sprite_batch, -(loc + offset));
+                    Exp.draw(sprite_batch, -(loc + offset));
 
-                    draw_hp(sprite_batch);
+                    draw_hp(sprite_batch, draw_offset);
                     sprite_batch.End();
                 }
         }
 
-        protected virtual void draw_hp(SpriteBatch sprite_batch)
+        protected virtual void draw_hp(SpriteBatch sprite_batch, Vector2 draw_offset)
         {
-            Hp_Label.draw(sprite_batch, -(loc + draw_vector()));
-            Hp.draw(sprite_batch, -(loc + draw_vector()));
+            Vector2 offset = draw_vector() - draw_offset;
+
+            Hp_Label.draw(sprite_batch, -(loc + offset));
+            Hp.draw(sprite_batch, -(loc + offset));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Windows.UserInterface.Command;
 
@@ -12,6 +13,8 @@ namespace FEXNA.Menus
         {
             Window = window;
         }
+
+        public Vector2 CurrentCursorLoc { get { return Window.current_cursor_loc; } }
 
         public event EventHandler<EventArgs> Confirmed;
 
