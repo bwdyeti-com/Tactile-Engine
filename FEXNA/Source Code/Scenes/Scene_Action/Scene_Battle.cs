@@ -487,30 +487,12 @@ namespace FEXNA
                         break;
                     case 73:
                         // If Promotion/Level Up, gives control to the level up window
-                        if (Battler_1.actor.needs_promotion)
+                        if (check_level_up(Battler_1))
                         {
-                            promote(Battler_1.id, -1);
-                            Global.game_system.Class_Changer = Battler_1.id;
-                            Global.game_system.Class_Change_To = (int)Battler_1.actor.promotes_to();
                             Timer++;
                         }
-                        else if (Battler_1.actor.needed_levels > 0)
+                        else if (check_level_up(Battler_2))
                         {
-                            level_up(Battler_1.id);
-                            if (Battler_1.actor.skills_gained_on_level().Any())
-                                skill_gain(Battler_1.id);
-                            Timer++;
-                        }
-                        else if (Battler_2.actor.needs_promotion)
-                        {
-                            promote(Battler_2.id, -1);
-                            Global.game_system.Class_Changer = Battler_2.id;
-                            Global.game_system.Class_Change_To = (int)Battler_2.actor.promotes_to();
-                            Timer++;
-                        }
-                        else if (Battler_2.actor.needed_levels > 0)
-                        {
-                            level_up(Battler_2.id);
                             Timer++;
                         }
                         // Else continue
@@ -522,7 +504,8 @@ namespace FEXNA
                         break;
                     // Waits for skill gain
                     case 74:
-                        if (!is_leveling_up()) Timer++;
+                        if (!is_leveling_up())
+                            Timer++;
                         break;
                     case 75:
                         // If skill gained
@@ -645,6 +628,30 @@ namespace FEXNA
                         break;
                 }
             }
+        }
+
+        private bool check_level_up(Game_Unit battler)
+        {
+            if (battler.actor.needs_promotion)
+            {
+                promote(battler.id, -1);
+                Global.game_system.Class_Changer = battler.id;
+                if (battler.actor.NeedsPromotionMenu)
+                    Global.game_system.Class_Change_To = -1;
+                else
+                    Global.game_system.Class_Change_To = (int)battler.actor.promotes_to();
+
+                return true;
+            }
+            else if (battler.actor.needed_levels > 0)
+            {
+                level_up(battler.id);
+                if (battler.actor.skills_gained_on_level().Any())
+                    skill_gain(battler.id);
+                return true;
+            }
+
+            return false;
         }
 
         protected override void update_phase_3()
