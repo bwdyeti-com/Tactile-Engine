@@ -13,14 +13,13 @@ namespace FEXNA.Menus.Preparations
     {
         const int BLACK_SCEEN_FADE_TIMER = 8;
         const int BLACK_SCREEN_HOLD_TIMER = 4;
-        const int PROMOTION_TIME = 8;
 
         protected Window_Prep_Items_Unit UnitWindow;
         protected WindowPanel ChooseUnitWindow;
         protected Pick_Units_Items_Header ItemHeader;
-        private Button_Description RButton;
-        
-        private FE_Text ChooseUnitLabel;
+        protected Button_Description RButton;
+
+        protected FE_Text ChooseUnitLabel;
 
         public int ActorId
         {

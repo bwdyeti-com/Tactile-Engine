@@ -286,11 +286,12 @@ loaded in normal mode. Sorry!");
         private void AddItemManageMenu()
         {
             var itemManageMenu = new Window_Manage_Items();
+            itemManageMenu.UnitSelected += ItemsMenu_UnitSelected;
             itemManageMenu.Status += preparationsMenu_Status;
+            itemManageMenu.TradeSelected += ItemsMenu_TradeSelected;
             itemManageMenu.Trade += itemsMenu_Trade;
             itemManageMenu.Convoy += itemsMenu_Convoy;
             itemManageMenu.List += itemsMenu_List;
-            itemManageMenu.Shop += itemsMenu_Shop;
             itemManageMenu.Closed += itemManageMenu_Closed;
             AddMenu(itemManageMenu);
         }

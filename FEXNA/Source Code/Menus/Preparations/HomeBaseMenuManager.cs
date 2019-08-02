@@ -47,8 +47,6 @@ namespace FEXNA.Menus.Preparations
                 (HomeBaseManageChoices)manageCommandMenu.Index);
 
             AddItemMenu(true);
-            var itemsMenu = Menus.Peek() as Window_Prep_Items;
-            itemsMenu.black_screen();
         }
 
         private CommandMenu GetManageMenu(Vector2 optionLocation,
