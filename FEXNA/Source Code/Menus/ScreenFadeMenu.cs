@@ -72,9 +72,9 @@ namespace FEXNA.Menus
                     if (ParentMenu != null)
                     {
                         if (FadeIn)
-                            ParentMenu.Open();
+                            ParentMenu.FadeOpen();
                         else
-                            ParentMenu.Close();
+                            ParentMenu.FadeClose();
                     }
                 }
             }

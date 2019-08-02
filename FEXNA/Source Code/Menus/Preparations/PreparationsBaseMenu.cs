@@ -152,8 +152,8 @@ namespace FEXNA.Menus.Preparations
                 this);
         }
 
-        public void Open() { }
-        public void Close() { }
+        public void FadeOpen() { }
+        public void FadeClose() { }
         #endregion
 
         #region Update

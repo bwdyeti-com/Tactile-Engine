@@ -109,11 +109,11 @@ namespace FEXNA.Menus.Save
                 this);
         }
 
-        public void Open()
+        public void FadeOpen()
         {
             OnOpened(new EventArgs());
         }
-        public void Close()
+        public void FadeClose()
         {
             OnClosed(new EventArgs());
         }

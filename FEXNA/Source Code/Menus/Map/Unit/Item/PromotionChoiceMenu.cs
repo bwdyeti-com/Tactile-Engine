@@ -244,12 +244,12 @@ namespace FEXNA.Menus.Map.Unit.Item
                 this);
         }
 
-        public void Open()
+        public void FadeOpen()
         {
             Global.game_system.play_se(System_Sounds.Open);
             OnOpened(new EventArgs());
         }
-        public void Close()
+        public void FadeClose()
         {
             OnClosed(new EventArgs());
         }
