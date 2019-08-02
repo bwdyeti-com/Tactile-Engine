@@ -430,12 +430,28 @@ namespace FEXNA.Menus.Preparations
             // If promoting
             if (actor.PromotedBy(item))
             {
-                Global.game_system.Preparations_Actor_Id = actor.id;
-                Global.game_temp.preparations_item_index = itemIndex;
+                // If there are multiple promotion choices
+                if (actor.PromotedBy(item) &&
+                    actor.NeedsPromotionMenu)
+                {
+                    Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Config.OFF_MAP, actor.id, "");
+                    var unit = Global.game_map.last_added_unit;
 
-                var promotionFadeMenu = useMenu.PromotionScreenFade();
-                promotionFadeMenu.Finished += PromotionFadeMenu_Finished;
-                AddMenu(promotionFadeMenu);
+                    var promotionChoiceMenu = new PromotionChoiceMenu(unit);
+                    promotionChoiceMenu.Selected += PromotionChoiceMenu_Selected;
+                    promotionChoiceMenu.Canceled += PromotionChoiceMenu_Canceled;
+                    promotionChoiceMenu.Closed += menu_Closed;
+                    promotionChoiceMenu.Confirmed += PromotionChoiceMenu_Confirmed;
+                    AddMenu(promotionChoiceMenu);
+
+                    var promotionMenuFadeIn = promotionChoiceMenu.FadeInMenu(false);
+                    promotionMenuFadeIn.Finished += menu_Closed;
+                    AddMenu(promotionMenuFadeIn);
+                }
+                else
+                {
+                    Promote(useMenu);
+                }
             }
             else
             {
@@ -462,6 +478,19 @@ namespace FEXNA.Menus.Preparations
             }
         }
 
+        private void Promote(ItemUseMenu useMenu, Maybe<int> promotionId = default(Maybe<int>))
+        {
+            Game_Actor actor = useMenu.Actor;
+            int itemIndex = useMenu.SelectedItem;
+
+            Global.game_system.Preparations_Actor_Id = actor.id;
+            Global.game_temp.preparations_item_index = itemIndex;
+
+            var promotionFadeMenu = useMenu.PromotionScreenFade(promotionId);
+            promotionFadeMenu.Finished += PromotionFadeMenu_Finished;
+            AddMenu(promotionFadeMenu);
+        }
+
         private void PromotionFadeMenu_Finished(object sender, EventArgs e)
         {
             var promotionFadeMenu = (sender as PromotionFadeMenu);
@@ -476,6 +505,72 @@ namespace FEXNA.Menus.Preparations
             // Black out the screen while promotion initializes
             var itemsMenu = (Menus.Peek() as Window_Prep_Items);
             itemsMenu.Promote();
+        }
+
+        private void PromotionChoiceMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Open);
+            var promotionChoiceMenu = (sender as PromotionChoiceMenu);
+
+            var promotionConfirmWindow = new Window_Command(
+                promotionChoiceMenu.WindowLoc + new Vector2(64, 24),
+                48,
+                new List<string> { "Change", "Cancel" });
+            promotionConfirmWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
+            promotionConfirmWindow.small_window = true;
+
+            var promotionConfirmMenu = new CommandMenu(promotionConfirmWindow, promotionChoiceMenu);
+            promotionConfirmMenu.Selected += PromotionConfirmMenu_Selected;
+            promotionConfirmMenu.Canceled += menu_Closed;
+            AddMenu(promotionConfirmMenu);
+        }
+
+        private void PromotionChoiceMenu_Canceled(object sender, EventArgs e)
+        {
+            var promotionChoiceMenu = (sender as PromotionChoiceMenu);
+            var promotionMenuFadeOut = promotionChoiceMenu.FadeOutMenu();
+            promotionMenuFadeOut.Finished += menu_Closed;
+            AddMenu(promotionMenuFadeOut);
+            // Remove the unit that was added for the promotion choice menu
+
+            Global.game_map.completely_remove_unit(Global.game_map.last_added_unit.id);
+        }
+
+        private void PromotionConfirmMenu_Selected(object sender, EventArgs e)
+        {
+            var promotionConfirmMenu = (sender as CommandMenu);
+            var selected = promotionConfirmMenu.SelectedIndex;
+            menu_Closed(sender, e);
+
+            switch (selected)
+            {
+                // Change
+                case 0:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    var promotionChoiceMenu = (Menus.Peek() as PromotionChoiceMenu);
+                    if (promotionChoiceMenu.AnimatedConfirm)
+                        promotionChoiceMenu.AnimateConfirmation();
+                    else
+                        PromotionChoiceMenu_Confirmed(promotionChoiceMenu, e);
+                    break;
+                // Cancel
+                case 1:
+                    Global.game_system.play_se(System_Sounds.Cancel);
+                    break;
+            }
+        }
+
+        private void PromotionChoiceMenu_Confirmed(object sender, EventArgs e)
+        {
+            var promotionChoiceMenu = (sender as PromotionChoiceMenu);
+            int promotion = promotionChoiceMenu.PromotionChoice;
+
+            // Remove the unit that was added for the promotion choice menu
+            Global.game_map.completely_remove_unit(Global.game_map.last_added_unit.id);
+
+            var useMenu = (Menus.ElementAt(2) as ItemUseMenu);
+
+            Promote(useMenu, promotion);
         }
 
         // Open list menu

@@ -260,6 +260,8 @@ namespace FEXNA.Menus.Map.Unit.Item
         {
             get
             {
+                if (Global.game_system.preparations)
+                    return false;
                 return DataDisplayed || !Closing;
             }
         }
