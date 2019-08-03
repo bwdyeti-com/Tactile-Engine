@@ -122,6 +122,10 @@ namespace FEXNA
             update_preparations_menu_calls();
             if (Global.game_temp.preview_shop_call)
                 preview_shop();
+            if (Global.game_temp.PromotionChoiceMenuCall)
+            {
+                call_promotion_choice_menu();
+            }
             if (Global.game_temp.unit_menu_call)
                 if (!Global.game_map.get_selected_unit().is_in_motion())
                 {
@@ -275,6 +279,11 @@ namespace FEXNA
         protected virtual void open_unit_menu()
         {
             UnitMenu = UnitMenuManager.CommandMenu(this);
+        }
+
+        protected virtual void call_promotion_choice_menu()
+        {
+            UnitMenu = UnitMenuManager.PromotionChoice(this, Global.game_system.Class_Changer);
         }
 
         #region Attack
@@ -473,14 +482,19 @@ namespace FEXNA
             close_unit_menu(true);
         }
 
-        public void UnitMenuUseItem(Game_Unit unit, int itemIndex, Maybe<Vector2> targetLoc)
+        public void UnitMenuUseItem(Game_Unit unit, int itemIndex, Maybe<Vector2> targetLoc, Maybe<int> promotionId)
         {
             Global.game_map.clear_move_range();
             unit.cantoing = false;
             // Lock in unit movement
             unit.moved();
 
-            if (targetLoc.IsSomething)
+            if (promotionId.IsSomething)
+            {
+                Global.game_state.call_item(
+                    unit.id, itemIndex, promotionId);
+            }
+            else if (targetLoc.IsSomething)
             {
                 Global.game_state.call_item(
                     unit.id, itemIndex, targetLoc);
@@ -815,6 +829,15 @@ namespace FEXNA
                 Global.game_temp.discard_menuing = false;
                 Global.game_temp.force_send_to_convoy = false;
             }
+        }
+
+        public void UnitMenuPromotionChoice(Game_Unit unit, int promotionId)
+        {
+            UnitMenu = null;
+            Global.game_temp.menuing = false;
+
+            Global.game_system.Class_Changer = unit.id;
+            Global.game_system.Class_Change_To = promotionId;
         }
         #endregion
         #endregion

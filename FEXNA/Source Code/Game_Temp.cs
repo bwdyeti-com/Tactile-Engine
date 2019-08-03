@@ -20,6 +20,7 @@ namespace FEXNA
         public bool unit_menu_call = false;
         public bool status_menu_call = false;
         internal bool preview_shop_call { get; private set; }
+        internal bool PromotionChoiceMenuCall { get; private set; }
         public bool discard_menu_call = false;
         public bool force_send_to_convoy = false;
         public bool minimap_call = false;
@@ -66,6 +67,17 @@ namespace FEXNA
         internal void reset_shop_call()
         {
             preview_shop_call = false;
+        }
+
+        internal void CallPromotionChoiceMenu(int unitId)
+        {
+            Global.game_system.Class_Changer = unitId;
+            PromotionChoiceMenuCall = true;
+        }
+
+        internal void ResetPromotionChoiceCall()
+        {
+            PromotionChoiceMenuCall = false;
         }
 
         #region Context Sensitive Menus
