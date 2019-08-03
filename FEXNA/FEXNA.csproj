@@ -162,7 +162,8 @@
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
     <Compile Include="Source Code\Skills\UnitCommandMenu.cs" />
     <Compile Include="Source Code\Skills\UnitMenuManager.cs" />
-    <Compile Include="Source Code\Sprites\Gauges\Sparring_Exp_Gauge.cs" />
+    <Compile Include="Source Code\Sprites\Battler\Animation_Setup_Data_Processor.cs" />
+    <Compile Include="Source Code\Sprites\Battler\BattlerSpriteData.cs" />
     <Compile Include="Source Code\Services\Input\InputConfig.cs" />
     <Compile Include="Source Code\Services\Input\InputState.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\Button_Description_Touch.cs" />
@@ -375,6 +376,7 @@
     <Compile Include="Source Code\Sprites\GameOver_Background.cs" />
     <Compile Include="Source Code\Sprites\Gauges\HP_Gauge.cs" />
     <Compile Include="Source Code\Sprites\Gauges\Stat_Bar.cs" />
+    <Compile Include="Source Code\Sprites\Gauges\Sparring_Exp_Gauge.cs" />
     <Compile Include="Source Code\Sprites\Graphic_Object.cs" />
     <Compile Include="Source Code\Sprites\Hand_Cursor.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\Button_Description.cs" />

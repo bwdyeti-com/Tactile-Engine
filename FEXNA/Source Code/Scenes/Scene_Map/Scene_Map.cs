@@ -1109,7 +1109,7 @@ namespace FEXNA
 
                 // Draw menus
                 draw_info_windows(sprite_batch);
-                draw_menus(sprite_batch);
+                draw_menus(sprite_batch, device, render_targets);
                 draw_minimap(sprite_batch, device, render_targets);
                 draw_map_combat(sprite_batch);
 
@@ -1158,7 +1158,7 @@ namespace FEXNA
             }
         }
 
-        protected void draw_message(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
+        protected override void draw_message(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
         {
             // Message
             if (Message_Window != null)
@@ -1193,15 +1193,18 @@ namespace FEXNA
                 Message_Window.draw_foreground(sprite_batch);
             }
 
-            draw_message_overlay(sprite_batch);
+            draw_message_overlay(sprite_batch, device, render_targets);
         }
 
-        protected override void draw_message_overlay(SpriteBatch spriteBatch)
+        protected override void draw_message_overlay(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
-            base.draw_message_overlay(spriteBatch);
+            base.draw_message_overlay(spriteBatch, device, renderTargets);
 
             // Item discard
-            draw_discard(spriteBatch);
+            draw_discard(spriteBatch, device, renderTargets);
             // Popup
             if (Map_Popup != null)
             {

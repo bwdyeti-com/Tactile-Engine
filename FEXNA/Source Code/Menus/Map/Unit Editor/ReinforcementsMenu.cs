@@ -63,9 +63,7 @@ namespace FEXNA.Menus.Map
 
             if (Window.is_canceled())
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {
@@ -83,12 +81,11 @@ namespace FEXNA.Menus.Map
                                 return;
                         }
                     }
-
-                    Global.game_system.play_se(System_Sounds.Confirm);
+                    
                     Window.greyed_cursor = true;
                     Window.active = false;
                     Window.index = Window.selected_index();
-                    OnSelected(new EventArgs());
+                    SelectItem(true);
                 }
             }
             else if (Global.Input.repeated(Inputs.Left) ||

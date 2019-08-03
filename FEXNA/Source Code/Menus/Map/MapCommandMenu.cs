@@ -132,44 +132,38 @@ namespace FEXNA.Menus.Map
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {
                 switch ((Map_Menu_Options)Window.selected_index().ValueOrDefault)
                 {
                     case Map_Menu_Options.Unit:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     case Map_Menu_Options.Data:
                         if (this.data_option_blocked)
                             Global.game_system.play_se(System_Sounds.Buzzer);
                         else
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         break;
                     case Map_Menu_Options.Options:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     case Map_Menu_Options.Suspend:
                         Global.Audio.play_se("System Sounds", "Confirm");
                         //Global.game_system.play_se(System_Sounds.Confirm); //Yeti
 
-                        OnSelected(new EventArgs());
+                        SelectItem();
                         break;
                     case Map_Menu_Options.End:
                         if (this.end_option_blocked)
                             Global.game_system.play_se(System_Sounds.Buzzer);
                         else
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         break;
                 }

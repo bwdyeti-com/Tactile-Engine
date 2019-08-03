@@ -3431,6 +3431,16 @@ namespace FEXNA
                                 case 4: return new Color(224, 208, 88);
                             }
                             break;
+                        case "Shen":
+                            switch (color)
+                            {
+                                case 0: return new Color(88, 24, 32);
+                                case 1: return new Color(144, 32, 24);
+                                case 2: return new Color(208, 64, 40);
+                                case 3: return null; // new Color(168, 128, 96);
+                                case 4: return null; // new Color(216, 200, 184);
+                            }
+                            break;
                         case "Bart":
                             switch (color)
                             {

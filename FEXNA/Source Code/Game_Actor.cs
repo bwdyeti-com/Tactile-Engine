@@ -487,16 +487,6 @@ namespace FEXNA
                     Data.Gender = value;
             }
         }
-        public int battle_gender
-        {
-            get
-            {
-                int gender = this.gender;
-                if (FE_Battler_Image.Single_Gender_Battle_Sprite.Contains(class_id))
-                    gender = (gender / 2) * 2;
-                return gender;
-            }
-        }
 
         public int build { get { return Build; } }
 
@@ -3746,6 +3736,8 @@ namespace FEXNA
 
         public int support_bonus_from_next_level(int actorId, Combat_Stat_Labels stat)
         {
+            float totalBonus = total_support_float(stat);
+
             int support_level = Supports.ContainsKey(actorId) ? Supports[actorId] : 0;
             float bonus = (support_bonuses((int)stat) +
                 Global.game_actors[actorId].support_bonuses((int)stat)) *
@@ -3753,10 +3745,21 @@ namespace FEXNA
             float next_bonus = (support_bonuses((int)stat) +
                 Global.game_actors[actorId].support_bonuses((int)stat)) *
                 (support_level + 1);
+
+            float baseBonus = totalBonus - bonus;
+
+            bonus = (int)Math.Floor(baseBonus + bonus);
+            next_bonus = (int)Math.Floor(baseBonus + next_bonus);
+
             return (int)(next_bonus - bonus);
         }
 
         public int total_support_bonus(Combat_Stat_Labels stat)
+        {
+            float n = total_support_float(stat);
+            return (int)Math.Floor(n);
+        }
+        private float total_support_float(Combat_Stat_Labels stat)
         {
             IEnumerable<int> support_partners;
             if (Global.game_system.home_base)
@@ -3767,7 +3770,7 @@ namespace FEXNA
             float n = 0;
             foreach (int actor_id in support_partners)
                 n += get_support_bonus(actor_id, stat);
-            return (int)Math.Floor(n);
+            return n;
         }
 
         public float support_bonuses(int type)

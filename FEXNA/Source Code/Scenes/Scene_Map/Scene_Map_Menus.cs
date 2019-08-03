@@ -1154,23 +1154,29 @@ namespace FEXNA
         }
         #endregion
 
-        protected virtual void draw_menus(SpriteBatch sprite_batch)
+        protected virtual void draw_menus(
+            SpriteBatch sprite_batch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
             if (MapMenu != null)
-                MapMenu.Draw(sprite_batch);
+                MapMenu.Draw(sprite_batch, device, renderTargets);
             if (UnitMenu != null)
                 if (!Global.game_temp.discard_menuing)
-                    UnitMenu.Draw(sprite_batch);
+                    UnitMenu.Draw(sprite_batch, device, renderTargets);
             
             if (Map_Save_Confirm_Window != null) Map_Save_Confirm_Window.draw(sprite_batch);
             if (Ranking_Window != null) Ranking_Window.draw(sprite_batch);
         }
 
-        protected void draw_discard(SpriteBatch sprite_batch)
+        protected void draw_discard(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
             if (UnitMenu != null)
                 if (Global.game_temp.discard_menuing)
-                    UnitMenu.Draw(sprite_batch);
+                    UnitMenu.Draw(spriteBatch, device, renderTargets);
         }
 
         protected virtual void clear_menus()

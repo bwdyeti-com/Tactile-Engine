@@ -19,6 +19,10 @@ namespace FEXNA.Menus
             Menus.Push(menu);
             RefreshVisibility();
         }
+
+        /// <summary>
+        /// Remove the topmost menu of the menu stack.
+        /// </summary>
         protected void RemoveTopMenu()
         {
             Menus.Pop();
@@ -26,6 +30,19 @@ namespace FEXNA.Menus
             if (Menus.Count > 0)
                 Menus.Peek().UpdateActive(true);
             RefreshVisibility();
+        }
+        /// <summary>
+        /// Remove the topmost menu of the menu stack, if it is the passed menu.
+        /// </summary>
+        protected bool RemoveTopMenu(IMenu menu)
+        {
+            if (Menus.Any() && Menus.Peek() == menu)
+            {
+                RemoveTopMenu();
+                return true;
+            }
+
+            return false;
         }
 
         private void RefreshVisibility()
@@ -59,13 +76,16 @@ namespace FEXNA.Menus
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
             // Stack needs reversed to draw the newest item last
             foreach (var menu in Menus.Reverse())
             {
                 if (menu.IsVisible)
-                    menu.Draw(spriteBatch);
+                    menu.Draw(spriteBatch, device, renderTargets);
             }
         }
     }

@@ -100,9 +100,7 @@ namespace FEXNA.Menus.Map
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {
@@ -110,16 +108,15 @@ namespace FEXNA.Menus.Map
                 {
                     case DebugMenuOptions.SkipChapter:
                         Global.Audio.play_se("System Sounds", "Confirm");
-                        OnSelected(new EventArgs());
+                        SelectItem();
                         break;
                     case DebugMenuOptions.ToggleFog:
                     case DebugMenuOptions.InfiniteMove:
                     case DebugMenuOptions.ToggleAI:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     default:
-                        OnSelected(new EventArgs());
+                        SelectItem();
                         break;
                 }
             }

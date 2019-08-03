@@ -28,6 +28,13 @@ namespace FEXNA.Menus
             get { return this.WindowLoc + new Vector2(0, 24 + this.SelectedIndex * 16); }
         }
 
+        public Vector2 CurrentCursorLoc { get { return Window.current_cursor_loc; } }
+
+        public void SetCursorLoc(Vector2 loc)
+        {
+            Window.current_cursor_loc = loc;
+        }
+
         public int Index { get { return Window.index; } }
 
         internal void SetTextColor(int index, string color)
@@ -70,13 +77,15 @@ namespace FEXNA.Menus
             return cancel;
         }
 
+        protected virtual bool HideCursorWhileInactive { get { return true; } }
+
         public void HideParent(bool value)
         {
             _HidesParent = value;
         }
 
         public event EventHandler<EventArgs> Selected;
-        protected void OnSelected(EventArgs e)
+        private void OnSelected(EventArgs e)
         {
             if (Selected != null)
                 Selected(this, e);
@@ -101,6 +110,9 @@ namespace FEXNA.Menus
 
         protected override void UpdateMenu(bool active)
         {
+            if (this.HideCursorWhileInactive)
+                Window.active = active;
+
             int index = Window.index;
             Window.update(active);
             if (index != Window.index)
@@ -116,14 +128,27 @@ namespace FEXNA.Menus
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
+                Cancel();
             }
             else if (Window.is_selected())
             {
-                OnSelected(new EventArgs());
+                SelectItem();
             }
         }
+
+        protected virtual void SelectItem(bool playConfirmSound = false)
+        {
+            if (playConfirmSound)
+                Global.game_system.play_se(System_Sounds.Confirm);
+            OnSelected(new EventArgs());
+        }
+
+        protected virtual void Cancel()
+        {
+            Global.game_system.play_se(System_Sounds.Cancel);
+            OnCanceled(new EventArgs());
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             Window.draw(spriteBatch);

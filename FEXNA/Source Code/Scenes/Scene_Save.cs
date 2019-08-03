@@ -145,7 +145,7 @@ namespace FEXNA
         {
             if (MenuManager != null)
             {
-                MenuManager.Draw(sprite_batch);
+                MenuManager.Draw(sprite_batch, device, render_targets);
             }
             /* //#Debug
             if (Save_Overwrite_Window != null)

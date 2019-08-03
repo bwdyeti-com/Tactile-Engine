@@ -108,18 +108,14 @@ namespace FEXNA.Menus.Map.Unit.Item
             }
         }
 
-        protected virtual void SelectItem()
-        {
-            OnSelected(new EventArgs());
-        }
-
-        protected virtual void Cancel()
+        protected override void Cancel()
         {
             var itemWindow = Window as Window_Command_Item;
 
             Global.game_system.play_se(System_Sounds.Cancel);
             itemWindow.restore_equipped();
-            itemWindow.unit.actor.staff_fix();
+            if (itemWindow.unit != null)
+                itemWindow.unit.actor.staff_fix();
             Global.game_map.range_start_timer = 0;
             OnCanceled(new EventArgs());
         }

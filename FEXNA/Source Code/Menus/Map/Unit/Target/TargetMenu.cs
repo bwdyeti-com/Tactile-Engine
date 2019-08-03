@@ -84,11 +84,8 @@ namespace FEXNA.Menus.Map.Unit.Target
         #region IMenu
         protected override void UpdateMenu(bool active)
         {
-            //@Debug: target windows need to be refactored to pass in active to update()
-            Window.active = active;
-
             int index = Window.index;
-            Window.update();
+            Window.update(active);
             if (index != Window.index)
                 OnIndexChanged(new EventArgs());
 

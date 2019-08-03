@@ -333,9 +333,13 @@ namespace FEXNA
 
         protected void initialize_battle_sprites()
         {
-            Battler_1_Sprite = new Battler_Sprite(Battler_1, Reverse, Distance, Reverse);
+            var battler1Data = new BattlerSpriteData(Battler_1);
+            Battler_1_Sprite = new Battler_Sprite(battler1Data, Reverse, Distance, Reverse);
             if (Battler_2 != null)
-                Battler_2_Sprite = new Battler_Sprite(Battler_2, !Reverse, Distance, Reverse);
+            {
+                var battler2Data = new BattlerSpriteData(Battler_2);
+                Battler_2_Sprite = new Battler_Sprite(battler2Data, !Reverse, Distance, Reverse);
+            }
             // Initial battle sprite positions to match map sprites: battler 1
             Battler_1_Sprite.loc = Battler_1_Map_Loc =
                 (Battler_1_Sprite.battler.loc * Constants.Map.TILE_SIZE -

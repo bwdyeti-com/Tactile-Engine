@@ -400,6 +400,12 @@ namespace FEXNA
             // Copy battle to render target 0
             render_targets[1].raw_copy_render_target(sprite_batch, device, render_targets[0]);
 
+            // Menus (promotion choice menu in particular) draw under skip
+            draw_menus(sprite_batch, device, render_targets);
+
+            draw_skip(sprite_batch);
+            draw_level_up(sprite_batch, Vector2.Zero);
+
             draw_message(sprite_batch, device, render_targets);
             //draw_skip(sprite_batch); //Debug
         }
@@ -497,9 +503,6 @@ namespace FEXNA
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, ScissorRasterState);
             sprite_batch.Draw(tempRender, Vector2.Zero, Color.White);
             sprite_batch.End();
-
-            draw_skip(sprite_batch);
-            draw_level_up(sprite_batch, Vector2.Zero);
         }
 
         private void draw_battle(SpriteBatch sprite_batch, GraphicsDevice device,

@@ -22,6 +22,16 @@ namespace FEXNA.Graphics
             get { return Timer == this.FadeMidpoint; }
         }
 
+        private int HoldEnd { get { return FadeInTime + FadeHoldTime; } }
+        public bool AtHoldEnd
+        {
+            get { return Timer == this.HoldEnd; }
+        }
+        public bool FrameOneHoldEnd
+        {
+            get { return this.HoldEnd == 0 && Timer == 1; }
+        }
+
         public bool BeforeFadeMidPoint
         {
             get { return Timer <= this.FadeMidpoint; }

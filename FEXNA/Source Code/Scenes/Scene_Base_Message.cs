@@ -280,7 +280,10 @@ namespace FEXNA
         #endregion
 
         #region Draw
-        protected void draw_message(SpriteBatch sprite_batch)
+        protected virtual void draw_message(
+            SpriteBatch sprite_batch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
             if (Message_Window != null)
             {
@@ -289,10 +292,13 @@ namespace FEXNA
                 Message_Window.draw_foreground(sprite_batch);
             }
 
-            draw_message_overlay(sprite_batch);
+            draw_message_overlay(sprite_batch, device, renderTargets);
         }
 
-        protected virtual void draw_message_overlay(SpriteBatch spriteBatch)
+        protected virtual void draw_message_overlay(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
         {
 
             if (SkipButton != null && Input.ControlScheme == ControlSchemes.Touch)

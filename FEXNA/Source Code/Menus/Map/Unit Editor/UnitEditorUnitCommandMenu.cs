@@ -106,9 +106,7 @@ namespace FEXNA.Menus.Map
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {
@@ -118,8 +116,7 @@ namespace FEXNA.Menus.Map
                     case UnitEditorUnitOptions.MoveUnit:
                     case UnitEditorUnitOptions.CopyUnit:
                     case UnitEditorUnitOptions.RemoveUnit:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                 }
             }

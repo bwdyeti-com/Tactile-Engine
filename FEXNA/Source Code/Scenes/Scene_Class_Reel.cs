@@ -266,7 +266,8 @@ namespace FEXNA
 
         protected void create_battler()
         {
-            Battler = new Battler_Sprite(Unit, true, class_data.Distance);
+            var battlerData = new BattlerSpriteData(Unit); //@Debug: could probably roll this without a unit
+            Battler = new Battler_Sprite(battlerData, true, class_data.Distance);
             Battler.loc = new Vector2(256, 176);
             Battler.offset.Y = 120;
             Battler.visible = true;

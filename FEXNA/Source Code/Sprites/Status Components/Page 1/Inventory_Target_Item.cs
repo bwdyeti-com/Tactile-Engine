@@ -12,7 +12,11 @@ namespace FEXNA
             {
                 Data_Equipment item = item_data.to_equipment;
 
-                set_text_color(actor.items[active_item].to_item.can_target_item(item_data));
+                bool useable = false;
+                if (active_item >= 0)
+                    useable = actor.items[active_item].to_item.can_target_item(item_data);
+
+                set_text_color(useable);
             }
         }
     }
