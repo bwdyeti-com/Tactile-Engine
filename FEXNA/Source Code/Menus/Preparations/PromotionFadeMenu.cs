@@ -21,10 +21,17 @@ namespace FEXNA.Menus.Preparations
         {
             Global.game_system.Preparations_Actor_Id = ActorId;
             Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Config.OFF_MAP, ActorId, "");
-            Global.game_state.call_item(
-                Global.game_map.last_added_unit.id,
-                ItemIndex,
-                PromotionId);
+
+            if (PromotionId.IsSomething)
+                Global.game_state.call_item(
+                    Global.game_map.last_added_unit.id,
+                    ItemIndex,
+                    PromotionId);
+            else
+                Global.game_state.call_item(
+                    Global.game_map.last_added_unit.id,
+                    ItemIndex);
+
             Global.game_temp.preparations_item_index = ItemIndex;
         }
 
