@@ -49,11 +49,17 @@ namespace FEXNA.Menus.Preparations
                 (HomeBaseManageChoices)manageCommandMenu.Index);
 
             // Training
+            AddSparringMenu(true);
+        }
+
+        private void AddSparringMenu(bool resuming = false)
+        {
             Window_Sparring.reset();
             var sparringMenu = new Window_Sparring();
-            sparringMenu.black_screen();
+            if (resuming)
+                sparringMenu.black_screen();
             sparringMenu.Spar += sparringMenu_Spar;
-            sparringMenu.Status += itemsMenu_Status;
+            sparringMenu.Status += preparationsMenu_Status;
             sparringMenu.Closed += menu_Closed;
             AddMenu(sparringMenu);
         }
@@ -219,12 +225,7 @@ namespace FEXNA.Menus.Preparations
                     else
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
-                        Window_Sparring.reset();
-                        var sparringMenu = new Window_Sparring();
-                        sparringMenu.Spar += sparringMenu_Spar;
-                        sparringMenu.Status += itemsMenu_Status;
-                        sparringMenu.Closed += menu_Closed;
-                        AddMenu(sparringMenu);
+                        AddSparringMenu();
                     }
                     break;
                 case HomeBaseManageChoices.Support:
