@@ -19,6 +19,8 @@ namespace FEXNA.Windows.Command
 
         #region Accessors
         private Game_Actor actor { get { return Global.game_actors[ActorId]; } }
+
+        public int TargetId { get { return this.actor.support_candidates()[this.index]; } }
         #endregion
 
         public Window_Command_Support(int actorId, Vector2 loc)

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics.Preparations;
 using FEXNA.Graphics.Text;
 using FEXNA.Graphics.Windows;
 using FEXNA.Windows.UserInterface.Command;
@@ -10,6 +11,7 @@ namespace FEXNA.Windows.Command.Items
     class Window_Command_Item_Preparations : Window_Command_Item
     {
         protected bool Face_Shown = true, Using_Item;
+        protected Pick_Units_Items_Header ItemHeader;
 
         #region Accessors
         public bool face_shown { set { Face_Shown = value; } }
@@ -65,6 +67,17 @@ namespace FEXNA.Windows.Command.Items
 
         protected override void equip_actor() { }
 
+        public void ShowHeader()
+        {
+            ItemHeader = new Pick_Units_Items_Header(this.actor().id, this.width);
+            ItemHeader.loc = -new Vector2(4, 36);
+            ItemHeader.stereoscopic = Config.PREPITEM_UNIT_DEPTH;
+        }
+        public void HideHeader()
+        {
+            ItemHeader = null;
+        }
+
         #region Draw
         public override void draw(SpriteBatch sprite_batch)
         {
@@ -81,6 +94,9 @@ namespace FEXNA.Windows.Command.Items
                 // Text
                 draw_text(sprite_batch);
                 sprite_batch.End();
+
+                if (ItemHeader != null)
+                    ItemHeader.draw(sprite_batch, -this.loc);
             }
         }
 
@@ -91,9 +107,7 @@ namespace FEXNA.Windows.Command.Items
             draw_cursor(sprite_batch);
             sprite_batch.End();
 
-            base.draw_help(sprite_batch); //Debug
-            //if (is_help_active)
-            //    Help_Window.draw(sprite_batch);
+            base.draw_help(sprite_batch, false);
         }
 
         protected override void draw_bar(SpriteBatch sprite_batch) { }
