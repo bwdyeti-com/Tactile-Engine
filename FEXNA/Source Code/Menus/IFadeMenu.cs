@@ -12,8 +12,8 @@ namespace FEXNA.Menus
 
         ScreenFadeMenu FadeInMenu(bool skipFadeIn);
         ScreenFadeMenu FadeOutMenu();
-
-        void Open();
-        void Close();
+        
+        void FadeOpen();
+        void FadeClose();
     }
 }

@@ -164,6 +164,24 @@ namespace FEXNA.Menus.Map.Unit
             return manager;
         }
 
+        public static UnitMenuManager PromotionChoice(
+            IUnitMenuHandler handler,
+            int unitId,
+            bool skipFadeIn = false,
+            bool animateConfirm = false)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            // Add promotion choice menu
+            Global.game_temp.menuing = true;
+            Global.game_temp.ResetPromotionChoiceCall();
+
+            var unit = Global.game_map.units[unitId];
+            manager.AddPromotionChoiceMenu(unit, true, skipFadeIn, animateConfirm);
+
+            return manager;
+        }
+
         private void SetCommands()
         {
             SimpleCommands = new Dictionary<int, Action<Game_Unit>>();
@@ -655,7 +673,7 @@ namespace FEXNA.Menus.Map.Unit
                         unit.actor.organize_items();
                         itemMenu.RefreshInventory();
 
-                        menu_Closed(sender, e);
+                        menu_Closed(itemOptionsMenu, e);
                     }
                     else
                         Global.game_system.play_se(System_Sounds.Buzzer); // should pop up a help window //@Yeti
@@ -667,43 +685,14 @@ namespace FEXNA.Menus.Map.Unit
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
                         itemMenu.RestoreEquipped();
-                        if (itemData.to_item.targets_inventory())
+                        if (unit.actor.PromotedBy(itemData.to_item) &&
+                            unit.actor.NeedsPromotionMenu)
                         {
-                            // Close item options
-                            menu_Closed(sender, e);
-
-                            Global.game_map.range_start_timer = 0;
-                            var repairItemWindow = new Window_Command_Item_Target_Inventory(
-                                unit.id,
-                                new Vector2(24, 8),
-                                itemIndex);
-                            repairItemWindow.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
-                            repairItemWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
-                            repairItemWindow.data_stereoscopic = Config.MAPCOMMAND_DATA_DEPTH;
-
-                            var repairMenu = new ItemMenu(repairItemWindow, itemMenu);
-                            repairMenu.Selected += repairMenu_Selected;
-                            repairMenu.Canceled += menu_Closed;
-                            AddMenu(repairMenu);
-                        }
-                        else if (itemData.to_item.is_placeable())
-                        {
-                            // Close item options
-                            menu_Closed(sender, e);
-
-                            var targetWindow = new Window_Target_Placeable(
-                                unit.id, new Vector2(4, 0));
-                            var targetMenu = new LocationTargetMenu(targetWindow, itemMenu);
-                            targetMenu.Selected += placeableTargetMenu_Selected;
-                            targetMenu.Canceled += locationTargetMenu_Canceled;
-                            AddMenu(targetMenu);
-                            
-                            Global.player.facing = 4;
-                            Global.player.update_cursor_frame();
+                            AddPromotionChoiceMenu(unit);
                         }
                         else
                         {
-                            MenuHandler.UnitMenuUseItem(unit, itemIndex, Maybe<Vector2>.Nothing);
+                            UseItem(itemMenu, itemOptionsMenu);
                         }
                     }
                     else
@@ -746,6 +735,155 @@ namespace FEXNA.Menus.Map.Unit
             }
         }
 
+        private void UseItem(ItemMenu itemMenu, ItemOptionsMenu itemOptionsMenu = null)
+        {
+            var unit = itemMenu.Unit;
+            int itemIndex = itemMenu.SelectedItem;
+            var itemData = unit.actor.items[itemIndex];
+
+            if (itemData.to_item.targets_inventory())
+            {
+                // Close item options
+                if (itemOptionsMenu != null)
+                    menu_Closed(itemOptionsMenu, new EventArgs());
+
+                Global.game_map.range_start_timer = 0;
+                var repairItemWindow = new Window_Command_Item_Target_Inventory(
+                    unit.id,
+                    new Vector2(24, 8),
+                    itemIndex);
+                repairItemWindow.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
+                repairItemWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
+                repairItemWindow.data_stereoscopic = Config.MAPCOMMAND_DATA_DEPTH;
+
+                var repairMenu = new ItemMenu(repairItemWindow, itemMenu);
+                repairMenu.Selected += repairMenu_Selected;
+                repairMenu.Canceled += menu_Closed;
+                AddMenu(repairMenu);
+            }
+            else if (itemData.to_item.is_placeable())
+            {
+                // Close item options
+                if (itemOptionsMenu != null)
+                    menu_Closed(itemOptionsMenu, new EventArgs());
+
+                var targetWindow = new Window_Target_Placeable(
+                    unit.id, new Vector2(4, 0));
+                var targetMenu = new LocationTargetMenu(targetWindow, itemMenu);
+                targetMenu.Selected += placeableTargetMenu_Selected;
+                targetMenu.Canceled += locationTargetMenu_Canceled;
+                AddMenu(targetMenu);
+
+                Global.player.facing = 4;
+                Global.player.update_cursor_frame();
+            }
+            else
+            {
+                MenuHandler.UnitMenuUseItem(unit, itemIndex, Maybe<Vector2>.Nothing, Maybe<int>.Nothing);
+            }
+        }
+
+        private void AddPromotionChoiceMenu(
+            Game_Unit unit,
+            bool standaloneMenu = false,
+            bool skipFadeIn = false,
+            bool animateConfirm = false)
+        {
+            var promotionChoiceMenu = new PromotionChoiceMenu(unit, standaloneMenu, animateConfirm);
+            promotionChoiceMenu.Selected += PromotionChoiceMenu_Selected;
+            promotionChoiceMenu.Canceled += PromotionChoiceMenu_Canceled;
+            promotionChoiceMenu.Closed += menu_Closed;
+            promotionChoiceMenu.Confirmed += PromotionChoiceMenu_Confirmed;
+            AddMenu(promotionChoiceMenu);
+
+            if (skipFadeIn)
+            {
+                promotionChoiceMenu.FadeShow();
+            }
+            else
+            {
+                var promotionMenuFadeIn = promotionChoiceMenu.FadeInMenu(false);
+                promotionMenuFadeIn.Finished += menu_Closed;
+                AddMenu(promotionMenuFadeIn);
+            }
+
+            //@Debug: Undecided if this looks better before
+            // or after the fade out
+            Global.game_map.HideUnits();
+        }
+
+        private void PromotionChoiceMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Open);
+            var promotionChoiceMenu = (sender as PromotionChoiceMenu);
+
+            var promotionConfirmWindow = new Window_Command(
+                promotionChoiceMenu.WindowLoc + new Vector2(64, 24),
+                48,
+                new List<string> { "Change", "Cancel" });
+            promotionConfirmWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
+            promotionConfirmWindow.small_window = true;
+
+            var promotionConfirmMenu = new CommandMenu(promotionConfirmWindow, promotionChoiceMenu);
+            promotionConfirmMenu.Selected += PromotionConfirmMenu_Selected;
+            promotionConfirmMenu.Canceled += menu_Closed;
+            AddMenu(promotionConfirmMenu);
+        }
+
+        private void PromotionChoiceMenu_Canceled(object sender, EventArgs e)
+        {
+            var promotionChoiceMenu = (sender as PromotionChoiceMenu);
+            var promotionMenuFadeOut = promotionChoiceMenu.FadeOutMenu();
+            promotionMenuFadeOut.Finished += menu_Closed;
+            AddMenu(promotionMenuFadeOut);
+        }
+
+        private void PromotionConfirmMenu_Selected(object sender, EventArgs e)
+        {
+            var promotionConfirmMenu = (sender as CommandMenu);
+            var selected = promotionConfirmMenu.SelectedIndex;
+            menu_Closed(sender, e);
+
+            switch (selected)
+            {
+                // Change
+                case 0:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    var promotionChoiceMenu = (Menus.Peek() as PromotionChoiceMenu);
+                    if (promotionChoiceMenu.AnimatedConfirm)
+                        promotionChoiceMenu.AnimateConfirmation();
+                    else
+                        PromotionChoiceMenu_Confirmed(promotionChoiceMenu, e);
+                    break;
+                // Cancel
+                case 1:
+                    Global.game_system.play_se(System_Sounds.Cancel);
+                    break;
+            }
+        }
+
+        private void PromotionChoiceMenu_Confirmed(object sender, EventArgs e)
+        {
+            var promotionChoiceMenu = (sender as PromotionChoiceMenu);
+            var unit = promotionChoiceMenu.Unit;
+            int promotion = promotionChoiceMenu.PromotionChoice;
+
+            // If selecting promotion on its own
+            if (Menus.Count <= 2 || !(Menus.ElementAt(2) is ItemMenu))
+            {
+                MenuHandler.UnitMenuPromotionChoice(unit, promotion);
+            }
+            else
+            {
+                var itemMenu = (Menus.ElementAt(2) as ItemMenu);
+
+                int itemIndex = itemMenu.SelectedItem;
+                var itemData = unit.actor.items[itemIndex];
+
+                MenuHandler.UnitMenuUseItem(unit, itemIndex, Maybe<Vector2>.Nothing, promotion);
+            }
+        }
+
         private void placeableTargetMenu_Selected(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
@@ -759,7 +897,7 @@ namespace FEXNA.Menus.Map.Unit
             Global.game_map.remove_updated_move_range(targetMenu.UnitId);
             Global.game_map.range_start_timer = 0;
 
-            MenuHandler.UnitMenuUseItem(unit, itemIndex, targetMenu.SelectedLoc);
+            MenuHandler.UnitMenuUseItem(unit, itemIndex, targetMenu.SelectedLoc, Maybe<int>.Nothing);
         }
 
         private void repairMenu_Selected(object sender, EventArgs e)
@@ -773,7 +911,7 @@ namespace FEXNA.Menus.Map.Unit
             Global.game_map.remove_updated_move_range(unit.id);
             repairMenu.RestoreEquipped();
             Global.game_system.Item_Inventory_Target = repairMenu.SelectedItem;
-            MenuHandler.UnitMenuUseItem(unit, itemMenu.SelectedItem, Maybe<Vector2>.Nothing);
+            MenuHandler.UnitMenuUseItem(unit, itemMenu.SelectedItem, Maybe<Vector2>.Nothing, Maybe<int>.Nothing);
         }
 
         private void discardConfirmMenu_Selected(object sender, EventArgs e)
@@ -1846,7 +1984,7 @@ namespace FEXNA.Menus.Map.Unit
         void UnitMenuStaff(Game_Unit unit, int targetId, Vector2 targetLoc);
         void UnitMenuRescue(Game_Unit unit, int targetId);
         void UnitMenuDrop(Game_Unit unit, Vector2 targetLoc);
-        void UnitMenuUseItem(Game_Unit unit, int itemIndex, Maybe<Vector2> targetLoc);
+        void UnitMenuUseItem(Game_Unit unit, int itemIndex, Maybe<Vector2> targetLoc, Maybe<int> promotionId);
         void UnitMenuWait(Game_Unit unit);
         void UnitMenuTake(Game_Unit unit, int targetId, Canto_Records canto);
         void UnitMenuGive(Game_Unit unit, int targetId, Canto_Records canto);
@@ -1862,5 +2000,6 @@ namespace FEXNA.Menus.Map.Unit
         void UnitMenuReclaim(Game_Unit unit, Vector2 targetLoc);
 
         void UnitMenuDiscard(Game_Unit unit, int index);
+        void UnitMenuPromotionChoice(Game_Unit unit, int promotionId);
     }
 }

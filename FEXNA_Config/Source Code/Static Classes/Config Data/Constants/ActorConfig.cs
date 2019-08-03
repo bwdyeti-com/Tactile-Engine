@@ -25,6 +25,7 @@ namespace FEXNA.Constants
         public const int TIER0_LVL_CAP = 10;
         public const int LOWEST_TIER = 0; // Set to 0 if there are trainees and tier 1 generics should get prior levels; set to 1 if a level 1 tier 1 is the lowest level unit
         public const bool RESET_LEVEL_ON_PROMOTION = true; // Default is true; resets level to 1 on promotion
+        public const bool PROMOTION_SELECTION_MENU = true; // Classes with multiple promotion choices bring up a menu to select one; otherwise selects one randomly
         public const int EXP_TO_LVL = 100;
         public const int EXP_PER_ENEMY = 100; // The total exp an individual enemy can give; -1 is infinite
         public const bool EXP_PER_ENEMY_KILL_EXCEPTION = true; // If true, the exp gained from the killing blow will always be the full amount

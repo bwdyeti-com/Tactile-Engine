@@ -222,9 +222,10 @@ namespace FEXNA.Menus.Preparations
             }
         }
 
-        public ScreenFadeMenu PromotionScreenFade()
+        public ScreenFadeMenu PromotionScreenFade(Maybe<int> promotionId = default(Maybe<int>))
         {
-            ScreenFadeMenu result = new PromotionFadeMenu(ActorId, this.SelectedItem);
+            ScreenFadeMenu result = new PromotionFadeMenu(
+                ActorId, this.SelectedItem, promotionId);
             return result;
         }
         #endregion

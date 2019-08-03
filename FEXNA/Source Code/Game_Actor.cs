@@ -2865,6 +2865,19 @@ namespace FEXNA
         }
 
         /// <summary>
+        /// Returns true if this actors next promotion needs a menu to select
+        /// what class to promote into
+        /// </summary>
+        public bool NeedsPromotionMenu
+        {
+            get
+            {
+                return Constants.Actor.PROMOTION_SELECTION_MENU &&
+                    this.actor_class.Promotion.Count > 1;
+            }
+        }
+
+        /// <summary>
         /// Checks the Prf data for an item and only returns true if the actor passes all checks
         /// </summary>
         /// <param name="item">Item to check</param>
