@@ -293,6 +293,7 @@ namespace FEXNA
         {
             Global.scene_change("Scene_Map");
             Global.game_state.battle_ending = true;
+            Global.game_map.ShowUnits();
         }
 
         protected virtual bool level_up_layer_resort()

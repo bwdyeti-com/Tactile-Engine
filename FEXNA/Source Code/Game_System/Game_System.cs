@@ -33,7 +33,7 @@ namespace FEXNA
         public Vector2 Staff_Target_Loc;
         public int Rescuer_Id;
         public int Rescuee_Id;
-        public int Item_User, Item_Used, Item_Inventory_Target;
+        public int Item_User, Item_Used, Item_Inventory_Target, ItemPromotionId;
         public Vector2 ItemTargetLoc;
         public int Visitor_Id;
         public Vector2 Visit_Loc;
@@ -111,6 +111,7 @@ namespace FEXNA
             writer.Write(Item_User);
             writer.Write(Item_Used);
             writer.Write(Item_Inventory_Target);
+            writer.Write(ItemPromotionId);
             ItemTargetLoc.write(writer);
             writer.Write(Shopper_Id);
             Shop_Loc.write(writer);
@@ -195,6 +196,8 @@ namespace FEXNA
             Item_Used = reader.ReadInt32();
             if (!loadedVersion.older_than(0, 4, 6, 1))
                 Item_Inventory_Target = reader.ReadInt32();
+            if (!loadedVersion.older_than(0, 6, 6, 0))
+                ItemPromotionId = reader.ReadInt32();
             if (!loadedVersion.older_than(0, 6, 4, 1))
                 ItemTargetLoc = ItemTargetLoc.read(reader);
             Shopper_Id = reader.ReadInt32();
@@ -481,6 +484,7 @@ namespace FEXNA
             Item_User = -1;
             Item_Used = -1;
             Item_Inventory_Target = -1;
+            ItemPromotionId = -1;
             ItemTargetLoc = new Vector2(-1, -1);
             Visitor_Id = -1;
             Visit_Loc = new Vector2(-1, -1);

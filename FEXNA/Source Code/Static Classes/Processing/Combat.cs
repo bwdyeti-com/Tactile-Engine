@@ -1070,7 +1070,7 @@ namespace FEXNA
                 }
             }
             // Promotion Items
-            if (item.Promotes.Contains(actor.class_id) && actor.promotes_to() != null)
+            if (actor.PromotedBy(item))
                 return true;
             // Healing Items
             if (item.can_heal_hp() && !actor.is_full_hp())

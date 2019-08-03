@@ -31,8 +31,6 @@ namespace FEXNA.Menus.Preparations
             preparationsMenu.index = (int)PreparationsChoices.Trade;
 
             AddItemMenu(true);
-            var itemsMenu = Menus.Peek() as Window_Prep_Items;
-            itemsMenu.black_screen();
         }
 
         public void CheckMap(bool changingFormation)

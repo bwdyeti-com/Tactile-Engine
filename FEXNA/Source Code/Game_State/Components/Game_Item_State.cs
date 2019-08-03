@@ -15,6 +15,7 @@ namespace FEXNA.State
         protected int Item_User_Id = -1;
         protected int Item_Used = -1;
         protected int Item_Inventory_Target = -1;
+        protected int ItemPromotionId = -1;
         protected Vector2 ItemTargetLoc = new Vector2(-1, -1);
         protected int Item_Phase = 0, Item_Action = 0, Item_Timer = 0;
 
@@ -27,6 +28,7 @@ namespace FEXNA.State
             writer.Write(Item_User_Id);
             writer.Write(Item_Used);
             writer.Write(Item_Inventory_Target);
+            writer.Write(ItemPromotionId);
             ItemTargetLoc.write(writer);
             writer.Write(Item_Phase);
             writer.Write(Item_Action);
@@ -42,6 +44,8 @@ namespace FEXNA.State
             Item_Used = reader.ReadInt32();
             if (!Global.LOADED_VERSION.older_than(0, 4, 6, 2))
                 Item_Inventory_Target = reader.ReadInt32();
+            if (!Global.LOADED_VERSION.older_than(0, 6, 6, 0))
+                ItemPromotionId = reader.ReadInt32();
             if (!Global.LOADED_VERSION.older_than(0, 6, 4, 1))
                 ItemTargetLoc = ItemTargetLoc.read(reader);
             Item_Phase = reader.ReadInt32();
@@ -91,11 +95,13 @@ namespace FEXNA.State
                             Item_User_Id = Global.game_system.Item_User;
                             Item_Used = Global.game_system.Item_Used;
                             Item_Inventory_Target = Global.game_system.Item_Inventory_Target;
+                            ItemPromotionId = Global.game_system.ItemPromotionId;
                             ItemTargetLoc = Global.game_system.ItemTargetLoc;
 
                             Global.game_system.Item_User = -1;
                             Global.game_system.Item_Used = -1;
                             Global.game_system.Item_Inventory_Target = -1;
+                            Global.game_system.ItemPromotionId = -1;
                             Global.game_system.ItemTargetLoc = new Vector2(-1, -1);
                             Item_Phase = 1;
                             Global.game_state.add_item_metric(item_user, Item_Used);
@@ -103,7 +109,7 @@ namespace FEXNA.State
                         case 1:
                             FEXNA_Library.Data_Item item = item_user.actor.items[Item_Used].to_item;
                             // Promotion
-                            if (item.Promotes.Count > 0)
+                            if (item.Promotes.Any())
                             {
                                 cont = update_item_promotion(item);
                             }
@@ -193,6 +199,10 @@ namespace FEXNA.State
                     switch (Item_Timer)
                     {
                         case 0:
+#if DEBUG
+                            if (!item_user.actor.PromotedBy(item))
+                                throw new ArgumentException("Invalid promotion item for this class");
+#endif
                             item_user.sprite_moving = false;
                             item_user.frame = 0;
                             item_user.facing = 2;
@@ -204,7 +214,12 @@ namespace FEXNA.State
                                 Item_Timer++;
                                 item_user.item_effect(item, Item_Inventory_Target);
                                 Global.game_system.Class_Changer = Item_User_Id;
-                                Global.game_system.Class_Change_To = (int)item_user.actor.promotes_to();
+                                // Make sure any preselected promotion choices are actually in the promotion list
+                                var promotionChoices = item_user.actor.actor_class.Promotion.Keys;
+                                if (ItemPromotionId > -1 && promotionChoices.Contains(ItemPromotionId))
+                                    Global.game_system.Class_Change_To = ItemPromotionId;
+                                else
+                                    Global.game_system.Class_Change_To = (int)item_user.actor.promotes_to();
                                 Transition_To_Battle = true;
                                 if (Global.game_system.preparations)
                                 {
@@ -580,6 +595,7 @@ namespace FEXNA.State
             Item_User_Id = -1;
             Item_Used = -1;
             Item_Inventory_Target = -1;
+            ItemPromotionId = -1;
             ItemTargetLoc = new Vector2(-1, -1);
             Global.game_map.move_range_visible = true;
             Global.game_state.any_trigger_end_events();

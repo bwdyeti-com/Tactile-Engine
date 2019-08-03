@@ -2363,46 +2363,75 @@ namespace FEXNA
         /// <param name="index">Index of item to restock</param>
         public bool restock(int index)
         {
-            // If there is no item at this index, return
-            if (Items[index].Id <= 0)
+            if (!CanRestock(index))
                 return false;
-            int max_uses = Items[index].max_uses;
-            // If the item is already fully repaired, return
-            if (Items[index].Uses == max_uses)
-                return false;
-            else
+
+            int maxUses = Items[index].max_uses;
+            int convoyIndex = GetItemConvoyIndex(index);
+
+            // Restock item
+            while (Items[index].Uses < maxUses && convoyIndex >= 0 && Global.game_battalions.active_convoy_data.Count > 0 &&
+                Items[index].same_item(Global.game_battalions.active_convoy_data[convoyIndex]))
             {
-                int convoy_index = -1;
-                for (int i = 0; i < Global.game_battalions.active_convoy_data.Count; i++)
-                    if (Items[index].same_item(Global.game_battalions.active_convoy_data[i]))
-                    {
-                        convoy_index = i;
-                    }
-                // No matching items in convoy
-                if (convoy_index == -1)
-                    return false;
-                // Restock item
+                // If combining items breaks convoy item
+                if (Global.game_battalions.active_convoy_data[convoyIndex].Uses + Items[index].Uses <= maxUses)
+                {
+                    Items[index].add_uses(Global.game_battalions.active_convoy_data[convoyIndex].Uses);
+                    Global.game_battalions.remove_item_from_convoy(Global.battalion.convoy_id, convoyIndex);
+                }
                 else
                 {
-                    while (Items[index].Uses < max_uses && convoy_index >= 0 && Global.game_battalions.active_convoy_data.Count > 0 &&
-                        Items[index].same_item(Global.game_battalions.active_convoy_data[convoy_index]))
-                    {
-                        // If combining items breaks convoy item
-                        if (Global.game_battalions.active_convoy_data[convoy_index].Uses + Items[index].Uses <= max_uses)
-                        {
-                            Items[index].add_uses(Global.game_battalions.active_convoy_data[convoy_index].Uses);
-                            Global.game_battalions.remove_item_from_convoy(Global.battalion.convoy_id, convoy_index);
-                        }
-                        else
-                        {
-                            Global.game_battalions.adjust_convoy_item_uses(Global.battalion.convoy_id, convoy_index, Items[index].Uses - max_uses);
-                            Items[index].repair_fully();
-                        }
-                        convoy_index--;
-                    }
+                    Global.game_battalions.adjust_convoy_item_uses(Global.battalion.convoy_id, convoyIndex, Items[index].Uses - maxUses);
+                    Items[index].repair_fully();
                 }
+                convoyIndex--;
             }
+
             return true;
+        }
+
+        /// <summary>
+        /// Returns true if any item in the actor's inventory can be restocked
+        /// </summary>
+        public bool CanRestock()
+        {
+            bool result = false;
+            for (int i = 0; i < Constants.Actor.NUM_ITEMS; i++)
+                result |= CanRestock(i);
+            return result;
+        }
+        /// <summary>
+        /// Returns true if the item at the given index can be restocked
+        /// </summary>
+        /// <param name="index">Index of the item to test</param>
+        public bool CanRestock(int index)
+        {
+            // If there is no item at this index, return
+            if (Items[index].non_equipment)
+                return false;
+
+            int maxUses = Items[index].max_uses;
+            // If the item is already fully repaired, return
+            if (Items[index].Uses == maxUses)
+                return false;
+
+            var convoyIndex = GetItemConvoyIndex(index);
+            // No matching items in convoy
+            if (convoyIndex.IsNothing)
+                return false;
+
+            return true;
+        }
+
+        private Maybe<int> GetItemConvoyIndex(int index)
+        {
+            var convoyIndex = Maybe<int>.Nothing;
+            for (int i = 0; i < Global.game_battalions.active_convoy_data.Count; i++)
+                if (Items[index].same_item(Global.game_battalions.active_convoy_data[i]))
+                {
+                    convoyIndex = i;
+                }
+            return convoyIndex;
         }
 
         /// <summary>
@@ -2817,10 +2846,22 @@ namespace FEXNA
         {
             if (!prf_check(item))
                 return false;
-            if (item.Promotes.Count > 0)
-                if (!item.Promotes.Contains(class_id))
+            if (item.Promotes.Any())
+                if (!PromotedBy(item))
                     return false;
             return true;
+        }
+
+        /// <summary>
+        /// Returns true this item can be used for promotion,
+        /// and for this actor's class, and this class can promote
+        /// </summary>
+        /// <param name="weapon">Item to check</param>
+        public bool PromotedBy(Data_Item item)
+        {
+            return item.Promotes.Any() &&
+                item.Promotes.Contains(this.class_id) &&
+                promotes_to() != null;
         }
 
         /// <summary>
@@ -3448,6 +3489,18 @@ namespace FEXNA
                         prf_check(item.to_equipment) && Combat.can_use_item(this, item.Id, false))
                     return true;
             return false;
+        }
+
+        public bool CanGiveAny
+        {
+            get
+            {
+                if (Global.battalion.is_convoy_full)
+                    return false;
+                // Any items can be given
+                return this.whole_inventory
+                    .Any(x => !x.blank_item && can_give(x));
+            }
         }
 
         /// <summary>

@@ -1272,39 +1272,8 @@ namespace FEXNA
             // Map grid
             draw_map_grid(sprite_batch, false);
 
-            // Tile outlines //Debug
-            foreach (var outline in Global.game_map.tile_outlines)
-            {
-                device.SetRenderTarget(render_targets[1]);
-                device.Clear(Color.Transparent);
-
-                sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                for (int i = -1; i < 3; i++)
-                {
-                    float j = ((Global.game_system.total_play_time + i * 30) % 90) / 90f;
-                    if (i == -1)
-                        j = 0;
-                    Color tint = Color.White * (1 - (float)Math.Pow(j, 0.75f));
-                    foreach (var edge in outline.get_edges())
-                    {
-                        Vector2 loc = new Vector2(edge.X, edge.Y) * TILE_SIZE;
-                        loc += new Vector2(0, -j * TILE_SIZE * 0.75f);
-                        sprite_batch.Draw(White_Square,
-                            loc - Global.game_map.display_loc,
-                            new Rectangle(0, 0, 16, 16), tint,
-                            edge.Width == 1 ? 0f : MathHelper.PiOver2,
-                            new Vector2(0, 8), new Vector2(TILE_SIZE / 16f, 2 / 16f),
-                            SpriteEffects.None, 0f);
-                    }
-                }
-                sprite_batch.End();
-
-                device.SetRenderTarget(render_targets[0]);
-                sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    SamplerState.PointClamp, null, null);
-                sprite_batch.Draw(render_targets[1], Vector2.Zero, outline.Tint);
-                sprite_batch.End();
-            }
+            // Tile outlines
+            DrawTileOutlines(sprite_batch, device, render_targets);
 
             // Idle units (that aren't under a roof)
             draw_units(sprite_batch, device, render_targets, false, roof_tiles);
@@ -1333,10 +1302,14 @@ namespace FEXNA
             get_deferred_unit_ids();
             List<int> units = units_to_draw(DeferredUnitIds, false, true);
 
-            draw_unit_status(sprite_batch, units);
-            if (Suspend_Fade_Timer == 0)
-                draw_unit_icons(sprite_batch, units);
-            draw_unit_support_gain(sprite_batch);
+            // Units hidden
+            if (!Global.game_map.UnitsHidden)
+            {
+                draw_unit_status(sprite_batch, units);
+                if (Suspend_Fade_Timer == 0)
+                    draw_unit_icons(sprite_batch, units);
+                draw_unit_support_gain(sprite_batch);
+            }
             // Unit effect and flares
             draw_effects(sprite_batch);
             #endregion
@@ -1348,8 +1321,55 @@ namespace FEXNA
             draw_formation_change1(sprite_batch);
             sprite_batch.End();
 
-            if (Suspend_Fade_Timer == 0)
-                draw_unit_icons_above_cursor(sprite_batch, units);
+            // Units hidden
+            if (!Global.game_map.UnitsHidden)
+            {
+                if (Suspend_Fade_Timer == 0)
+                    draw_unit_icons_above_cursor(sprite_batch, units);
+            }
+        }
+
+        //@Debug: are these final
+        private void DrawTileOutlines(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
+        {
+            // Units hidden
+            if (Global.game_map.UnitsHidden)
+                return;
+
+            foreach (var outline in Global.game_map.tile_outlines)
+            {
+                // Draw each outline in greyscale on its own to a render target
+                device.SetRenderTarget(render_targets[1]);
+                device.Clear(Color.Transparent);
+
+                sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                for (int i = -1; i < 3; i++)
+                {
+                    float j = ((Global.game_system.total_play_time + i * 30) % 90) / 90f;
+                    if (i == -1)
+                        j = 0;
+                    Color tint = Color.White * (1 - (float)Math.Pow(j, 0.75f));
+                    foreach (var edge in outline.get_edges())
+                    {
+                        Vector2 loc = new Vector2(edge.X, edge.Y) * TILE_SIZE;
+                        loc += new Vector2(0, -j * TILE_SIZE * 0.75f);
+                        sprite_batch.Draw(White_Square,
+                            loc - Global.game_map.display_loc,
+                            new Rectangle(0, 0, 16, 16), tint,
+                            edge.Width == 1 ? 0f : MathHelper.PiOver2,
+                            new Vector2(0, 8), new Vector2(TILE_SIZE / 16f, 2 / 16f),
+                            SpriteEffects.None, 0f);
+                    }
+                }
+                sprite_batch.End();
+
+                // Then copy the completed outline to the render
+                device.SetRenderTarget(render_targets[0]);
+                sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
+                    SamplerState.PointClamp, null, null);
+                sprite_batch.Draw(render_targets[1], Vector2.Zero, outline.Tint);
+                sprite_batch.End();
+            }
         }
 
         float doop = 0f;
@@ -1822,10 +1842,15 @@ namespace FEXNA
         protected virtual void draw_units(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets,
             bool roof, HashSet<Vector2> roof_tiles)
         {
+            // Units hidden
+            if (Global.game_map.UnitsHidden)
+                return;
+
             // Draw units on render target 1, then copy them with tone on render target 0
             device.SetRenderTarget(render_targets[1]);
             device.Clear(Color.Transparent);
             draw_units(sprite_batch, roof: roof, roof_tiles: roof_tiles);
+
             // Unit tone
             device.SetRenderTarget(render_targets[0]);
             Effect map_shader = Global.effect_shader();
@@ -1841,6 +1866,10 @@ namespace FEXNA
 
         protected virtual void draw_units(SpriteBatch sprite_batch, bool rotated = false, bool roof = false, HashSet<Vector2> roof_tiles = null)
         {
+            // Units hidden
+            if (Global.game_map.UnitsHidden)
+                return;
+
             // Units to skip and draw at the end
             get_deferred_unit_ids();
             List<int> units = units_to_draw(DeferredUnitIds, rotated);
@@ -2291,6 +2320,10 @@ namespace FEXNA
 
         protected virtual void draw_active_units(SpriteBatch sprite_batch)
         {
+            // Units hidden
+            if (Global.game_map.UnitsHidden)
+                return;
+
             // Units to skip and draw at the end
             get_deferred_unit_ids();
             DeferredUnitIds = sort_units(DeferredUnitIds);
