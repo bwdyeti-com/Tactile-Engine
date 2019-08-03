@@ -96,7 +96,8 @@ namespace FEXNA
 
         protected override bool map_sprite_ready(int index)
         {
-            if (Global.battalion.actors[index] == Window_Sparring.Healer_Id || Global.battalion.actors[index] == Window_Sparring.Battler_1_Id ||
+            if (Global.battalion.actors[index] == Window_Sparring.Healer_Id ||
+                    Global.battalion.actors[index] == Window_Sparring.Battler_1_Id ||
                     Global.battalion.actors[index] == Window_Sparring.Battler_2_Id)
                 return true;
             // Selecting healer
