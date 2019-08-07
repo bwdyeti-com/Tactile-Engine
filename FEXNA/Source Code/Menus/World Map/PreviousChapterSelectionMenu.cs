@@ -22,6 +22,7 @@ namespace FEXNA.Menus.Worldmap
 
         private SystemWindowHeadered Window;
         private FE_Text Header;
+        private StatusWindowDivider Divider;
         private UINodeSet<CommandUINode> Items;
         private UICursor<CommandUINode> UICursor;
         private Dictionary<Page_Arrow, int> LeftArrows, RightArrows;
@@ -42,7 +43,7 @@ namespace FEXNA.Menus.Worldmap
 
             Window = new SystemWindowHeadered();
             Window.width = 104;
-            Window.height = 32 + 16 * ValidPreviousChapters.Count;
+            Window.height = 32 + 16 * (ValidPreviousChapters.Count + 1) + 4;
             Window.offset = new Vector2(0, 16);
 
             Loc = centerLoc -
@@ -54,35 +55,55 @@ namespace FEXNA.Menus.Worldmap
             Header.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_Yellow");
             Header.text = ValidPreviousChapters.Count > 1 ? "Previous Chapters" : "Previous Chapter";
 
+            Divider = new StatusWindowDivider();
+            Divider.draw_offset = new Vector2(8, Window.height - 44);
+            Divider.SetWidth(Window.width - 16);
+
             LeftArrows = new Dictionary<Page_Arrow,int>();
             RightArrows = new Dictionary<Page_Arrow,int>();
 
+            // Center, then adjust left to account for map sprite
+            int x = ((Window.width / 2) / 8 * 8) - 16;
             List<CommandUINode> nodes = new List<CommandUINode>();
             for (int i = 0; i < ProgressionIds.Count; i++)
             {
+                int y = i * 16 + 8;
+
                 var text = new FE_Text();
                 text.Font = "FE7_Text";
                 text.texture = Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White");
                 text.text = chapter(i).Id;
-                var node = new MapSpriteUINode("", text, 40);
+                var node = new MapSpriteUINode("", text, 56);
                 refresh_map_sprite(node, i);
-                node.loc = new Vector2(0, i * 16) + new Vector2(48, 8);
+                node.loc = new Vector2(x, y);
                 nodes.Add(node);
 
+                // Add arrows for this set of chapters,
+                // if there's more than one choice
                 if (chapter_list(i).Count > 1)
                 {
                     var left_arrow = new Page_Arrow();
-                    left_arrow.loc = node.loc + new Vector2(-40, 0);
+                    left_arrow.loc = new Vector2(8, y);
                     left_arrow.ArrowClicked += LeftArrow_ArrowClicked;
                     LeftArrows.Add(left_arrow, i);
 
                     var right_arrow = new Page_Arrow();
-                    right_arrow.loc = node.loc + new Vector2(48, 0);
+                    right_arrow.loc = new Vector2(Window.width - 8, y);
                     right_arrow.mirrored = true;
                     right_arrow.ArrowClicked += RightArrow_ArrowClicked;
                     RightArrows.Add(right_arrow, i);
                 }
             }
+            
+            // Add confirm choice
+            var confirmText = new FE_Text(
+                "FE7_Text",
+                Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White"),
+                new Vector2(4, 0),
+                "Confirm");
+            var confirm = new TextUINode("", confirmText, 56);
+            confirm.loc = new Vector2(x, nodes.Count * 16 + 8 + 4);
+            nodes.Add(confirm);
 
             Items = new UINodeSet<CommandUINode>(nodes);
             Items.WrapVerticalSameColumn = true;
@@ -93,8 +114,10 @@ namespace FEXNA.Menus.Worldmap
             Items.TangentDirections = new List<CardinalDirections> { CardinalDirections.Left, CardinalDirections.Right };
             Items.refresh_destinations();
 
+            Items.set_active_node(confirm);
+
             UICursor = new UICursor<CommandUINode>(Items);
-            UICursor.draw_offset = new Vector2(-28, 0);
+            UICursor.draw_offset = new Vector2(-12, 0);
             //UICursor.ratio = new int[] { 1, 3 }; //Debug
         }
 
@@ -157,7 +180,8 @@ namespace FEXNA.Menus.Worldmap
 
                 var selected = Items.consume_triggered(
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
-                if (selected.IsSomething)
+                // Select event if on Confirm
+                if (selected.IsSomething && selected == ValidPreviousChapters.Count)
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     OnSelected(new EventArgs());
@@ -207,6 +231,10 @@ namespace FEXNA.Menus.Worldmap
         private void change_index(int move)
         {
             int index = Items.ActiveNodeIndex;
+            // Return if confirm choice active
+            if (index >= ValidPreviousChapters.Count)
+                return;
+
             int count = chapter_list(index).Count;
             if (count > 1)
             {
@@ -242,6 +270,7 @@ namespace FEXNA.Menus.Worldmap
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             Window.draw(spriteBatch, -Loc);
+            Divider.draw(spriteBatch, -Loc);
             Header.draw(spriteBatch, -Loc);
             foreach (var arrow in LeftArrows.Keys)
                 arrow.draw(spriteBatch, -Loc);
