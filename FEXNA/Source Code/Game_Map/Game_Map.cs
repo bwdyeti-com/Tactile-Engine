@@ -54,7 +54,7 @@ namespace FEXNA
         private Dictionary<int, HashSet<Vector2>> Team_Range_Updates = new Dictionary<int, HashSet<Vector2>>();
         private List<int> Unit_Range_Updates = new List<int>();
         private int[,] Unit_Locations = new int[,] { };
-        internal bool UnitsHidden { get; private set; } = false;
+        internal bool UnitsHidden { get; private set; }
         private bool Fow;
         private int Vision_Range;
         private Tone Fow_Color = new Tone(40, 40, 40, 72);
@@ -699,6 +699,7 @@ namespace FEXNA
         public Game_Map()
         {
             map_edge_offsets = new Rectangle(2, 2, 4, 4); //Yeti
+            UnitsHidden = false;
             Teams = new List<List<int>>();
             Group_Names = new List<Dictionary<int, string>>();
             EscapePoints = new List<EscapePoint>();

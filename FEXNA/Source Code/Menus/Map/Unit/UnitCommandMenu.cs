@@ -16,12 +16,14 @@ namespace FEXNA.Menus.Map.Unit
         internal int UnitId { get; private set; }
         private List<int> IndexRedirect;
         private List<int> Disabled;
-        internal Canto_Records Canto { get; private set; } = Canto_Records.None;
+        internal Canto_Records Canto { get; private set; }
         private List<int> UseableWeapons, UseableStaves;
 
         public UnitCommandMenu(int unitId)
         {
             UnitId = unitId;
+            Canto = Canto_Records.None;
+
             RefreshCommands();
             
             CreateCancelButton();
