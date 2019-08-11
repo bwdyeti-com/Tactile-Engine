@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics.Help;
 using FEXNA.Graphics.Text;
 using FEXNA.Graphics.Windows;
 using FEXNA.Windows;
@@ -12,7 +13,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Menus.Worldmap
 {
-    class PreviousChapterSelectionMenu : BaseMenu
+    class PreviousChapterSelectionMenu : BaseMenu, IHasCancelButton
     {
         private string ChapterId;
         private List<string> ProgressionIds;
@@ -26,6 +27,7 @@ namespace FEXNA.Menus.Worldmap
         private UINodeSet<CommandUINode> Items;
         private UICursor<CommandUINode> UICursor;
         private Dictionary<Page_Arrow, int> LeftArrows, RightArrows;
+        private Button_Description CancelButton;
 
         internal Dictionary<string, int> previous_chapter_indices { get { return new Dictionary<string, int>(PreviousChapterIndices); } }
 
@@ -34,7 +36,8 @@ namespace FEXNA.Menus.Worldmap
         internal PreviousChapterSelectionMenu(
             Vector2 centerLoc,
             string chapterId,
-            WorldmapMenuData menuData)
+            WorldmapMenuData menuData,
+            IHasCancelButton menu = null)
         {
             ChapterId = chapterId;
             ProgressionIds = menuData.ValidPreviousChapters.Keys.ToList();
@@ -119,6 +122,8 @@ namespace FEXNA.Menus.Worldmap
             UICursor = new UICursor<CommandUINode>(Items);
             UICursor.draw_offset = new Vector2(-12, 0);
             //UICursor.ratio = new int[] { 1, 3 }; //Debug
+
+            CreateCancelButton(menu);
         }
 
         internal void activate(Vector2 cursorLoc)
@@ -141,6 +146,46 @@ namespace FEXNA.Menus.Worldmap
             List<string> list = chapter_list(index);
             return Global.data_chapters[list[chapter_index]];
         }
+        
+        #region IHasCancelButton
+        public bool HasCancelButton { get { return CancelButton != null; } }
+        public Vector2 CancelButtonLoc { get { return CancelButton.loc; } }
+        #endregion
+
+        #region Cancel
+        private void CreateCancelButton(IHasCancelButton menu)
+        {
+            if (menu != null && menu.HasCancelButton)
+            {
+                CreateCancelButton(
+                    (int)menu.CancelButtonLoc.X,
+                    Config.MAPCOMMAND_WINDOW_DEPTH);
+            }
+            else
+            {
+                CreateCancelButton(
+                    16,
+                    Config.MAPCOMMAND_WINDOW_DEPTH);
+            }
+        }
+        private void CreateCancelButton(int x, float depth = 0)
+        {
+            CancelButton = Button_Description.button(Inputs.B, x);
+            CancelButton.description = "Cancel";
+            CancelButton.stereoscopic = depth;
+        }
+
+        protected virtual bool CanceledTriggered(bool active)
+        {
+            bool cancel = active && Global.Input.triggered(Inputs.B);
+            if (CancelButton != null)
+            {
+                cancel |= CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap);
+            }
+            return cancel;
+        }
+        #endregion
 
         protected override void UpdateMenu(bool active)
         {
@@ -170,6 +215,20 @@ namespace FEXNA.Menus.Worldmap
 
             UICursor.update();
 
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton(this);
+                CancelButton.Update(input);
+            }
+            bool cancel = CanceledTriggered(input);
+
+            if (cancel)
+            {
+                Global.game_system.play_se(System_Sounds.Cancel);
+                OnCanceled(new EventArgs());
+            }
+            else
             if (input)
             {
                 if (Global.Input.triggered(Inputs.Left))
@@ -185,11 +244,6 @@ namespace FEXNA.Menus.Worldmap
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     OnSelected(new EventArgs());
-                }
-                else if (Global.Input.triggered(Inputs.B))
-                {
-                    Global.game_system.play_se(System_Sounds.Cancel);
-                    OnCanceled(new EventArgs());
                 }
             }
         }
@@ -269,6 +323,8 @@ namespace FEXNA.Menus.Worldmap
         public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            CancelButton.Draw(spriteBatch);
+
             Window.draw(spriteBatch, -Loc);
             Divider.draw(spriteBatch, -Loc);
             Header.draw(spriteBatch, -Loc);

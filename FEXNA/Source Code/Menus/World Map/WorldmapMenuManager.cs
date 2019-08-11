@@ -91,12 +91,14 @@ loaded in normal mode. Sorry!");
         private void AddPreviousChapterSelectionMenu(WorldmapMenu worldmapMenu)
         {
             worldmapMenu.StorePreviousChapters();
+
             // Open previous chapter selection
             var previousChapterSelectionWindow =
                 new PreviousChapterSelectionMenu(
                     new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2,
                     MenuData.ChapterId,
-                    MenuData);
+                    MenuData,
+                    worldmapMenu);
             previousChapterSelectionWindow.activate(worldmapMenu.CursorLoc);
             previousChapterSelectionWindow.Selected += previousChapterSelectionWindow_Selected;
             previousChapterSelectionWindow.PreviousChapterChanged += previousChapterSelectionWindow_PreviousChapterChanged;

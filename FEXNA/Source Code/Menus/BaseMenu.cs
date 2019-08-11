@@ -6,7 +6,12 @@ namespace FEXNA.Menus
     abstract class BaseMenu : IMenu
     {
         protected bool Visible = true;
-        private bool Active = true;
+        protected bool Active { get; private set; }
+
+        protected BaseMenu()
+        {
+            Active = true;
+        }
 
         protected virtual void Activate() { }
         protected virtual void Deactivate() { }
