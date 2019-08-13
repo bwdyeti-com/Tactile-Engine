@@ -28,7 +28,8 @@ namespace FEXNA
         private int Zoomed_Fade_Timer = 0;
         private Vector2 Offset = Vector2.Zero, Target_Loc;
         private Vector2 MenuOffset = Vector2.Zero;
-        private float Scroll_Speed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
+        private float EventScrollSpeed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
+        private float ScrollSpeed = 0f;
         private Character_Sprite Lord_Sprite;
         private Sprite Map, Minimap, Minimap_Backing, Zoomed_Out_Map;
         private World_Minimap_ViewArea ViewArea;
@@ -49,15 +50,15 @@ namespace FEXNA
         {
             set
             {
-                Target_Loc = value;
-                Scroll_Speed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
+                SetTargetLoc(value);
+                EventScrollSpeed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
                 Tracking_Unit = -1;
                 foreach (Worldmap_Unit unit in Units)
                     unit.remove_all_tracking();
             }
         }
 
-        public float scroll_speed { set { Scroll_Speed = Math.Max(0.001f, value); } }
+        public float scroll_speed { set { EventScrollSpeed = Math.Max(0.001f, value); } }
 
         public bool scrolling
         {
@@ -97,8 +98,9 @@ namespace FEXNA
             Global.game_system.Difficulty_Mode = Global.save_file.Difficulty;
 
             initialize_images();
-            Offset = Target_Loc = MenuData.Chapter.World_Map_Loc -
-                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET;
+            SetTargetLoc(MenuData.Chapter.World_Map_Loc -
+                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET);
+            Offset = Target_Loc;
 
             Global.Chapter_Text_Content.Unload();
             Global.chapter_text = Global.Chapter_Text_Content.Load<Dictionary<string, string>>(@"Data/Text/Worldmap");
@@ -188,6 +190,12 @@ namespace FEXNA
             Global.current_save_info.SetStartedChapter(chapter.Id);
             Global.save_file = null;
             Global.scene_change("Start_Chapter");
+        }
+
+        private void SetTargetLoc(Vector2 loc)
+        {
+            Target_Loc = loc;
+            ScrollSpeed = 0f;
         }
 
         #region Update
@@ -371,7 +379,7 @@ namespace FEXNA
                     Offset.Y = Units[Tracking_Unit].loc.Y + TRACKING_OFFSET.Y;
             }
 
-            Target_Loc = Offset;
+            SetTargetLoc(Offset);
         }
 
         public override void update_data()
@@ -383,14 +391,39 @@ namespace FEXNA
         {
             if (Offset != Target_Loc)
             {
+                // If close to the target
                 if ((Offset - Target_Loc).Length() <= 0.5f)
+                {
                     Offset = Target_Loc;
+                    ScrollSpeed = 0f;
+                }
                 else
                 {
+                    // Get an offset vector 1/4 the way to the target
                     Vector2 offset = (Target_Loc + Offset * 3) / 4;
                     offset -= Offset;
-                    float scroll_speed = Phase == Worldmap_Phases.Worldmap_Event ?
-                        Scroll_Speed : Constants.WorldMap.WORLDMAP_SCROLL_SPEED;
+
+                    float scroll_speed;
+                    if (Phase == Worldmap_Phases.Worldmap_Event)
+                        scroll_speed = EventScrollSpeed;
+                    else
+                    {
+                        // Use a smoother scroll for mouse controls
+                        if (Input.ControlScheme == ControlSchemes.Mouse)
+                        {
+                            if (ScrollSpeed < 1)
+                                ScrollSpeed = 1f;
+                            else
+                                ScrollSpeed *= 2;
+                            ScrollSpeed = Math.Min(ScrollSpeed,
+                                Constants.WorldMap.WORLDMAP_SCROLL_SPEED);
+                            scroll_speed = ScrollSpeed;
+                        }
+                        else
+                            scroll_speed = Constants.WorldMap.WORLDMAP_SCROLL_SPEED;
+                    }
+
+                    // If the offset is too big of a jump, use the scroll speed instead
                     if (offset.Length() > scroll_speed)
                     {
                         offset.Normalize();
@@ -472,8 +505,8 @@ loaded in normal mode. Sorry!");
                     (Lord_Sprite.texture.Width / Lord_Sprite.frame_count) / 2,
                     (Lord_Sprite.texture.Height / Lord_Sprite.facing_count) - 8);
 
-            Target_Loc = chapter.World_Map_Loc -
-                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET;
+            SetTargetLoc(chapter.World_Map_Loc -
+                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET);
         }
 
         public void WorldmapLoadData(
@@ -647,7 +680,8 @@ loaded in normal mode. Sorry!");
         #region Draw
         public override void draw(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
         {
-            Vector2 offset = new Vector2((int)Offset.X, (int)Offset.Y) - (new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2);
+            Vector2 offset = new Vector2((int)Offset.X, (int)Offset.Y) -
+                (new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2);
 
             // Draws the map
             device.SetRenderTarget(render_targets[1]);

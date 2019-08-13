@@ -120,7 +120,7 @@ namespace FEXNA.Windows.Command
             text.Font = "FE7_Text";
             text.texture = Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White");
             MapSprite = new MapSpriteUINode("", text, 48);
-            MapSprite.loc = new Vector2(16, 0);
+            MapSprite.loc = new Vector2(0, 0);
 
             Level = new FE_Text("FE7_TextL",
                 Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_Blue"),

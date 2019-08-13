@@ -309,8 +309,9 @@ namespace FEXNA.Windows.UserInterface
             Vector2 draw_offset = default(Vector2))
         {
 #if DEBUG
+            const bool PREVIEW_NODES = false;
             // Draw node connections
-            if (false) //Debug
+            if (PREVIEW_NODES) //Debug
             {
                 draw_node_connections(sprite_batch, draw_offset);
             }
@@ -319,7 +320,7 @@ namespace FEXNA.Windows.UserInterface
                 node.Draw(sprite_batch, draw_offset);
 #if DEBUG
             // Draw hitboxes
-            if (false) //Debug
+            if (PREVIEW_NODES) //Debug
             {
                 DrawNodeHitboxes(sprite_batch, draw_offset);
             }

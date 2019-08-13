@@ -317,7 +317,7 @@
     <Compile Include="Source Code\Sprites\Windowskins\FE_Arena_Target_Window.cs" />
     <Compile Include="Source Code\Sprites\Windowskins\Data_Ranking_Window.cs" />
     <Compile Include="Source Code\Sprites\Windowskins\System_Color_Window.cs" />
-    <Compile Include="Source Code\Sprites\Windowskins\Shop_Window_Divider.cs" />
+    <Compile Include="Source Code\Sprites\Windowskins\StatusWindowDivider.cs" />
     <Compile Include="Source Code\Sprites\Worldmap Components\Worldmap_Arrow.cs" />
     <Compile Include="Source Code\Sprites\Worldmap Components\Worldmap_Beacon.cs" />
     <Compile Include="Source Code\Sprites\Worldmap Components\Flashing_Worldmap_Object.cs" />

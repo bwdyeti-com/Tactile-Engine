@@ -9,7 +9,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Menus.Worldmap
 {
-    class WorldmapMenu : BaseMenu
+    class WorldmapMenu : BaseMenu, IHasCancelButton
     {
         protected const int WIDTH = 120;
 
@@ -343,6 +343,11 @@ namespace FEXNA.Menus.Worldmap
             }
         }
 
+        #region IHasCancelButton
+        public bool HasCancelButton { get { return CancelButton != null; } }
+        public Vector2 CancelButtonLoc { get { return CancelButton.loc; } }
+        #endregion
+
         #region Events
         public event EventHandler<EventArgs> ChapterSelected;
         protected void OnChapterSelected(EventArgs e)
@@ -478,9 +483,12 @@ namespace FEXNA.Menus.Worldmap
                 SamplerState.PointClamp, null, null);
             DataWindow.draw(spriteBatch);
 
-            CancelButton.Draw(spriteBatch);
-            if (DifficultyChangeButtonVisible())
-                DifficultyButton.Draw(spriteBatch);
+            if (Active)
+            {
+                CancelButton.Draw(spriteBatch);
+                if (DifficultyChangeButtonVisible())
+                    DifficultyButton.Draw(spriteBatch);
+            }
 
             spriteBatch.End();
 
