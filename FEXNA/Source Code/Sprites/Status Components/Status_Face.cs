@@ -17,12 +17,19 @@ namespace FEXNA
                     recolor_country(actor.name_full);
                 offset = new Vector2(Face_Sprite_Data.STATUS_FACE_SIZE.X / 2, Face_Sprite_Data.STATUS_FACE_SIZE.Y);
 
-                int x = (int)status_offset.X;
-                int y = (int)status_offset.Y + row_height * (status_frame >= Emotion_Count ? 0 : status_frame);
-                int width = (int)Face_Sprite_Data.STATUS_FACE_SIZE.X;
-                int height = (int)Face_Sprite_Data.STATUS_FACE_SIZE.Y;
-                Src_Rect = new Rectangle(x, y, width, height);
+                RefreshSrcRect();
             }
+        }
+
+        protected override void RefreshSrcRect()
+        {
+            int x = (int)status_offset.X + this.SrcX;
+            //@Debug: Maybe just set Expression instead, and then use this.SrcY?
+            int srcY = row_height * (status_frame >= Emotion_Count ? 0 : status_frame);
+            int y = (int)status_offset.Y + srcY;
+            int width = (int)Face_Sprite_Data.STATUS_FACE_SIZE.X;
+            int height = (int)Face_Sprite_Data.STATUS_FACE_SIZE.Y;
+            Src_Rect = new Rectangle(x, y, width, height);
         }
 
         public override void update() { }

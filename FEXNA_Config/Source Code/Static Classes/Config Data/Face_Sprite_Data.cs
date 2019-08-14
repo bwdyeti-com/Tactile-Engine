@@ -510,6 +510,7 @@ namespace FEXNA
             result.StatusFrame = Status_Frame;
             result.PlacementOffset = Placement_Offset;
             result.ForceEyesClosed = false;
+            result.Asymmetrical = false;
             result.ClassCard = false;
 
             return result;

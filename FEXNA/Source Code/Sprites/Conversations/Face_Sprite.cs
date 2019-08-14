@@ -48,6 +48,8 @@ namespace FEXNA
             set
             {
                 Mirrored = value;
+                if (texture != null)
+                    RefreshSrcRect();
                 set_offsets();
             }
         }
@@ -58,7 +60,7 @@ namespace FEXNA
             {
                 Expression = Math.Max(value >= Emotion_Count ? 0 : value, 0);
                 if (texture != null)
-                    src_rect = new Rectangle(0, Expression * row_height, src_rect.Width, src_rect.Height);
+                    RefreshSrcRect();
                 blink_control();
                 talk_control();
             }
@@ -168,8 +170,8 @@ namespace FEXNA
                     src_rect = new Rectangle(0, 0, 0, 0);
                 else
                 {
-                    src_rect = new Rectangle(0, Expression * row_height, texture.Width, row_height - (int)(eyes_size.Y + mouth_size.Y));
-                    offset = new Vector2(texture.Width / 2, row_height - (int)(eyes_size.Y + mouth_size.Y));
+                    RefreshSrcRect();
+                    offset = new Vector2(src_rect.Width / 2, src_rect.Height);
                 }
                 EyesFrame = 0;
                 MouthFrame = 0;
@@ -208,33 +210,37 @@ namespace FEXNA
             }
             else
             {
-                Eyes_Loc = new Vector2(mirrored ? texture.Width - (eyes_offset.X + (int)eyes_size.X) : eyes_offset.X, eyes_offset.Y);
-                Mouth_Loc = new Vector2(mirrored ? texture.Width - (mouth_offset.X + (int)mouth_size.X) : mouth_offset.X, mouth_offset.Y);
+                Eyes_Loc = new Vector2(mirrored ? this.FaceWidth - (eyes_offset.X + (int)eyes_size.X) : eyes_offset.X, eyes_offset.Y);
+                Mouth_Loc = new Vector2(mirrored ? this.FaceWidth - (mouth_offset.X + (int)mouth_size.X) : mouth_offset.X, mouth_offset.Y);
             }
         }
 
         protected Rectangle eyes_rect(int eyesFrame)
         {
             Vector2 size = eyes_size;
-            return new Rectangle((int)size.X * eyesFrame,
-                (row_height * (Expression + 1) - (int)(size.Y + mouth_size.Y)),
+            return new Rectangle(
+                this.SrcX + (int)size.X * eyesFrame,
+                this.SrcY + this.FaceHeight,
                 (int)size.X, (int)size.Y);
         }
         protected Rectangle mouth_rect(int mouthFrame)
         {
             Vector2 size = mouth_size;
-            return new Rectangle((int)size.X * mouthFrame,
-                (row_height * (Expression + 1) - (int)(size.Y)),
+            return new Rectangle(
+                this.SrcX + (int)size.X * mouthFrame,
+                this.SrcY + this.FaceHeight + (int)this.eyes_size.Y,
                 (int)size.X, (int)size.Y);
         }
 
         private IEnumerable<Rectangle> frame_rects()
         {
             yield return new Rectangle(
-                (int)eyes_offset.X, (int)eyes_offset.Y + row_height * Expression,
+                (int)eyes_offset.X + this.SrcX,
+                (int)eyes_offset.Y + this.SrcY,
                 (int)eyes_size.X, (int)eyes_size.Y);
             yield return new Rectangle(
-                (int)mouth_offset.X, (int)mouth_offset.Y + row_height * Expression,
+                (int)mouth_offset.X + this.SrcX,
+                (int)mouth_offset.Y + this.SrcY,
                 (int)mouth_size.X, (int)mouth_size.Y);
         }
         protected FEXNA_Library.RectangleExclusion frame_exclusion()
@@ -270,6 +276,13 @@ namespace FEXNA
                 //texture = texture.recolor_face(country);
                 //Global.Face_Textures.Add(texture);
             }
+        }
+
+        protected virtual void RefreshSrcRect()
+        {
+            this.src_rect = new Rectangle(
+                this.SrcX, this.SrcY,
+                this.FaceWidth, this.FaceHeight);
         }
 
         #region Controls
@@ -335,11 +348,46 @@ namespace FEXNA
         {
             get
             {
-                if (texture == null) return 0;
-                return (texture.Height - ((int)Face_Sprite_Data.MINI_FACE_SIZE.Y + 
-                    Face_Sprite_Data.BATTLE_EMOTE_COUNT * (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y)) / Emotion_Count;
+                if (texture == null)
+                    return 0;
+                int height = texture.Height;
+                // Remove mini
+                height -= (int)Face_Sprite_Data.MINI_FACE_SIZE.Y;
+                // Remove battle faces
+                height -= Face_Sprite_Data.BATTLE_EMOTE_COUNT * (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y;
+                // Divide by number of emotion variations
+                height /= Emotion_Count;
+                return height;
             }
         }
+
+        protected int FaceWidth
+        {
+            get
+            {
+                if (texture == null)
+                    return 0;
+                int width = texture.Width;
+                // If asymmetrical
+                if (this.face_data.Asymmetrical)
+                    width /= 2;
+                return width;
+            }
+        }
+        protected int FaceHeight { get { return this.row_height - (int)(eyes_size.Y + mouth_size.Y); } }
+
+        protected int SrcX
+        {
+            get
+            {
+                int x = 0;
+                if (this.face_data.Asymmetrical)
+                    x = Mirrored ? this.FaceWidth : 0;
+                return x;
+            }
+        }
+        protected int SrcY { get { return Expression * this.row_height; } }
+
         protected Vector2 eyes_size { get { return Face_Sprite_Data.EYES_FACE_SIZE; } }
         protected Vector2 mouth_size { get { return Face_Sprite_Data.MOUTH_FACE_SIZE; } }
 
@@ -353,13 +401,17 @@ namespace FEXNA
         {
             get
             {
-                string name = Filename.Split(Constants.Actor.BUILD_NAME_DELIMITER)[0];
-                if (Global.face_data != null && Global.face_data.ContainsKey(name)) //FaceData //Debug
-                    return Global.face_data[name];
-                if (Face_Sprite_Data.FACE_OFFSETS.ContainsKey(name))
-                    return Face_Sprite_Data.FACE_OFFSETS[name].to_face_data(name);
-                return Face_Sprite_Data.FACE_DATA_DEFAULT.to_face_data(name);
+                return get_face_data(Filename);
             }
+        }
+        public static FEXNA_Library.Face_Data get_face_data(string filename)
+        {
+            string name = filename.Split(Constants.Actor.BUILD_NAME_DELIMITER)[0];
+            if (Global.face_data != null && Global.face_data.ContainsKey(name)) //FaceData //Debug
+                return Global.face_data[name];
+            if (Face_Sprite_Data.FACE_OFFSETS.ContainsKey(name))
+                return Face_Sprite_Data.FACE_OFFSETS[name].to_face_data(name);
+            return Face_Sprite_Data.FACE_DATA_DEFAULT.to_face_data(name);
         }
 
         #region Update
@@ -526,8 +578,10 @@ namespace FEXNA
             if (texture != null)
                 if (visible)
                 {
+                    // Adjust position
                     if (Convo_Placement_Offset)
                         draw_offset -= new Vector2(placement_offset * (mirrored ? 1 : -1), 0);
+                    // Setup shader for palettes
                     if (palette_exists)
                     {
                         Effect effect = Global.effect_shader();
@@ -556,12 +610,13 @@ namespace FEXNA
                     if (mirrored)
                         offset.X = src_rect.Width - offset.X;
 
+                    // Crop eyes and mouth out of body, then draw it
                     foreach (var rect in frame_exclusion())
                     {
                         Vector2 frame_offset = new Vector2(
                             rect.X - src_rect.X, rect.Y - src_rect.Y);
                         frame_offset = new Vector2(mirrored ?
-                            texture.Width - (frame_offset.X + (int)rect.Width) :
+                            this.FaceWidth - (frame_offset.X + (int)rect.Width) :
                             frame_offset.X, frame_offset.Y);
 
                         sprite_batch.Draw(texture,
@@ -569,19 +624,7 @@ namespace FEXNA
                             rect, tint, angle, offset, scale,
                             mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     }
-
-                    /* //Debug
-                    // Body
-                    if (Dest_Rect != null)
-                        sprite_batch.Draw(texture, (Rectangle)Dest_Rect,
-                            src_rect, tint, angle, offset,
-                            mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
-                    else
-                        sprite_batch.Draw(texture, this.loc + draw_vector() - draw_offset,
-                            src_rect, tint, angle, offset, scale,
-                            mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
-                    */
-
+                    
                     int eyes_frame = Idle ? 0 : EyesFrame;
                     int mouth_frame = Idle ? 0 : MouthFrame;
                     // Eyes
