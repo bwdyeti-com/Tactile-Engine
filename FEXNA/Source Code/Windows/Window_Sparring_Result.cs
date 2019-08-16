@@ -278,12 +278,18 @@ namespace FEXNA
         {
             Exp1 = Exp_Gain1 = data.Exp_Gain1;
             Exp2 = Exp_Gain2 = data.Exp_Gain2;
+
+            int overseerExp;
             if (healer.can_staff() || !healer.can_oversee_sparring_normally())
-                Exp3 = Exp_Gain3 = Math.Min(Constants.Actor.EXP_TO_LVL,
-                    Combat.training_exp(healer, Combat.staff_exp(
-                    healer, Global.data_weapons[Scene_Sparring.HEALER_STAFF_ID])));
+            {
+                overseerExp = Combat.training_exp(healer, Combat.staff_exp(
+                    healer, Global.data_weapons[Scene_Sparring.HEALER_STAFF_ID]));
+                overseerExp = Math.Min(Constants.Actor.EXP_TO_LVL, overseerExp);
+            }
             else
-                Exp3 = Exp_Gain3 = SPECIAL_OVERSEER_EXP;
+                overseerExp = SPECIAL_OVERSEER_EXP;
+            overseerExp = Math.Min(overseerExp, healer.exp_gain_possible());
+            Exp3 = Exp_Gain3 = overseerExp;
 
             Wexp1 = data.Wexp1 == 0 ? 0 : Math.Max(1, data.Wexp1 / 2);
             Wexp2 = data.Wexp2 == 0 ? 0 : Math.Max(1, data.Wexp2 / 2);
