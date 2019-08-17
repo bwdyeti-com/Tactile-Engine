@@ -36,11 +36,11 @@ namespace FEXNA.Windows.UserInterface.Command
             RankValue.texture = Global.Content.Load<Texture2D>(
                 @"Graphics/Fonts/FE7_Text_Blue");
             RankValue.text = ranking.score.ToString();
-            RankValue.draw_offset = new Vector2(48 - 0, 0);
+            RankValue.draw_offset = new Vector2(56 - 0, 0);
 
             Rank = ranking_text(ranking.rank);
             Rank.Font = "FE7_TextL";
-            Rank.draw_offset = new Vector2(48 + 4, 0);
+            Rank.draw_offset = new Vector2(56 + 4, 0);
         }
 
         private FE_Text ranking_text(string text)

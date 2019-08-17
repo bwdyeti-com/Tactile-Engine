@@ -371,10 +371,17 @@ namespace FEXNA.IO
 
         public string displayed_rank(string chapter_id)
         {
+            var rank = ranking(chapter_id);
+            if (rank == null)
+                return "";
+            return rank.rank;
+        }
+        public Game_Ranking ranking(string chapter_id)
+        {
             var recent_chapter = recent_save(chapter_id, "");
             if (recent_chapter == null)
-                return "";
-            return recent_chapter.ranking.rank;
+                return null;
+            return recent_chapter.ranking;
         }
 
         public Difficulty_Modes displayed_difficulty(string chapter_id)
