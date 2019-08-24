@@ -205,7 +205,9 @@ namespace FEXNA
             {
                 Data_Chapters["Ch23"] = new Data_Chapter
                 {
-                    Id = "Ch23", Chapter_Name = "endgame test", World_Map_Name = "Chapter 23",
+                    Id = "Ch23",
+                    Abbreviation = "8-3", Chapter_Name = "endgame test",
+                    World_Map_Name = "Stage 3", AlternateTitle = "Chapter 23",
                     World_Map_Loc = new Vector2(1885, 542), Standalone = true, Battalion = 0, World_Map_Lord_Id = 1,
                     Progression_Ids = new List<string> { "Ch23" },
                     Completed_Chapters = new List<string> { "Pre" },
