@@ -12,6 +12,7 @@ namespace FEXNA
             255,0,0,0,0,0,0,255,0,0,0,0,0,0,255,0,0,0,0,0,0,255,0,0,0,0,0,0,255 };
         protected int Death = -1;
         protected int Y = 0;
+        private int Frame = 0;
         protected bool Fade = false;
 
         public Battle_Face_Sprite(Game_Unit unit)
@@ -24,15 +25,25 @@ namespace FEXNA
                 if (unit.actor.generic_face)
                     recolor_country(unit.actor.name_full);
                 offset = new Vector2(Face_Sprite_Data.BATTLE_FACE_SIZE.X, 0);
-                Y = texture.Height - (int)(Face_Sprite_Data.MINI_FACE_SIZE.Y + Face_Sprite_Data.BATTLE_FACE_SIZE.Y * Face_Sprite_Data.BATTLE_EMOTE_COUNT);
+                int battleFaceHeight = (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y * Face_Sprite_Data.BATTLE_EMOTE_COUNT;
+                Y = texture.Height - ((int)Face_Sprite_Data.MINI_FACE_SIZE.Y + battleFaceHeight);
                 set_frame(0);
             }
         }
 
         public void set_frame(int frame)
         {
-            Src_Rect = new Rectangle(0, Y + frame * (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y,
-                (int)Face_Sprite_Data.BATTLE_FACE_SIZE.X, (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y);
+            Frame = frame;
+            RefreshSrcRect();
+        }
+
+        protected override void RefreshSrcRect()
+        {
+            Src_Rect = new Rectangle(
+                this.SrcX,
+                Y + Frame * (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y,
+                (int)Face_Sprite_Data.BATTLE_FACE_SIZE.X,
+                (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y);
         }
 
         public void kill()

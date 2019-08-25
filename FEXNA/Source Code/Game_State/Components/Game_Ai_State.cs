@@ -2298,8 +2298,13 @@ namespace FEXNA.State
                                 {
                                     target_sort(escape_targets);
                                     Temp_Ai_Loc = escape_targets[0].loc;
+                                    // Get a subset of escape points that aren't blocked
+                                    var accessibleEscapeTargets = escape_targets
+                                        .Where(x => !is_blocked(x.loc, Active_Ai_Unit_Id))
+                                        .ToList();
                                     // If we can't get to the escape point this turn, switch to the mission that handles moving closer
-                                    if (escape_targets[0].dist > unit.mov)
+                                    if (!accessibleEscapeTargets.Any() ||
+                                        accessibleEscapeTargets[0].dist > unit.mov)
                                     {
                                         Temp_Ai_Locs = new HashSet<Vector2>(escape_targets.Select(x => x.loc));
                                         unit.mission = 23;
@@ -2307,6 +2312,7 @@ namespace FEXNA.State
                                     }
                                     else
                                     {
+                                        Temp_Ai_Loc = accessibleEscapeTargets[0].loc;
                                         Temp_Ai_Locs = new HashSet<Vector2>(escape_targets.Select(x => x.loc));
                                         bool assist_others = false;
                                         // Check if other units are retreating and whether to assist them instead of leaving now
@@ -2407,7 +2413,7 @@ namespace FEXNA.State
                                     break;
                             }
                             break;
-                        // Opens chest
+                        // Escape
                         case Ai_Actions.Escape:
                             // Unit movement locked in
                             unit.escape();
@@ -2672,13 +2678,20 @@ namespace FEXNA.State
                                 {
                                     target_sort(escape_targets);
                                     Temp_Ai_Loc = escape_targets[0].loc;
-                                    if (escape_targets[0].dist > unit.mov)
+                                    // Get a subset of escape points that aren't blocked
+                                    var accessibleEscapeTargets = escape_targets
+                                        .Where(x => !is_blocked(x.loc, Active_Ai_Unit_Id))
+                                        .ToList();
+                                    // If we can't get to the escape point this turn, search for targets
+                                    if (!accessibleEscapeTargets.Any() ||
+                                        accessibleEscapeTargets[0].dist > unit.mov)
                                     {
                                         Ai_Action = Ai_Actions.Search_For_Targets;
                                         cont = false;
                                     }
                                     else
                                     {
+                                        Temp_Ai_Loc = accessibleEscapeTargets[0].loc;
                                         // Tests for doors in the way // Not sure if this one works //Yeti
                                         if (unit.can_open_door())
                                         {
@@ -2758,7 +2771,7 @@ namespace FEXNA.State
                                     break;
                             }
                             break;
-                        // Opens chest
+                        // Escape
                         case Ai_Actions.Escape:
                             // Unit movement locked in
                             unit.escape();

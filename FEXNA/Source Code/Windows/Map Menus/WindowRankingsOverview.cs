@@ -13,8 +13,9 @@ namespace FEXNA.Windows.Map
 {
     class WindowRankingsOverview : Map_Window_Base
     {
+        const bool SHOW_ALL_CHAPTERS = true;
         const int ROWS = 8;
-        const int COLUMN_WIDTH = 64;
+        const int COLUMN_WIDTH = 80;
         readonly static Vector2 DATA_OFFSET = new Vector2(32, 32);
 
         private string Chapter;
@@ -49,6 +50,12 @@ namespace FEXNA.Windows.Map
 
             initialize_sprites();
             update_black_screen();
+
+            // Jump to chapter
+            int index = Rankings.FindIndex(x => x.Key == chapter);
+            Nodes.set_active_node(Nodes[index]);
+            Cursor.UpdateTargetLoc();
+            Cursor.move_to_target_loc();
         }
 
         protected void initialize_sprites()
@@ -107,8 +114,42 @@ namespace FEXNA.Windows.Map
 
         private void refresh_rankings(string chapter)
         {
+            // Get the rankings based on the selected chapter
             var current_rankings = Global.save_file.all_rankings(chapter);
-            Rankings = current_rankings.ToList();
+            var rankings = current_rankings
+                .ToDictionary(p => p.Key, p => p.Value);
+            // Get the rankings of all other chapters, and show they greyed out
+            if (SHOW_ALL_CHAPTERS)
+            {
+                // Sort chapters
+                var rankedChapters = Global.Chapter_List
+                    .Where(x => !Global.data_chapters[x].Unranked)
+                    .GroupBy(x => Global.data_chapters[x].Arc)
+                    .OrderBy(x =>
+                    {
+                        int index = Constants.WorldMap.GAME_ARCS.Count;
+                        if (Constants.WorldMap.GAME_ARCS.Contains(x.Key))
+                            index = Constants.WorldMap.GAME_ARCS.IndexOf(x.Key);
+                        return index;
+                    })
+                    .SelectMany(x => x
+                        .OrderBy(y => Global.Chapter_List.IndexOf(y))
+                        .ToList())
+                    .ToList();
+                // Get all cleared chapters, and
+                // their ranking data accoring to themselves
+                rankings = rankedChapters
+                    .Where(x => Global.save_file.ContainsKey(x))
+                    .ToDictionary(x => x, x => Global.save_file.ranking(x));
+                // Overwrite each chapter based on the current chapter's history
+                foreach (var key in current_rankings.Keys)
+                    rankings[key] = current_rankings[key];
+                rankings = rankings
+                    .OrderBy(x => rankedChapters.IndexOf(x.Key))
+                    .ToDictionary(p => p.Key, p => p.Value);
+            }
+
+            Rankings = rankings.ToList();
 
             int i = 0;
             List<TextUINode> ranks = new List<TextUINode>();
@@ -116,18 +157,19 @@ namespace FEXNA.Windows.Map
             {
                 var chapter_data = Global.data_chapters[ch];
 
-                if (current_rankings.ContainsKey(ch))
+                if (rankings.ContainsKey(ch))
                 {
-                    var ranking = current_rankings[ch];
+                    var ranking = rankings[ch];
 
+                    // Color the label yellow for history of the current
+                    // chapter, grey if just other data from this file
+                    string color = current_rankings.ContainsKey(ch) ?
+                        "Yellow" : "Grey";
                     var text = new FE_Text();
                     text.Font = "FE7_Text";
                     text.texture = Global.Content.Load<Texture2D>(
-                        @"Graphics/Fonts/FE7_Text_Yellow");
-                    string id = chapter_data.Id;
-                    if (id.StartsWith("Ch") && id.Length > 2)
-                        id = id.Substring(2);
-                    text.text = id;
+                        string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
+                    text.text = chapter_data.Abbreviation;
                     text.stereoscopic = Config.OPTIONS_OPTIONS_DEPTH; //Yeti
 
                     var node = new RankingUINode("", text, COLUMN_WIDTH, ranking);
