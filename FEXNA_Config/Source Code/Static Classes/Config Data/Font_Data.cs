@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA
 {
@@ -16,26 +18,7 @@ namespace FEXNA
         {
             if (!Data.ContainsKey(font))
                 return 0;
-            Dictionary<char, int[]> font_data = Data[font].CharacterData;
-            int text_width = 0, previous_line_width = 0;
-            foreach (char letter in text)
-            {
-                if (letter == '\n')
-                {
-                    previous_line_width = Math.Max(previous_line_width, text_width);
-                    text_width = 0;
-                    continue;
-                }
-
-                if (!font_data.ContainsKey(letter))
-                    continue;
-                int[] char_data = font_data[letter];
-                text_width += char_data[2];
-                if (Data[font].CharacterOffsets != null)
-                    if (Data[font].CharacterOffsets.ContainsKey(letter))
-                        text_width += Data[font].CharacterOffsets[letter];
-            }
-            return Math.Max(previous_line_width, text_width);
+            return Data[font].TextWidth(text);
         }
 
         static Font_Data()
@@ -126,7 +109,7 @@ namespace FEXNA
                         { '+', new int[] { 26, 2, 7 }},
                         { '[', new int[] { 26, 0, 4 }},
                         { ']', new int[] { 26, 1, 4 }},
-                        { ' ', new int[] {  0, 0, 3 }}
+                        { ' ', new int[] { -1, 0, 3 }}
                     },
                     #endregion
                     #region Character Offsets
@@ -216,7 +199,7 @@ namespace FEXNA
                         { '"', new int[] { 24, 2, 4 }},
                         { '\'',new int[] { 25, 2, 2 }},
                         { '+', new int[] { 26, 2, 7 }},
-                        { ' ', new int[] { 0, 0, 3 }},
+                        { ' ', new int[] { -1, 0, 3 }},
                     },
                     #endregion
                     #region Character Offsets
@@ -241,7 +224,7 @@ namespace FEXNA
                         { '-', new int[] { 16, 2, 8 }},
                         { ':', new int[] { 21, 2, 2 }},
                         { '+', new int[] { 26, 2, 8 }},
-                        { ' ', new int[] {  0, 0, 3 }}
+                        { ' ', new int[] { -1, 0, 3 }}
                     },
                     #endregion
                     #region Character Offsets
@@ -266,7 +249,7 @@ namespace FEXNA
                         { '-', new int[] { 26, 3, 8 }},
                         { ':', new int[] { 21, 2, 2 }},
                         { '+', new int[] { 26, 2, 8 }},
-                        { ' ', new int[] {  0, 0, 3 }}
+                        { ' ', new int[] { -1, 0, 3 }}
                     },
                     #endregion
                     #region Character Offsets
@@ -467,7 +450,7 @@ namespace FEXNA
                         { '\'',new int[] { 25, 2, 2 }},
                         { '+', new int[] { 26, 2, 7 }},
                         { '%', new int[] { 27, 2, 7 }},
-                        { ' ', new int[] {  0, 0, 3 }},
+                        { ' ', new int[] { -1, 0, 3 }},
                     },
                     #endregion
                     #region Character Offsets
@@ -559,7 +542,7 @@ namespace FEXNA
                         { '"', new int[] { 24, 2, 4 }},
                         { '\'',new int[] { 25, 2, 2 }},
                         { '+', new int[] { 26, 2, 7 }},
-                        { ' ', new int[] {  0, 0, 3 }},
+                        { ' ', new int[] { -1, 0, 3 }},
                     },
                     #endregion
                     #region Character Offsets
@@ -650,7 +633,7 @@ namespace FEXNA
                         { '\'',new int[] { 25, 2, 6 }},
                         { '+', new int[] { 26, 2, 6 }},
                         { '%', new int[] { 27, 2, 6 }},
-                        { ' ', new int[] {  0, 0, 3 }},
+                        { ' ', new int[] { -1, 0, 3 }},
                     },
                     #endregion
                     #region Character Offsets
@@ -791,7 +774,7 @@ namespace FEXNA
                         { 'X', new int[] { 23, 1, 12 }},
                         { 'Y', new int[] { 24, 1, 12 }},
                         { 'Z', new int[] { 25, 1, 12 }},
-                        { ' ', new int[] {  0, 0,  6 }},
+                        { ' ', new int[] { -1, 0,  6 }},
                     },
                     #endregion
                     #region Character Offsets
@@ -854,7 +837,7 @@ namespace FEXNA
                         { 'X', new int[] { 23, 1,16 }},
                         { 'Y', new int[] { 24, 1,32 }}, //Yeti
                         { 'Z', new int[] { 25, 1,13 }},
-                        { ' ', new int[] { 0, 0, 4 }},
+                        { ' ', new int[] { -1, 0, 4 }},
                     },
                     #endregion
                     #region Character Offsets
@@ -875,7 +858,7 @@ namespace FEXNA
         public string Name { get; private set; }
         public int CharWidth { get; private set; }
         public int CharHeight { get; private set; }
-        public Dictionary<char, int[]> CharacterData { get; private set; }
+        public Dictionary<char, int[]> CharacterData { get; private set; } //@Debug: should be private
         public Dictionary<char, int> CharacterOffsets { get; private set; }
 
         private Font_Data(string name, int char_width, int char_height, Dictionary<char, int[]> character_data, Dictionary<char, int> character_offsets)
@@ -886,6 +869,45 @@ namespace FEXNA
             CharHeight = char_height;
             CharacterData = character_data;
             CharacterOffsets = character_offsets;
+        }
+
+        public int TextWidth(string text)
+        {
+            int textWidth = 0, previousLineWidth = 0;
+            foreach (char letter in text)
+            {
+                if (letter == '\n')
+                {
+                    previousLineWidth = Math.Max(previousLineWidth, textWidth);
+                    textWidth = 0;
+                    continue;
+                }
+
+                if (!CharacterData.ContainsKey(letter))
+                    continue;
+                textWidth += CharacterWidth(letter);
+                if (CharacterOffsets != null)
+                    if (CharacterOffsets.ContainsKey(letter))
+                        textWidth += CharacterOffsets[letter];
+            }
+            return Math.Max(previousLineWidth, textWidth);
+        }
+
+        public int CharacterWidth(char letter)
+        {
+            int[] charData = CharacterData[letter];
+            return charData.Length == 3 ? charData[2] : charData[4];
+        }
+
+        public Rectangle CharacterSrcRect(char letter)
+        {
+            int[] charData = CharacterData[letter];
+            Rectangle srcRect;
+            if (charData.Length == 3)
+                srcRect = new Rectangle(charData[0] * CharWidth, charData[1] * CharHeight, CharWidth, CharHeight);
+            else
+                srcRect = new Rectangle(charData[0], charData[1], charData[2], charData[3]);
+            return srcRect;
         }
     }
 }
