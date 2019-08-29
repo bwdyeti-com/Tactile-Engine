@@ -827,7 +827,7 @@ namespace FEXNA
         public bool add_event(int id, bool run_lone_event, bool insert)
         {
             // If the event is already running
-            foreach(Event_Processor processor in Events)
+            foreach (Event_Processor processor in Events)
                 if (processor.key == Global.game_state.event_handler.name + id)
                     return false;
             if (insert)
