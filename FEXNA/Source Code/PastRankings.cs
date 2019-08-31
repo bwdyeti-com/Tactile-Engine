@@ -70,6 +70,17 @@ namespace FEXNA
             }
         }
 
+        public int MinimumRank
+        {
+            get
+            {
+                if (!Data.Any())
+                    //@Debug: C rank
+                    return 3;
+                return Data.Values.Max(x => x.ranking_index);
+            }
+        }
+
         public Dictionary<string, Game_Ranking> GetData()
         {
             return Data.ToDictionary(p => p.Key, p => new Game_Ranking(p.Value));

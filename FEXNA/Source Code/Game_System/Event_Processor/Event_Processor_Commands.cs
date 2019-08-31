@@ -3558,13 +3558,13 @@ namespace FEXNA
                         value1, value2);
                     break;
                 case "S Rank":
-                    result = new Game_Ranking().ranking_index <= 0;
+                    result = new Game_Ranking().ranking_index <= 0; //@Debug
                     break;
                 case "A Rank":
-                    result = new Game_Ranking().ranking_index <= 1;
+                    result = new Game_Ranking().ranking_index <= 1; //@Debug
                     break;
                 case "B Rank":
-                    result = new Game_Ranking().ranking_index <= 2;
+                    result = new Game_Ranking().ranking_index <= 2; //@Debug
                     break;
                 #region Map State
                 case "In Combat":
