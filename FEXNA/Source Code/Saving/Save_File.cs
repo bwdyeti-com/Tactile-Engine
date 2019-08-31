@@ -406,27 +406,43 @@ namespace FEXNA.IO
         /// <param name="chapter_id">The key of the chapter to check</param>
         public bool chapter_available(string chapter_id)
         {
-            if (Global.data_chapters[chapter_id].Prior_Chapters.Count > 0)
+            var chapter = Global.data_chapters[chapter_id];
+            if (chapter.Prior_Chapters.Count > 0)
                 // If the chapter has prior chapters, to be viable it has to have save data to load from those chapters
-                for (int i = 0; i < Global.data_chapters[chapter_id].Prior_Chapters.Count; i++)
+                for (int i = 0; i < chapter.Prior_Chapters.Count; i++)
                 {
-                    // The first entry must have the same battalion
-                    if (i == 0)
+                    if (!has_progression_key(chapter.Prior_Chapters[i]))
+                        return false;
+
+                    // Followup chapters must have the same battalion
+                    // in their first prior chapter
+                    if (!chapter.Standalone && i == 0)
                     {
-                        if (!has_progression_key(Global.data_chapters[chapter_id].Prior_Chapters[i],
-                                //Global.data_chapters.Values.Single(x => x.Id == chapter_id).Battalion)) //Debug
-                                Global.data_chapters[chapter_id].Battalion))
+                        bool sameBattalion = has_progression_key(chapter.Prior_Chapters[i],
+                            //Global.data_chapters.Values.Single(x => x.Id == chapter_id).Battalion)) //Debug
+                            chapter.Battalion);
+#if DEBUG
+                        Debug.Assert(sameBattalion, string.Format(
+@"Invalid prior chapter for ""{0}"".
+
+As a follow-up chapter, the first prior
+chapter must use the same battalion.
+
+No completed chapter with the
+progression id ""{1}"" uses battalion {2}.",
+                            chapter.TitleName,
+                            chapter.Prior_Chapters[0],
+                            chapter.Battalion));
+#endif
+                        if (!sameBattalion)
                             return false;
                     }
-                    else
-                        if (!has_progression_key(Global.data_chapters[chapter_id].Prior_Chapters[i]))
-                            return false;
                 }
 
             // Completed chapters require only that the chapter has been beaten
-            for (int i = 0; i < Global.data_chapters[chapter_id].Completed_Chapters.Count; i++)
+            for (int i = 0; i < chapter.Completed_Chapters.Count; i++)
             {
-                if (!has_progression_key(Global.data_chapters[chapter_id].Completed_Chapters[i]))
+                if (!has_progression_key(chapter.Completed_Chapters[i]))
                     return false;
             }
 
@@ -526,27 +542,30 @@ namespace FEXNA.IO
         }
         public Dictionary<string, List<string>> valid_previous_chapters(string chapter_id)
         {
+            var chapter = Global.data_chapters[chapter_id];
             Dictionary<string, List<string>> previous_chapters = new Dictionary<string, List<string>>();
             // Prior Chapters
-            for (int i = 0; i < Global.data_chapters[chapter_id].Prior_Chapters.Count; i++)
+            for (int i = 0; i < chapter.Prior_Chapters.Count; i++)
             {
-                string progression_id = Global.data_chapters[chapter_id].Prior_Chapters[i];
+                string progression_id = chapter.Prior_Chapters[i];
+                // Duplicate; already added the set of chapters for this id
                 if (previous_chapters.ContainsKey(progression_id))
                     continue;
-                int battalion = i > 0 ? -1 :
-                    battalion = Global.data_chapters[chapter_id].Battalion;
+                int battalion = -1;
+                if (!chapter.Standalone && i == 0)
+                    battalion = chapter.Battalion;
                 List<string> result = get_previous_chapters(
                     chapter_id, progression_id, battalion);
                 previous_chapters.Add(progression_id, result);
             }
             // If no prior chapters, don't have the player select completed chapters
-            // If there's something important to load 
+            // If there's nothing important to load 
             if (previous_chapters.Count == 0)
                 return previous_chapters;
             // Completed Chapters
-            for(int i = 0; i < Global.data_chapters[chapter_id].Completed_Chapters.Count; i++)
+            for (int i = 0; i < chapter.Completed_Chapters.Count; i++)
             {
-                string progression_id = Global.data_chapters[chapter_id].Completed_Chapters[i];
+                string progression_id = chapter.Completed_Chapters[i];
                 if (previous_chapters.ContainsKey(progression_id))
                     continue;
                 int battalion = -1;

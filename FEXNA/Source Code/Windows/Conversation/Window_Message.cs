@@ -41,7 +41,6 @@ namespace FEXNA
         private TextSkips _convoSkip;
         protected bool Event_Skip;
         protected bool QuickRender;
-        protected bool Backlog_Active = false;
         protected int Speaker = NO_SPEAKER, Temp_Speaker = NO_SPEAKER;
         protected int Phase, Phase_Timer, Timer;
         protected int Line_Wait, Wait_Timer;
@@ -127,7 +126,7 @@ namespace FEXNA
         internal float backlog_stereoscopic { set { Backlog.stereoscopic = value; } }
 
         internal TextSkips ConvoSkip { set { _convoSkip = value; } }
-        internal bool backlog_active { get { return Backlog_Active; } }
+        internal bool backlog_active { get { return Backlog.Active; } }
         internal bool closing { get { return Closing; } }
 
         internal static Font_Data FontData { get { return Font_Data.Data[FONT]; } }
@@ -1598,7 +1597,7 @@ function normally. Suggested value is -3.",
                 Backlog.update();
                 if (Backlog.ready)
                 {
-                    if (Backlog_Active)
+                    if (Backlog.Active)
                     {
                         // Close backlog
                         if (Global.Input.triggered(Inputs.A) ||
@@ -1607,12 +1606,10 @@ function normally. Suggested value is -3.",
                             Global.Input.mouse_click(MouseButtons.Right) ||
                             Global.Input.gesture_triggered(TouchGestures.LongPress))
                         {
-                            Backlog_Active = false;
                             Backlog.fade_out();
                         }
                         else if(Global.Input.gesture_triggered(TouchGestures.SwipeLeft))
                         {
-                            Backlog_Active = false;
                             Backlog.fade_out(true);
                         }
                         update_faces();
@@ -1757,7 +1754,6 @@ function normally. Suggested value is -3.",
 
         protected void activate_backlog(bool swipeIn = false)
         {
-            Backlog_Active = true;
             Backlog.fade_in(swipeIn);
             update_faces();
         }
@@ -1834,7 +1830,7 @@ function normally. Suggested value is -3.",
                 Location.draw(sprite_batch);
             sprite_batch.End();
 
-            Backlog.draw(sprite_batch, Backlog_Active);
+            Backlog.draw(sprite_batch);
 
             if (Background != null && background_transition_over_text())
             {

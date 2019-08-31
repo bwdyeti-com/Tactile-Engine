@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Text;
 
-namespace FEXNA
+namespace FEXNA.Graphics
 {
     enum Chapter_Transition_Actions { Bg_In, Sigil_In, Pause1, Banner_Shape, Banner_In, Pause2, Bg_Out, Banner_Out, Finalize, Done}
     class Chapter_Transition_Effect : Sprite
@@ -22,7 +22,7 @@ namespace FEXNA
         Rectangle Text_Scissor_Rect;
         RasterizerState Text_State = new RasterizerState { ScissorTestEnable = true };
 
-        public Chapter_Transition_Effect()
+        public Chapter_Transition_Effect(FEXNA_Library.Data_Chapter chapter)
         {
             // Background
             texture = Global.Content.Load<Texture2D>(@"Graphics/Pictures/Chapter Transition Background");
@@ -55,7 +55,7 @@ namespace FEXNA
             Banner_Bg.stereoscopic = Config.CH_TRANS_SIGIL_DEPTH;
             // Text
             Text = new FE_Text();
-            string str = Global.data_chapters[Global.game_state.chapter_id].ChapterTransitionName;
+            string str = chapter.ChapterTransitionName;
             Text.loc = new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2 - new Vector2(Font_Data.text_width(str, "FE7_Chapter") / 2, 8);
             Text_Scissor_Rect = new Rectangle(0, (int)Banner.loc.Y - Banner.texture.Height / 2, Config.WINDOW_WIDTH, Banner.texture.Height);
             Text.Font = "FE7_Chapter";
@@ -319,6 +319,17 @@ namespace FEXNA
                 }
                 Bg_Move = !Bg_Move;
             }
+
+            UpdateGraphics();
+        }
+
+        private void UpdateGraphics()
+        {
+            Sigil.update();
+            Banner.update();
+            Banner_Bg.update();
+            Black_Fill.update();
+            Text.update();
         }
 
         public void clear()
@@ -372,6 +383,7 @@ namespace FEXNA
                     Sigil.draw(sprite_batch);
                     Banner_Bg.draw(sprite_batch);
                     sprite_batch.End();
+
                     // Banner
                     Effect text_shader = Global.effect_shader();
                     if (text_shader != null)

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics;
 using FEXNA.Graphics.Map;
 using FEXNA.Graphics.Text;
 using FEXNA_Library;
@@ -1052,7 +1053,8 @@ namespace FEXNA
 
         public void chapter_change()
         {
-            Chapter_Transition = new Chapter_Transition_Effect();
+            Chapter_Transition = new Chapter_Transition_Effect(
+                Global.data_chapters[Global.game_state.chapter_id]);
         }
 
         public void cancel_chapter_change()

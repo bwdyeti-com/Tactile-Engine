@@ -165,7 +165,7 @@ namespace FEXNA
             Difficulty_Modes difficulty = Global.game_system.Difficulty_Mode;
             var validPreviousChapters =
                 Global.save_file.valid_previous_chapters(chapter.Id);
-            if (chapter.Standalone || validPreviousChapters.Count == 0)
+            if (chapter.Standalone && validPreviousChapters.Count == 0)
             {
                 Global.game_system.reset();
                 Global.game_system.reset_event_variables();
