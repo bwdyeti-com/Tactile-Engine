@@ -852,6 +852,30 @@ namespace FEXNA
                     }) },
                     #endregion
                 #endregion
+                #region ChapterLabel
+                { "ChapterLabel",        new Font_Data("ChapterLabel",        8, 16,
+                    #region Character Data
+                    new Dictionary<char, int[]> {
+                        { '0', new int[] { 1, 0, 8 }},
+                        { '1', new int[] { 2, 0, 8 }},
+                        { '2', new int[] { 3, 0, 8 }},
+                        { '3', new int[] { 4, 0, 8 }},
+                        { '4', new int[] { 5, 0, 8 }},
+                        { '5', new int[] { 6, 0, 8 }},
+                        { '6', new int[] { 7, 0, 8 }},
+                        { '7', new int[] { 8, 0, 8 }},
+                        { '8', new int[] { 9, 0, 8 }},
+                        { '9', new int[] {10, 0, 8 }},
+                        { ' ', new int[] {11, 0, 8 }},
+                        { 'x', new int[] {12, 0, 8 }},
+                        { '-', new int[] {13, 0, 8 }},
+                    },
+                    #endregion
+                    #region Character Offsets
+                    new Dictionary<char, int> {
+                    }) },
+                    #endregion
+                #endregion
             };
         }
 
@@ -908,6 +932,55 @@ namespace FEXNA
             else
                 srcRect = new Rectangle(charData[0], charData[1], charData[2], charData[3]);
             return srcRect;
+        }
+
+        public void RenderText(SpriteBatch spriteBatch, Texture2D texture, string text,
+            Vector2 loc, Color tint, float angle, Vector2 offset, Vector2 scale, float Z)
+        {
+            Vector2 tempLoc = Vector2.Zero;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char letter = text[i];
+                if (letter == '\n')
+                {
+                    tempLoc.X = 0;
+                    tempLoc.Y += CharHeight;
+                }
+                else
+                {
+                    // If there's not data for this letter
+                    if (!CharacterData.ContainsKey(letter))
+                        continue;
+
+                    // Apply offset
+                    if (CharacterOffsets != null)
+                        if (CharacterOffsets.ContainsKey(letter))
+                            tempLoc.X += CharacterOffsets[letter];
+
+                    RenderLetter(spriteBatch, texture, i, letter, tempLoc,
+                        loc, tint, angle, offset, scale, Z);
+                    // Move to next character location
+                    tempLoc.X += CharacterWidth(letter);
+                }
+            }
+        }
+
+        private void RenderLetter(
+            SpriteBatch spriteBatch, Texture2D texture, int index, char letter, Vector2 tempLoc,
+            Vector2 loc, Color tint, float angle, Vector2 offset, Vector2 scale, float Z)
+        {
+            if (IsRenderedLetter(letter))
+            {
+                Rectangle srcRect = CharacterSrcRect(letter);
+                spriteBatch.Draw(texture, loc, srcRect, tint, angle, offset - tempLoc, scale,
+                        SpriteEffects.None, Z);
+            }
+        }
+
+        private bool IsRenderedLetter(char letter)
+        {
+            return CharacterData[letter][0] >= 0 && CharacterData[letter][1] >= 0;
         }
     }
 }
