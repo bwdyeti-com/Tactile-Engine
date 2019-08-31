@@ -30,7 +30,7 @@ namespace FEGame
     {
         #region Constants
         public const int FRAME_RATE = 60;
-        readonly static Version OLDEST_ALLOWED_SUSPEND_VERSION = new Version(0, 6, 2, 0);
+        readonly static Version OLDEST_ALLOWED_SUSPEND_VERSION = new Version(0, 6, 7, 0);
         readonly static Version OLDEST_ALLOWED_SAVE_VERSION = new Version(0, 4, 4, 0);
 
         const string SAVESTATE_FILENAME = "savestate1";

@@ -19,7 +19,7 @@ namespace FEXNA.IO
         protected Event_Variable_Data<bool> Switches;
         protected Event_Variable_Data<int> Variables;
         protected Game_Ranking Ranking;
-        protected Dictionary<string, Game_Ranking> Past_Rankings;
+        protected PastRankings Past_Rankings;
 
         #region Accessors
         public string chapter_id { get { return Chapter_Id; } }
@@ -111,16 +111,15 @@ namespace FEXNA.IO
             //result.Variables = new int[Config.EVENT_DATA_LENGTH];
             //result.Variables = result.Variables.read(reader);
             result.Ranking = Game_Ranking.read(reader);
-            result.Past_Rankings = new Dictionary<string, Game_Ranking>();
             if (!Global.LOADED_VERSION.older_than(0, 4, 4, 0))
-                result.Past_Rankings.read(reader);
-            // If this save predates storing difficultt in the ranking object
+                result.Past_Rankings = PastRankings.read(reader, result.System.Difficulty_Mode);
+            else
+                result.Past_Rankings = new PastRankings();
+            // If this save predates storing difficulty in the ranking object
             if (Global.LOADED_VERSION.older_than(0, 6, 1, 1))
             {
                 Difficulty_Modes difficulty = result.System.Difficulty_Mode;
                 result.Ranking = new Game_Ranking(result.Ranking, difficulty);
-                foreach (var key in result.Past_Rankings.Keys.ToList())
-                    result.Past_Rankings[key] = new Game_Ranking(result.Past_Rankings[key], difficulty);
             }
 
             return result;
@@ -133,7 +132,7 @@ namespace FEXNA.IO
                 System.Difficulty_Mode, System.Style, Time);
         }
 
-        public void save_data(string chapter_id, string progression_id, Dictionary<string, Game_Ranking> past_rankings)
+        public void save_data(string chapter_id, string progression_id, PastRankings past_rankings)
         {
             Time = DateTime.Now;
             Chapter_Id = chapter_id;
@@ -146,22 +145,24 @@ namespace FEXNA.IO
             System.get_event_data(Switches, Variables);
             //Event_Processor.get_data(Switches, Variables); //Debug
             Ranking = new Game_Ranking();
-            Past_Rankings = past_rankings;
+            Past_Rankings = (PastRankings)past_rankings.Clone();
         }
 
-        public static Dictionary<string, Game_Ranking> process_past_ranking(List<Save_Data> previous_data)
+        public static PastRankings process_past_ranking(List<Save_Data> previous_data)
         { 
-            Dictionary<string, Game_Ranking> past_rankings = new Dictionary<string, Game_Ranking>();
+            PastRankings pastRankings = new PastRankings();
 
             // Go through data in reverse order, the data at the start of the list is the most important to maintain
             for (int i = previous_data.Count - 1; i >= 0; i--)
             {
-                foreach (var pair in previous_data[i].Past_Rankings)
-                    past_rankings[pair.Key] = new Game_Ranking(pair.Value);
-                past_rankings[previous_data[i].Chapter_Id] = new Game_Ranking(previous_data[i].Ranking);
+                previous_data[i].Past_Rankings.CopyTo(pastRankings);
+                if (!Global.data_chapters[previous_data[i].Chapter_Id].Unranked)
+                    pastRankings.SetRanking(
+                        previous_data[i].Chapter_Id,
+                        previous_data[i].Ranking);
             }
 
-            return past_rankings;
+            return pastRankings;
         }
 
         public void load_data()

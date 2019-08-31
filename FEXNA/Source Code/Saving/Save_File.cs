@@ -195,15 +195,13 @@ namespace FEXNA.IO
             Description = "";
         }
 
-        public void save_data(string chapter_id, string progression_id,
-            Dictionary<string, string> previousChapterIds)
+        internal void save_data(string chapter_id, string progression_id, PastRankings rankings)
         {
             if (!Data.ContainsKey(chapter_id))
                 Data[chapter_id] = new Dictionary<string, Save_Data>();
 
             Data[chapter_id][progression_id] = new Save_Data();
-            Data[chapter_id][progression_id].save_data(chapter_id, progression_id,
-                past_rankings(chapter_id, previousChapterIds));
+            Data[chapter_id][progression_id].save_data(chapter_id, progression_id, rankings);
         }
 
         public Dictionary<string, Game_Ranking> all_rankings(
@@ -219,10 +217,10 @@ namespace FEXNA.IO
             var rankings = Save_Data.process_past_ranking(
                 new List<Save_Data> { save });
 
-            return rankings;
+            return rankings.GetData();
         }
 
-        public Dictionary<string, Game_Ranking> past_rankings(
+        internal PastRankings past_rankings(
             string chapter_id, Dictionary<string, string> previousChapterIds)
         {
             List<Save_Data> previous_chapters = new List<Save_Data>();
