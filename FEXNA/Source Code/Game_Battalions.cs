@@ -472,6 +472,12 @@ namespace FEXNA
             Gold = source.Gold;
         }
 
+        public override string ToString()
+        {
+            return string.Format("Battalion: {0} Actors, Convoy {1}",
+                Actors.Count, Convoy_Id);
+        }
+
         public void add_actor(int id)
         {
             if (!Actors.Contains(id))
@@ -564,11 +570,22 @@ namespace FEXNA
                 for (int i = 0; i < Global.game_battalions.convoy(Convoy_Id).Count; i++)
                     if (item_data.same_item(Global.game_battalions.convoy(Convoy_Id)[i]))
                         count++;
-            foreach(int actor_id in Actors)
-                foreach(Item_Data actor_item in Global.game_actors[actor_id].items)
+            foreach (int actor_id in Actors)
+                foreach (Item_Data actor_item in Global.game_actors[actor_id].items)
                     if (item_data.same_item(actor_item))
                         count++;
             return count;
+        }
+
+        public bool ItemOwned(Item_Data itemData)
+        {
+            if (convoy_has_item(itemData))
+                return true;
+            foreach (int actorId in Actors)
+                foreach (Item_Data actorItem in Global.game_actors[actorId].items)
+                    if (itemData.same_item(actorItem))
+                        return true;
+            return false;
         }
 
         public bool convoy_has_item(Item_Data item_data)
