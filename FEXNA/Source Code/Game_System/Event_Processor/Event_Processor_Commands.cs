@@ -3558,13 +3558,13 @@ namespace FEXNA
                         value1, value2);
                     break;
                 case "S Rank":
-                    result = new Game_Ranking().ranking_index <= 0;
+                    result = new Game_Ranking().ranking_index <= 0; //@Debug
                     break;
                 case "A Rank":
-                    result = new Game_Ranking().ranking_index <= 1;
+                    result = new Game_Ranking().ranking_index <= 1; //@Debug
                     break;
                 case "B Rank":
-                    result = new Game_Ranking().ranking_index <= 2;
+                    result = new Game_Ranking().ranking_index <= 2; //@Debug
                     break;
                 #region Map State
                 case "In Combat":
@@ -3722,6 +3722,28 @@ namespace FEXNA
                     get_actor(command.Value[1], command.Value[2], out actor);
                     if (actor != null)
                         result = actor.is_full_items;
+                    break;
+                // If this unit/actor has the given item
+                case "Has Item":
+                    // Value[1] = id is for a unit, or for an actor?
+                    // Value[2] = id
+                    // Value[3] = item type
+                    // Value[4] = item id
+                    get_actor(command.Value[1], command.Value[2], out actor);
+                    if (actor != null)
+                    {
+                        var itemData = new Item_Data(process_number(command.Value[3]),
+                            process_number(command.Value[4]));
+                        result = actor.HasItem(itemData);
+                    }
+                    break;
+                // If any actor in the battalion or the convoy have the given item
+                case "Item Owned":
+                    // Value[1] = item type
+                    // Value[2] = item id
+                    var ownedItemData = new Item_Data(process_number(command.Value[1]),
+                        process_number(command.Value[2]));
+                    result = Global.battalion.ItemOwned(ownedItemData);
                     break;
                 case "Mission":
                     // Value[1] = id

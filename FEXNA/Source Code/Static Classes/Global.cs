@@ -427,6 +427,8 @@ namespace FEXNA
             set { Return_To_Title = value; }
         }
 
+        // Progress meta data completed on any file, such as what chapters
+        // the player has seen, what supports have been acquired, etc
         static Save_Progress Progress = new Save_Progress();
         public static Save_Progress progress { get { return Progress; } }
 

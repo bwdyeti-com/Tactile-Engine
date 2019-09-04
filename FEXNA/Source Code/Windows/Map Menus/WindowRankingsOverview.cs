@@ -118,7 +118,7 @@ namespace FEXNA.Windows.Map
             var current_rankings = Global.save_file.all_rankings(chapter);
             var rankings = current_rankings
                 .ToDictionary(p => p.Key, p => p.Value);
-            // Get the rankings of all other chapters, and show they greyed out
+            // Get the rankings of all other chapters, and show them greyed out
             if (SHOW_ALL_CHAPTERS)
             {
                 // Sort chapters

@@ -138,7 +138,7 @@ namespace FEXNA
         {
             foreach (string progression_id in Global.game_system.Chapter_Save_Progression_Keys)
                 Global.save_file.save_data(Global.game_state.chapter_id,
-                    progression_id, Global.game_system.previous_chapter_id);
+                    progression_id, Global.game_system.rankings);
         }
 
         public override void draw(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)

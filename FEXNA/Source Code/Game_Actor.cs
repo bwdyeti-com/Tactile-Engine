@@ -2266,6 +2266,25 @@ namespace FEXNA
             target.staff_fix();
         }
 
+        public bool HasItem(Item_Data itemData)
+        {
+            Maybe<int> index;
+            return HasItem(itemData, out index);
+        }
+        private bool HasItem(Item_Data itemData, out Maybe<int> index)
+        {
+            index = Maybe<int>.Nothing;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (itemData.same_item(Items[i]) && !Items[i].out_of_uses)
+                {
+                    index = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Removes an item from the inventory
         /// </summary>

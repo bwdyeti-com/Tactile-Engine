@@ -165,6 +165,7 @@
     <Compile Include="Source Code\Menus\World Map\WorldmapMenu.cs" />
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuData.cs" />
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuManager.cs" />
+    <Compile Include="Source Code\PastRankings.cs" />
     <Compile Include="Source Code\Services\Audio\MusicInstance.cs" />
     <Compile Include="Source Code\Services\Audio\MusicPlayer.cs" />
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
