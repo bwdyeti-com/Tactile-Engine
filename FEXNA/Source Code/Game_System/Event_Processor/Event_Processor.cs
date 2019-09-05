@@ -17,6 +17,7 @@ namespace FEXNA
         //FEGame
         internal readonly static Dictionary<int, string> SWITCH_NAMES = new Dictionary<int, string>
         {
+            { 89, "Alpha Timeline Active" },
             { 96, "Ch1x Played" },
             { 97, "Ch4x Played" },
             { 98, "Kalten Rescued" },

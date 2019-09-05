@@ -4069,6 +4069,25 @@ namespace FEXNA
 
                     result = maddy_count > eagler_count;
                     break;
+                case "Part1Bands":
+                    // Magus band
+                    if (Global.game_battalions[0].ItemOwned(new Item_Data(1, 77)) &&
+                        // Cavalry band
+                        Global.game_battalions[0].ItemOwned(new Item_Data(1, 74)) &&
+                        // Augur band
+                        Global.game_battalions[0].ItemOwned(new Item_Data(1, 78)) &&
+                        // Armor band
+                        Global.game_battalions[1].ItemOwned(new Item_Data(1, 73)) &&
+                        // Infantry band
+                        Global.game_battalions[2].ItemOwned(new Item_Data(1, 71)))
+                    {
+                        result = true;
+                    }
+                    break;
+                case "Part1ARanks":
+                    // Minimum A rank
+                    result = Global.game_system.rankings.MinimumRank <= 1; //@Debug
+                    break;
                 case "Tr3Best":
                     if (Global.game_actors[86].is_dead() || Global.game_actors[87].is_dead() || Global.game_actors[88].is_dead())
                     {
