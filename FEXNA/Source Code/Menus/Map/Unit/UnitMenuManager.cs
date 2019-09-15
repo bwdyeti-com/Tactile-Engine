@@ -532,10 +532,17 @@ namespace FEXNA.Menus.Map.Unit
                 targetMenu.Accept();
 
                 Game_Unit unit = Global.game_map.units[targetMenu.UnitId];
-                int targetId = targetMenu.SelectedUnitId;
-                Vector2 targetLoc = targetMenu.ManualTargeting ?
-                    Global.player.loc :
-                    Global.game_map.attackable_map_object(targetId).loc;
+                int targetId = -1;
+                Vector2 targetLoc;
+                if (this.ManualTargeting)
+                {
+                    targetLoc = Global.player.loc;
+                }
+                else
+                {
+                    targetId = targetMenu.SelectedUnitId;
+                    targetLoc = Global.game_map.attackable_map_object(targetId).loc;
+                }
                 MenuHandler.UnitMenuStaff(unit, targetId, targetLoc);
             }
         }
