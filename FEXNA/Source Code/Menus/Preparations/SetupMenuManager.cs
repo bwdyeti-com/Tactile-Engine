@@ -418,14 +418,12 @@ namespace FEXNA.Menus.Preparations
             ItemRepairMenu repairMenu)
         {
             Game_Actor actor = useMenu.Actor;
-            int itemIndex = useMenu.SelectedItem;
+            Data_Item item = useMenu.SelectedItemData.to_item;
 
             // Use -1 if nothing
             int inventoryTarget = -1;
             if (repairMenu != null)
                 inventoryTarget = repairMenu.SelectedItem;
-            
-            Data_Item item = actor.items[itemIndex].to_item;
 
             // If promoting
             if (actor.PromotedBy(item))

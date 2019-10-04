@@ -1683,9 +1683,12 @@ namespace FEXNA.Menus.Map.Unit
             Global.game_system.play_se(System_Sounds.Confirm);
             var assembleMenu = (sender as ItemMenu);
             var unit = assembleMenu.Unit;
-
+            
+            var itemData = assembleMenu.SelectedItemData;
+            
             var targetWindow = new Window_Target_Construct(
-                unit.id, ConstructionModes.Assemble, new Vector2(4, 0));
+                unit.id, ConstructionModes.Assemble, new Vector2(4, 0),
+                itemData.Id);
             var targetMenu = new LocationTargetMenu(targetWindow, assembleMenu);
             targetMenu.Selected += assembleTargetMenu_Selected;
             targetMenu.Canceled += locationTargetMenu_Canceled;
@@ -1942,6 +1945,11 @@ namespace FEXNA.Menus.Map.Unit
                         if (unitMenu.CommandAtIndex == 0)
                             return true;
                         break;
+                    }
+                    else if (Menus.ElementAt(i) is LocationTargetMenu)
+                    {
+                        var menu = (Menus.ElementAt(i) as LocationTargetMenu);
+                        return menu.IsWindowA<Window_Target_Construct>();
                     }
                 }
                 return false;
