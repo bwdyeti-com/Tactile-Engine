@@ -95,6 +95,9 @@ namespace FEXNA
         public List<Item_Data> active_convoy_data { get { return Convoys[battalion.convoy_id].Data; } }
         internal Shop_Data active_convoy_shop { get { return contains_convoy(battalion.convoy_id) ? Convoys[battalion.convoy_id].Shop : null; } }
 
+        public int active_convoy_size { get { return Convoys[battalion.convoy_id].convoy_size; } }
+        public bool active_convoy_is_full { get { return Convoys[battalion.convoy_id].is_full; } }
+
         public List<int> individual_animations { get { return Individual_Animations; } }
 
         //public Dictionary<int, List<Item_Data>> convoys { get { return Convoys; } } //Debug
@@ -179,11 +182,11 @@ namespace FEXNA
             return Convoys.ContainsKey(id);
         }
 
-        public void add_item_to_convoy(Item_Data item, int id = -1)
+        public void add_item_to_convoy(Item_Data item, bool force = false, int id = -1)
         {
             if (id == -1)
                 id = Global.battalion.convoy_id;
-            if (Convoys[id].Data.Count < Constants.Gameplay.CONVOY_SIZE)
+            if (force || !Convoys[id].is_full)
                 Convoys[id].Data.Add(item);
         }
 

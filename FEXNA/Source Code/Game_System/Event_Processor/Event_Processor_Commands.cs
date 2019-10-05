@@ -1302,7 +1302,7 @@ namespace FEXNA
             else
                 item = new Item_Data(process_number(command.Value[0]), process_number(command.Value[1]), process_number(command.Value[2]));
 
-            Global.game_battalions.add_item_to_convoy(item);
+            Global.game_battalions.add_item_to_convoy(item, true);
             Index++;
             return true;
         }

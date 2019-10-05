@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using FEXNA.Metrics;
+using FEXNA_Library;
 
 namespace FEXNA.State
 {
@@ -78,14 +80,39 @@ namespace FEXNA.State
                             // Wait for rankings screen to finish
                             if (!Global.game_temp.menu_call && !Global.game_temp.menuing)
                             {
-                                //@Yeti: Reclaim siege engines and show popups for them
+                                // Reclaim siege engines and show popups for them
+                                var constructors = Global.game_map.allies
+                                    .Select(x => Global.game_map.units[x])
+                                    .Where(x => x.can_reclaim(true))
+                                    .ToList();
+
+                                var siegeEngineLocs = constructors.SelectMany(x => x.reclaim_targets())
+                                    .Distinct()
+                                    .ToList();
+
+                                if (siegeEngineLocs.Any())
+                                {
+                                    // Show popup
+                                    Global.game_system.play_se(System_Sounds.Gain);
+                                    Global.game_map.get_scene_map().set_popup("Recovered siege engines.", 113);
+
+                                    for (int i = 0; i < siegeEngineLocs.Count; i++)
+                                    {
+                                        Siege_Engine siegeEngine = Global.game_map.get_siege(siegeEngineLocs[i]);
+                                        // Add a copy of the siege engine's item to the convoy
+                                        // (leave the original item on the map so it's visible during the outro)
+                                        Item_Data item = new Item_Data(siegeEngine.item);
+                                        Global.game_battalions.add_item_to_convoy(item, true);
+                                    }
+                                }
 
                                 ChapterEndTimer++;
                                 cont = false;
                             }
                             break;
                         case 2:
-                            if (true) //done doing stuff
+                            // Wait for popup to clear
+                            if (!Global.game_map.get_scene_map().is_map_popup_active())
                             {
                                 InChapterEnd = false;
                                 ChapterEndTimer = 0;

@@ -1457,12 +1457,12 @@ namespace FEXNA
             return result;
         }
 
-        public bool can_reclaim()
+        public bool can_reclaim(bool ignoreFull = false)
         {
             // If no convoy or convoy is full
             if (!Global.game_battalions.contains_convoy(Global.battalion.convoy_id))
                 return false;
-            if (Global.battalion.is_convoy_full)
+            if (!ignoreFull && Global.battalion.is_convoy_full)
                 return false;
 
             if (this.actor.can_construct_skill())
@@ -1485,9 +1485,11 @@ namespace FEXNA
                         result.Add(offset + Loc);
                 }
             }
+
+            //@Yeti: does this allow reclaiming from under enemies?
             return result;
         }
-
+         
         public List<Vector2> placeable_targets()
         {
             List<Vector2> result = new List<Vector2>();
