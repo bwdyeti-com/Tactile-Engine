@@ -905,6 +905,10 @@ function normally. Suggested value is -3.",
                             else
                             {
                                 Names[id] = filename.Split(Constants.Actor.ACTOR_NAME_DELIMITER)[0];
+
+                                // Fix generic class filenames, if they don't exist
+                                filename = FixGenericName(filename);
+
                                 if (Faces.ContainsKey(id))
                                 {
                                     Faces[id].filename = filename;
@@ -1362,6 +1366,44 @@ function normally. Suggested value is -3.",
             filename = actor.face_name;
             if (actor.generic_face)
                 recolorCountry = actor.name_full;
+        }
+
+        private static string FixGenericName(string baseName)
+        {
+            // Check name as is
+            if (Global.content_exists(@"Graphics/Faces/" + baseName))
+                return baseName;
+
+            // If a generic, try other builds
+            string[] nameAry = baseName.Split(FEXNA.Constants.Actor.BUILD_NAME_DELIMITER);
+            int baseBuild;
+            if (nameAry.Length == 2 && int.TryParse(nameAry[1], out baseBuild))
+            {
+                string className = nameAry[0];
+                // Check down first
+                for (int build = baseBuild; build >= 0; build--)
+                {
+                    string name = string.Format("{0}{1}{2}",
+                        className,
+                        FEXNA.Constants.Actor.BUILD_NAME_DELIMITER,
+                        build);
+                    if (Global.content_exists(@"Graphics/Faces/" + name))
+                        return name;
+                }
+                // Then check up
+                int builds = Enum_Values.GetEnumCount(typeof(FEXNA_Library.Generic_Builds));
+                for (int build = baseBuild + 1; build < builds; build++)
+                {
+                    string name = string.Format("{0}{1}{2}",
+                        className,
+                        FEXNA.Constants.Actor.BUILD_NAME_DELIMITER,
+                        build);
+                    if (Global.content_exists(@"Graphics/Faces/" + name))
+                        return name;
+                }
+            }
+
+            return baseName;
         }
 
         protected void remove_consumed_text_command()

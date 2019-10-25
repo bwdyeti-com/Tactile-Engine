@@ -265,9 +265,33 @@ namespace FEXNA
                 string name = class_name_full;
                 if (Face_Sprite_Data.CLASS_RENAME.ContainsKey(name))
                     name = Face_Sprite_Data.CLASS_RENAME[name];
-                return name + (gender % 2 == 0 ? "M" : "F") +
-                    Constants.Actor.BUILD_NAME_DELIMITER + Build.ToString();
+                // If this generic face doesn't exist, check other builds
+                // Check down first
+                for (int build = Build; build >= 0; build--)
+                {
+                    string generic = ConstructGenericFaceName(name, gender, build);
+                    if (Global.content_exists(@"Graphics/Faces/" + generic))
+                            return generic;
+                }
+                // Then check up
+                int builds = Enum_Values.GetEnumCount(typeof(FEXNA_Library.Generic_Builds));
+                for (int build = Build + 1; build < builds; build++)
+                {
+                    string generic = ConstructGenericFaceName(name, gender, build);
+                    if (Global.content_exists(@"Graphics/Faces/" + generic))
+                        return generic;
+                }
+                // Just return whatever
+                return ConstructGenericFaceName(name, gender, Build);
             }
+        }
+        internal static string ConstructGenericFaceName(string name, int gender, int build)
+        {
+            return string.Format("{0}{1}{2}{3}",
+                name,
+                (gender % 2 == 0 ? "M" : "F"),
+                Constants.Actor.BUILD_NAME_DELIMITER,
+                build);
         }
 
         public string flag_name
