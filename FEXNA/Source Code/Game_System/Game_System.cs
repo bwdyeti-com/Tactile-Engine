@@ -664,7 +664,10 @@ namespace FEXNA
             Deployed_Unit_Count = -1;
             Deployed_Unit_Avg_Level = -1;
 
-            Rankings = Global.save_file.past_rankings(chapter_id, previous_chapter_ids);
+            if (Global.save_file == null)
+                Rankings = new PastRankings();
+            else
+                Rankings = Global.save_file.past_rankings(chapter_id, previous_chapter_ids);
         }
 
         public void change_chapter(string id)

@@ -3469,13 +3469,18 @@ namespace FEXNA
 
         public bool can_steal_item(Game_Unit target, int i)
         {
+            // Can never steal equipped weapons
             if (target.actor.equipped == i + 1)
                 return false;
             Item_Data item_data = target.actor.items[i];
+            // Can't steal invalid items
             if (item_data.Id == 0)
                 return false;
+            // Can't steal Prfs
             if (item_data.is_weapon && item_data.to_weapon.Rank == Weapon_Ranks.None)
                 return false;
+            // Check that AS is >= target AS
+            // If the item is a weapon, thief AS is adjusted as if they equipped it
             return atk_spd(1, item_data) >= target.stat(Stat_Labels.Spd);
         }
 
