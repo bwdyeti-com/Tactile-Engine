@@ -22,7 +22,7 @@ namespace FEXNA.Constants
 
         //FEGame
         //public readonly static List<string> HARD_MODE_BLOCKED = new List<string> { "Ch1", "Ch1x", "Ch4x", "Ch8", "Ch10" };
-        public readonly static List<string> HARD_MODE_BLOCKED = new List<string> { "Ch3", "Ch4", "Ch4x" };
+        public readonly static List<string> HARD_MODE_BLOCKED = new List<string> { };
 
         public const string WORLDMAP_THEME = "A Hint of Things to Come";
 
