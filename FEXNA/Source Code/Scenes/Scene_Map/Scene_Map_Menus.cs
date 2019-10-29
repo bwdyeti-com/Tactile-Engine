@@ -717,6 +717,10 @@ namespace FEXNA
             var siege = Global.game_map.get_siege(targetLoc);
             siege.reload();
 
+            Game_Unit siegeUnit = siege.Unit;
+            if (siegeUnit != null)
+                siegeUnit.refresh_sprite();
+
             EndConstruct(unit);
         }
         public void UnitMenuReclaim(Game_Unit unit, Vector2 targetLoc)

@@ -1927,10 +1927,11 @@ namespace FEXNA
                     siege_keys = siege_keys.Where(x => roof_tiles.Contains(Global.game_map.siege_engines[x].loc) == roof);
                 foreach (int id in siege_keys)
                 {
-                    Game_Unit unit = Global.game_map.get_unit(Global.game_map.siege_engines[id].loc);
+                    Siege_Engine siege = Global.game_map.siege_engines[id];
+                    Game_Unit unit = siege.Unit;
                     bool tile_visible = !Global.game_map.fow ||
                         Global.game_map.fow_visibility[Constants.Team.PLAYER_TEAM]
-                            .Contains(Global.game_map.siege_engines[id].loc);
+                            .Contains(siege.loc);
                     if (!tile_visible ^ fog)
                         continue;
                     if (tile_visible)
@@ -1939,7 +1940,7 @@ namespace FEXNA
                         if (unit != null && !unit.sprite_moving && !unit.battling && unit.is_on_siege())
                             continue;
                     }
-                    Map_Sprites[id].tint = get_unit_tint(Global.game_map.siege_engines[id].loc);
+                    Map_Sprites[id].tint = get_unit_tint(siege.loc);
                     Map_Sprites[id].draw(sprite_batch, Global.game_map.display_loc, camera.matrix);
                 }
                 // Draw Light Runes
@@ -2059,17 +2060,18 @@ namespace FEXNA
                     {
                         foreach (int id in Global.game_map.siege_engines.Keys)
                         {
-                            Game_Unit unit = Global.game_map.get_unit(Global.game_map.siege_engines[id].loc);
+                            Siege_Engine siege = Global.game_map.siege_engines[id];
+                            Game_Unit unit = siege.Unit;
                             if (unit != null && unit.highlighted)
                                 //if (unit != null && !unit.sprite_moving && !unit.battling && unit.is_on_siege())
                                 continue;
-                            if (Global.game_map.siege_engines[id].has_full_ammo)
+                            if (siege.has_full_ammo)
                                 continue;
                             sprite_batch.Draw(Siege_Ammo_Icon,
-                                Vector2.Transform(Global.game_map.siege_engines[id].pixel_loc + rescue_icon_draw_vector() +
+                                Vector2.Transform(siege.pixel_loc + rescue_icon_draw_vector() +
                                 new Vector2(TILE_SIZE / 2, TILE_SIZE) - Global.game_map.display_loc, camera.matrix),
-                                new Rectangle(8 * Global.game_map.siege_engines[id].item.Uses, 0, 8, 8),
-                                !Global.game_map.siege_engines[id].ammo_count_greyed ? Color.White : new Color(128, 128, 128), 0f,
+                                new Rectangle(8 * siege.item.Uses, 0, 8, 8),
+                                !siege.ammo_count_greyed ? Color.White : new Color(128, 128, 128), 0f,
                                 new Vector2(8, 8), 1f, SpriteEffects.None, 0f);
                         }
                     }

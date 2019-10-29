@@ -15,7 +15,7 @@ namespace FEXNA.Windows.Command.Items
         protected override List<FEXNA_Library.Item_Data> get_equipment()
         {
             // We're assembling a siege engine,
-            // we can't assemble from the siege engine we're standing on that's stupid
+            // we can't assemble from the siege engine we're standing on that's stupid, use the actor's inventory
             var result = actor().whole_inventory.ToList();
             // But also return any valid items from the convoy
             List<Item_Data> convoy = null;

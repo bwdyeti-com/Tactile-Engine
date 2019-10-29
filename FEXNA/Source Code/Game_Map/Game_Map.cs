@@ -3510,8 +3510,8 @@ namespace FEXNA
                 pair.Value.new_turn();
                 if (pair.Value.is_ready)
                 {
-                    Game_Unit unit = get_unit(pair.Value.loc);
-                    if (unit != null && unit.can_use_siege())
+                    Game_Unit unit = pair.Value.Rider;
+                    if (unit != null)
                         unit.refresh_sprite();
                 }
                 pair.Value.refresh_sprite();
