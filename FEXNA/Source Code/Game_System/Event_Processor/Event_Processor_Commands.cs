@@ -2935,20 +2935,27 @@ namespace FEXNA
         {
             //?Value[0] = Show rankings (optional)
             //?Value[1] = Send metrics (optional)
+            //?Value[2] = Gain support points (optional)
             if (Global.scene.scene_type == "Scene_Map")
             {
                 bool show_rankings = true;
                 bool send_metrics = true;
+                bool gain_support_points = true;
 
                 if (command.Value.Length >= 1)
                 {
                     show_rankings = process_bool(command.Value[0]);
+                    // Send metrics defaults to the same value as show rankings
+                    // (If we're not showing rankings, there's probably nothing to send)
                     send_metrics = show_rankings;
                 }
                 if (command.Value.Length >= 2)
                     send_metrics = process_bool(command.Value[1]);
+                if (command.Value.Length >= 3)
+                    gain_support_points = process_bool(command.Value[2]);
 
-                Global.game_state.call_chapter_end(show_rankings, send_metrics);
+                Global.game_state.call_chapter_end(
+                    show_rankings, send_metrics, gain_support_points);
 
                 Index++;
                 return false;

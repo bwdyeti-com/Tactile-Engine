@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using FEXNA.Metrics;
 using FEXNA_Library;
+using FEXNAVersionExtension;
 
 namespace FEXNA.State
 {
@@ -13,28 +14,43 @@ namespace FEXNA.State
         private int ChapterEndTimer = 0;
         private bool ShowRankings = false;
         private bool SendMetrics = false;
+        private bool SupportPoints = false;
 
         internal bool Active { get { return ChapterEndCalling || InChapterEnd; } }
 
         #region Serialization
         internal override void write(BinaryWriter writer)
         {
+            //@Yeti: it's real weird that this saves at all, and doesn't save everything
             writer.Write(InChapterEnd);
             writer.Write(ChapterEndTimer);
+
+            writer.Write(ShowRankings);
+            writer.Write(SendMetrics);
+            writer.Write(SupportPoints);
         }
 
         internal override void read(BinaryReader reader)
         {
             InChapterEnd = reader.ReadBoolean();
             ChapterEndTimer = reader.ReadInt32();
+
+            if (!Global.LOADED_VERSION.older_than(0, 6, 7, 1)) // This is a suspend load, so this isn't needed for public release //Debug
+            {
+                ShowRankings = reader.ReadBoolean();
+                SendMetrics = reader.ReadBoolean();
+                SupportPoints = reader.ReadBoolean();
+            }
         }
         #endregion
 
-        internal void end_chapter(bool showRankings, bool sendMetrics)
+        internal void end_chapter(bool showRankings, bool sendMetrics, bool supportPoints)
         {
             ChapterEndCalling = true;
+
             ShowRankings = showRankings;
             SendMetrics = sendMetrics;
+            SupportPoints = supportPoints;
         }
 
         internal override void update()
@@ -54,7 +70,10 @@ namespace FEXNA.State
                     {
                         case 0:
                             // End of chapter support gains
-                            Global.game_map.apply_chapter_support();
+                            if (SupportPoints)
+                            {
+                                Global.game_map.apply_chapter_support();
+                            }
 
                             // Send metrics
                             if (SendMetrics)
@@ -118,6 +137,7 @@ namespace FEXNA.State
                                 ChapterEndTimer = 0;
                                 ShowRankings = false;
                                 SendMetrics = false;
+                                SupportPoints = false;
                             }
                             break;
                     }

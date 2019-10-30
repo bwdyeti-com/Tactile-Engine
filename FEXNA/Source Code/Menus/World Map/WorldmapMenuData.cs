@@ -412,7 +412,7 @@ namespace FEXNA.Menus.Worldmap
             return previous_chapters;
         }
 
-        public void PickDefaultUnselectedPreviouschapters()
+        public void PickDefaultUnselectedPreviousChapters()
         {
             foreach (string key in PreviousChapterIndices.Keys.ToList())
                 if (PreviousChapterIndices[key] == -1)

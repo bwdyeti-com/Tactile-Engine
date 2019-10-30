@@ -118,7 +118,7 @@ namespace FEXNA.Menus.Worldmap
         internal void RefreshPreviousChapters(Dictionary<string, int> previousChapterIndices)
         {
             MenuData.SetPreviousChapterIndices(previousChapterIndices);
-            MenuData.PickDefaultUnselectedPreviouschapters();
+            MenuData.PickDefaultUnselectedPreviousChapters();
             DataWindow.set_mode(Global.game_system.Difficulty_Mode, MenuData.MultipleArcs);
             RefreshData(false);
         }

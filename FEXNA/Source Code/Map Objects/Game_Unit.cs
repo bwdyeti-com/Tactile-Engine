@@ -1422,7 +1422,7 @@ namespace FEXNA
                     new Vector2(0, 1), new Vector2(0, -1),
                     new Vector2(1, 0), new Vector2(-1, 0) })
                 if (!Global.game_map.is_off_map(offset + Loc))
-                    if (!Global.game_map.is_blocked(offset + Loc, Rescuing))
+                    if (!Global.game_map.is_blocked(offset + Loc, Id))
                         if (Global.game_map.get_siege(offset + Loc) == null)
                             if (Global.game_map.terrain_cost(
                                     MovementTypes.Armor, offset + Loc) >= 0)
@@ -1497,7 +1497,7 @@ namespace FEXNA
                     new Vector2(0, 1), new Vector2(0, -1),
                     new Vector2(1, 0), new Vector2(-1, 0) })
                 if (!Global.game_map.is_off_map(offset + Loc))
-                    if (!Global.game_map.is_blocked(offset + Loc, Rescuing))
+                    if (!Global.game_map.is_blocked(offset + Loc, Id))
                         if (Global.game_map.get_siege(offset + Loc) == null)
                             if (Global.game_map.terrain_cost(
                                     MovementTypes.Armor, offset + Loc) >= 0)

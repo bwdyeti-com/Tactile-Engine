@@ -78,7 +78,7 @@ namespace FEXNA.Windows.Target
                     new HashSet<Vector2> { Global.player.loc },
                     weapon.Min_Range,
                     weapon.Max_Range,
-                    !weapon.range_blocked_by_walls());
+                    weapon.range_blocked_by_walls());
                 Global.game_map.range_start_timer = 0;
             }
             else
