@@ -231,7 +231,7 @@ namespace FEXNA.Menus.Worldmap
                 commands.Add("Unit");
                 ActiveChapterCommands.Add(ChapterCommands.Unit);
                 // Manage screen blocked in Classic
-                if (!MenuData.Classic)
+                if (!MenuData.AutoSelectChapter)
                 {
                     commands.Add("Manage");
                     ActiveChapterCommands.Add(ChapterCommands.Manage);

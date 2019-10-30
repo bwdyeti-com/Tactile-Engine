@@ -229,7 +229,7 @@ namespace FEXNA
                             if (Fade_Timer > 0)
                                 Fade_Timer--;
                             if (Fade_Timer == Constants.WorldMap.WORLDMAP_FADE_TIME / 4)
-                                if (!MenuData.Classic)
+                                if (!MenuData.AutoSelectChapter)
                                     Global.Audio.PlayBgm(Constants.WorldMap.WORLDMAP_THEME);
                             if (Fade_Timer == 0)
                                 Phase = Worldmap_Phases.Command_Process;
@@ -237,7 +237,7 @@ namespace FEXNA
                     }
                     break;
                 case Worldmap_Phases.Command_Process:
-                    if (MenuData.Classic)
+                    if (MenuData.AutoSelectChapter)
                         select_chapter_fade();
                     break;
                 case Worldmap_Phases.Controls_Fade:
@@ -442,7 +442,7 @@ namespace FEXNA
         protected void select_chapter_fade()
         {
             Phase = Worldmap_Phases.Controls_Fade;
-            Fade_Timer = MenuData.Classic ?
+            Fade_Timer = MenuData.AutoSelectChapter ?
                 1 : Constants.WorldMap.WORLDMAP_CONTROLS_FADE_TIME;
             if (Constants.WorldMap.HARD_MODE_BLOCKED.Contains(MenuData.ChapterId) &&
                 Global.game_system.Difficulty_Mode > Difficulty_Modes.Normal)
@@ -697,7 +697,7 @@ loaded in normal mode. Sorry!");
                 draw_message(sprite_batch, device, render_targets);
             }
 
-            if (!MenuData.Classic)
+            if (!MenuData.AutoSelectChapter)
             {
                 // Draw controls and menus
                 if (Phase < Worldmap_Phases.Worldmap_Event || Phase == Worldmap_Phases.Return_To_Title)
