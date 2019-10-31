@@ -445,7 +445,14 @@ namespace FEXNA
         static int Current_Save_Id;
         public static int current_save_id
         {
-            set { Current_Save_Id = value; }
+            set
+            {
+                Current_Save_Id = value;
+                if (Global.current_save_info != null)
+                {
+                    Global.current_save_info.SetStartTime();
+                }
+            }
             get { return Current_Save_Id; }
         }
         #endregion
