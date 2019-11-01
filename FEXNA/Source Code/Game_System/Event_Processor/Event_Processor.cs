@@ -883,9 +883,28 @@ namespace FEXNA
             if (Index + offset >= event_data.data.Count || Index + offset < 0)
                 return "-----";
             var event_command = event_data.data[Index + offset];
-            return string.Format("({0})  {1}{2}", (Index + offset).ToString("D4"), new string(' ', Indent[Index + offset] * 4),
-                event_command.Key == 102 ? "// " + event_command.Value.FirstOrDefault() :
-                string.Format("{0}: {1}", event_command.Key, event_control_name(event_command.Key)));
+
+            string eventString;
+            // If comment
+            if (event_command.Key == 102)
+                eventString = "// " + event_command.Value.FirstOrDefault();
+            else
+                eventString = string.Format("{0}: {1}", event_command.Key, event_control_name(event_command.Key));
+            switch (event_command.Key)
+            {
+                // Wait
+                case 3:
+                    if (offset == -1)
+                        eventString += string.Format(" {0}", Wait_Time);
+                    else if (offset >= 0)
+                        eventString += string.Format(" {0}", process_number(event_command.Value[0]));
+                    break;
+            }
+
+            return string.Format("({0})  {1}{2}",
+                (Index + offset).ToString("D4"),
+                new string(' ', Indent[Index + offset] * 4),
+                eventString);
         }
 
         private string event_control_name(int key)

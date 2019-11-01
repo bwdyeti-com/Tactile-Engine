@@ -338,10 +338,12 @@ namespace FEXNA
         // Wait
         private bool command_wait()
         {
-            Wait_Time = process_number(command.Value[0]);
+            // Minus 1 because events continue to wait on 0
+            Wait_Time = process_number(command.Value[0]) - 1;
+            Wait_Time = Math.Max(0, Wait_Time);
             //Global.game_map.wait_time = 2;
             Index++;
-            return Wait_Time <= 0;
+            return Wait_Time < 0;
         }
 
         // Change Chapter
