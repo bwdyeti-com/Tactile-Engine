@@ -705,6 +705,8 @@ namespace FEXNA
             }
             Global.game_map.add_siege_engine(targetLoc, item);
 
+            Global.Audio.play_se("Map Sounds", "Assemble");
+
             EndConstruct(unit);
         }
         public void UnitMenuReload(Game_Unit unit, Vector2 targetLoc)
@@ -738,6 +740,8 @@ namespace FEXNA
                     Global.battalion.convoy_id);
             }
             Global.game_map.remove_siege_engine(siege.id);
+            
+            Global.Audio.play_se("Map Sounds", "Reclaim");
 
             EndConstruct(unit);
         }
