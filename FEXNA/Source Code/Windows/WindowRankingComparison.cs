@@ -42,7 +42,7 @@ namespace FEXNA.Windows
                 "FE7_Text",
                 Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_Yellow"),
                 new Vector2(12, 8),
-                Global.data_chapters[Ranking.ChapterId].World_Map_Name);
+                Global.data_chapters[Ranking.ChapterId].ShortName);
             name.stereoscopic = Config.RANKING_WINDOW_DEPTH;
             Text.Add(name);
             var difficulty = new FE_Text_Int(

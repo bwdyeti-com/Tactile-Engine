@@ -185,7 +185,7 @@ namespace FEXNA.Menus.Worldmap
             }
             
             DataWindow.set(
-                Global.chapter_by_index(this.Redirect).World_Map_Name,
+                Global.chapter_by_index(this.Redirect).ShortName,
                 Global.chapter_by_index(this.Redirect).World_Map_Lord_Id,
                 chapterData);
 

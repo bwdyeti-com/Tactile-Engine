@@ -436,7 +436,7 @@ chapter must use the same battalion.
 
 No completed chapter with the
 progression id ""{1}"" uses battalion {2}.",
-                            chapter.TitleName,
+                            chapter.ShortName,
                             chapter.Prior_Chapters[0],
                             chapter.Battalion));
 #endif
