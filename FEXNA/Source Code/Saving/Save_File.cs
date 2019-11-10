@@ -6,6 +6,7 @@ using System.Linq;
 using System.Diagnostics;
 #endif
 using FEXNAVersionExtension;
+using FEXNA_Library;
 
 namespace FEXNA.IO
 {
@@ -369,9 +370,13 @@ namespace FEXNA.IO
 
         public string displayed_rank(string chapter_id)
         {
+            if (Global.data_chapters[chapter_id].Unranked)
+                return "+";
+
             var rank = ranking(chapter_id);
             if (rank == null)
                 return "";
+
             return rank.rank;
         }
         public Game_Ranking ranking(string chapter_id)
@@ -382,8 +387,11 @@ namespace FEXNA.IO
             return recent_chapter.ranking;
         }
 
-        public Difficulty_Modes displayed_difficulty(string chapter_id)
+        public Maybe<Difficulty_Modes> displayed_difficulty(string chapter_id)
         {
+            if (Global.data_chapters[chapter_id].Unranked)
+                return Maybe<Difficulty_Modes>.Nothing;
+
             var recent_chapter = recent_save(chapter_id, "");
             if (recent_chapter == null)
                 return Difficulty_Modes.Normal;
