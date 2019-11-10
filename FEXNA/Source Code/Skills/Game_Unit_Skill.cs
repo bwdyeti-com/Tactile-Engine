@@ -889,12 +889,11 @@ namespace FEXNA
         public Maybe<int> weapon_triangle_mult_skill(Game_Unit target, Data_Weapon weapon, Data_Weapon target_weapon, int distance)
         {
             Maybe<int> n = Maybe<int>.Nothing;
-            /* //Debug
             // Skills: Smite
             if (target != null && !nihil(target))
                 if (actor.has_skill("SMITE") && target_weapon != null && !weapon.is_staff() &&
                         (target_weapon.main_type().Name == "Dark" || target_weapon.scnd_type().Name == "Dark"))
-                    n = 2;*/
+                    n = 2;
             return n;
         }
         #endregion
