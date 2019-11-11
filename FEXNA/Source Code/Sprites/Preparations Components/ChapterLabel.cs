@@ -42,7 +42,7 @@ namespace FEXNA.Graphics.Preparations
             // Label
             int labelWidth = Data_Chapter.LabelWidth(Label);
             spriteBatch.Draw(texture, (loc + new Vector2(x, 0) + draw_vector()) - draw_offset,
-                new Rectangle(0, (int)Label * 16 + 16, 40, 16), tint, angle, offset, scale,
+                new Rectangle(0, (int)Label * 16 + 16, labelWidth, 16), tint, angle, offset, scale,
                 SpriteEffects.None, Z);
             x += labelWidth;
 
