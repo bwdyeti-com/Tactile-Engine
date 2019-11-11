@@ -268,12 +268,21 @@ namespace FEXNA
         {
             for (int i = 0; i < Panels.Length; i++)
             {
-                if (!Moving ||
-                        ((Page == Move_Page && i == Move_Index) ||
-                        (i == PanelNodes.ActiveNodeIndex && !Global.save_files_info.ContainsKey(i + Page * Config.SAVES_PER_PAGE + 1))))
-                    Panels[i].tint = new Color(255, 255, 255, 255);
-                else
-                    Panels[i].tint = new Color(160, 160, 160, 255);
+                bool darken = true;
+
+                // If not moving/copying a file
+                if (!Moving)
+                    darken = false;
+                // Selected file always highlighted
+                else if (Page == Move_Page && i == Move_Index)
+                    darken = false;
+                // Highlight any empty files
+                else if (!Global.save_files_info.ContainsKey(i + Page * Config.SAVES_PER_PAGE + 1))
+                    darken = false;
+
+                Panels[i].tint = darken ?
+                    new Color(160, 160, 160, 255) :
+                    new Color(255, 255, 255, 255);
             }
         }
 

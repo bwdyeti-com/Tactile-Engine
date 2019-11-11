@@ -49,7 +49,7 @@ namespace FEXNA.Windows.Command.Items
 
         protected override CommandUINode item(string str, int i)
         {
-            var item_data = get_equipment()[i];
+            var item_data = items(i);
             if (!is_valid_item(get_equipment(), i))
                 return null;
 

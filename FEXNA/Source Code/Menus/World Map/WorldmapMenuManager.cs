@@ -73,8 +73,32 @@ loaded in normal mode. Sorry!");
                 }
             }
 
+            if (MenuData.IsSkippingGaiden(MenuData.ChapterId))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+
+                var gaidenSkippedWindow = new Parchment_Info_Window();
+                gaidenSkippedWindow.set_text(@"Proceeding with this chapter
+will skip available sidequests
+or alternate routes.");
+                gaidenSkippedWindow.size = new Vector2(152, 64);
+                gaidenSkippedWindow.loc =
+                    new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2 -
+                    gaidenSkippedWindow.size / 2;
+
+                var gaidenSkippedMenu = new ConfirmationMenu(gaidenSkippedWindow);
+                gaidenSkippedMenu.Confirmed += gaidenSkippedMenu_Close;
+                AddMenu(gaidenSkippedMenu);
+
+                return;
+            }
+
             Global.game_system.play_se(System_Sounds.Confirm);
-            
+            SelectChapter(worldmapMenu);
+        }
+
+        private void SelectChapter(WorldmapMenu worldmapMenu)
+        {
             if (worldmapMenu.PreviousChapterSelectionIncomplete())
             {
                 // A lone prior requirement of a chapter from
@@ -145,6 +169,15 @@ loaded in normal mode. Sorry!");
             RemoveTopMenu();
 
             Global.game_system.play_se(System_Sounds.Confirm);
+        }
+
+        void gaidenSkippedMenu_Close(object sender, EventArgs e)
+        {
+            RemoveTopMenu();
+
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var worldmapMenu = (Menus.Peek() as WorldmapMenu);
+            SelectChapter(worldmapMenu);
         }
 
         void worldmapMenu_Canceled(object sender, EventArgs e)

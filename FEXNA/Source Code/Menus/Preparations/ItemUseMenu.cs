@@ -171,7 +171,7 @@ namespace FEXNA.Menus.Preparations
         #region Item Use
         public bool CanUse()
         {
-            FEXNA_Library.Data_Equipment item = this.Actor.items[this.SelectedItem].to_equipment;
+            FEXNA_Library.Data_Equipment item = this.SelectedItemData.to_equipment;
             if (!item.is_weapon && this.Actor.prf_check(item) && Combat.can_use_item(this.Actor, item.Id, false))
                 return true;
             return false;

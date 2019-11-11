@@ -80,8 +80,8 @@ namespace FEXNA
                 if (string.IsNullOrEmpty(Class_Reel_Data.ORDER[i].Item1))
                     return true;
                 return Class_Reel_Data.ORDER[i].Item2 ?
-                    Global.progress.completed_chapters[(int)Difficulty_Modes.Normal].Contains(Class_Reel_Data.ORDER[i].Item1) :
-                    Global.progress.available_chapters.Contains(Class_Reel_Data.ORDER[i].Item1);
+                    Global.progress.ChapterCompleted(Class_Reel_Data.ORDER[i].Item1) :
+                    Global.progress.ChapterAvailable(Class_Reel_Data.ORDER[i].Item1);
             }
             return false;
         }

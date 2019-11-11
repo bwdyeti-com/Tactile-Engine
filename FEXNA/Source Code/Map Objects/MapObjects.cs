@@ -58,7 +58,14 @@ namespace FEXNA.Map
         internal void init_sprites()
         {
             foreach (Game_Unit unit in Units.Values)
+            {
+                // Set highlighted false to properly refresh sprite,
+                // for example if on siege engines
+                bool highlighted = unit.highlighted;
+                unit.highlighted = false;
                 unit.init_sprites();
+                unit.highlighted = highlighted;
+            }
             foreach (Siege_Engine siege in SiegeEngines.Values)
                 siege.init_sprites();
             foreach (LightRune rune in LightRunes.Values)

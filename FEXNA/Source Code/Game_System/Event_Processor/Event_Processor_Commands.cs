@@ -338,10 +338,12 @@ namespace FEXNA
         // Wait
         private bool command_wait()
         {
-            Wait_Time = process_number(command.Value[0]);
+            // Minus 1 because events continue to wait on 0
+            Wait_Time = process_number(command.Value[0]) - 1;
+            Wait_Time = Math.Max(0, Wait_Time);
             //Global.game_map.wait_time = 2;
             Index++;
-            return Wait_Time <= 0;
+            return Wait_Time < 0;
         }
 
         // Change Chapter
@@ -1302,7 +1304,7 @@ namespace FEXNA
             else
                 item = new Item_Data(process_number(command.Value[0]), process_number(command.Value[1]), process_number(command.Value[2]));
 
-            Global.game_battalions.add_item_to_convoy(item);
+            Global.game_battalions.add_item_to_convoy(item, true);
             Index++;
             return true;
         }
@@ -2935,20 +2937,27 @@ namespace FEXNA
         {
             //?Value[0] = Show rankings (optional)
             //?Value[1] = Send metrics (optional)
+            //?Value[2] = Gain support points (optional)
             if (Global.scene.scene_type == "Scene_Map")
             {
                 bool show_rankings = true;
                 bool send_metrics = true;
+                bool gain_support_points = true;
 
                 if (command.Value.Length >= 1)
                 {
                     show_rankings = process_bool(command.Value[0]);
+                    // Send metrics defaults to the same value as show rankings
+                    // (If we're not showing rankings, there's probably nothing to send)
                     send_metrics = show_rankings;
                 }
                 if (command.Value.Length >= 2)
                     send_metrics = process_bool(command.Value[1]);
+                if (command.Value.Length >= 3)
+                    gain_support_points = process_bool(command.Value[2]);
 
-                Global.game_state.call_chapter_end(show_rankings, send_metrics);
+                Global.game_state.call_chapter_end(
+                    show_rankings, send_metrics, gain_support_points);
 
                 Index++;
                 return false;

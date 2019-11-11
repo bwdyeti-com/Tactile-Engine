@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using FEXNA.Windows.Command.Items;
+using FEXNA_Library;
 
 namespace FEXNA.Menus.Map.Unit.Item
 {
@@ -27,6 +28,15 @@ namespace FEXNA.Menus.Map.Unit.Item
             {
                 var itemWindow = Window as Window_Command_Item;
                 return itemWindow.redirect();
+            }
+        }
+
+        public Item_Data SelectedItemData
+        {
+            get
+            {
+                var itemWindow = Window as Window_Command_Item;
+                return itemWindow.items(this.SelectedItem);
             }
         }
 

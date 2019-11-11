@@ -169,7 +169,7 @@ namespace FEXNA.Windows.Map
                     text.Font = "FE7_Text";
                     text.texture = Global.Content.Load<Texture2D>(
                         string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
-                    text.text = chapter_data.Abbreviation;
+                    text.text = chapter_data.ListName;
                     text.stereoscopic = Config.OPTIONS_OPTIONS_DEPTH; //Yeti
 
                     var node = new RankingUINode("", text, COLUMN_WIDTH, ranking);

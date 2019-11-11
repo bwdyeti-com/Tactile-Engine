@@ -175,6 +175,7 @@
     <Compile Include="Source Code\Sprites\Battler\BattlerSpriteData.cs" />
     <Compile Include="Source Code\Services\Input\InputConfig.cs" />
     <Compile Include="Source Code\Services\Input\InputState.cs" />
+    <Compile Include="Source Code\Sprites\ChapterTransitionAlternateTitle.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\Button_Description_Touch.cs" />
     <Compile Include="Source Code\Sprites\Map Info Components\TouchIcon.cs" />
     <Compile Include="Source Code\Sprites\Preparations Components\ChapterLabel.cs" />

@@ -1563,13 +1563,15 @@ namespace FE7x
                     if (new_scene == "Start_Game" || new_scene == "Debug_Start")
                     {
                         if (new_scene == "Debug_Start")
+                        {
                             DEBUG_FILE_ID_TEST = FILE_ID = 1;
+                            Global.current_save_id = FILE_ID;
+                        }
                         new_scene = "Start_Game";
 #else
                     if (new_scene == "Start_Game")
                     {
 #endif
-                        Global.current_save_id = FILE_ID;
                         load_file();
                         Global.game_options.post_read();
                         Global.game_temp = new Game_Temp();
@@ -3373,12 +3375,12 @@ namespace FE7x
                             else
                                 info = FEXNA.IO.Save_Info.get_save_info(file_id, data.File, suspend_exists);
 
+                            // Copy transient file info (last chapter played, last time started)
                             if (old_save_files_info != null &&
                                 old_save_files_info.ContainsKey(file_id))
                             {
                                 var old_info = old_save_files_info[file_id];
-                                if (!string.IsNullOrEmpty(old_info.LastStartedChapter))
-                                    info.SetStartedChapter(old_info.LastStartedChapter);
+                                info.CopyTransientInfo(old_info);
                             }
 
                             // Set the file info into the dictionary

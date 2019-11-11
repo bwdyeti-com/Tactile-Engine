@@ -108,6 +108,7 @@ namespace FEXNA
 
             StartGamePanel = new StartGame_Info_Panel(
                 Global.latest_save_id, MainMenuChoicePanel.PANEL_WIDTH, true);
+            // Show preview of the latest save, if there is one
             StartGamePanel.active = Global.latest_save_id != -1;
             StartGamePanel.loc = new Vector2(-16, 12); // 8); //FEGame
             StartGamePanel.stereoscopic = Config.TITLE_MENU_DEPTH;

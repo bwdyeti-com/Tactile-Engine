@@ -33,8 +33,7 @@ namespace FEXNA.Windows.Map.Items
             get
             {
                 return actor.num_items > 0 &&
-                    Global.game_battalions.active_convoy_data.Count <
-                    Constants.Gameplay.CONVOY_SIZE;
+                    !Global.game_battalions.active_convoy_is_full;
             }
         }
         public bool can_take
@@ -166,11 +165,10 @@ namespace FEXNA.Windows.Map.Items
             base.refresh();
 
             // //Yeti
-            bool convoy_full = Global.game_battalions.active_convoy_data.Count >=
-                Constants.Gameplay.CONVOY_SIZE;
+            bool convoy_full = Global.game_battalions.active_convoy_is_full;
             Stock_Value.text = Global.game_battalions.active_convoy_data.Count.ToString();
             Stock_Value.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (convoy_full ? "Green" : "Blue"));
-            Stock_Max.text = Constants.Gameplay.CONVOY_SIZE.ToString();
+            Stock_Max.text = Global.game_battalions.active_convoy_size.ToString();
             Stock_Max.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (convoy_full ? "Green" : "Blue"));
         }
         protected override void refresh_item_window()

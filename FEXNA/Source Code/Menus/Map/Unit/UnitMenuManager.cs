@@ -532,10 +532,17 @@ namespace FEXNA.Menus.Map.Unit
                 targetMenu.Accept();
 
                 Game_Unit unit = Global.game_map.units[targetMenu.UnitId];
-                int targetId = targetMenu.SelectedUnitId;
-                Vector2 targetLoc = targetMenu.ManualTargeting ?
-                    Global.player.loc :
-                    Global.game_map.attackable_map_object(targetId).loc;
+                int targetId = -1;
+                Vector2 targetLoc;
+                if (this.ManualTargeting)
+                {
+                    targetLoc = Global.player.loc;
+                }
+                else
+                {
+                    targetId = targetMenu.SelectedUnitId;
+                    targetLoc = Global.game_map.attackable_map_object(targetId).loc;
+                }
                 MenuHandler.UnitMenuStaff(unit, targetId, targetLoc);
             }
         }
@@ -1676,9 +1683,12 @@ namespace FEXNA.Menus.Map.Unit
             Global.game_system.play_se(System_Sounds.Confirm);
             var assembleMenu = (sender as ItemMenu);
             var unit = assembleMenu.Unit;
-
+            
+            var itemData = assembleMenu.SelectedItemData;
+            
             var targetWindow = new Window_Target_Construct(
-                unit.id, ConstructionModes.Assemble, new Vector2(4, 0));
+                unit.id, ConstructionModes.Assemble, new Vector2(4, 0),
+                itemData.Id);
             var targetMenu = new LocationTargetMenu(targetWindow, assembleMenu);
             targetMenu.Selected += assembleTargetMenu_Selected;
             targetMenu.Canceled += locationTargetMenu_Canceled;
@@ -1935,6 +1945,11 @@ namespace FEXNA.Menus.Map.Unit
                         if (unitMenu.CommandAtIndex == 0)
                             return true;
                         break;
+                    }
+                    else if (Menus.ElementAt(i) is LocationTargetMenu)
+                    {
+                        var menu = (Menus.ElementAt(i) as LocationTargetMenu);
+                        return menu.IsWindowA<Window_Target_Construct>();
                     }
                 }
                 return false;

@@ -226,10 +226,22 @@ namespace FEXNA
                     switch (Timer)
                     {
                         default:
+                            // If autoselecting a chapter with no world map event
+                            if (MenuData.AutoSelectChapter && GetWorldmapEvent() == null)
+                            {
+                                // If hard mode is blocked, nevermind
+                                if (!IsBlockedHardMode(MenuData.ChapterId))
+                                {
+                                    MenuManager = null;
+                                    start_chapter();
+                                    break;
+                                }
+                            }
+
                             if (Fade_Timer > 0)
                                 Fade_Timer--;
                             if (Fade_Timer == Constants.WorldMap.WORLDMAP_FADE_TIME / 4)
-                                if (!MenuData.Classic)
+                                if (!MenuData.AutoSelectChapter)
                                     Global.Audio.PlayBgm(Constants.WorldMap.WORLDMAP_THEME);
                             if (Fade_Timer == 0)
                                 Phase = Worldmap_Phases.Command_Process;
@@ -237,7 +249,7 @@ namespace FEXNA
                     }
                     break;
                 case Worldmap_Phases.Command_Process:
-                    if (MenuData.Classic)
+                    if (MenuData.AutoSelectChapter)
                         select_chapter_fade();
                     break;
                 case Worldmap_Phases.Controls_Fade:
@@ -442,10 +454,9 @@ namespace FEXNA
         protected void select_chapter_fade()
         {
             Phase = Worldmap_Phases.Controls_Fade;
-            Fade_Timer = MenuData.Classic ?
+            Fade_Timer = MenuData.AutoSelectChapter ?
                 1 : Constants.WorldMap.WORLDMAP_CONTROLS_FADE_TIME;
-            if (Constants.WorldMap.HARD_MODE_BLOCKED.Contains(MenuData.ChapterId) &&
-                Global.game_system.Difficulty_Mode > Difficulty_Modes.Normal)
+            if (IsBlockedHardMode(MenuData.ChapterId))
             {
                 Hard_Mode_Blocked_Window = new Parchment_Info_Window();
                 Hard_Mode_Blocked_Window.set_text(@"This chapter does not yet have
@@ -458,23 +469,35 @@ loaded in normal mode. Sorry!");
             }
         }
 
+        private bool IsBlockedHardMode(string chapterId)
+        {
+            return Constants.WorldMap.HARD_MODE_BLOCKED.Contains(chapterId) &&
+                Global.game_system.Difficulty_Mode > Difficulty_Modes.Normal;
+        }
+
+        private Event_Data GetWorldmapEvent()
+        {
+            Map_Event_Data events =
+                Global.Content.Load<Map_Event_Data>(@"Data/Map Data/Event Data/Worldmap");
+            for (int event_index = 0; event_index < events.Events.Count; event_index++)
+                if (events.Events[event_index].name == MenuData.ChapterId + "Worldmap")
+                    return events.Events[event_index];
+
+            return null;
+        }
+
         protected virtual void start_chapter_worldmap_event()
         {
             Phase = Worldmap_Phases.Worldmap_Event;
-            Map_Event_Data events =
-                Global.Content.Load<Map_Event_Data>(@"Data/Map Data/Event Data/Worldmap");
-            int event_index = 0;
-            for (; event_index < events.Events.Count; event_index++)
-                if (events.Events[event_index].name == MenuData.ChapterId + "Worldmap")
-                    break;
-            if (event_index >= events.Events.Count)
+            var worldmapEvent = GetWorldmapEvent();
+            if (worldmapEvent == null)
             {
                 Phase = Worldmap_Phases.Fade_Out;
                 Fade_Timer = Constants.WorldMap.WORLDMAP_FADE_TIME;
                 Global.Audio.BgmFadeOut(Constants.WorldMap.WORLDMAP_FADE_TIME);
             }
             else
-                Global.game_system.add_event(events.Events[event_index]);
+                Global.game_system.add_event(worldmapEvent);
         }
         #endregion
 
@@ -697,7 +720,7 @@ loaded in normal mode. Sorry!");
                 draw_message(sprite_batch, device, render_targets);
             }
 
-            if (!MenuData.Classic)
+            if (!MenuData.AutoSelectChapter)
             {
                 // Draw controls and menus
                 if (Phase < Worldmap_Phases.Worldmap_Event || Phase == Worldmap_Phases.Return_To_Title)

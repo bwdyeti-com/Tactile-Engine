@@ -392,6 +392,14 @@ namespace FEXNA
                         }
                         break;
                     case Shop_Messages.Buy_No_Merchant:
+                        if (this.is_inventory_full)
+                        {
+                            this.trading = false;
+                            set_text(Shop_Messages.Anything_Else);
+                        }
+                        else
+                            set_text(Shop_Messages.Buy);
+                        break;
                     case Shop_Messages.Send_No:
                     case Shop_Messages.Merchant_Full:
                         this.trading = false;
@@ -504,7 +512,11 @@ namespace FEXNA
 
                 Message_Active = true;
                 Window.active = false;
-                if (is_inventory_full && On_Buy && Global.battalion.convoy_id == -1)
+                // Buying an item that has to be sent, and no convoy
+                if (On_Buy && !actor.can_take(Shop.items[index]) && Global.battalion.convoy_id == -1)
+                    set_text(Shop_Messages.Buy_Full);
+                // If buying an item when full and no convoy
+                else if (On_Buy && is_inventory_full && Global.battalion.convoy_id == -1)
                     set_text(Shop_Messages.Buy_Full);
                 else if (can_trade)
                 {
@@ -535,7 +547,13 @@ namespace FEXNA
                     int index = Window.index;
 
                     Message_Active = true;
-                    if (is_inventory_full && On_Buy)
+                    // Buying an item that has to be sent
+                    if (On_Buy && !actor.can_take(Shop.items[index]))
+                    {
+                        accept_send();
+                    }
+                    // Inventory full, have to send
+                    else if (On_Buy && is_inventory_full)
                     {
                         Confirming_Send = true;
                         set_text(Shop_Messages.Send_Confirm);
@@ -580,20 +598,7 @@ namespace FEXNA
                 }
                 else
                 {
-                    if (!Global.battalion.convoy_ready_for_sending)
-                    {
-                        cancel_accepting(Shop_Messages.Merchant_Full);
-                        this.trading = false;
-                    }
-                    else
-                    {
-                        Accepting = false;
-                        Confirming_Send = false;
-                        Message_Active = true;
-                        Traded = true;
-                        buy_item(true);
-                        Global.Audio.play_se("System Sounds", "Gold_Change");
-                    }
+                    accept_send();
                 }
                 clear_choices();
             }
@@ -603,6 +608,24 @@ namespace FEXNA
                 cancel_accepting(Shop_Messages.Send_No);
                 this.trading = false;
                 clear_choices();
+            }
+        }
+
+        private void accept_send()
+        {
+            if (!Global.battalion.convoy_ready_for_sending)
+            {
+                cancel_accepting(Shop_Messages.Merchant_Full);
+                this.trading = false;
+            }
+            else
+            {
+                Accepting = false;
+                Confirming_Send = false;
+                Message_Active = true;
+                Traded = true;
+                buy_item(true);
+                Global.Audio.play_se("System Sounds", "Gold_Change");
             }
         }
         #endregion

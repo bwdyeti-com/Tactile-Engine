@@ -1422,7 +1422,7 @@ namespace FEXNA
                     new Vector2(0, 1), new Vector2(0, -1),
                     new Vector2(1, 0), new Vector2(-1, 0) })
                 if (!Global.game_map.is_off_map(offset + Loc))
-                    if (!Global.game_map.is_blocked(offset + Loc, Rescuing))
+                    if (!Global.game_map.is_blocked(offset + Loc, Id))
                         if (Global.game_map.get_siege(offset + Loc) == null)
                             if (Global.game_map.terrain_cost(
                                     MovementTypes.Armor, offset + Loc) >= 0)
@@ -1457,12 +1457,12 @@ namespace FEXNA
             return result;
         }
 
-        public bool can_reclaim()
+        public bool can_reclaim(bool ignoreFull = false)
         {
             // If no convoy or convoy is full
             if (!Global.game_battalions.contains_convoy(Global.battalion.convoy_id))
                 return false;
-            if (Global.battalion.is_convoy_full)
+            if (!ignoreFull && Global.battalion.is_convoy_full)
                 return false;
 
             if (this.actor.can_construct_skill())
@@ -1485,9 +1485,11 @@ namespace FEXNA
                         result.Add(offset + Loc);
                 }
             }
+
+            //@Yeti: does this allow reclaiming from under enemies?
             return result;
         }
-
+         
         public List<Vector2> placeable_targets()
         {
             List<Vector2> result = new List<Vector2>();
@@ -1495,7 +1497,7 @@ namespace FEXNA
                     new Vector2(0, 1), new Vector2(0, -1),
                     new Vector2(1, 0), new Vector2(-1, 0) })
                 if (!Global.game_map.is_off_map(offset + Loc))
-                    if (!Global.game_map.is_blocked(offset + Loc, Rescuing))
+                    if (!Global.game_map.is_blocked(offset + Loc, Id))
                         if (Global.game_map.get_siege(offset + Loc) == null)
                             if (Global.game_map.terrain_cost(
                                     MovementTypes.Armor, offset + Loc) >= 0)
@@ -3467,13 +3469,18 @@ namespace FEXNA
 
         public bool can_steal_item(Game_Unit target, int i)
         {
+            // Can never steal equipped weapons
             if (target.actor.equipped == i + 1)
                 return false;
             Item_Data item_data = target.actor.items[i];
+            // Can't steal invalid items
             if (item_data.Id == 0)
                 return false;
+            // Can't steal Prfs
             if (item_data.is_weapon && item_data.to_weapon.Rank == Weapon_Ranks.None)
                 return false;
+            // Check that AS is >= target AS
+            // If the item is a weapon, thief AS is adjusted as if they equipped it
             return atk_spd(1, item_data) >= target.stat(Stat_Labels.Spd);
         }
 

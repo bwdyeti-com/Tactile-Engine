@@ -17,6 +17,7 @@ namespace FEXNA.IO
         protected List<string> AvailableChapters;
 
         public string LastStartedChapter { get; private set; }
+        public DateTime LastStartTime { get; private set; }
 
         #region Accessors
         public int file_id { get { return File_Id; } }
@@ -51,8 +52,12 @@ namespace FEXNA.IO
         {
             Save_Info result = new Save_Info();
             result.File_Id = file_id;
-
+            
             result.Time = new DateTime(); //@Yeti
+            var mostRecent = file.most_recent_save;
+            if (mostRecent != null)
+                result.Time = mostRecent.time;
+
             result.Style = file.Style;
             result.Map_Save_Exists = false;
             result.Suspend_Exists = suspend;
@@ -123,6 +128,22 @@ namespace FEXNA.IO
             Suspend_Exists = false;
         }
 
+        #region Transient Info
+        public void CopyTransientInfo(Save_Info sourceInfo)
+        {
+            if (!string.IsNullOrEmpty(sourceInfo.LastStartedChapter))
+                LastStartedChapter = sourceInfo.LastStartedChapter;
+
+            if (sourceInfo.LastStartTime != new DateTime())
+            {
+                if (sourceInfo.LastStartTime > LastStartTime)
+                    LastStartTime = sourceInfo.LastStartTime;
+
+                if (sourceInfo.LastStartTime > Time)
+                    Time = sourceInfo.LastStartTime;
+            }
+        }
+
         public void SetStartedChapter(string newChapter)
         {
             LastStartedChapter = newChapter;
@@ -131,5 +152,15 @@ namespace FEXNA.IO
         {
             LastStartedChapter = null;
         }
+
+        public void SetStartTime()
+        {
+            LastStartTime = DateTime.Now;
+        }
+        public void ResetStartTime()
+        {
+            LastStartTime = new DateTime();
+        }
+        #endregion
     }
 }

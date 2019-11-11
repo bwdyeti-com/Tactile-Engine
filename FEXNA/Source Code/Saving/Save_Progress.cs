@@ -15,8 +15,6 @@ namespace FEXNA.IO
         private Dictionary<string, int> Supports = new Dictionary<string, int>();
 
         #region Accessors
-        public Dictionary<int, HashSet<string>> completed_chapters { get { return Completed_Chapters; } }
-        public HashSet<string> available_chapters { get { return Available_Chapters; } }
         public Dictionary<string, int> supports { get { return Supports; } }
         #endregion
 
@@ -98,6 +96,16 @@ namespace FEXNA.IO
                     Supports.Add(pair.Key, 0);
                 Supports[pair.Key] = Math.Max(Supports[pair.Key], supports[pair.Key]);
             }
+        }
+
+        public bool ChapterCompleted(string key)
+        {
+            return Completed_Chapters.Values.Any(x => x.Contains(key));
+        }
+
+        public bool ChapterAvailable(string key)
+        {
+            return Available_Chapters.Contains(key);
         }
     }
 }

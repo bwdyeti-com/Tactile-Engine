@@ -92,7 +92,7 @@ namespace FEXNA.Windows.Command.Items
             return unit.actor;
         }
 
-        protected Item_Data items(int index)
+        public Item_Data items(int index)
         {
             if (index < 0 || index >= get_equipment().Count)
                 return new Item_Data();
@@ -191,7 +191,7 @@ namespace FEXNA.Windows.Command.Items
         }
         protected virtual CommandUINode item(string str, int i)
         {
-            var item_data = get_equipment()[i];
+            var item_data = items(i);
             if (!is_valid_item(get_equipment(), i))
                 return null;
 
@@ -204,7 +204,7 @@ namespace FEXNA.Windows.Command.Items
 
         protected virtual bool is_valid_item(List<Item_Data> items, int i)
         {
-            var item_data = get_equipment()[i];
+            var item_data = this.items(i);
             return !item_data.non_equipment;
         }
 
@@ -331,7 +331,7 @@ namespace FEXNA.Windows.Command.Items
             }
 
             Help_Window = new Window_Help();
-            Help_Window.set_item(this.get_equipment()[Index_Redirect[HelpIndex]], actor());
+            Help_Window.set_item(this.items(Index_Redirect[HelpIndex]), actor());
             Help_Window.loc = loc + item_loc(this.index);
             update_help_loc();
             Global.game_system.play_se(System_Sounds.Help_Open);

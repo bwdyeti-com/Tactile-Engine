@@ -321,9 +321,9 @@ namespace FEXNA
             BlockState.blocked_id = Id;
         }
 
-        internal void call_chapter_end(bool showRankings, bool sendMetrics)
+        internal void call_chapter_end(bool showRankings, bool sendMetrics, bool supportPoints)
         {
-            ChapterEndState.end_chapter(showRankings, sendMetrics);
+            ChapterEndState.end_chapter(showRankings, sendMetrics, supportPoints);
         }
 
         internal void call_item(int id, int item_index)

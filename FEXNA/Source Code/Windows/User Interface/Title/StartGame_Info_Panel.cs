@@ -162,8 +162,8 @@ namespace FEXNA.Windows.UserInterface.Title
 
                     if (Global.data_chapters.ContainsKey(info.chapter_id))
                     {
-                        Chapter.text = Global.data_chapters[info.chapter_id].TitleName;
-                        Short_Chapter.text = Global.data_chapters[info.chapter_id].Abbreviation;
+                        Chapter.text = Global.data_chapters[info.chapter_id].FileSelectName;
+                        Short_Chapter.text = Global.data_chapters[info.chapter_id].ShortName;
                     }
                     else
                     {

@@ -265,9 +265,33 @@ namespace FEXNA
                 string name = class_name_full;
                 if (Face_Sprite_Data.CLASS_RENAME.ContainsKey(name))
                     name = Face_Sprite_Data.CLASS_RENAME[name];
-                return name + (gender % 2 == 0 ? "M" : "F") +
-                    Constants.Actor.BUILD_NAME_DELIMITER + Build.ToString();
+                // If this generic face doesn't exist, check other builds
+                // Check down first
+                for (int build = Build; build >= 0; build--)
+                {
+                    string generic = ConstructGenericFaceName(name, gender, build);
+                    if (Global.content_exists(@"Graphics/Faces/" + generic))
+                            return generic;
+                }
+                // Then check up
+                int builds = Enum_Values.GetEnumCount(typeof(FEXNA_Library.Generic_Builds));
+                for (int build = Build + 1; build < builds; build++)
+                {
+                    string generic = ConstructGenericFaceName(name, gender, build);
+                    if (Global.content_exists(@"Graphics/Faces/" + generic))
+                        return generic;
+                }
+                // Just return whatever
+                return ConstructGenericFaceName(name, gender, Build);
             }
+        }
+        internal static string ConstructGenericFaceName(string name, int gender, int build)
+        {
+            return string.Format("{0}{1}{2}{3}",
+                name,
+                (gender % 2 == 0 ? "M" : "F"),
+                Constants.Actor.BUILD_NAME_DELIMITER,
+                build);
         }
 
         public string flag_name
@@ -3805,17 +3829,13 @@ namespace FEXNA
 
         public float get_support_bonus(int actorId, Combat_Stat_Labels stat)
         {
-            return get_support_bonus(actorId, (int)stat);
-        }
-        private float get_support_bonus(int actorId, int type)
-        {
             float n = 0;
             // Support
             if (Global.game_actors.ContainsKey(actorId) && Supports.ContainsKey(actorId))
-                n += (support_bonuses(type) + Global.game_actors[actorId].support_bonuses(type)) * Supports[actorId];
+                n += support_bonus(actorId, stat, Supports[actorId]);
             // Bond
             if (Global.game_actors.ContainsKey(actorId) && Bond == actorId)
-                n += Constants.Support.BOND_BOOSTS[type];
+                n += Constants.Support.BOND_BOOSTS[(int)stat];
             return n;
         }
 
@@ -3824,12 +3844,8 @@ namespace FEXNA
             float totalBonus = total_support_float(stat);
 
             int support_level = Supports.ContainsKey(actorId) ? Supports[actorId] : 0;
-            float bonus = (support_bonuses((int)stat) +
-                Global.game_actors[actorId].support_bonuses((int)stat)) *
-                support_level;
-            float next_bonus = (support_bonuses((int)stat) +
-                Global.game_actors[actorId].support_bonuses((int)stat)) *
-                (support_level + 1);
+            float bonus = support_bonus(actorId, stat, support_level);
+            float next_bonus = support_bonus(actorId, stat, support_level + 1);
 
             float baseBonus = totalBonus - bonus;
 
@@ -3858,11 +3874,24 @@ namespace FEXNA
             return n;
         }
 
-        public float support_bonuses(int type)
+        private float support_bonus(int actorId, Combat_Stat_Labels stat, int supportLvl)
         {
-            return Constants.Support.AFFINITY_BOOSTS[affin][type];
+            return support_bonus(
+                this.affin,
+                Global.game_actors[actorId].affin,
+                stat,
+                supportLvl);
         }
-
+        private static float support_bonus(Affinities affin, Combat_Stat_Labels stat)
+        {
+            return Constants.Support.AFFINITY_BOOSTS[affin][(int)stat];
+        }
+        private static float support_bonus(Affinities affin1, Affinities affin2, Combat_Stat_Labels stat, int supportLvl)
+        {
+            float baseBonus = support_bonus(affin1, stat) + support_bonus(affin2, stat);
+            return baseBonus * supportLvl;
+        }
+        
         public void increase_support_level(int actorId)
         {
             // Already over limit?

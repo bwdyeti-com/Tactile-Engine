@@ -3006,17 +3006,24 @@ namespace FEXNA
                                 return new LocationDistance(Vector2.Zero, -1);
                             return new LocationDistance(target.loc, target.mov + target.max_range_absolute());
                         }).Where(x => x.dist != -1));
-                    for (int j = 0; j < enemy_distance.Length; j++)
+                    // If all the enemies with less or equal move can't attack, stop
+                    if (enemy_ranges.Any())
                     {
-                        LocationDistance pair = target_locs[j];
-                        enemy_distance[j] = enemy_ranges.Select(x =>
-                            {
-                                return Global.game_map.distance(pair.loc, x.loc) - x.dist;
-                            }).Min();
+                        for (int j = 0; j < enemy_distance.Length; j++)
+                        {
+                            LocationDistance pair = target_locs[j];
+                            enemy_distance[j] = enemy_ranges.Select(x =>
+                                {
+                                    return Global.game_map.distance(pair.loc, x.loc) - x.dist;
+                                }).Min();
+                        }
                     }
                 }
                 // If any of the tiles to move to are outside the theoretical range of the enemies, only check those tiles
                 var safe_tile_indices = Enumerable.Range(0, enemy_distance.Length).Where(x => enemy_distance[x] > 0);
+#if DEBUG
+                safe_tile_indices = safe_tile_indices.ToList();
+#endif
                 if (safe_tile_indices.Any())
                 {
                     target_locs = new List<LocationDistance>(safe_tile_indices.Select(x => target_locs[x]));

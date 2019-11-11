@@ -41,6 +41,24 @@ namespace FEXNA
         public bool is_ready { get { return this.has_ammo && State == Siege_Engine_State.Ready; } }
         public bool has_ammo { get { return Item.Uses > 0; } }
         public bool ammo_count_greyed { get { return Item.Uses > 0 && State != Siege_Engine_State.Ready; } }
+        
+        /// <summary>
+        /// Gets the unit at this engine's location.
+        /// </summary>
+        public Game_Unit Unit { get { return Global.game_map.get_unit(this.loc); } }
+        /// <summary>
+        /// Gets the unit at this engine's location that can use siege engines.
+        /// </summary>
+        public Game_Unit Rider
+        {
+            get
+            {
+                Game_Unit unit = this.Unit;
+                if (unit != null && unit.can_use_siege())
+                    return unit;
+                return null;
+            }
+        }
         #endregion
 
         public Siege_Engine() { }
