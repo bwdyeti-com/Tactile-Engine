@@ -2966,10 +2966,15 @@ namespace FEXNA
                         if (Move_Range.Contains(seize))
                             talk_range.Add(seize);
 
-                if (this.can_seize)
-                    foreach (Vector2 escape in Global.game_map.escape_point_locations(Team, Group))
+                foreach (Vector2 escape in Global.game_map.escape_point_locations(Team, Group))
+                {
+                    var escapePoint = Global.game_map.escape_point_data(this, escape);
+                    if (!escapePoint.LordOnly || this.can_seize)
+                    {
                         if (Move_Range.Contains(escape))
                             talk_range.Add(escape);
+                    }
+                }
             }
             Talk_Range = talk_range;
             Global.game_map.add_updated_move_range(Id);

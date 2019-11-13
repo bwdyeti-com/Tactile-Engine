@@ -133,11 +133,14 @@ namespace FEXNA.Menus.Map.Unit
                     IndexRedirect.Add(14);
                 }
                 // Escape
-                if (Global.game_map.escape_point_locations(unit.team, unit.group)
-                    .Contains(unit.loc) && unit.can_seize)
+                if (Global.game_map.escape_point_locations(unit.team, unit.group).Contains(unit.loc))
                 {
-                    commands.Add("Escape");
-                    IndexRedirect.Add(19);
+                    var escapePoint = Global.game_map.escape_point_data(unit, unit.loc);
+                    if (!escapePoint.LordOnly || unit.can_seize)
+                    {
+                        commands.Add("Escape");
+                        IndexRedirect.Add(19);
+                    }
                 }
                 // Dance
                 if (unit.can_dance())

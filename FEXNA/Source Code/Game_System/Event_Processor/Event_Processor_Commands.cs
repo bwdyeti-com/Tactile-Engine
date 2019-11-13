@@ -2428,7 +2428,9 @@ namespace FEXNA
                     break;
                 case "Player Event":
                     // Value[5] = event
-                    Global.game_map.add_player_event_escape(command.Value[5], loc, escape_to_loc);
+                    //?Value[6] = lord only? (default true)
+                    bool lordOnly = command.Value.Length > 6 ? process_bool(command.Value[6]) : true;
+                    Global.game_map.add_player_event_escape(command.Value[5], loc, escape_to_loc, lordOnly);
                     break;
 #if DEBUG
                 default:
