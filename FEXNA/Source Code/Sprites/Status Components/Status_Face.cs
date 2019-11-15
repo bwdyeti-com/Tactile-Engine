@@ -25,7 +25,8 @@ namespace FEXNA
         {
             int x = (int)status_offset.X + this.SrcX;
             //@Debug: Maybe just set Expression instead, and then use this.SrcY?
-            int srcY = row_height * (status_frame >= Emotion_Count ? 0 : status_frame);
+            int srcY = Face_Sprite_Data.EmotionHeight(this.face_data, texture.Height) *
+                (status_frame >= Emotion_Count ? 0 : status_frame);
             int y = (int)status_offset.Y + srcY;
             int width = (int)Face_Sprite_Data.STATUS_FACE_SIZE.X;
             int height = (int)Face_Sprite_Data.STATUS_FACE_SIZE.Y;

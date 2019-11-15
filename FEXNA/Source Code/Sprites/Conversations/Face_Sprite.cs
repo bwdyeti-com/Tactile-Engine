@@ -191,12 +191,8 @@ namespace FEXNA
             string name = Filename.Split(Constants.Actor.BUILD_NAME_DELIMITER)[0];
             if (Global.face_data != null && Global.face_data.ContainsKey(name)) //FaceData //Debug
             {
-                Emotion_Count = Global.face_data[name].Emotions;
-                if (Emotion_Count == 0)
-                    Emotion_Count = Face_Sprite_Data.DEFAULT_EMOTIONS;
+                Emotion_Count = Face_Sprite_Data.EmotionCount(Global.face_data[name]);
             }
-            else if (Face_Sprite_Data.EMOTION_LIST.ContainsKey(name))
-                Emotion_Count = Face_Sprite_Data.EMOTION_LIST[name];
             else
                 Emotion_Count = Face_Sprite_Data.DEFAULT_EMOTIONS;
         }
@@ -344,22 +340,6 @@ namespace FEXNA
         #endregion
 
         public bool ready { get { return Phase_In == -1; } }
-        protected int row_height
-        {
-            get
-            {
-                if (texture == null)
-                    return 0;
-                int height = texture.Height;
-                // Remove mini
-                height -= (int)Face_Sprite_Data.MINI_FACE_SIZE.Y;
-                // Remove battle faces
-                height -= Face_Sprite_Data.BATTLE_EMOTE_COUNT * (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y;
-                // Divide by number of emotion variations
-                height /= Emotion_Count;
-                return height;
-            }
-        }
 
         protected int FaceWidth
         {
@@ -367,14 +347,20 @@ namespace FEXNA
             {
                 if (texture == null)
                     return 0;
-                int width = texture.Width;
-                // If asymmetrical
-                if (this.face_data.Asymmetrical)
-                    width /= 2;
-                return width;
+
+                return Face_Sprite_Data.FaceWidth(this.face_data, texture.Width);
             }
         }
-        protected int FaceHeight { get { return this.row_height - (int)(eyes_size.Y + mouth_size.Y); } }
+        protected int FaceHeight
+        {
+            get
+            {
+                if (texture == null)
+                    return 0;
+
+                return Face_Sprite_Data.FaceHeight(this.face_data, texture.Height);
+            }
+        }
 
         protected int SrcX
         {
@@ -386,7 +372,7 @@ namespace FEXNA
                 return x;
             }
         }
-        protected int SrcY { get { return Expression * this.row_height; } }
+        protected int SrcY { get { return Expression * Face_Sprite_Data.EmotionHeight(this.face_data, texture.Height); } }
 
         protected Vector2 eyes_size { get { return Face_Sprite_Data.EYES_FACE_SIZE; } }
         protected Vector2 mouth_size { get { return Face_Sprite_Data.MOUTH_FACE_SIZE; } }
@@ -409,9 +395,7 @@ namespace FEXNA
             string name = filename.Split(Constants.Actor.BUILD_NAME_DELIMITER)[0];
             if (Global.face_data != null && Global.face_data.ContainsKey(name)) //FaceData //Debug
                 return Global.face_data[name];
-            if (Face_Sprite_Data.FACE_OFFSETS.ContainsKey(name))
-                return Face_Sprite_Data.FACE_OFFSETS[name].to_face_data(name);
-            return Face_Sprite_Data.FACE_DATA_DEFAULT.to_face_data(name);
+            return new FEXNA_Library.Face_Data();
         }
 
         #region Update
