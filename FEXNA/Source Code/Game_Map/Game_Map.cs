@@ -3231,12 +3231,10 @@ namespace FEXNA
         public void add_team_escape(int team, int group, Vector2 loc, Vector2 escape_to_loc)
         {
             EscapePoints.Add(new EscapePoint(loc, escape_to_loc, team, group));
-            //Team_Escape_Points[team].add_point(group, loc, escape_to_loc); //Debug
         }
-        public void add_player_event_escape(string eventName, Vector2 loc, Vector2 escape_to_loc)
+        public void add_player_event_escape(string eventName, Vector2 loc, Vector2 escape_to_loc, bool lordOnly)
         {
-            EscapePoints.Add(new EscapePoint(loc, escape_to_loc, Constants.Team.PLAYER_TEAM, -1, eventName));
-            //PlayerEventEscapePoints[loc].add_point(group, loc, escape_to_loc); //Debug
+            EscapePoints.Add(new EscapePoint(loc, escape_to_loc, Constants.Team.PLAYER_TEAM, -1, eventName, lordOnly));
         }
 
         internal HashSet<Vector2> escape_point_locations(int team, int group)
@@ -3247,12 +3245,7 @@ namespace FEXNA
                 .Where(x => x.Group == group || x.Group == -1);
 
             HashSet<Vector2> points = new HashSet<Vector2>(group_escape_points.Select(x => x.Loc));
-
-            /* //Debug
-            if (group != -1 && Team_Escape_Points[team].ContainsKey(group))
-                points.UnionWith(Team_Escape_Points[team][group].Keys);
-            if (Team_Escape_Points[team].ContainsKey(-1))
-                points.UnionWith(Team_Escape_Points[team][-1].Keys);*/
+            
             return points;
         }
 
@@ -3264,18 +3257,7 @@ namespace FEXNA
                 .Where(x => x.Group == unit.group || x.Group == -1);
 
             return group_escape_points.First(x => x.Loc == loc);
-
-            /* //Debug
-            Maybe<Vector2> escape_point;
-            // Check for the unit's group
-            escape_point = Team_Escape_Points[unit.team].get_escape_point(unit.group, loc);
-            if (escape_point.IsSomething)
-                return escape_point;
-            // Check for any group
-            escape_point = Team_Escape_Points[unit.team].get_escape_point(-1, loc);
-            if (escape_point.IsSomething)
-                return escape_point;*/
-
+            
             throw new ArgumentException();
         }
 

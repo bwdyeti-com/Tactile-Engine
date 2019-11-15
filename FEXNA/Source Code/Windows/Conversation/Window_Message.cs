@@ -1517,11 +1517,9 @@ function normally. Suggested value is -3.",
             int x;
             // Offscreen left
             if (id <= 0)
-                //x = BASE_X + ((id - 1) * SPACING); //Debug
                 x = -(int)(Face_Sprite_Data.BATTLE_FACE_SIZE.X) / 2;
             // Offscreen right
             else if (id >= Face_Sprite_Data.FACE_COUNT + 1)
-                //x = BASE_X + ((id - 1) * SPACING); //Debug
                 x = Config.WINDOW_WIDTH + (int)(Face_Sprite_Data.BATTLE_FACE_SIZE.X) / 2;
             // Left half
             else if (id <= Face_Sprite_Data.FACE_COUNT / 2)

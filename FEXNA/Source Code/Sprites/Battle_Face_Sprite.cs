@@ -25,8 +25,7 @@ namespace FEXNA
                 if (unit.actor.generic_face)
                     recolor_country(unit.actor.name_full);
                 offset = new Vector2(Face_Sprite_Data.BATTLE_FACE_SIZE.X, 0);
-                int battleFaceHeight = (int)Face_Sprite_Data.BATTLE_FACE_SIZE.Y * Face_Sprite_Data.BATTLE_EMOTE_COUNT;
-                Y = texture.Height - ((int)Face_Sprite_Data.MINI_FACE_SIZE.Y + battleFaceHeight);
+                Y = texture.Height - Face_Sprite_Data.FooterHeight;
                 set_frame(0);
             }
         }

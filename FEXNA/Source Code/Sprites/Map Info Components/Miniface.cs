@@ -115,11 +115,11 @@ namespace FEXNA
             get
             {
                 var faceData = Face_Sprite.get_face_data(Filename);
+                int width = Face_Sprite_Data.FaceWidth(faceData, this.texture.Width);
 
                 int x = 0;
                 if (faceData.Asymmetrical)
                 {
-                    int width = this.texture.Width / 2;
                     x = Mirrored ? width : 0;
                 }
                 return x;
