@@ -8,7 +8,7 @@ using FEXNA.Windows.Command;
 
 namespace FEXNA.Menus.Map.Unit.Item
 {
-    class PromotionChoiceMenu : CommandMenu, IFadeMenu, IHasCancelButton
+    class PromotionChoiceMenu : CommandMenu, IFadeMenu
     {
         const int BLACK_SCEEN_FADE_IN_TIMER = 16;
         const int BLACK_SCEEN_FADE_OUT_TIMER = 16;

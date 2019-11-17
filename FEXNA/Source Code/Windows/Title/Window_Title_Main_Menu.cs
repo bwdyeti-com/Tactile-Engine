@@ -156,6 +156,11 @@ namespace FEXNA
             for (int i = 0; i < MenuChoices.Count; i++)
             {
                 MenuChoices[i].ResetOffset();
+                MenuChoices[i].RefreshWidth(i == (int)Selection);
+
+                if (i != (int)Selection && i != (int)ExpandedSelection)
+                    MenuChoices[i].offset += new Vector2(-12, 0);
+
                 if (MenuChoices[i].Visible)
                 {
                     MenuChoices[i].loc = loc;
