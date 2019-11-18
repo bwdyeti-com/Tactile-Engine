@@ -187,7 +187,7 @@ namespace FEXNA
 
         protected virtual PrepItemsUnitUINode unit_node(int actorId)
         {
-            var node = new PrepItemsUnitUINode(actorId);
+            var node = new PrepItemsUnitUINode(Global.game_actors[actorId].name);
             node.Size = new Vector2(unit_spacing(), ROW_SIZE);
             return node;
         }
@@ -213,13 +213,14 @@ namespace FEXNA
         protected virtual bool refresh_map_sprite(int index)
         {
             bool deployed = map_sprite_ready(index);
-            map_sprite_texture(UnitNodes[index], deployed);
+            map_sprite_texture(index, deployed);
             return deployed;
         }
         protected void map_sprite_texture(
-            PrepItemsUnitUINode unitNode, bool deployed)
+            int index, bool deployed)
         {
-            int id = unitNode.ActorId;
+            int id = Global.battalion.actors[index];
+            PrepItemsUnitUINode unitNode = UnitNodes[index];
             unitNode.set_map_sprite_texture(
                 deployed ? Constants.Team.PLAYER_TEAM : 0,
                 Global.game_actors[id].map_sprite_name);

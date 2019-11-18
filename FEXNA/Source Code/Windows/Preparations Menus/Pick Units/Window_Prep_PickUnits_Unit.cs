@@ -107,7 +107,7 @@ namespace FEXNA
         public void refresh_unit(bool deployed)
         {
             int id = Global.battalion.actors[this.index];
-            map_sprite_texture(UnitNodes.ActiveNode, deployed);
+            map_sprite_texture(UnitNodes.ActiveNodeIndex, deployed);
             refresh_font(this.index, id, deployed);
         }
 

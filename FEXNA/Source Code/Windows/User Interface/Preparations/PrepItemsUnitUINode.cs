@@ -8,7 +8,6 @@ namespace FEXNA.Windows.UserInterface.Preparations
 {
     class PrepItemsUnitUINode : UINode
     {
-        internal int ActorId { get; private set; }
         protected Character_Sprite MapSprite;
         protected FE_Text Name;
         protected Unit_Line_Cursor GlowingLine;
@@ -23,15 +22,13 @@ namespace FEXNA.Windows.UserInterface.Preparations
         }
         protected override bool RightClickActive { get { return true; } }
 
-        internal PrepItemsUnitUINode(int actorId)
+        internal PrepItemsUnitUINode(string name)
         {
-            ActorId = actorId;
-
             Name = new FE_Text();
             Name.draw_offset = new Vector2(16, 0);
             Name.Font = "FE7_Text";
             Name.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_White");
-            Name.text = Global.game_actors[actorId].name;
+            Name.text = name;
             // Map Sprite
             MapSprite = new Character_Sprite();
             MapSprite.facing_count = 3;
