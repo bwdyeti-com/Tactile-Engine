@@ -855,7 +855,7 @@ namespace FEXNA
             base.update_sprite(sprite);
             // Update player sprite
             sprite.update();
-            sprite.frame = (Facing / 2 - 1) * 4 + Frame;
+            UpdateSpriteFrame((Graphics.Map.Character_Sprite)sprite, Facing, Frame);
             sprite.draw_offset = new Vector2(TILE_SIZE, TILE_SIZE) / 2;
 
             sprite.visible = true;

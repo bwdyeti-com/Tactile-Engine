@@ -5240,7 +5240,7 @@ namespace FEXNA
 
         internal void update_sprite_frame(Graphics.Map.Character_Sprite sprite)
         {
-            sprite.frame = (Facing / 2 - 1) * ((Graphics.Map.Character_Sprite)sprite).frame_count + Frame;
+            UpdateSpriteFrame(sprite, Facing, Frame);
         }
 
         public void set_sprite_batch_effects(Effect effect)
