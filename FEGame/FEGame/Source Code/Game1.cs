@@ -357,7 +357,6 @@ namespace FEGame
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            GraphicsDevice device = graphics.GraphicsDevice;
 
             MouseCursorTexture =
                 Content.Load<Texture2D>(@"Graphics/Pictures/MouseCursor");
@@ -1305,6 +1304,8 @@ namespace FEGame
                             if (map_save)
                                 Global.map_save_created();
                     }
+                    // Write progress data
+                    save_progress();
                     Global.scene.reset_suspend_calling();
                     Global.scene.reset_suspend_filename();
                     if (Global.return_to_title)
@@ -1336,7 +1337,7 @@ namespace FEGame
                     // Update and write progress data
                     Global.progress.update_progress(Global.save_file);
                     save_progress();
-                    Global.scene.save_data_calling = false;
+                    Global.scene.EndSaveData();
                 }
             }
         }

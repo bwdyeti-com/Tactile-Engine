@@ -3642,15 +3642,30 @@ namespace FEXNA
         }
 
         /// <summary>
-        /// Returns the support string data for this and another actor. Returns null if they cannot support or have no data.
+        /// Returns the support data's key for this and another actor.
+        /// Returns null if they cannot support or have no data.
+        /// </summary>
+        /// <param name="actorId">Id of the other actor</param>
+        /// <returns></returns>
+        public string GetSupportKey(int actorId)
+        {
+            foreach (string support_name in Data.Supports)
+                if (Global.data_supports[support_name].Id1 == actorId || Global.data_supports[support_name].Id2 == actorId)
+                    return support_name;
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the support string data for this and another actor.
+        /// Returns null if they cannot support or have no data.
         /// </summary>
         /// <param name="actorId">Id of the other actor</param>
         /// <returns></returns>
         private List<Support_Entry> support_data(int actorId)
         {
-            foreach (string support_name in Data.Supports)
-                if (Global.data_supports[support_name].Id1 == actorId || Global.data_supports[support_name].Id2 == actorId)
-                    return Global.data_supports[support_name].Supports;
+            string key = GetSupportKey(actorId);
+            if (Global.data_supports.ContainsKey(key))
+                return Global.data_supports[key].Supports;
             return null;
         }
 
@@ -3664,8 +3679,12 @@ namespace FEXNA
         {
             if (can_support(actorId))
                 if (!is_support_level_maxed(actorId))
-                    return at_base ? support_data(actorId)[get_support_level(actorId)].Base_Convo :
-                        support_data(actorId)[get_support_level(actorId)].Field_Convo;
+                {
+                    int supportLevel = get_support_level(actorId);
+                    return at_base ?
+                        support_data(actorId)[supportLevel].Base_Convo :
+                        support_data(actorId)[supportLevel].Field_Convo;
+                }
             return "";
         }
 
@@ -3816,6 +3835,7 @@ namespace FEXNA
             // Already over limit?
             if (is_support_maxed())
                 return;
+
             // Add an entry for this support if there isn't one already
             if (!Supports.ContainsKey(actorId))
                 Supports.Add(actorId, 0);

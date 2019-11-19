@@ -30,7 +30,10 @@ namespace FEXNA.IO
         {
             Save_Progress result = new Save_Progress();
 
-            result.Completed_Chapters.read(reader);
+            var completed = new Dictionary<int, HashSet<string>>();
+            completed.read(reader);
+            result.CombineCompleted(completed);
+
             //if (Global.LOADED_VERSION.older_than(0, 6, 1, 0)) //Debug
             if (loaded_version.older_than(0, 6, 1, 0))
             {
@@ -59,18 +62,26 @@ namespace FEXNA.IO
 
         public void combine_progress(Save_Progress source_progress)
         {
-            foreach(var pair in source_progress.Completed_Chapters)
-            {
-                if (!Completed_Chapters.ContainsKey(pair.Key))
-                    Completed_Chapters.Add(pair.Key, new HashSet<string>());
-                Completed_Chapters[pair.Key].UnionWith(source_progress.Completed_Chapters[pair.Key]);
-            }
+            // Completed Chapters
+            CombineCompleted(source_progress.Completed_Chapters);
+            // Available Chapters
             Available_Chapters.UnionWith(source_progress.Available_Chapters);
+            // Supports
             foreach (var pair in source_progress.Supports)
             {
                 if (!Supports.ContainsKey(pair.Key))
                     Supports.Add(pair.Key, 0);
                 Supports[pair.Key] = Math.Max(Supports[pair.Key], source_progress.Supports[pair.Key]);
+            }
+        }
+
+        private void CombineCompleted(Dictionary<int, HashSet<string>> sourceCompleted)
+        {
+            foreach (var pair in sourceCompleted)
+            {
+                if (!Completed_Chapters.ContainsKey(pair.Key))
+                    Completed_Chapters.Add(pair.Key, new HashSet<string>());
+                Completed_Chapters[pair.Key].UnionWith(sourceCompleted[pair.Key]);
             }
         }
 
@@ -91,11 +102,17 @@ namespace FEXNA.IO
             // Supports
             Dictionary<string, int> supports = file.acquired_supports;
             foreach (var pair in supports)
-            {
-                if (!Supports.ContainsKey(pair.Key))
-                    Supports.Add(pair.Key, 0);
-                Supports[pair.Key] = Math.Max(Supports[pair.Key], supports[pair.Key]);
-            }
+                AddSupport(pair.Key, pair.Value);
+        }
+
+        internal void AddSupport(string key, int level)
+        {
+            if (string.IsNullOrEmpty(key))
+                return;
+
+            if (!Supports.ContainsKey(key))
+                Supports.Add(key, 0);
+            Supports[key] = Math.Max(Supports[key], level);
         }
 
         public bool ChapterCompleted(string key)

@@ -100,7 +100,8 @@ namespace FEXNA
             Global.start_game_file_id = fileId;
             Global.start_new_game = true;
 
-            Save_Data_Calling = true;
+            // Save file on creation
+            CallSaveData();
             Loading_Suspend = false;
             Closing = true;
             Timer = 0;

@@ -28,7 +28,14 @@ namespace FEXNA
         public bool save_data_calling
         {
             get { return Save_Data_Calling; }
-            set { Save_Data_Calling = value; }
+        }
+        public void CallSaveData()
+        {
+            Save_Data_Calling = true;
+        }
+        public void EndSaveData()
+        {
+            Save_Data_Calling = false;
         }
 
         public string suspend_filename
