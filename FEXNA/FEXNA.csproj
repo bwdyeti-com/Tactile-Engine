@@ -304,6 +304,7 @@
     <Compile Include="Source Code\Sprites\Status Components\Page 3\Status_Support_List.cs" />
     <Compile Include="Source Code\Sprites\Text\Battle_Hit_Number.cs" />
     <Compile Include="Source Code\Sprites\Text\Quick_Stat_Up_Num.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\WindowPrepActorList.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Placeable.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Difficulty_Info_Panel.cs" />
     <Compile Include="Source Code\Sprites\Title\Game_Updated_Banner.cs" />

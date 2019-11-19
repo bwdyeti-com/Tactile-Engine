@@ -51,8 +51,6 @@ namespace FEXNA
         public Window_Prep_Items() : this(false) { }
         public Window_Prep_Items(bool returning_to_item_use)
         {
-            InitializeSprites();
-            update_black_screen();
             returning_to_menu(returning_to_item_use);
         }
 
