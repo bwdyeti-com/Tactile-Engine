@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using FEXNA.Graphics.Map;
 using FEXNA.Graphics.Text;
 using FEXNA.Graphics.Windows;
 using FEXNA.Windows.UserInterface.Command;
 
 namespace FEXNA.Windows.Command
 {
-    class Window_Command_Support : Window_Command
+    class Window_Command_Support : Window_Command_Scrollbar
     {
         const int WIDTH = 128;
         const int LINES = 9;
@@ -19,16 +18,18 @@ namespace FEXNA.Windows.Command
 
         #region Accessors
         private Game_Actor actor { get { return Global.game_actors[ActorId]; } }
-
+        
         public int TargetId { get { return this.actor.support_candidates()[this.index]; } }
         #endregion
 
         public Window_Command_Support(int actorId, Vector2 loc)
         {
+            Rows = LINES;
+
             ActorId = actorId;
             List<string> strs = new List<string>();
             Header = new Support_Command_Components(LINES, this.actor.supports_remaining);
-
+            
             foreach (int actor_id in this.actor.support_candidates())
             {
 
@@ -49,6 +50,15 @@ namespace FEXNA.Windows.Command
             //Window_Img.height = HEIGHT; //Debug
         }
 
+        protected override void set_default_offsets(int width)
+        {
+            this.text_offset = new Vector2(0, 0);
+            this.glow_width = width - (24 + (int)(Text_Offset.X * 2));
+            Bar_Offset = new Vector2(0, 0);
+            Size_Offset = new Vector2(0, 0);
+        }
+
+
         protected override void initialize_window()
         {
             Window_Img = new Prepartions_Item_Window(true);
@@ -63,7 +73,7 @@ namespace FEXNA.Windows.Command
         protected override void add_commands(List<string> strs)
         {
             var nodes = new List<CommandUINode>();
-            var supports = this.actor.support_candidates();
+            List<int> supports = this.actor.support_candidates();
             for (int i = 0; i < supports.Count; i++)
             {
                 var text_node = item(strs[i], i);
@@ -82,10 +92,21 @@ namespace FEXNA.Windows.Command
             return text_node;
         }
 
+        protected override void draw_window(SpriteBatch sprite_batch)
+        {
+            base.draw_window(sprite_batch);
+
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            Header.draw(sprite_batch, -(loc + draw_vector()));
+
+            // Draw the top entry of the list, so it overlaps the header
+            DrawFirstVisibleRow(sprite_batch);
+            sprite_batch.End();
+        }
+
         protected override void draw_text(SpriteBatch sprite_batch)
         {
-            Header.draw(sprite_batch, -(loc + draw_vector()));
-            base.draw_text(sprite_batch);
+            DrawRangeText(sprite_batch);
         }
     }
 
