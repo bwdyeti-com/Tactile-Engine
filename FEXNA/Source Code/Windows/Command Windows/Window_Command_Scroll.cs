@@ -70,10 +70,10 @@ namespace FEXNA.Windows.Command
         {
             int width = Window_Img == null ? this.Width : Window_Img.width;
             Rectangle rect = new Rectangle((int)loc.X + 8, (int)loc.Y + 8, width - 16, Rows * 16);
-            rect.X += (int)Text_Offset.X;
-            rect.Y += (int)Text_Offset.Y;
-            rect.Width += (int)(Size_Offset.X - Text_Offset.X);
-            rect.Height += (int)(Size_Offset.Y - Text_Offset.Y);
+            rect.X += 0;
+            rect.Y += 0;
+            rect.Width += (int)(Size_Offset.X - 0);
+            rect.Height += (int)(Size_Offset.Y - 0);
             return Scene_Map.fix_rect_to_screen(rect);
         }
 

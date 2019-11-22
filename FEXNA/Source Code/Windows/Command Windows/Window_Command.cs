@@ -485,7 +485,7 @@ namespace FEXNA.Windows.Command
                     Grey_Cursor.draw(sprite_batch, -(loc + text_draw_vector()));
             }
 
-            if (active)
+            if (active && Items.ActiveNode != null)
                 UICursor.draw(sprite_batch, -(loc + text_draw_vector()));
         }
         #endregion
