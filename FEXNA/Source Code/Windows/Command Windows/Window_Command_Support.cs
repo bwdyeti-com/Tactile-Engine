@@ -11,15 +11,18 @@ namespace FEXNA.Windows.Command
     {
         const int WIDTH = 128;
         const int LINES = 9;
-        //const int HEIGHT = LINES * 16 + 24; //Debug
 
-        private int ActorId;
+        protected int ActorId;
         private Support_Command_Components Header;
 
         #region Accessors
         private Game_Actor actor { get { return Global.game_actors[ActorId]; } }
         
-        public int TargetId { get { return this.actor.support_candidates()[this.index]; } }
+        public int TargetId { get { return this.SupportPartners[this.index]; } }
+
+        protected virtual int SupportsRemaining { get { return this.actor.supports_remaining; } }
+
+        protected virtual List<int> SupportPartners { get { return this.actor.support_candidates(); } }
         #endregion
 
         public Window_Command_Support(int actorId, Vector2 loc)
@@ -27,10 +30,27 @@ namespace FEXNA.Windows.Command
             Rows = LINES;
 
             ActorId = actorId;
+            Header = new Support_Command_Components(LINES, this.SupportsRemaining);
+
+            List<string> strs = GetNames();
+
+            initialize(loc, WIDTH, strs);
+            Bar_Offset = new Vector2(0, 0);
+            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
+        }
+
+        protected override void set_default_offsets(int width)
+        {
+            this.text_offset = new Vector2(0, 0);
+            this.glow_width = width - (24 + (int)(Text_Offset.X * 2));
+            Bar_Offset = new Vector2(0, 0);
+            Size_Offset = new Vector2(0, 0);
+        }
+
+        protected virtual List<string> GetNames()
+        {
             List<string> strs = new List<string>();
-            Header = new Support_Command_Components(LINES, this.actor.supports_remaining);
-            
-            foreach (int actor_id in this.actor.support_candidates())
+            foreach (int actor_id in this.SupportPartners)
             {
 
                 if (Global.battalion.actors.Contains(actor_id))
@@ -43,50 +63,18 @@ namespace FEXNA.Windows.Command
                     strs.Add("-----");
                 }
             }
-
-            initialize(loc, WIDTH, strs);
-            Bar_Offset = new Vector2(0, 0);
-            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
-            //Window_Img.height = HEIGHT; //Debug
+            return strs;
         }
-
-        protected override void set_default_offsets(int width)
-        {
-            this.text_offset = new Vector2(0, 0);
-            this.glow_width = width - (24 + (int)(Text_Offset.X * 2));
-            Bar_Offset = new Vector2(0, 0);
-            Size_Offset = new Vector2(0, 0);
-        }
-
-
+        
         protected override void initialize_window()
         {
             Window_Img = new Prepartions_Item_Window(true);
         }
-
-        protected Texture2D map_sprite_texture(int actor_id, bool deployed)
-        {
-            return Scene_Map.get_team_map_sprite(
-                    deployed ? Constants.Team.PLAYER_TEAM : 0, Global.game_actors.get_map_sprite_name(actor_id));
-        }
-
-        protected override void add_commands(List<string> strs)
-        {
-            var nodes = new List<CommandUINode>();
-            List<int> supports = this.actor.support_candidates();
-            for (int i = 0; i < supports.Count; i++)
-            {
-                var text_node = item(strs[i], i);
-                nodes.Add(text_node);
-            }
-
-            set_nodes(nodes);
-        }
-
+        
         protected override CommandUINode item(object value, int i)
         {
             var text_node = new SupportUINode(
-                "", ActorId, this.actor.support_candidates()[i],
+                "", ActorId, this.SupportPartners[i],
                 value as string, this.column_width);
             text_node.loc = item_loc(i);
             return text_node;

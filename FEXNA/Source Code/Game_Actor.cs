@@ -3681,9 +3681,7 @@ namespace FEXNA
                 if (!is_support_level_maxed(actorId))
                 {
                     int supportLevel = get_support_level(actorId);
-                    return at_base ?
-                        support_data(actorId)[supportLevel].Base_Convo :
-                        support_data(actorId)[supportLevel].Field_Convo;
+                    return support_data(actorId)[supportLevel].ConvoName(at_base);
                 }
             return "";
         }
