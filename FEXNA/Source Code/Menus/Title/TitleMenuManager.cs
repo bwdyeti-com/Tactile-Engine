@@ -268,9 +268,25 @@ at any time from the options menu.");
 
             switch ((ExtrasSelections)extrasMenu.Index)
             {
+                case ExtrasSelections.SupportViewer:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    var supportsMenu = new SupportViewerMenu();
+                    supportsMenu.Selected += SupportsMenu_Selected;
+                    supportsMenu.Closed += menu_Closed;
+                    supportsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
             }
         }
 
+        private void SupportsMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var supportsMenu = (sender as SupportViewerMenu);
+            var supportActorMenu = new SupportViewerActorMenu(supportsMenu.ActorId, supportsMenu);
+            supportActorMenu.Closed += menu_Closed;
+            supportActorMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+        }
+        
         void quitMenu_Confirmed(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
