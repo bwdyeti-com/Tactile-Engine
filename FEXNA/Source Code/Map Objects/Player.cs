@@ -368,14 +368,23 @@ namespace FEXNA
 
         public void update_cursor_frame()
         {
-            if (cursor_anim_count >= 0 && cursor_anim_count < 20)
-                Frame = 0;
-            else if (cursor_anim_count >= 20 && cursor_anim_count < 22)
-                Frame = 1;
-            else if (cursor_anim_count >= 22 && cursor_anim_count < 30)
-                Frame = 2;
-            else if (cursor_anim_count >= 30 && cursor_anim_count < 32)
-                Frame = 3;
+            Frame = Player.CursorFrame;
+        }
+
+        public static int CursorFrame
+        {
+            get
+            {
+                if (cursor_anim_count >= 0 && cursor_anim_count < 20)
+                    return 0;
+                else if (cursor_anim_count >= 20 && cursor_anim_count < 22)
+                    return 1;
+                else if (cursor_anim_count >= 22 && cursor_anim_count < 30)
+                    return 2;
+                else if (cursor_anim_count >= 30 && cursor_anim_count < 32)
+                    return 3;
+                return 0;
+            }
         }
 
         protected void update_cursor_formation_frame()

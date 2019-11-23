@@ -72,6 +72,7 @@ namespace FEXNA.Windows.UserInterface.Command
                 affinity.text = "--";
                 Affinity = affinity;
             }
+            MapSprite.frame = Global.game_system.unit_anim_idle_frame;
 
             Affinity.draw_offset = new Vector2(64, 0);
         }
@@ -114,7 +115,7 @@ namespace FEXNA.Windows.UserInterface.Command
             MapSprite.update();
         }
 
-        internal void set_map_sprite_texture(bool deployed, string name)
+        protected virtual void set_map_sprite_texture(bool deployed, string name)
         {
             int team = deployed ? Constants.Team.PLAYER_TEAM : 0;
             MapSprite.texture = Scene_Map.get_team_map_sprite(team, name);

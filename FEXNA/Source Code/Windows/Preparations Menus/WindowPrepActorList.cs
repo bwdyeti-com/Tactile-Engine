@@ -70,6 +70,17 @@ namespace FEXNA.Windows.Preparations
 
         public bool darkened { set { ((Prepartions_Item_Window)Window_Img).darkened = value; } }
 
+        protected int ColorOverride
+        {
+            get { return Window_Img.color_override; }
+            set
+            {
+                Window_Img.color_override = value;
+                foreach (var item in UnitNodes)
+                    item.SetColorOverride(value);
+            }
+        }
+
         protected virtual int Width { get { return unit_spacing() * this.Columns + 32 + 8; } }
         protected virtual int Height { get { return this.VisibleRows * this.RowSize + 8; } }
 

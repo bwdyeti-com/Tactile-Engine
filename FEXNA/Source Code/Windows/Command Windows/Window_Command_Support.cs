@@ -102,6 +102,7 @@ namespace FEXNA.Windows.Command
     {
         const string FILENAME = @"Graphics/Windowskins/Support_Components";
         private int Lines;
+        private int Color_Override = -1;
         private FE_Text Remaining_Label, X_Label, Remaining_Count;
 
         public override float stereoscopic
@@ -115,25 +116,53 @@ namespace FEXNA.Windows.Command
             }
         }
 
-        public Support_Command_Components(int lines, int remaining)
+        public int color_override
+        {
+            set
+            {
+                Color_Override = (int)MathHelper.Clamp(value, -1, Constants.Team.NUM_TEAMS - 1);
+            }
+        }
+        public int window_color
+        {
+            get
+            {
+                return Color_Override != -1 ? Color_Override : Global.game_options.window_color;
+            }
+        }
+
+        public Support_Command_Components(int lines, int remaining, bool noRemainingPositive = false)
         {
             texture = Global.Content.Load<Texture2D>(FILENAME);
             Lines = lines;
+            
+            string labelColor = "White";
+            string valueColor = "Blue";
+            if (remaining == 0)
+            {
+                if (noRemainingPositive)
+                    valueColor = "Green";
+                else
+                {
+                    labelColor = "Grey";
+                    valueColor = "Grey";
+                }
+            }
 
             Remaining_Label = new FE_Text();
             Remaining_Label.loc = new Vector2(24, 0);
             Remaining_Label.Font = "FE7_Text";
-            Remaining_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (remaining == 0 ? "Grey" : "White"));
+            Remaining_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + labelColor);
             Remaining_Label.text = "Remaining";
             X_Label = new FE_Text();
             X_Label.loc = new Vector2(72, 0);
             X_Label.Font = "FE7_Text";
-            X_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (remaining == 0 ? "Grey" : "White"));
+            X_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + labelColor);
             X_Label.text = "x";
             Remaining_Count = new FE_Text_Int();
             Remaining_Count.loc = new Vector2(96, 0);
             Remaining_Count.Font = "FE7_Text";
-            Remaining_Count.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (remaining == 0 ? "Grey" : "Blue"));
+            Remaining_Count.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + valueColor);
             Remaining_Count.text = remaining.ToString();
         }
 
@@ -144,7 +173,7 @@ namespace FEXNA.Windows.Command
                 {
                     // Header
                     sprite_batch.Draw(texture, (loc + new Vector2(16, -8) + draw_vector()) - draw_offset,
-                        new Rectangle(0, (Global.game_options.window_color + 1) * 16, 104, 16), tint, angle, offset, scale,
+                        new Rectangle(0, (this.window_color + 1) * 16, 104, 16), tint, angle, offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     // Header Label
                     sprite_batch.Draw(texture, (loc + new Vector2(16, -8) + draw_vector()) - draw_offset,

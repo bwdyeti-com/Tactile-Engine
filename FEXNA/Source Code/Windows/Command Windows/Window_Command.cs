@@ -99,7 +99,15 @@ namespace FEXNA.Windows.Command
             }
         }
         public bool glow { set { Glow = value; } }
-        public int glow_width { set { Glowing_Line = new Unit_Line_Cursor(value); } }
+        public int glow_width
+        {
+            set
+            {
+                Glowing_Line = new Unit_Line_Cursor(value);
+                if (Window_Img != null)
+                    Glowing_Line.color_override = Window_Img.color_override;
+            }
+        }
         public Vector2 bar_offset { set { Bar_Offset = value; } }
         public bool greyed_cursor { set { Greyed_Cursor = value; } }
 
@@ -138,6 +146,8 @@ namespace FEXNA.Windows.Command
             {
                 if (Window_Img != null)
                     Window_Img.color_override = value;
+                if (Glowing_Line != null)
+                    Glowing_Line.color_override = value;
             }
         }
 
@@ -165,7 +175,10 @@ namespace FEXNA.Windows.Command
             this.loc = loc;
             Window_Img.width = Width = width;
             if (Glowing_Line == null)
+            {
                 Glowing_Line = new Unit_Line_Cursor(column_width);
+                Glowing_Line.color_override = Window_Img.color_override;
+            }
             set_items(strs);
 
             update(false);
@@ -449,6 +462,8 @@ namespace FEXNA.Windows.Command
         protected virtual void draw_bar(SpriteBatch sprite_batch, Vector2 loc)
         {
             if (Window_Img == null)
+                return;
+            if (Items.ActiveNode == null)
                 return;
 
             if (Glow)

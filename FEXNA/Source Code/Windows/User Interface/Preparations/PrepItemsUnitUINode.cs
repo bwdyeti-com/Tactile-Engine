@@ -41,6 +41,11 @@ namespace FEXNA.Windows.UserInterface.Preparations
             GlowingLine.visible = false;
         }
 
+        internal void SetColorOverride(int value)
+        {
+            GlowingLine.color_override = value;
+        }
+
         protected override void update_graphics(bool activeNode)
         {
             Name.update();
