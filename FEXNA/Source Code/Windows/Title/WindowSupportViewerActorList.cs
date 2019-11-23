@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics.Text;
 
 namespace FEXNA.Windows.Title
 {
@@ -11,11 +13,13 @@ namespace FEXNA.Windows.Title
         readonly static int ROWS = (Config.WINDOW_HEIGHT - (Constants.Actor.NUM_ITEMS + 1) * 16) / ROW_SIZE;
 
         private Dictionary<int, Dictionary<int, string>> SupportLevels;
+        private SupportViewerFooter Footer;
 
         public WindowSupportViewerActorList()
         {
             loc.Y = Config.WINDOW_HEIGHT - (this.Height + 16);
             this.ColorOverride = 0;
+            Footer = new SupportViewerFooter();
         }
 
         #region WindowPrepActorList Abstract
@@ -98,6 +102,84 @@ namespace FEXNA.Windows.Title
             }
 
             base.initialize();
+        }
+
+        public override void update(bool active)
+        {
+            base.update(active);
+            Footer.update();
+        }
+
+        protected override void draw_window(SpriteBatch sprite_batch)
+        {
+            base.draw_window(sprite_batch);
+            Footer.draw(sprite_batch);
+        }
+    }
+
+    class SupportViewerFooter : Sprite
+    {
+        const string FILENAME = @"Graphics/Windowskins/Support_Components";
+        private FE_Text SuccessLabel, PercentLabel, SuccessCount;
+
+        public override float stereoscopic
+        {
+            set
+            {
+                base.stereoscopic = value;
+                SuccessLabel.stereoscopic = value;
+                PercentLabel.stereoscopic = value;
+                SuccessCount.stereoscopic = value;
+            }
+        }
+        
+        public SupportViewerFooter()
+        {
+            this.texture = Global.Content.Load<Texture2D>(FILENAME);
+
+            int supportProgress = Global.progress.SupportPercent;
+
+            string labelColor = "White";
+            string valueColor = "Blue";
+            if (supportProgress == 100)
+            {
+                labelColor = "Green";
+                valueColor = "Green";
+            }
+
+            SuccessLabel = new FE_Text();
+            SuccessLabel.loc = new Vector2(24, 0);
+            SuccessLabel.Font = "FE7_Text";
+            SuccessLabel.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + labelColor);
+            SuccessLabel.text = "Success";
+            SuccessCount = new FE_Text_Int();
+            SuccessCount.loc = new Vector2(88, 0);
+            SuccessCount.Font = "FE7_Text";
+            SuccessCount.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + valueColor);
+            SuccessCount.text = supportProgress.ToString();
+            PercentLabel = new FE_Text();
+            PercentLabel.loc = new Vector2(88, 0);
+            PercentLabel.Font = "FE7_Text";
+            PercentLabel.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + labelColor);
+            PercentLabel.text = "%";
+        }
+
+        public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
+        {
+            if (texture != null)
+                if (visible)
+                {
+                    // Footer
+                    Vector2 footer_loc = new Vector2(
+                        Config.WINDOW_WIDTH - 104,
+                        Config.WINDOW_HEIGHT - 16 - draw_offset.Y);
+                    sprite_batch.Draw(texture, (footer_loc + draw_vector()),
+                        new Rectangle(0, 80, 104, 16), tint, angle, offset, scale,
+                        mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
+                    SuccessLabel.draw(sprite_batch, -footer_loc);
+                    PercentLabel.draw(sprite_batch, -footer_loc);
+                    SuccessCount.draw(sprite_batch, -footer_loc);
+                }
         }
     }
 }
