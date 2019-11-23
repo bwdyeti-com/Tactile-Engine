@@ -152,5 +152,37 @@ namespace FEXNA.IO
         {
             return Available_Chapters.Contains(key);
         }
+
+        #region Extras Menu
+        public bool ExtrasAccessible
+        {
+            get { return this.SoundRoomAccessible || this.SupportViewerAccessible; }
+        }
+
+        public bool SoundRoomAccessible
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public bool SupportViewerAccessible
+        {
+            get
+            {
+                // If there are any recruited actors, and they have any supports
+                if (RecruitedActors.Any())
+                    foreach (int actorId in RecruitedActors)
+                    {
+                        var actorData = Global.data_actors[actorId];
+                        if (actorData.SupportPartners(Global.data_supports, Global.data_actors).Any())
+                            return true;
+                    }
+
+                return false;
+            }
+        }
+        #endregion
     }
 }

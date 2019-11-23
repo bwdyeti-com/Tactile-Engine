@@ -158,6 +158,7 @@
     <Compile Include="Source Code\Menus\ScreenFadeMenu.cs" />
     <Compile Include="Source Code\Menus\Title\ConfigOptionsMenu.cs" />
     <Compile Include="Source Code\Menus\Title\DifficultySelectionMenu.cs" />
+    <Compile Include="Source Code\Menus\Title\ExtrasMenu.cs" />
     <Compile Include="Source Code\Menus\Title\FileSelectedCommandMenu.cs" />
     <Compile Include="Source Code\Menus\Title\StyleSelectionMenu.cs" />
     <Compile Include="Source Code\Menus\Title\TitleMenuManager.cs" />

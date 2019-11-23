@@ -212,6 +212,20 @@ at any time from the options menu.");
                     AddMenu(testBattleMenu);
                     break;
 #endif
+                case Main_Menu_Selections.Extras:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    mainMenu.HideMenus();
+
+                    Global.game_state.reset();
+                    Global.game_map = new Game_Map();
+                    Global.game_temp = new Game_Temp();
+                    Global.game_battalions = new Game_Battalions();
+                    Global.game_actors = new Game_Actors();
+                    var extrasMenu = new ExtrasMenu();
+                    extrasMenu.Selected += ExtrasMenu_Selected;
+                    extrasMenu.Closed += menu_Closed;
+                    extrasMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
                 case Main_Menu_Selections.Quit:
                     string caption = "Are you sure you\nwant to quit?";
 
@@ -246,6 +260,15 @@ at any time from the options menu.");
         {
             Global.game_system.play_se(System_Sounds.Cancel);
             MenuHandler.TitleSaveConfig();
+        }
+
+        private void ExtrasMenu_Selected(object sender, EventArgs e)
+        {
+            var extrasMenu = sender as ExtrasMenu;
+
+            switch ((ExtrasSelections)extrasMenu.Index)
+            {
+            }
         }
 
         void quitMenu_Confirmed(object sender, EventArgs e)
