@@ -277,6 +277,7 @@ namespace FEXNA
                     if (Weapon_Data != null && Resize.Count <= 5 && Locs.Count <= 5)
                         Weapon_Data.draw(sprite_batch, draw_offset - (loc + draw_vector()));
                 }
+                // Draw help label
                 sprite_batch.Draw(texture, this.loc + draw_vector() - draw_offset,
                     src_rect, tint, angle, offset, scale,
                     mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);

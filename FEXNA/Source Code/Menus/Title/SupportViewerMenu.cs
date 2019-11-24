@@ -1,13 +1,19 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics.Windows;
 using FEXNA.Windows.Title;
-using System;
 
 namespace FEXNA.Menus.Title
 {
     class SupportViewerMenu : StandardMenu
     {
+        const int FACE_CLIP_BOTTOM = 16;
+        const string AUGURY_FACE = "Niime";
+
         private WindowSupportViewerActorList Window;
+        private Face_Sprite AuguryFace;
+        private Prepartions_Item_Window FaceWindow;
+        private Text_Window TextBox;
         private Menu_Background Background;
 
         public SupportViewerMenu() : base()
@@ -21,6 +27,25 @@ namespace FEXNA.Menus.Title
             (Background as Menu_Background).vel = new Vector2(0, -1 / 3f);
             (Background as Menu_Background).tile = new Vector2(1, 2);
             Background.stereoscopic = Config.MAPMENU_BG_DEPTH;
+            // Face Window
+            FaceWindow = new Prepartions_Item_Window(false);
+            FaceWindow.width = 128;
+            FaceWindow.height = 72;
+            FaceWindow.loc = new Vector2(24, 8);
+            FaceWindow.color_override = 0;
+            // Face
+            AuguryFace = new Face_Sprite(AUGURY_FACE);
+            AuguryFace.loc = FaceWindow.loc + new Vector2(
+                FaceWindow.width / 2, FaceWindow.height + FACE_CLIP_BOTTOM - 2);
+            AuguryFace.mirrored = true;
+            AuguryFace.expression = 1;
+            AuguryFace.blink(3);
+            // Text Box
+            TextBox = new Text_Window(152, 48);
+            TextBox.loc = FaceWindow.loc + new Vector2(112, 16);
+            TextBox.SetSpeakerArrow(24, SpeakerArrowSide.Left);
+            TextBox.opacity = 255;
+            TextBox.text_set("Select whose conversation\nyou want to read.");
         }
 
         #region StandardMenu Abstract
@@ -45,6 +70,9 @@ namespace FEXNA.Menus.Title
 
             Window.update(active);
             Background.update();
+            FaceWindow.update();
+            AuguryFace.update();
+            TextBox.update();
         }
         #endregion
 
@@ -67,7 +95,16 @@ namespace FEXNA.Menus.Title
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 Background.draw(spriteBatch);
+                FaceWindow.draw(spriteBatch);
                 spriteBatch.End();
+
+                Rectangle faceClip = new Rectangle(
+                    (int)AuguryFace.loc.X - (FaceWindow.width / 2),
+                    (int)AuguryFace.loc.Y - (96 + FACE_CLIP_BOTTOM),
+                    FaceWindow.width, 96);
+                AuguryFace.draw(spriteBatch, Vector2.Zero, faceClip);
+
+                TextBox.draw(spriteBatch);
 
                 Window.draw(spriteBatch);
             }
