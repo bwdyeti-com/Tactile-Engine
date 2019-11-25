@@ -26,7 +26,9 @@ namespace FEXNA.Windows.UserInterface.Title
                 case SupportViewerState.Disabled:
                 default:
                     color = "Grey";
+#if !DEBUG // Allow all supports in debug
                     _enabled = false;
+#endif
                     break;
             }
 

@@ -173,6 +173,9 @@ namespace FEXNA.Windows.Command
                 Items[i].Size = new Vector2(8, 16);
         }
 
+        public int SelectedLevel { get { return this.index % Columns; } }
+        public string SelectedKey { get { return this.SupportPartners.ElementAt(this.index / this.ColumnCount).Item1; } }
+
         protected override void update_commands(bool input)
         {
             if (Units != null)
@@ -187,6 +190,7 @@ namespace FEXNA.Windows.Command
             base.update_commands(input);
         }
 
+        #region Draw
         protected override void draw_window(SpriteBatch sprite_batch)
         {
             base.draw_window(sprite_batch);
@@ -243,5 +247,6 @@ namespace FEXNA.Windows.Command
                 PlayerCursor.draw(spriteBatch, -(loc + cursorOffset + text_draw_vector()));
             }
         }
+        #endregion
     }
 }

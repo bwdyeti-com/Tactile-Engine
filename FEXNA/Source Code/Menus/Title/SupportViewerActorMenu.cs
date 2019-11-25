@@ -67,11 +67,14 @@ namespace FEXNA.Menus.Title
         }
 
         #region StandardMenu Abstract
-        public override int Index { get { return -1; } }
+        public override int Index { get { return Window.index; } }
 
         protected override bool SelectedTriggered(bool active)
         {
-            return false;
+            if (!active)
+                return false;
+            
+            return Window.is_selected();
         }
 
         protected override void UpdateStandardMenu(bool active)
@@ -95,6 +98,21 @@ namespace FEXNA.Menus.Title
                 cancel |= Global.Input.mouse_click(MouseButtons.Right);
             }
             return cancel;
+        }
+
+        protected override bool IsActive(bool active)
+        {
+            return base.IsActive(active) && !Global.scene.is_message_window_active;
+        }
+
+        internal bool GetSupportConvo(out string key, out int level)
+        {
+            key = Window.SelectedKey;
+            level = Window.SelectedLevel;
+            if (!Global.data_supports.ContainsKey(key) || level >= Global.data_supports[key].MaxLevel)
+                return false;
+
+            return true;
         }
         
         #region IMenu

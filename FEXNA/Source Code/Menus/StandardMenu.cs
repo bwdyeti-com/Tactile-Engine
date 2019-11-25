@@ -210,7 +210,7 @@ namespace FEXNA.Menus
         #region IMenu
         protected override void UpdateMenu(bool active)
         {
-            active &= DataDisplayed;
+            active = IsActive(active);
 
             UpdateStandardMenu(active);
             
@@ -229,6 +229,10 @@ namespace FEXNA.Menus
             {
                 SelectItem();
             }
+        }
+        protected virtual bool IsActive(bool active)
+        {
+            return active && DataDisplayed;
         }
 
         protected abstract void UpdateStandardMenu(bool active);

@@ -282,11 +282,28 @@ at any time from the options menu.");
         {
             Global.game_system.play_se(System_Sounds.Confirm);
             var supportsMenu = (sender as SupportViewerMenu);
+
             var supportActorMenu = new SupportViewerActorMenu(supportsMenu.ActorId, supportsMenu);
+            supportActorMenu.Selected += SupportActorMenu_Selected;
             supportActorMenu.Closed += menu_Closed;
             supportActorMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
         }
-        
+
+        private void SupportActorMenu_Selected(object sender, EventArgs e)
+        {
+            var supportActorMenu = sender as SupportViewerActorMenu;
+
+            string key;
+            int level;
+            if (supportActorMenu.GetSupportConvo(out key, out level))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+                MenuHandler.TitleSupportConvo(key, level, false, "Camp"); //@Debug
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
         void quitMenu_Confirmed(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
@@ -531,6 +548,7 @@ at any time from the options menu.");
 #if !MONOGAME && DEBUG
         void TitleTestBattle(int distance);
 #endif
+        void TitleSupportConvo(string supportKey, int level, bool atBase, string background);
         void TitleQuit();
     }
 }
