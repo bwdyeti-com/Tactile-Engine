@@ -35,11 +35,13 @@ namespace FEXNA.Menus.Title
             FaceWindow.color_override = 0;
             // Face
             AuguryFace = new Face_Sprite(AUGURY_FACE);
+            AuguryFace.convo_placement_offset = true;
             AuguryFace.loc = FaceWindow.loc + new Vector2(
                 FaceWindow.width / 2, FaceWindow.height + FACE_CLIP_BOTTOM - 2);
             AuguryFace.mirrored = true;
             AuguryFace.expression = 1;
             AuguryFace.blink(3);
+            AuguryFace.phase_in();
             // Text Box
             TextBox = new Text_Window(152, 48);
             TextBox.loc = FaceWindow.loc + new Vector2(112, 16);
@@ -59,8 +61,8 @@ namespace FEXNA.Menus.Title
             if (!active)
                 return false;
 
-            var selected = Window.consume_triggered(Inputs.A, MouseButtons.Left, TouchGestures.Tap);
-            return selected.IsSomething;
+            bool selected = Window.consume_triggered(Inputs.A, MouseButtons.Left, TouchGestures.Tap).IsSomething;
+            return selected;
         }
 
         protected override void UpdateStandardMenu(bool active)
@@ -75,20 +77,25 @@ namespace FEXNA.Menus.Title
             TextBox.update();
         }
         #endregion
-
+        
         public int ActorId { get { return Window.actor_id; } }
         
         protected override int DefaultCancelPosition { get { return 16; } }
 
         protected override bool CanceledTriggered(bool active)
         {
-            bool cancel = active && Global.Input.triggered(Inputs.B);
-            return cancel || base.CanceledTriggered(active);
+            bool cancel = base.CanceledTriggered(active);
+            if (active)
+            {
+                cancel |= Global.Input.triggered(Inputs.B);
+                cancel |= Global.Input.mouse_click(MouseButtons.Right);
+            }
+            return cancel;
         }
 
         #region IMenu
         public override bool HidesParent { get { return DataDisplayed; } }
-        
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (DataDisplayed)
@@ -97,11 +104,11 @@ namespace FEXNA.Menus.Title
                 Background.draw(spriteBatch);
                 FaceWindow.draw(spriteBatch);
                 spriteBatch.End();
-
+                
                 Rectangle faceClip = new Rectangle(
-                    (int)AuguryFace.loc.X - (FaceWindow.width / 2),
+                    (int)AuguryFace.loc.X + 8 - (FaceWindow.width / 2),
                     (int)AuguryFace.loc.Y - (96 + FACE_CLIP_BOTTOM),
-                    FaceWindow.width, 96);
+                    FaceWindow.width - 16, 96);
                 AuguryFace.draw(spriteBatch, Vector2.Zero, faceClip);
 
                 TextBox.draw(spriteBatch);
