@@ -83,6 +83,10 @@ namespace FEXNA.Menus.Title
 
         protected override void UpdateStandardMenu(bool active)
         {
+            // Needed to animate map sprites
+            if (this.HidesParent)
+                Global.game_system.update_timers();
+
             Window.update(active);
 
             Background.update();
@@ -93,7 +97,7 @@ namespace FEXNA.Menus.Title
 
             // Switch field/base support mode
             if (Input.ControlSchemeSwitched)
-                SetFieldBaseButton(AtBase);
+                SetFieldBase(AtBase);
             if (FieldBaseButton != null)
                 FieldBaseButton.Update(active);
 
@@ -108,9 +112,11 @@ namespace FEXNA.Menus.Title
         }
         #endregion
 
-        public void SetFieldBaseButton(bool atBase)
+        public void SetFieldBase(bool atBase)
         {
             AtBase = atBase;
+
+            Window.SetAtBase(AtBase);
 
             FieldBaseButton = Button_Description.button(Inputs.X, 80);
             FieldBaseButton.description = AtBase ? "Base" : "Field";

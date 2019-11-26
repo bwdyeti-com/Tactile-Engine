@@ -142,12 +142,14 @@ namespace FEXNA.Windows.Command
 
             int rank = 0;
             SupportViewerState state = SupportViewerState.Disabled;
+            bool fieldBaseDifference = false;
             if (Global.progress.recruitedActors.Contains(tuple.Item2))
             {
                 var otherActor = Global.data_actors[tuple.Item2];
                 if (Global.data_supports[tuple.Item1].Supports[lvl].ValidSupport)
                 {
                     rank = lvl + 1;
+                    fieldBaseDifference = Global.data_supports[tuple.Item1].Supports[lvl].FieldBaseDifference;
 
                     if (Global.progress.supports.ContainsKey(tuple.Item1) &&
                         lvl < Global.progress.supports[tuple.Item1])
@@ -160,7 +162,7 @@ namespace FEXNA.Windows.Command
                 }
             }
             
-            var text_node = new SupportViewerRankUINode("", rank, state);
+            var text_node = new SupportViewerRankUINode("", rank, state, fieldBaseDifference);
             text_node.loc = item_loc(i);
             return text_node;
         }
@@ -175,6 +177,12 @@ namespace FEXNA.Windows.Command
 
         public int SelectedLevel { get { return this.index % Columns; } }
         public string SelectedKey { get { return this.SupportPartners.ElementAt(this.index / this.ColumnCount).Item1; } }
+
+        public void SetAtBase(bool atBase)
+        {
+            foreach (var item in Items)
+                (item as SupportViewerRankUINode).SetAtBase(atBase);
+        }
 
         protected override void update_commands(bool input)
         {

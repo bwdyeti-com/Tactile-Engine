@@ -284,7 +284,7 @@ at any time from the options menu.");
             var supportsMenu = sender as SupportViewerMenu;
 
             var supportActorMenu = new SupportViewerActorMenu(supportsMenu.ActorId, supportsMenu);
-            supportActorMenu.SetFieldBaseButton(supportsMenu.IsAtBase);
+            supportActorMenu.SetFieldBase(supportsMenu.IsAtBase);
             supportActorMenu.Selected += SupportActorMenu_Selected;
             supportActorMenu.FieldBaseSwitched += SupportActorMenu_FieldBaseSwitched;
             supportActorMenu.Closed += menu_Closed;
@@ -298,7 +298,7 @@ at any time from the options menu.");
 
             Global.game_system.play_se(System_Sounds.Status_Page_Change);
             supportsMenu.SwitchAtBase();
-            supportActorMenu.SetFieldBaseButton(supportsMenu.IsAtBase);
+            supportActorMenu.SetFieldBase(supportsMenu.IsAtBase);
         }
 
         private void SupportActorMenu_Selected(object sender, EventArgs e)
