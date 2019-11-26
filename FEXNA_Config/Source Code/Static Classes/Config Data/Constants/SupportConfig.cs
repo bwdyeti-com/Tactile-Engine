@@ -91,14 +91,26 @@ namespace FEXNA.Constants
                 new List<Stat_Labels> { Stat_Labels.Skl, Stat_Labels.Spd },
                 new List<Stat_Labels> { Stat_Labels.Pow, Stat_Labels.Res } } }
         };
-
+        
         public readonly static Dictionary<string, List<string>> SUPPORT_VIEWER_BACKGROUNDS = new Dictionary<string, List<string>>
         {
-            { "", new List<string> { "Fields", "Courtyard", "House", "Town", "Village", "Chamber", "Hill", "Market" } },
+            { "", new List<string> { "Fields" } },
 
-            {"Tr1", new List<string> { "Port", "Ship", "Shrine", "Castle", "Cell", "Hallway", "Inn" } },
-            {"Tr2", new List<string> { "Camp", "Ruins", "Fortress", "Tent" } },
-            {"Tr3", new List<string> { "Desert", "Plains", "Mountains", "Dungeon", "Fort Hall", "Garden" } },
+            {"P", new List<string> { "Courtyard", "House", "Town" } },
+            {"Ch2", new List<string> { "Village" } },
+            {"Ch5", new List<string> { "Chamber", "Hill", "Market" } },
+
+            {"Ch1", new List<string> { "Port", "Ship", "Shrine" } },
+            {"Ch3", new List<string> { "Castle", "Cell", "Hallway" } },
+            {"Ch4", new List<string> { "Inn" } },
+
+            {"Ch6", new List<string> { "Camp" } },
+            {"Ch7", new List<string> { "Ruins" } },
+            {"Ch9", new List<string> { "Fortress", "Tent" } },
+
+            {"Ch8", new List<string> { "Desert", "Plains" } },
+            {"Ch11", new List<string> { "Mountains" } },
+            {"Ch12", new List<string> { "Dungeon", "Fort Hall", "Garden" } },
         };
     }
 }

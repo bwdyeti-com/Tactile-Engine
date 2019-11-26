@@ -67,7 +67,7 @@ namespace FEXNA.Menus.Title
 
         private void RefreshLocs()
         {
-            Vector2 loc = MENU_LOC + new Vector2(4, -12);
+            Vector2 loc = MENU_LOC + new Vector2(4, -16); //-12); //FEGame
             for (int i = 0; i < MenuChoices.Count; i++)
             {
                 MenuChoices[i].ResetOffset();
