@@ -90,7 +90,7 @@ namespace FEXNA.Menus.Title
 
         void mainMenu_Opened(object sender, EventArgs e)
         {
-            var titleMenu = Menus.ElementAt(1) as TitleScreenMenu;
+            var titleMenu = (Menus.ElementAt(1) as TitleScreenMenu);
             titleMenu.HideStart();
 
             CheckMetrics();
@@ -281,7 +281,7 @@ at any time from the options menu.");
         private void SupportsMenu_Selected(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
-            var supportsMenu = (sender as SupportViewerMenu);
+            var supportsMenu = sender as SupportViewerMenu;
 
             var supportActorMenu = new SupportViewerActorMenu(supportsMenu.ActorId, supportsMenu);
             supportActorMenu.Selected += SupportActorMenu_Selected;
@@ -292,13 +292,16 @@ at any time from the options menu.");
         private void SupportActorMenu_Selected(object sender, EventArgs e)
         {
             var supportActorMenu = sender as SupportViewerActorMenu;
+            var supportsMenu = (Menus.ElementAt(1) as SupportViewerMenu);
 
             string key;
             int level;
             if (supportActorMenu.GetSupportConvo(out key, out level))
             {
                 Global.game_system.play_se(System_Sounds.Confirm);
-                MenuHandler.TitleSupportConvo(key, level, false, "Camp"); //@Debug
+                bool atBase = supportsMenu.IsAtBase;
+                string background = supportsMenu.ConvoBackground(atBase);
+                MenuHandler.TitleSupportConvo(key, level, false, background); //@Debug
             }
             else
                 Global.game_system.play_se(System_Sounds.Buzzer);
@@ -365,7 +368,7 @@ at any time from the options menu.");
         void styleSelectionMenu_Selected(object sender, EventArgs e)
         {
             var styleSelectionMenu = sender as StyleSelectionMenu;
-            var startGameMenu = Menus.ElementAt(1) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(1) as Window_Title_Start_Game);
             styleSelectionMenu.HideMenus();
             var difficultySelectionMenu = new DifficultySelectionMenu();
             difficultySelectionMenu.Selected += difficultySelectionMenu_Selected;
@@ -376,8 +379,8 @@ at any time from the options menu.");
         void difficultySelectionMenu_Selected(object sender, EventArgs e)
         {
             var difficultySelectionMenu = sender as DifficultySelectionMenu;
-            var styleSelectionMenu = Menus.ElementAt(1) as StyleSelectionMenu;
-            var startGameMenu = Menus.ElementAt(2) as Window_Title_Start_Game;
+            var styleSelectionMenu = (Menus.ElementAt(1) as StyleSelectionMenu);
+            var startGameMenu = (Menus.ElementAt(2) as Window_Title_Start_Game);
 
             MenuHandler.TitleNewGame(
                 startGameMenu.file_id,
@@ -425,7 +428,7 @@ at any time from the options menu.");
         {
             Global.game_system.play_se(System_Sounds.Confirm);
             var fileCommandMenu = sender as FileSelectedCommandMenu;
-            var startGameMenu = Menus.ElementAt(1) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(1) as Window_Title_Start_Game);
             switch (fileCommandMenu.SelectedOption)
             {
                 case Start_Game_Options.World_Map:
@@ -503,20 +506,20 @@ at any time from the options menu.");
 
         void suspendConfirmMenu_Confirmed(object sender, EventArgs e)
         {
-            var startGameMenu = Menus.ElementAt(2) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(2) as Window_Title_Start_Game);
             MenuHandler.TitleLoadSuspend(startGameMenu.file_id);
         }
 
         void checkpointConfirmMenu_Confirmed(object sender, EventArgs e)
         {
-            var startGameMenu = Menus.ElementAt(2) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(2) as Window_Title_Start_Game);
             MenuHandler.TitleLoadCheckpoint(startGameMenu.file_id);
         }
 
         void suspendConfirmMenu_Canceled(object sender, EventArgs e)
         {
             menu_Closed(sender, e);
-            var startGameMenu = Menus.ElementAt(1) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(1) as Window_Title_Start_Game);
             startGameMenu.close_preview();
         }
 

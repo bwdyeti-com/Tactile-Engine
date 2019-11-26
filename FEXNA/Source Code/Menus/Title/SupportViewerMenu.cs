@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Windows;
 using FEXNA.Windows.Title;
@@ -79,6 +81,29 @@ namespace FEXNA.Menus.Title
         #endregion
         
         public int ActorId { get { return Window.actor_id; } }
+
+        public bool IsAtBase { get { return false; } }
+
+        public string ConvoBackground(bool atBase)
+        {
+            if (!atBase)
+            {
+                List<string> backgrounds = new List<string>();
+                foreach (var pair in Constants.Support.SUPPORT_VIEWER_BACKGROUNDS)
+                {
+                    if (Global.progress.ChapterCompleted(pair.Key))
+                        backgrounds.AddRange(pair.Value);
+                }
+                if (backgrounds.Any())
+                {
+                    int index = Global.game_system.get_rng() + Global.game_system.get_rng() * 100;
+                    index %= backgrounds.Count;
+                    return backgrounds[index];
+                }
+            }
+
+            return Scene_Map.DEFAULT_HOME_BASE_BACKGROUND;
+        }
         
         protected override int DefaultCancelPosition { get { return 16; } }
 

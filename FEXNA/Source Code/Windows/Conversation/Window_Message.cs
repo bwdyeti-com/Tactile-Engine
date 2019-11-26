@@ -16,10 +16,6 @@ namespace FEXNA
         internal const int NO_SPEAKER = -2;
         internal const int CENTER_TOP_SPEAKER = -1;
         internal const int CG_VOICEOVER_SPEAKER = -3;
-        const int BASE_X = 20;
-        //const int SPACING = (320 - (BASE_X * 2)) / Math.Max(1, Face_Sprite_Data.FACE_COUNT);
-        //readonly static int SPACING = (Config.WINDOW_WIDTH - (BASE_X * 2)) / (Face_Sprite_Data.FACE_COUNT > -1 ? Face_Sprite_Data.FACE_COUNT - 1 : 1); //Debug
-        readonly static int SPACING = 48;
         public readonly static Dictionary<Constants.Message_Speeds, int> TEXT_SPEED =
             new Dictionary<Constants.Message_Speeds, int> {
                 { Constants.Message_Speeds.Slow,   5 }, // Slow //9
@@ -1523,10 +1519,10 @@ function normally. Suggested value is -3.",
                 x = Config.WINDOW_WIDTH + (int)(Face_Sprite_Data.BATTLE_FACE_SIZE.X) / 2;
             // Left half
             else if (id <= Face_Sprite_Data.FACE_COUNT / 2)
-                x = BASE_X + ((id - 1) * SPACING);
+                x = Face_Sprite_Data.BASE_X + ((id - 1) * Face_Sprite_Data.SPACING);
             // Right half
             else
-                x = (Config.WINDOW_WIDTH - BASE_X) - ((Face_Sprite_Data.FACE_COUNT - id) * SPACING);
+                x = (Config.WINDOW_WIDTH - Face_Sprite_Data.BASE_X) - ((Face_Sprite_Data.FACE_COUNT - id) * Face_Sprite_Data.SPACING);
 
             return new Vector2(x, Config.WINDOW_HEIGHT);
         }
