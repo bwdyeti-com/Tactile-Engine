@@ -1,5 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics.Help;
 using FEXNA.Graphics.Text;
 using FEXNA.Graphics.Windows;
 using FEXNA.Windows.Command;
@@ -11,6 +13,8 @@ namespace FEXNA.Menus.Title
         const int FACE_CLIP_BOTTOM = 0;
 
         private int ActorId;
+        private bool AtBase;
+        private Button_Description FieldBaseButton;
         private WindowCommandSupportViewerActor Window;
         private Face_Sprite Face;
         private Prepartions_Item_Window FaceWindow;
@@ -86,8 +90,39 @@ namespace FEXNA.Menus.Title
             Face.update();
             NameBanner.update();
             Name.update();
+
+            // Switch field/base support mode
+            if (Input.ControlSchemeSwitched)
+                SetFieldBaseButton(AtBase);
+            if (FieldBaseButton != null)
+                FieldBaseButton.Update(active);
+
+            bool switchField = active && Global.Input.triggered(Inputs.X);
+            if (FieldBaseButton != null)
+            {
+                switchField |= FieldBaseButton.consume_trigger(MouseButtons.Left) ||
+                    FieldBaseButton.consume_trigger(TouchGestures.Tap);
+            }
+            if (switchField)
+                OnFieldBaseSwitched(new EventArgs());
         }
         #endregion
+
+        public void SetFieldBaseButton(bool atBase)
+        {
+            AtBase = atBase;
+
+            FieldBaseButton = Button_Description.button(Inputs.X, 80);
+            FieldBaseButton.description = AtBase ? "Base" : "Field";
+            FieldBaseButton.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
+        }
+
+        public event EventHandler<EventArgs> FieldBaseSwitched;
+        protected void OnFieldBaseSwitched(EventArgs e)
+        {
+            if (FieldBaseSwitched != null)
+                FieldBaseSwitched(this, e);
+        }
 
         protected override bool CanceledTriggered(bool active)
         {
@@ -136,6 +171,13 @@ namespace FEXNA.Menus.Title
                 Face.draw(spriteBatch, Vector2.Zero, faceClip);
 
                 Window.draw(spriteBatch);
+
+                if (FieldBaseButton != null && DataDisplayed)
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                    FieldBaseButton.Draw(spriteBatch);
+                    spriteBatch.End();
+                }
 
                 base.Draw(spriteBatch);
             }

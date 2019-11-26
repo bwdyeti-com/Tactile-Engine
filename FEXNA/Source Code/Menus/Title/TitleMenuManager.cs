@@ -284,9 +284,21 @@ at any time from the options menu.");
             var supportsMenu = sender as SupportViewerMenu;
 
             var supportActorMenu = new SupportViewerActorMenu(supportsMenu.ActorId, supportsMenu);
+            supportActorMenu.SetFieldBaseButton(supportsMenu.IsAtBase);
             supportActorMenu.Selected += SupportActorMenu_Selected;
+            supportActorMenu.FieldBaseSwitched += SupportActorMenu_FieldBaseSwitched;
             supportActorMenu.Closed += menu_Closed;
             supportActorMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+        }
+
+        private void SupportActorMenu_FieldBaseSwitched(object sender, EventArgs e)
+        {
+            var supportActorMenu = sender as SupportViewerActorMenu;
+            var supportsMenu = (Menus.ElementAt(1) as SupportViewerMenu);
+
+            Global.game_system.play_se(System_Sounds.Status_Page_Change);
+            supportsMenu.SwitchAtBase();
+            supportActorMenu.SetFieldBaseButton(supportsMenu.IsAtBase);
         }
 
         private void SupportActorMenu_Selected(object sender, EventArgs e)
@@ -301,7 +313,7 @@ at any time from the options menu.");
                 Global.game_system.play_se(System_Sounds.Confirm);
                 bool atBase = supportsMenu.IsAtBase;
                 string background = supportsMenu.ConvoBackground(atBase);
-                MenuHandler.TitleSupportConvo(key, level, false, background); //@Debug
+                MenuHandler.TitleSupportConvo(key, level, atBase, background);
             }
             else
                 Global.game_system.play_se(System_Sounds.Buzzer);

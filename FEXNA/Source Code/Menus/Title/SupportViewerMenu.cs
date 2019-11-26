@@ -12,6 +12,7 @@ namespace FEXNA.Menus.Title
         const int FACE_CLIP_BOTTOM = 16;
         const string AUGURY_FACE = "Niime";
 
+        private bool AtBase;
         private WindowSupportViewerActorList Window;
         private Face_Sprite AuguryFace;
         private Prepartions_Item_Window FaceWindow;
@@ -82,7 +83,11 @@ namespace FEXNA.Menus.Title
         
         public int ActorId { get { return Window.actor_id; } }
 
-        public bool IsAtBase { get { return false; } }
+        public bool IsAtBase { get { return AtBase; } }
+        public void SwitchAtBase()
+        {
+            AtBase = !AtBase;
+        }
 
         public string ConvoBackground(bool atBase)
         {
