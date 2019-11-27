@@ -110,6 +110,8 @@
     <Compile Include="Source Code\Map Objects\LightRune.cs" />
     <Compile Include="Source Code\Map Objects\MapObjects.cs" />
     <Compile Include="Source Code\Menus\BaseMenu.cs" />
+    <Compile Include="Source Code\Menus\MenuCallbackEventArgs.cs" />
+    <Compile Include="Source Code\Menus\StandardMenu.cs" />
     <Compile Include="Source Code\Menus\IHasCancelButton.cs" />
     <Compile Include="Source Code\Menus\Map\Unit Editor\UnitEditorUnitCommandMenu.cs" />
     <Compile Include="Source Code\Menus\Map\Unit Editor\UnitEditorUnitMenuManager.cs" />
@@ -156,6 +158,9 @@
     <Compile Include="Source Code\Menus\ScreenFadeMenu.cs" />
     <Compile Include="Source Code\Menus\Title\ConfigOptionsMenu.cs" />
     <Compile Include="Source Code\Menus\Title\DifficultySelectionMenu.cs" />
+    <Compile Include="Source Code\Menus\Title\SupportViewerActorMenu.cs" />
+    <Compile Include="Source Code\Menus\Title\SupportViewerMenu.cs" />
+    <Compile Include="Source Code\Menus\Title\ExtrasMenu.cs" />
     <Compile Include="Source Code\Menus\Title\FileSelectedCommandMenu.cs" />
     <Compile Include="Source Code\Menus\Title\StyleSelectionMenu.cs" />
     <Compile Include="Source Code\Menus\Title\TitleMenuManager.cs" />
@@ -309,12 +314,17 @@
     <Compile Include="Source Code\Sprites\Status Components\Page 3\Status_Support_List.cs" />
     <Compile Include="Source Code\Sprites\Text\Battle_Hit_Number.cs" />
     <Compile Include="Source Code\Sprites\Text\Quick_Stat_Up_Num.cs" />
+    <Compile Include="Source Code\Windows\Command Windows\WindowCommandSupportViewerActor.cs" />
+    <Compile Include="Source Code\Windows\Preparations Menus\WindowPrepActorList.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Placeable.cs" />
+    <Compile Include="Source Code\Windows\Title\WindowSupportViewerActorList.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Command\SupportViewerUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Difficulty_Info_Panel.cs" />
     <Compile Include="Source Code\Sprites\Title\Game_Updated_Banner.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\MainMenuChoicePanel.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Mode_Style_Info_Panel.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\StartGame_Info_Panel.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Title\SupportViewerRankUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Suspend_Info_Panel.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Title_Info_Panel.cs" />
     <Compile Include="Source Code\Sprites\Windowskins\FE_Arena_Target_Window.cs" />

@@ -60,6 +60,22 @@ namespace FEXNA.IO
                 return result;
             }
         }
+
+        internal IEnumerable<int> RecruitedActors
+        {
+            get
+            {
+                if (!Global.data_chapters.ContainsKey(Chapter_Id))
+                    yield break;
+
+                int battalionId = Global.data_chapters[Chapter_Id].Battalion;
+                if (!Battalions.ContainsKey(battalionId))
+                    yield break;
+
+                foreach (int id in Battalions[battalionId].actors)
+                    yield return id;
+            }
+        }
         #endregion
 
         #region Serialization

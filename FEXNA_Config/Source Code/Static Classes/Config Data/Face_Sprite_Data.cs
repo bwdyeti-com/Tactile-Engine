@@ -17,6 +17,8 @@ namespace FEXNA
         public const string DEFAULT_BATTLE_DEATH_ENEMY_COLOR = "Bandit";
 
         public const int MESSAGE_LINES = 3;
+        public const int BASE_X = 20; // Distance from the edge of the screen for each far edge face slot
+        public const int SPACING = 52; // Distance between adjacent faces on the same side
         public readonly static int DEFAULT_EMOTIONS = 3;
 
         public readonly static int BATTLE_EMOTE_COUNT = 4;

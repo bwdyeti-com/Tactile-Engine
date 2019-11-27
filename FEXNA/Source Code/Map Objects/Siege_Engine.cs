@@ -147,7 +147,7 @@ namespace FEXNA
         {
             base.update_sprite(sprite);
             sprite.update();
-            sprite.frame = (Facing / 2 - 1) * ((Graphics.Map.Character_Sprite)sprite).frame_count + Frame;
+            UpdateSpriteFrame((Graphics.Map.Character_Sprite)sprite, Facing, Frame);
             sprite.draw_offset = new Vector2(TILE_SIZE / 2, TILE_SIZE);
         }
         #endregion

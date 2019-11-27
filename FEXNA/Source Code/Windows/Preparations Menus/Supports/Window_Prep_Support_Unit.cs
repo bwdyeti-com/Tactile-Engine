@@ -26,15 +26,13 @@ namespace FEXNA
 
         protected override void refresh_font(int i)
         {
-            int actor_id = Global.battalion.actors[i];
-
-            string textColor = "White";
-            if (Global.game_actors[actor_id].is_support_maxed())
-                textColor = "Green";
-            else if (!Global.game_actors[actor_id].any_supports_ready())
-                textColor = "Grey";
-
-            UnitNodes[i].set_name_texture(textColor);
+            bool forced = false, available = true;
+            if (Global.game_actors[ActorList[i]].is_support_maxed())
+                forced = true;
+            else if (!Global.game_actors[ActorList[i]].any_supports_ready())
+                available = false;
+            
+            refresh_font(i, forced, available);
         }
     }
 }

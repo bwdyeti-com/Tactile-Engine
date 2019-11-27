@@ -11,14 +11,14 @@ namespace FEXNA.Graphics.Preparations
 
         protected System_Color_Window Stats_Window;
         private Status_Support_List Supports;
-
+        
         public Prep_Support_List_Window(Game_Actor actor)
         {
             // Stats Window
             initialize_window();
-            // Bonuses
+            // Supports
             Supports = new Status_Support_List();
-            Supports.loc = Stats_Window.loc + new Vector2((WIDTH - 80) / 2, 8);
+            Supports.loc = new Vector2(8, 0) + new Vector2((WIDTH - 80) / 2, 8);
             Supports.stereoscopic = Config.STATUS_LEFT_WINDOW_DEPTH;
 
             set_images(actor);
@@ -43,14 +43,16 @@ namespace FEXNA.Graphics.Preparations
         public void update()
         {
             // Stats Window
+            if (Stats_Window != null)
             Stats_Window.update();
-            Supports.update();
+                Supports.update();
         }
 
         public void draw(SpriteBatch sprite_batch)
         {
             // Stats Window
-            Stats_Window.draw(sprite_batch, -this.loc);
+            if (Stats_Window != null)
+                Stats_Window.draw(sprite_batch, -this.loc);
             Supports.draw(sprite_batch, -this.loc);
         }
     }

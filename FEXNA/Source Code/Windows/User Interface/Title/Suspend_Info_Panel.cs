@@ -72,7 +72,7 @@ namespace FEXNA.Windows.UserInterface.Title
             Chapter.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_Yellow");
             Chapter.text = !Global.data_chapters.ContainsKey(suspend_file_info.chapter_id) ?
                 suspend_file_info.chapter_id :
-                Global.data_chapters[suspend_file_info.chapter_id].ShortName;
+                Global.data_chapters[suspend_file_info.chapter_id].FileSelectName;
             Turn = new FE_Text_Int();
             Turn.loc = new Vector2(88, 16);
             Turn.Font = "FE7_Text";

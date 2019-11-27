@@ -162,6 +162,39 @@ namespace FEXNA.IO
             get
             {
                 Dictionary<string, int> result = new Dictionary<string, int>();
+                var saves = this.ProgressionDataChapters.ToList();
+                foreach (Save_Data save in saves)
+                {
+                    Dictionary<string, int> supports = save.acquired_supports;
+                    foreach (var pair in supports)
+                    {
+                        if (!result.ContainsKey(pair.Key))
+                            result.Add(pair.Key, 0);
+                        result[pair.Key] = Math.Max(result[pair.Key], supports[pair.Key]);
+                    }
+                }
+                return result;
+            }
+        }
+
+        internal HashSet<int> RecruitedActors
+        {
+            get
+            {
+                HashSet<int> result = new HashSet<int>();
+                var saves = this.ProgressionDataChapters.ToList();
+                foreach (Save_Data save in saves)
+                {
+                    result.UnionWith(save.RecruitedActors);
+                }
+                return result;
+            }
+        }
+
+        private IEnumerable<Save_Data> ProgressionDataChapters
+        {
+            get
+            {
                 foreach (Save_Data save in Data
                     .SelectMany(p => p.Value)
                     .Select(p => p.Value))
@@ -178,15 +211,9 @@ namespace FEXNA.IO
                                     .Intersect(Global.data_chapters[save.chapter_id].Progression_Ids).Any()))
                             continue;
                     }
-                    Dictionary<string, int> supports = save.acquired_supports;
-                    foreach (var pair in supports)
-                    {
-                        if (!result.ContainsKey(pair.Key))
-                            result.Add(pair.Key, 0);
-                        result[pair.Key] = Math.Max(result[pair.Key], supports[pair.Key]);
-                    }
+
+                    yield return save;
                 }
-                return result;
             }
         }
         #endregion

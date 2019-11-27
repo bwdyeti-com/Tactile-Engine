@@ -504,8 +504,8 @@ loaded in normal mode. Sorry!");
         #region ISetupMenuHandler
         public void SetupSave()
         {
-            // Save file
-            Save_Data_Calling = true;
+            // Save file on modifying inventory/etc
+            CallSaveData();
         }
 
         #region IWorldmapMenuHandler

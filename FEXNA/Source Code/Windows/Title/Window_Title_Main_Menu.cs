@@ -18,9 +18,9 @@ using FEXNA.Windows.UserInterface.Title;
 namespace FEXNA
 {
 #if !MONOGAME && DEBUG
-    enum Main_Menu_Selections { Resume, Start_Game, Options, Test_Battle, Quit, None}
+    enum Main_Menu_Selections { Resume, Start_Game, Options, Test_Battle, Extras, Quit, None}
 #else
-    enum Main_Menu_Selections { Resume, Start_Game, Options, Quit, None }
+    enum Main_Menu_Selections { Resume, Start_Game, Options, Extras, Quit, None }
 #endif
     class Window_Title_Main_Menu : BaseMenu, IFadeMenu
     {
@@ -68,6 +68,9 @@ namespace FEXNA
 #if DEBUG && !MONOGAME
             MenuChoices.Add(new MainMenuChoicePanel("TEST BATTLE"));
 #endif
+
+            MenuChoices.Add(new MainMenuChoicePanel("EXTRAS"));
+
             MenuChoices.Add(new MainMenuChoicePanel("QUIT"));
 
             initialize_game_update_banner(true);
@@ -93,7 +96,8 @@ namespace FEXNA
         internal void RefreshMenuChoices()
         {
             SuspendExists = Global.suspend_file_info != null;
-            MenuChoices[0].Visible = SuspendExists;
+            MenuChoices[(int)Main_Menu_Selections.Resume].Visible = SuspendExists;
+            MenuChoices[(int)Main_Menu_Selections.Extras].Visible = Global.progress.ExtrasAccessible;
 
             if (SuspendExists)
             {
@@ -115,13 +119,14 @@ namespace FEXNA
 
             RefreshLocs();
 
-            IEnumerable<MainMenuChoicePanel> nodes = MenuChoices;
-            if (!SuspendExists)
-                nodes = nodes.Skip(1);
+            IEnumerable<MainMenuChoicePanel> nodes = new List<MainMenuChoicePanel>(MenuChoices);
+            nodes = nodes.Where(x => x.Visible);
             ChoiceNodes = new UINodeSet<MainMenuChoicePanel>(nodes);
             ChoiceNodes.CursorMoveSound = System_Sounds.Menu_Move1;
             ChoiceNodes.SoundOnMouseMove = true;
+
             ChoiceNodes.set_active_node(MenuChoices[(int)Selection]);
+            RefreshLocs();
         }
 
         private void RefreshLocs()
@@ -156,6 +161,11 @@ namespace FEXNA
             for (int i = 0; i < MenuChoices.Count; i++)
             {
                 MenuChoices[i].ResetOffset();
+                MenuChoices[i].RefreshWidth(i == (int)Selection);
+
+                if (i != (int)Selection && i != (int)ExpandedSelection)
+                    MenuChoices[i].offset += new Vector2(-12, 0);
+
                 if (MenuChoices[i].Visible)
                 {
                     MenuChoices[i].loc = loc;

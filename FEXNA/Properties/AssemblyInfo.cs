@@ -32,4 +32,4 @@ using System.Diagnostics;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.6.7.2")]
+[assembly: AssemblyVersion("0.6.7.3")]

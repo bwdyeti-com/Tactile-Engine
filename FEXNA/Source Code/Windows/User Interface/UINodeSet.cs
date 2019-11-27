@@ -75,8 +75,12 @@ namespace FEXNA.Windows.UserInterface
                 Destinations = NodeDestinationMap
                     .construct(enabled_nodes, AngleMultiplier);
 
-            if (ActiveNodeIndex == -1 && Nodes.Any())
-                set_active_node(Nodes[0]);
+            // Jump to the first enabled index
+            if (ActiveNodeIndex == -1 && enabled_nodes.Any())
+            {
+                int index = Nodes.FindIndex(x => x.loc == enabled_nodes.First());
+                set_active_node(Nodes[index]);
+            }
         }
 
         private Vector2 node_location(T node)

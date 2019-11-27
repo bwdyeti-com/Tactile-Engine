@@ -14,7 +14,7 @@ namespace FEXNA
 {
     partial class Scene_Map : IPreparationsMenuHandler, IHomeBaseMenuHandler
     {
-        const string DEFAULT_HOME_BASE_BACKGROUND = "Camp";
+        public const string DEFAULT_HOME_BASE_BACKGROUND = "Camp";
 
         protected bool Changing_Formation = false;
 

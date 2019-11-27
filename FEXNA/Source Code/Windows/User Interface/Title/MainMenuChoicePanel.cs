@@ -63,6 +63,13 @@ namespace FEXNA.Windows.UserInterface.Title
             }
         }
 
+        public void RefreshWidth(bool active)
+        {
+            int width = active ? PANEL_WIDTH : PANEL_WIDTH - 32;// 80 + 24;
+
+            Window.width = width;
+        }
+
         public void ResetOffset()
         {
             this.offset = new Vector2(-16, 0);
