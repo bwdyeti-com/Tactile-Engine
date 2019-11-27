@@ -8,7 +8,7 @@ using FEXNA.Windows.UserInterface.Title;
 
 namespace FEXNA.Menus.Title
 {
-    enum ExtrasSelections { SoundRoom, SupportViewer }
+    enum ExtrasSelections { SoundRoom, SupportViewer, Credits }
 
     class ExtrasMenu : StandardMenu
     {
@@ -22,6 +22,7 @@ namespace FEXNA.Menus.Title
         {
             MenuChoices.Add(new MainMenuChoicePanel("Sound Room"));
             MenuChoices.Add(new MainMenuChoicePanel("Supports"));
+            MenuChoices.Add(new MainMenuChoicePanel("Credits"));
 
             MenuChoices[(int)ExtrasSelections.SoundRoom].Visible = Global.progress.SoundRoomAccessible;
             MenuChoices[(int)ExtrasSelections.SupportViewer].Visible = Global.progress.SupportViewerAccessible;

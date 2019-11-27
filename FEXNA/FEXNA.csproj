@@ -157,6 +157,7 @@
     <Compile Include="Source Code\Menus\Save\SaveMenuManager.cs" />
     <Compile Include="Source Code\Menus\ScreenFadeMenu.cs" />
     <Compile Include="Source Code\Menus\Title\ConfigOptionsMenu.cs" />
+    <Compile Include="Source Code\Menus\Title\CreditsMenu.cs" />
     <Compile Include="Source Code\Menus\Title\DifficultySelectionMenu.cs" />
     <Compile Include="Source Code\Menus\Title\SupportViewerActorMenu.cs" />
     <Compile Include="Source Code\Menus\Title\SupportViewerMenu.cs" />

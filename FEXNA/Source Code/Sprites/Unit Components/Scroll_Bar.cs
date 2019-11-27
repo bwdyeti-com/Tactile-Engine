@@ -10,6 +10,8 @@ namespace FEXNA
         protected int Max_Items, Items_At_Once, Height;
         protected int Timer_Down = 0, Timer_Up = 0;
         protected bool Moving_Down, Moving_Up;
+        public bool DownHeld { get; private set; }
+        public bool UpHeld { get; private set; }
         protected int Scroll;
         protected bool Up_Arrow_Visible, Down_Arrow_Visible;
 
@@ -52,6 +54,7 @@ namespace FEXNA
         {
             Timer_Up = (Timer_Up + (Moving_Up ? 4 :1)) % TIME_MAX;
             Timer_Down = (Timer_Down + (Moving_Down ? 4 : 1)) % TIME_MAX;
+
             Moving_Up = false;
             Moving_Down = false;
         }
@@ -61,6 +64,9 @@ namespace FEXNA
 
         public void update_input(Vector2 draw_offset = default(Vector2))
         {
+            DownHeld = false;
+            UpHeld = false;
+
             if (Input.ControlScheme == ControlSchemes.Buttons)
                 return;
 
@@ -83,6 +89,14 @@ namespace FEXNA
                 if (UpArrowClicked != null)
                     UpArrowClicked(this, new EventArgs());
             }
+            if (Global.Input.mouse_down_rectangle(
+                    MouseButtons.Left, up_arrow_rect, false) ||
+                Global.Input.gesture_rectangle(
+                    TouchGestures.VerticalDrag, up_arrow_rect, false))
+            {
+                UpHeld = true;
+            }
+
             // Down Arrow clicked
             else if (Global.Input.mouseScroll < 0 ||
                 (Global.Input.mouse_down_rectangle(
@@ -95,6 +109,13 @@ namespace FEXNA
             {
                 if (DownArrowClicked != null)
                     DownArrowClicked(this, new EventArgs());
+            }
+            if (Global.Input.mouse_down_rectangle(
+                    MouseButtons.Left, down_arrow_rect, false) ||
+                Global.Input.gesture_rectangle(
+                    TouchGestures.VerticalDrag, down_arrow_rect, false))
+            {
+                DownHeld = true;
             }
         }
 

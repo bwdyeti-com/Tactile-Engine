@@ -157,8 +157,6 @@ namespace FEXNA.Menus.Title
         }
         
         #region IMenu
-        public override bool HidesParent { get { return DataDisplayed; } }
-
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (DataDisplayed)
