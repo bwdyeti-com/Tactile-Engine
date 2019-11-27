@@ -208,6 +208,16 @@ namespace FEXNA.Menus
         }
 
         #region IMenu
+        public override bool HidesParent
+        {
+            get
+            {
+                // Probably faded in if there's a menu callback, so hide parent
+                // if data is displayed
+                return MenuCallback != null && DataDisplayed;
+            }
+        }
+
         protected override void UpdateMenu(bool active)
         {
             active = IsActive(active);
