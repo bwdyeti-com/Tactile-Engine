@@ -10,6 +10,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Windows.Preparations
 {
+    //@Yeti: why isn't this just a Window_Command_Scrollbar
     abstract class WindowPrepActorList : Stereoscopic_Graphic_Object
     {
         protected int Scroll = 0;

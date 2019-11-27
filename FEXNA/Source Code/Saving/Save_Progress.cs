@@ -153,6 +153,28 @@ namespace FEXNA.IO
             return Available_Chapters.Contains(key);
         }
 
+        public int SupportPercent
+        {
+            get
+            {
+                int max = 0, level = 0;
+                foreach (var pair in Global.data_supports)
+                {
+                    max += pair.Value.MaxLevel;
+                    if (Supports.ContainsKey(pair.Key))
+                    {
+                        if (RecruitedActors.Contains(pair.Value.Id1) &&
+                            RecruitedActors.Contains(pair.Value.Id2))
+                        {
+                            level += Math.Min(Supports[pair.Key], pair.Value.MaxLevel);
+                        }
+                    }
+                }
+
+                return (100 * level) / max;
+            }
+        }
+
         #region Extras Menu
         public bool ExtrasAccessible
         {

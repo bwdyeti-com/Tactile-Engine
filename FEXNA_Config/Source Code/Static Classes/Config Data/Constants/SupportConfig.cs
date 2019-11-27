@@ -48,18 +48,6 @@ namespace FEXNA.Constants
             { Affinities.Light,   new float[] {   0f, 0.5f, 2.5f,   0f, 2.5f, 2.5f } }, // 2Off, 2Def
             { Affinities.Wind,    new float[] {   0f,   0f, 2.5f, 2.5f, 2.5f, 2.5f } }, // 2Off, 2Def
             
-            /*
-            { Affinities.Thunder, new float[] { 0.5f, 0.5f, 2.5f,   0f, 2.5f,   0f } },
-            { Affinities.Dark,    new float[] { 0.5f, 0.5f, 2.5f,   0f,   0f, 2.5f } },
-            { Affinities.Anima,   new float[] { 0.5f, 0.5f,   0f, 2.5f,   0f, 2.5f } },
-            { Affinities.Earth,   new float[] { 0.5f, 0.5f,   0f,   0f, 2.5f, 2.5f } },
-            { Affinities.Fire,    new float[] { 0.5f,   0f, 2.5f, 2.5f, 2.5f,   0f } },
-            { Affinities.Water,   new float[] { 0.5f,   0f, 2.5f, 2.5f,   0f, 2.5f } },
-            { Affinities.Ice,     new float[] {   0f, 0.5f, 2.5f, 2.5f, 2.5f,   0f } },
-            { Affinities.Light,   new float[] {   0f, 0.5f,   0f, 2.5f, 2.5f, 2.5f } },
-            { Affinities.Wind,    new float[] {   0f,   0f, 2.5f, 2.5f, 2.5f, 2.5f } },
-             */
-
             { Affinities.None,    new float[] { 0,0,0,0,0,0 } },
         };
         // The support bonus for a bond, default is one support rank worth of every stat
@@ -100,6 +88,15 @@ namespace FEXNA.Constants
             { Affinities.Wind, new List<Stat_Labels>[] {
                 new List<Stat_Labels> { Stat_Labels.Skl, Stat_Labels.Spd },
                 new List<Stat_Labels> { Stat_Labels.Pow, Stat_Labels.Res } } }
+        };
+
+        public readonly static Dictionary<string, List<string>> SUPPORT_VIEWER_BACKGROUNDS = new Dictionary<string, List<string>>
+        {
+            { "", new List<string> { "Fields", "Courtyard", "House", "Town", "Village", "Chamber", "Hill", "Market" } },
+
+            {"Tr1", new List<string> { "Port", "Ship", "Shrine", "Castle", "Cell", "Hallway", "Inn" } },
+            {"Tr2", new List<string> { "Camp", "Ruins", "Fortress", "Tent" } },
+            {"Tr3", new List<string> { "Desert", "Plains", "Mountains", "Dungeon", "Fort Hall", "Garden" } },
         };
     }
 }

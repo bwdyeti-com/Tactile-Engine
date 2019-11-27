@@ -179,6 +179,7 @@ namespace FEXNA.Windows.Command
                     sprite_batch.Draw(texture, (loc + new Vector2(16, -8) + draw_vector()) - draw_offset,
                         new Rectangle(0, 0, 104, 16), tint, angle, offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
+
                     // Footer
                     Vector2 footer_loc = new Vector2(Config.WINDOW_WIDTH - 104, loc.Y - draw_offset.Y + Lines * 16 + 16);
                     sprite_batch.Draw(texture, (footer_loc + draw_vector()),

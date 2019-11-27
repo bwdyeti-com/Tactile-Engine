@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA_Library;
 using FEXNATexture2DExtension;
 
 namespace FEXNA
@@ -559,9 +560,26 @@ namespace FEXNA
 
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
+            draw(sprite_batch, draw_offset, Maybe<Rectangle>.Nothing);
+        }
+        public void draw(
+            SpriteBatch sprite_batch,
+            Vector2 draw_offset,
+            Maybe<Rectangle> scissorRect)
+        {
             if (texture != null)
                 if (visible)
                 {
+                    // If clipping
+                    RasterizerState scissorState = null;
+                    if (scissorRect.IsSomething)
+                    {
+                        scissorState = new RasterizerState { ScissorTestEnable = true };
+
+                        sprite_batch.GraphicsDevice.ScissorRectangle =
+                            Scene_Map.fix_rect_to_screen(scissorRect);
+                    }
+
                     // Adjust position
                     if (Convo_Placement_Offset)
                         draw_offset -= new Vector2(placement_offset * (mirrored ? 1 : -1), 0);
@@ -584,10 +602,10 @@ namespace FEXNA
                             effect.Parameters["color_shift"].SetValue(new Vector4(0, 0, 0, 0));
                             effect.Parameters["opacity"].SetValue(1f);
                         }
-                        sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, effect);
+                        sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, scissorState, effect);
                     }
                     else
-                        sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                        sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, scissorState);
 
                     Rectangle src_rect = this.src_rect;
                     Vector2 offset = this.offset;
