@@ -9,8 +9,8 @@ namespace FEXNA.Windows.UserInterface.Preparations
     {
         private Sparring_Gauge Gauge;
 
-        internal PrepSparringUnitUINode(int actorId, int points, int staffPoints)
-            : base(actorId)
+        internal PrepSparringUnitUINode(string name, int points, int staffPoints)
+            : base(name)
         {
             Gauge = new Sparring_Gauge(false);
             Gauge.points = points;

@@ -83,7 +83,7 @@ namespace FEXNA
                 points = Global.battalion.sparring_readiness(actorId);
             staff_points = Global.battalion.overseer_uses(actorId);
 
-            var node = new PrepSparringUnitUINode(actorId, points, staff_points);
+            var node = new PrepSparringUnitUINode(Global.game_actors[actorId].name, points, staff_points);
             node.Size = new Vector2(unit_spacing(), ROW_SIZE);
             return node;
         }
