@@ -275,6 +275,12 @@ at any time from the options menu.");
                     supportsMenu.Closed += menu_Closed;
                     supportsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
                     break;
+                case ExtrasSelections.Credits:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    var creditsMenu = new CreditsMenu();
+                    creditsMenu.Closed += menu_Closed;
+                    creditsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
             }
         }
 
