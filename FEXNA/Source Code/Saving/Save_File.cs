@@ -195,24 +195,14 @@ namespace FEXNA.IO
         {
             get
             {
+                HashSet<string> progressionIds = new HashSet<string>(Save_Progress.ProgressionDataChapterIds);
+
                 foreach (Save_Data save in Data
                     .SelectMany(p => p.Value)
                     .Select(p => p.Value))
                 {
-                    if (!Global.data_chapters.ContainsKey(save.chapter_id))
-                        continue;
-                    // If the chapter is standalone, there needs to be at least one chapter following from it or it's a trial map/etc and shouldn't be counted
-                    if (Global.data_chapters[save.chapter_id].Standalone)
-                    {
-                        // Compare the prior chapter list for each chapter against the progression ids for the current chapter
-                        if (!Global.data_chapters
-                                // If this other chapter is standalone it can't follow from this chapter
-                                .Any(x => !x.Value.Standalone && x.Value.Prior_Chapters
-                                    .Intersect(Global.data_chapters[save.chapter_id].Progression_Ids).Any()))
-                            continue;
-                    }
-
-                    yield return save;
+                    if (progressionIds.Contains(save.chapter_id))
+                        yield return save;
                 }
             }
         }

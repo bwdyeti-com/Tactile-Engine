@@ -175,10 +175,40 @@ namespace FEXNA.IO
             }
         }
 
+        internal static IEnumerable<string> ProgressionDataChapterIds
+        {
+            get
+            {
+                foreach (string id in Global.Chapter_List)
+                {
+                    // If the chapter is standalone, there needs to be at least one chapter following from it or it's a trial map/etc and shouldn't be counted
+                    if (Global.data_chapters[id].Standalone)
+                    {
+                        // Compare the prior chapter list for each chapter against the progression ids for the current chapter
+                        if (!Global.data_chapters
+                                // If this other chapter is standalone it can't follow from this chapter
+                                .Any(x => !x.Value.Standalone && x.Value.Prior_Chapters
+                                    .Intersect(Global.data_chapters[id].Progression_Ids).Any()))
+                            continue;
+                    }
+
+                    yield return id;
+                }
+            }
+        }
+
         #region Extras Menu
         public bool ExtrasAccessible
         {
-            get { return this.SoundRoomAccessible || this.SupportViewerAccessible; }
+            get { if (this.SoundRoomAccessible || this.SupportViewerAccessible)
+                    return true;
+                // If there are no chapters that could ever enable the support viewer,
+                // just show extras so that credits can be selected
+                if (!Save_Progress.ProgressionDataChapterIds.Any())
+                    return true;
+
+                return false;
+            }
         }
 
         public bool SoundRoomAccessible
