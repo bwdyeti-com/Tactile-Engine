@@ -4,23 +4,10 @@ namespace FEXNA.Constants
 {
     public class Credits
     {
-        public const string FULL_CREDITS_LINK = "";
-        //public const string FULL_CREDITS_LINK = "put.yoursite.herethough/yourgame/credits.html";
+        public const string FULL_CREDITS_LINK = "www.bwdyeti.com/fe7x/credits.html";
 
         public static List<CreditsEntry> CREDITS = new List<CreditsEntry>
         {
-            new CreditsEntry("[your game name]", "[your name]"),
-
-            new CreditsEntry("FEXNA Engine", "BwdYeti"),
-
-            new CreditsEntry("Technologies",
-                "Microsoft XNA",
-                "NVorbis",
-                "MonoGame"),
-
-            /*
-            //@Debug: Example credits entries from 7x:
-
             new CreditsEntry("Lead Developer", "BwdYeti"),
             new CreditsEntry("Lead Designer", "Michael \"Myke\" Cameron"),
 
@@ -98,7 +85,7 @@ namespace FEXNA.Constants
                 "NickT",
                 "Noah Rademacher",
                 "Oscar Martinez",
-                "Rohan Ambolkar"),*/
+                "Rohan Ambolkar"),
         };
     }
 
