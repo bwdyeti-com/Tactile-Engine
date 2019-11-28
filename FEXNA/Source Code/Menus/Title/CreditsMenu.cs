@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Graphics.Help;
 using FEXNA.Graphics.Text;
 
 namespace FEXNA.Menus.Title
@@ -17,6 +18,7 @@ namespace FEXNA.Menus.Title
         private float ScrollSpeed = 0f;
         private List<FE_Text> CreditsText;
         private Scroll_Bar Scrollbar;
+        private Button_Description FullCreditsButton;
         private Menu_Background Background;
 
         public CreditsMenu()
@@ -75,6 +77,12 @@ namespace FEXNA.Menus.Title
                 Scrollbar = new Scroll_Bar(height - 16, DataHeight, height, 0);
                 Scrollbar.loc = new Vector2(Config.WINDOW_WIDTH - BASE_OFFSET.X, BASE_OFFSET.Y + 8);
             }
+
+            // Full Credits Button
+            if (!string.IsNullOrEmpty(Constants.Credits.FULL_CREDITS_LINK))
+            {
+                CreateFullCreditsButton();
+            }
         }
 
         #region StandardMenu Abstract
@@ -130,6 +138,23 @@ namespace FEXNA.Menus.Title
 
             if (Scrollbar != null)
                 Scrollbar.scroll = (int)ScrollOffset.Y;
+
+            // Full credits link
+            if (FullCreditsButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateFullCreditsButton();
+                FullCreditsButton.Update(active);
+                
+                bool fullCredits = false;
+                fullCredits |= FullCreditsButton.consume_trigger(MouseButtons.Left) ||
+                    FullCreditsButton.consume_trigger(TouchGestures.Tap);
+                if (active)
+                    fullCredits |= Global.Input.triggered(Inputs.X);
+
+                if (fullCredits)
+                    OnOpenFullCredits(new EventArgs());
+            }
         }
         #endregion
 
@@ -145,6 +170,20 @@ namespace FEXNA.Menus.Title
                 int height = Config.WINDOW_HEIGHT - (int)(BASE_OFFSET.Y * 2);
                 return Math.Max(0, DataHeight - height);
             }
+        }
+
+        protected virtual void CreateFullCreditsButton()
+        {
+            FullCreditsButton = Button_Description.button(Inputs.X, this.DefaultCancelPosition - 80);
+            FullCreditsButton.description = "Full Credits";
+            FullCreditsButton.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
+        }
+
+        public event EventHandler<EventArgs> OpenFullCredits;
+        protected void OnOpenFullCredits(EventArgs e)
+        {
+            if (OpenFullCredits != null)
+                OpenFullCredits(this, e);
         }
 
         protected override int DefaultCancelPosition { get { return Config.WINDOW_WIDTH - 104; } }
@@ -184,6 +223,13 @@ namespace FEXNA.Menus.Title
                 foreach (var text in CreditsText)
                     text.draw(spriteBatch, ScrollOffset - BASE_OFFSET);
                 spriteBatch.End();
+
+                if (FullCreditsButton != null)
+                {
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                    FullCreditsButton.Draw(spriteBatch);
+                    spriteBatch.End();
+                }
             }
 
             base.Draw(spriteBatch);

@@ -278,6 +278,7 @@ at any time from the options menu.");
                 case ExtrasSelections.Credits:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     var creditsMenu = new CreditsMenu();
+                    creditsMenu.OpenFullCredits += CreditsMenu_OpenFullCredits;
                     creditsMenu.Closed += menu_Closed;
                     creditsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
                     break;
@@ -324,7 +325,12 @@ at any time from the options menu.");
             else
                 Global.game_system.play_se(System_Sounds.Buzzer);
         }
-
+        
+        private void CreditsMenu_OpenFullCredits(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            MenuHandler.TitleOpenFullCredits();
+        }
         void quitMenu_Confirmed(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
@@ -570,6 +576,7 @@ at any time from the options menu.");
         void TitleTestBattle(int distance);
 #endif
         void TitleSupportConvo(string supportKey, int level, bool atBase, string background);
+        void TitleOpenFullCredits();
         void TitleQuit();
     }
 }
