@@ -182,6 +182,20 @@ namespace FEXNA
             }
         }
 
+        public void TitleOpenFullCredits()
+        {
+#if !__MOBILE__
+            if (Global.fullscreen)
+            {
+                Global.fullscreen = false;
+                Global.save_config = true;
+            }
+#endif
+            
+            System.Diagnostics.Process.Start(
+                string.Format("http://{0}", Constants.Credits.FULL_CREDITS_LINK));
+        }
+
         public void TitleQuit()
         {
             Quitting = true;

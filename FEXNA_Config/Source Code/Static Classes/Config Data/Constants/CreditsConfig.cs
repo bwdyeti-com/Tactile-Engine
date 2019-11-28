@@ -4,6 +4,9 @@ namespace FEXNA.Constants
 {
     public class Credits
     {
+        public const string FULL_CREDITS_LINK = "";
+        //public const string FULL_CREDITS_LINK = "put.yoursite.herethough/yourgame/credits.html";
+
         public static List<CreditsEntry> CREDITS = new List<CreditsEntry>
         {
             new CreditsEntry("[your game name]", "[your name]"),
