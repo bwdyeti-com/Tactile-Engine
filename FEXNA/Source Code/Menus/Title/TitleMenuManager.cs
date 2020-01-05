@@ -127,6 +127,7 @@ improving this game?");
             Global.game_system.play_se(System_Sounds.Confirm);
             menu_Closed(sender, e);
             Global.metrics = Metrics_Settings.On;
+            MenuHandler.TitleSaveConfig();
             AddMetricsSetMenu();
         }
 
@@ -134,6 +135,7 @@ improving this game?");
         {
             menu_Closed(sender, e);
             Global.metrics = Metrics_Settings.Off;
+            MenuHandler.TitleSaveConfig();
             AddMetricsSetMenu();
         }
 
