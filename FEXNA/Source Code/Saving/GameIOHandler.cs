@@ -1052,14 +1052,12 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = reader.ReadVersion();
                             // Wait for move range update thread to finish
                             Callback.CloseMoveRangeThread();
                             /* Call Deserialize */
                             int fileId;
                             bool loadSuccessful = Global.load_suspend(
                                 reader, out fileId,
-                                Global.LOADED_VERSION,
                                 OLDEST_ALLOWED_SUSPEND_VERSION);
 
                             if (loadSuccessful)
