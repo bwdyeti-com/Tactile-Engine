@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Collections.Generic;
-//#if DEBUG
 using System.Diagnostics;
-//#endif
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -13,11 +11,8 @@ using Microsoft.Xna.Framework.Audio;
 #else
 using MonoGame.Framework.Audio;
 #endif
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Storage;
 using FEXNA;
 using FEXNAVersionExtension;
@@ -80,7 +75,6 @@ namespace FEGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Camera camera;
-        Rectangle Screen_Draw_Rect;
 
         StorageDevice device;
         IAsyncResult result;
@@ -120,9 +114,7 @@ namespace FEGame
 #if DEBUGMONITOR
         Debug_Monitor.DebugMonitorForm MonitorForm;
 #endif
-        protected Stopwatch Process_Stop_Watch = new Stopwatch();
         protected float Process_Time = 0;
-        protected int Process_Frames = 0;
 
         protected Stopwatch Hyperspeed_Stop_Watch = new Stopwatch();
 
@@ -133,6 +125,7 @@ namespace FEGame
         public static int FILE_ID = 1;
         private static Assembly GAME_ASSEMBLY { get { return Global.GAME_ASSEMBLY; } }
 
+        //@Debug: // True until game options are loaded
         private bool STARTING = true;
         #endregion
 
@@ -145,7 +138,7 @@ namespace FEGame
 
         public static int render_target_zoom
         {
-            get { return 1; }// Global.fullscreen ? 2 : 1; } //Yeti
+            get { return 1; }
         }
         #endregion
 
@@ -179,14 +172,7 @@ namespace FEGame
         public Game1(string[] args)
         {
             Global.GAME_ASSEMBLY = Assembly.GetExecutingAssembly();
-
-            /*AppDomain newDomain4Process = AppDomain.CreateDomain("newDomain4Process");
-            string wuh = Path.GetDirectoryName(GAME_ASSEMBLY.Location);
-            //Assembly processLibrary = newDomain4Process.Load(Path.Combine(Path.GetDirectoryName(GAME_ASSEMBLY.Location), "OggSharpLibrary.dll"));
-            Assembly processLibrary = newDomain4Process.Load("FEXNA.dll");
-            AppDomain.Unload(newDomain4Process);*/
-
-
+            
 #if WINDOWS || MONOMAC
             if (METRICS_ENABLED)
                 Metrics_Handler.enable(GAME_ASSEMBLY);
@@ -226,37 +212,6 @@ namespace FEGame
                 }
         }
 
-        /* //Debug
-        private string game_name()
-        {
-            var assembly = System.Reflection.Assembly.GetEntryAssembly();
-            if (assembly == null)
-            {
-                var methodFrames = new StackTrace().GetFrames().Select(t => t.GetMethod()).ToArray();
-                MethodBase entryMethod = null;
-                // Find Game.Update method
-                for (int i = 0; i + 1 < methodFrames.Length; i++)
-                {
-                    var method = methodFrames[i] as MethodInfo;
-                    var calling_method = methodFrames[i + 1] as MethodInfo;
-                    if (method == null || calling_method == null)
-                        continue;
-
-                    if (method.Name == "Update" && method.ReturnType == typeof(void) &&
-                            calling_method.Name == "DoUpdate" &&
-                            calling_method.ReturnType == typeof(void))
-                        entryMethod = method;
-                }
-
-                if (entryMethod == null)
-                    return "this game";
-
-                assembly = entryMethod.Module.Assembly;
-            }
-
-            return string.Format("\"{0}\"", assembly.GetName().Name);
-        }*/
-
         protected void set_initial_resolution()
         {
 #if __ANDROID__
@@ -267,21 +222,20 @@ namespace FEGame
             Screen_Width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             Screen_Height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 #endif
-            int zoom_max = Math.Min( // this is a bad solution, need a catch block that's elegant //Yeti
+            int zoom_max = Math.Min( // this is a bad solution, need a catch block that's elegant //@Yeti
                 ZOOM_MAX, Screen_Width / Window_Width);
             zoom_max = Math.Min(
                 zoom_max, (Screen_Height - 64) / Window_Height);
 
             Global.set_zoom_limits(ZOOM_MIN, zoom_max);
             Global.zoom = ZOOM;
-
-            //this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / (float)FRAME_RATE); //Debug
+            
             this.TargetElapsedTime = TimeSpan.FromTicks(
                 (long)(TimeSpan.TicksPerSecond * (1.0f / (float)FRAME_RATE)));
             refresh_zoom(true);
 
             // This was commented out, for some reason I've forgotten
-            // But commenting this out causes multiple instances to lag each other //Debug
+            // But commenting this out causes multiple instances to lag each other //@Debug
             graphics.SynchronizeWithVerticalRetrace = false;
 
             IsFixedTimeStep = false;
@@ -362,10 +316,7 @@ namespace FEGame
                 Content.Load<Texture2D>(@"Graphics/Pictures/MouseCursor");
 
             Global.init(this, Content, Services);
-
-            //Graphics_Loading_Thread = new Thread(new ThreadStart(load_graphics_content));
-            //Graphics_Loading_Thread.Start();
-
+            
             refresh_effect_projection();
             initialize_text_glow();
             set_render_targets();
@@ -377,15 +328,6 @@ namespace FEGame
             {
                 Effect shader = Global.effect_shader();
                 SetBlurEffectParameters(shader, 1f / (float)Window_Width, 1f / (float)Window_Height);
-                /*Matrix projection = Matrix.CreateOrthographicOffCenter(
-                    0, Window_Width * render_target_zoom, Window_Height * render_target_zoom, 0, -10000, 10000);
-                Matrix halfPixelOffset = Matrix.CreateTranslation(-0.5f, -0.5f, 0);
-
-                Global.effect_shader().Parameters["World"].SetValue(Matrix.Identity);
-                Global.effect_shader().Parameters["View"].SetValue(Matrix.Identity);
-                Global.effect_shader().Parameters["Projection"].SetValue(halfPixelOffset * projection);
-                
-                Global.effect_shader().Parameters["MatrixTransform"].SetValue(Matrix.Identity);*/
             }
         }
 
@@ -490,7 +432,7 @@ namespace FEGame
                     RenderTarget2D target = CloneRenderTarget(graphics.GraphicsDevice, 1);
                     ShaderRenderTargets[i] = target;
                 }
-                if (true)//fullscreen)
+                if (true)//fullscreen) //@Debug
                     Stereoscopic_Render_Target = CloneRenderTarget(graphics.GraphicsDevice, 1, true);
                 FinalRender = CloneRenderTarget(graphics.GraphicsDevice, 1);
             }
@@ -539,8 +481,6 @@ namespace FEGame
         private static RenderTarget2D CloneRenderTarget(GraphicsDevice device, int numberLevels, bool stereo)
         {
             return new RenderTarget2D(device,
-                //device.PresentationParameters.BackBufferWidth / zoom * (stereo ? 2 : 1),
-                //device.PresentationParameters.BackBufferHeight / zoom,
                 Window_Width * render_target_zoom * (stereo ? 2 : 1),
                 Window_Height * render_target_zoom,
                 false,
@@ -580,11 +520,15 @@ namespace FEGame
             Global.dispose_suspend_screenshots();
             // TODO: Unload any non ContentManager content here
             Global.palette_pool.Dispose();
+
+            // End threads
             if (MoveRangeUpdateThread != null)
             {
                 end_move_range_thread();
             }
             end_threads();
+
+            // Cancel controller rumble
             GamePad.SetVibration(PlayerIndex.One, 0, 0);
             GamePad.SetVibration(PlayerIndex.Two, 0, 0);
             GamePad.SetVibration(PlayerIndex.Three, 0, 0);
@@ -694,7 +638,6 @@ namespace FEGame
                 if (process_next_frame)
                     Global.Audio.update();
                 Stereoscopic_Graphic_Object.update_stereoscopy();
-                //update_text_glow();
 
                 update_io();
                 update_scene_change();
@@ -733,7 +676,7 @@ namespace FEGame
             Global.Audio.post_update();
             update_screen_scale();
             update_text_glow(i + 1);
-            Hyperspeed_Stop_Watch.Stop(); //Debug
+            Hyperspeed_Stop_Watch.Stop(); //@Debug
 
             PreviousKeyState = key_state;
         }
@@ -816,7 +759,7 @@ namespace FEGame
 #endif
 
             // If zoom value changed
-            if (Global.zoom != ZOOM || this.fullscreen != Global.fullscreen)//fullscreen test // graphics.IsFullScreen)
+            if (Global.zoom != ZOOM || this.fullscreen != Global.fullscreen)
             {
                 refresh_zoom();
                 // Create new properly sized render targets
@@ -835,7 +778,7 @@ namespace FEGame
         {
             ZOOM = Global.zoom;
             // Resize window
-            if (this.fullscreen != Global.fullscreen) //fullscreen test
+            if (this.fullscreen != Global.fullscreen)
             {
                 this.fullscreen = Global.fullscreen;
 #if !MONOGAME
@@ -849,7 +792,7 @@ namespace FEGame
 #endif
                 graphics.IsFullScreen = fullscreen;
 #if MONOMAC
-                // going to or from fullscreen loses focus on the window, it's still on the program? //Yeti
+                // going to or from fullscreen loses focus on the window, it's still on the program? //@Yeti
                 //if (regain_focus)
                 //    this.Window.MakeCurrent();
 #endif
@@ -857,7 +800,6 @@ namespace FEGame
 #endif
             }
 #if !MONOGAME
-            //graphics.IsFullScreen = Global.fullscreen;
             graphics.PreferredBackBufferWidth = (int)(Global.fullscreen ? Fullscreen.ScreenX(Window.Handle) : Window_Width * zoom);
             graphics.PreferredBackBufferHeight = (int)(Global.fullscreen ? Fullscreen.ScreenY(Window.Handle) : Window_Height * zoom);
 #elif MONOMAC || WINDOWS
@@ -875,8 +817,6 @@ namespace FEGame
                 refresh_effect_projection();
                 graphics.ApplyChanges();
             }
-            //graphics.GraphicsDevice.Viewport = new Viewport(
-            //    0, 0, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
         }
         #endregion
 
@@ -954,21 +894,19 @@ namespace FEGame
 #if DEBUG || GET_FPS
             // Frame rate
             FramerateStopWatch.Stop();
-            TimeSpan elapsed = Paused ? TimeSpan.FromMilliseconds(1f / Config.FRAME_RATE) : FramerateStopWatch.Elapsed;
+            TimeSpan elapsed = Paused ?
+                TimeSpan.FromMilliseconds(1f / Config.FRAME_RATE) :
+                FramerateStopWatch.Elapsed;
             FramerateTime += elapsed.TotalSeconds >= 1 ? TimeSpan.FromSeconds(1) : elapsed;
-            //FramerateTime += Math.Min(1, Paused ? (1f / Config.FRAME_RATE) :
-            //    (float)(FramerateStopWatch.ElapsedTicks / ((double)Stopwatch.Frequency)));
             FramerateFrames++;
             FramerateStopWatch.Restart();
             if (FramerateTime.TotalSeconds >= 1)
             {
                 CurrentFrameRate = FramerateTime.TotalSeconds * FramerateFrames;
                 FramerateTime -= TimeSpan.FromSeconds(1);
-                // I think I'm using the wrong method for this, should be handle_frame_timing() //Yeti
-                //if (FramerateTime.TotalSeconds > 5)
-                //    FramerateTime = TimeSpan.FromSeconds(5);
                 FramerateFrames = 0;
 
+                // Show the framerate in the window title
 #if !__MOBILE__
                 string title = string.Format("{0}: {1}fps",
                     GAME_ASSEMBLY.GetName().Name, (int)CurrentFrameRate);
@@ -1101,7 +1039,7 @@ namespace FEGame
                     Global.map_save_deleted();
                     if (device != null && device.IsConnected)
                     {
-                        // Same question as below //Yeti
+                        // Same question as below //@Yeti
                         delete_file(map_save_filename(FILE_ID));
                         delete_file(suspend_filename(FILE_ID));
                         // Rechecks the most current suspend
@@ -1208,7 +1146,7 @@ namespace FEGame
                 // Copy File
                 else if (Global.copying)
                 {
-                    // Why is there a breakpoint here though //Debug
+                    // Why is there a breakpoint here though //@Debug
                     Global.copying = false;
                     if (device != null && device.IsConnected)
                     {
@@ -1224,7 +1162,7 @@ namespace FEGame
                 // Move File
                 else if (Global.move_file)
                 {
-                    // Why is there a breakpoint here though //Debug
+                    // Why is there a breakpoint here though //@Debug
                     Global.move_file = false;
                     if (device != null && device.IsConnected)
                     {
@@ -1432,14 +1370,6 @@ namespace FEGame
             {
                 if (METRICS_ENABLED)
                 {
-                    /*// Waits for 
-                    if (MetricsThread != null)
-                    {
-                        if (MetricsThread.ThreadState == System.Threading.ThreadState.Running)
-                        { }
-                        MetricsThread.Join();
-                        MetricsThread = null;
-                    }*/
                     free_network_threads();
                     Thread connection_test_thread = new Thread(() => Metrics_Handler.test_connection());
                     connection_test_thread.Name = "Testing network connection";
@@ -1455,8 +1385,6 @@ namespace FEGame
                             metrics_thread.Name = "Sending metrics";
                             metrics_thread.Start();
                             MetricsThreads.Add(metrics_thread);
-                            //MetricsThread = new Thread(() => send_metrics_to_server(Global.metrics_data, Global.metrics_gameplay_data));
-                            //MetricsThread.Start();
                         }
                 }
                 else
@@ -1666,11 +1594,9 @@ namespace FEGame
                     break;
                 case "Scene_Title_Load":
                     Global.reset_system();
-                    //Global.Audio.clear_map_theme(); //@Debug
                     Global.change_to_new_scene("Scene_Title_Load");
                     break;
                 case "Scene_Title":
-                    //Global.Audio.clear_map_theme(); //@Debug
                     Global.reset_system();
                     Global.clear_events();
                     Global.change_to_new_scene("Scene_Title");
@@ -1692,8 +1618,8 @@ namespace FEGame
             {
                 Global.dispose_battle_textures();
                 Global.dispose_face_textures();
-                Global.Audio.stop_bgs(); //Debug
-                Global.Audio.stop_me(); //Debug
+                Global.Audio.stop_bgs(); //@Debug
+                Global.Audio.stop_me(); //@Debug
             }
             else
                 Global.game_temp.message_text = text;
@@ -1729,8 +1655,6 @@ namespace FEGame
             }
         };
         private int Glow_Timer = 0;
-        // Theoretically a dictionary of color arrays representing the pixel data of each glowing font texture, not actually used??? //Yeti
-        private Dictionary<string, Color[]> glow_data = new Dictionary<string, Color[]>();
         // A dictionary of color arrays representing the pixel data of each glowing font texture at each glow frame
         private Dictionary<string, Color[][]> glow_data2 = new Dictionary<string, Color[][]>();
         private void initialize_text_glow()
@@ -1738,7 +1662,6 @@ namespace FEGame
             foreach (string name in TEXT_GLOW.Keys)
             {
                 Texture2D green_text = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + name);
-                //glow_data[name] = new Color[green_text.Width * green_text.Height]; //Yeti
                 glow_data2[name] = new Color[TEXT_GLOW[name].Length][];
                 for (int i = 0; i < TEXT_GLOW[name].Length; i++)
                 {
@@ -1757,8 +1680,7 @@ namespace FEGame
         {
             int glow_timer = Glow_Timer;
             Glow_Timer = (Glow_Timer + ticks) % (TEXT_GLOW["Green"].Length * 8);
-
-            //if (Glow_Timer % 4 == 0) // Debug
+            
             if (Enumerable.Range(1, ticks).Any(x => (glow_timer + x) % 4 == 0))
             {
                 glow_timer = Glow_Timer;
@@ -1788,7 +1710,6 @@ namespace FEGame
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            Screen_Draw_Rect = new Rectangle(0, 0, Window_Width, Window_Height);
 #if __ANDROID__
             // Halves draw rate in Android
             // replace false with some global override for forcing full frame rate
@@ -1808,8 +1729,6 @@ namespace FEGame
                 camera.offset = new Vector2(ShaderRenderTargets[0].Width / 2, ShaderRenderTargets[0].Height / 2);
                 Vector2 ratio = new Vector2(screen_size_ratio);
                 camera.zoom = ratio;
-                //camera.zoom = Vector2.One * 4;// ratio;
-                //camera.zoom = Vector2.One;
 
                 // Always draw the screen normally to FinalRender, for screenshotting/suspend images
                 draw_scene(spriteBatch, Stereoscopic_Mode.Center);
@@ -1833,8 +1752,8 @@ namespace FEGame
                     draw_scene(spriteBatch, Stereoscopic_Mode.Right);
 
                     // If Anaglyph, copy back to rendertarget[0] since it's only normal screen size
-                    // Maybe the scene renderer should always draw to Stereoscopic_Render_Target as if it's non-anaglyph mode //Yeti
-                    // And then this block would take the two halves and combine them on ShaderRenderTargets[0] in anaglyph //Yeti
+                    // Maybe the scene renderer should always draw to Stereoscopic_Render_Target as if it's non-anaglyph mode //@Yeti
+                    // And then this block would take the two halves and combine them on ShaderRenderTargets[0] in anaglyph //@Yeti
                     if (Global.anaglyph_mode)
                     {
                         GraphicsDevice.SetRenderTarget(ShaderRenderTargets[0]);
@@ -2250,7 +2169,7 @@ namespace FEGame
                 shader.Parameters["game_size"].SetValue(render_target_size);
                 shader.Parameters["display_scale"].SetValue(new Vector2(ratio));
 
-                // 'Disables' the shader and uses normal lerp, for testing that the positioning is right //Debug
+                // 'Disables' the shader and uses normal lerp, for testing that the positioning is right //@Debug
                 if (false)
                 {
                     shader.Parameters["game_size"].SetValue(
@@ -2266,9 +2185,6 @@ namespace FEGame
             // Matrix parameter doesn't actually work when using a custom vertex shader, herp
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
                 SamplerState.LinearClamp, null, null, shader);
-
-            //sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, //Debug
-            //    SamplerState.LinearClamp, null, null, null, m);
         }
 
         private Matrix screen_space_matrix(Vector2 target_size, Vector2 source_render_size, Vector2 width_ratio, float ratio)
@@ -2288,7 +2204,6 @@ namespace FEGame
                     (1 / (target_size.Y / source_render_size.Y)), 0));
             if (Global.stereoscopic && !Global.anaglyph_mode)
             {
-                //fullscreen_matrix *= Matrix.CreateTranslation(new Vector3(width_ratio.X / (ratio / 2), 0, 0));
                 matrix *= Matrix.CreateTranslation(new Vector3((0.5f / width_ratio.X) - (1 / ratio), 0, 0)) *
                     Matrix.CreateScale(0.5f, 1, 1);
             }
@@ -2296,7 +2211,7 @@ namespace FEGame
                 // Scale up to the size of the screen
                 Matrix.CreateScale(ratio, ratio, 1) *
                 // Adjust for weird half pixel offset
-                Matrix.CreateTranslation(new Vector3( // Can't actually do the half pixel before scaling because it messes up! //Debug
+                Matrix.CreateTranslation(new Vector3( // Can't actually do the half pixel before scaling because it messes up! //@Debug
                     -(1f / target_size.X),
                     (1f / target_size.Y), 0)) *
                 // Add offset
@@ -2316,7 +2231,6 @@ namespace FEGame
             if (f12_pressed && !F12_Pressed)
             {
                 string path = System.IO.Path.GetDirectoryName(GAME_ASSEMBLY.Location);
-                //string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
                 path = Path.Combine(path, "Screenshots");
 
                 try
@@ -2336,7 +2250,8 @@ namespace FEGame
                             path, filename + i.ToString("D4") + ".png"),
                         FileMode.OpenOrCreate))
                     {
-                        render_target.SaveAsPng(fs, render_target.Width, render_target.Height); // save render target to disk
+                        // save render target to disk
+                        render_target.SaveAsPng(fs, render_target.Width, render_target.Height);
                     }
                 }
                 // Could not save screenshot because no folder permissions
@@ -2587,7 +2502,7 @@ namespace FEGame
                     using (MemoryStream ms = new MemoryStream())
                     {
                         // Write the save to a memory stream to make sure the save is successful, before actually writing it to file
-                        // Make all the saving more like this //Debug
+                        // Make all the saving more like this //@Debug
                         using (BinaryWriter writer = new BinaryWriter(ms))
                         {
                             Version version = Global.RUNNING_VERSION;
@@ -2599,28 +2514,20 @@ namespace FEGame
                             Global.game_options.write(writer);
                             Global.save_file.write(writer);
                         }
-
-                        /* Call FileExists */
+                        
                         // Check to see whether the save exists.
                         if (container.FileExists(filename))
                             // Delete it so that we can create one fresh.
                             container.DeleteFile(filename);
-                        /* Create Stream object */
-                        // Create the file.
+
+                        // Create the file, copy the memory stream to it
                         using (Stream stream = container.CreateFile(filename))
                         {
-                            /* Create XmlSerializer */
-                            // Convert the object to XML data and put it in the stream.
-                            //XmlSerializer serializer = new XmlSerializer(typeof(SaveGameData));
                             using (BinaryWriter writer = new BinaryWriter(stream))
                             {
                                 writer.Write(ms.GetBuffer());
                             }
-                            /* Close the Stream */
-                            // Close the file.
                         }
-                        /* Dispose the StorageContainer */
-                        // Dispose the container, to commit changes.
                     }
                 }
             }
@@ -2661,7 +2568,7 @@ namespace FEGame
                 }
                 /* Create Stream object */
                 // Open the file.
-                // Add a IOException handler for if the file is being used by another process //Yeti
+                // Add a IOException handler for if the file is being used by another process //@Yeti
                 using (Stream stream = container.OpenFile(
                     filename, FileMode.Open, FileAccess.Read))
                 {
@@ -2677,11 +2584,7 @@ namespace FEGame
                             {
                                 Global.LOADED_VERSION = v;
 
-                                if (false)//Global.LOADED_VERSION.Major == 0 && Global.LOADED_VERSION.Minor == 3 && Global.LOADED_VERSION.Build == 1)
-                                {
-                                    Global.game_options = data.Options;
-                                    Global.save_file = data.File;
-                                }
+                                if (false) { } //@Debug: if different versions are handled differently
                                 else
                                 {
                                     Global.game_options = data.Options;
@@ -2719,10 +2622,7 @@ namespace FEGame
                     throw new EndOfStreamException();
 
                 /* Call Deserialize */
-                if (false)//Global.LOADED_VERSION.Major == 0 && Global.LOADED_VERSION.Minor == 3 && Global.LOADED_VERSION.Build == 1)
-                {
-                    data = load_file_v_0_4_4_0(reader);
-                }
+                if (false) { } //@Debug: if different versions are handled differently
                 else
                 {
                     data = load_file_v_0_4_4_0(reader);
@@ -2763,11 +2663,7 @@ namespace FEGame
                 string target_filename = move_to_id.ToString() + Config.SAVE_FILE_EXTENSION;
                 // Delete old target files
                 delete_save_file(move_to_id, container);
-
-                // Suspend should be deleted, to prevent abuse // actually no //Debug
-                //if (container.FileExists(suspend_filename(id)))
-                //    container.DeleteFile(suspend_filename(id));
-
+                
                 // Copy old file to new location
                 using (Stream move_from_stream = container.OpenFile(
                     filename, FileMode.Open, FileAccess.Read))
@@ -2791,8 +2687,7 @@ namespace FEGame
             }
             return true;
         }
-
-
+        
         private void copy_suspend(int id, int move_to_id, StorageContainer container)
         {
             string source_suspend_filename = suspend_filename(id);
@@ -2976,18 +2871,15 @@ namespace FEGame
 
                 if (container != null)
                 {
-                    /* Call FileExists */
                     // Check to see whether the save exists.
                     if (container.FileExists(filename))
                         // Delete it so that we can create one fresh.
                         container.DeleteFile(filename);
-                    /* Create Stream object */
-                    // Create the file.
+
+                    // Create the file
                     using (Stream stream = container.CreateFile(filename))
                     {
-                        /* Create XmlSerializer */
-                        // Convert the object to XML data and put it in the stream.
-                        //XmlSerializer serializer = new XmlSerializer(typeof(SaveGameData));
+                        // Write to it
                         using (BinaryWriter writer = new BinaryWriter(stream))
                         {
                             // Save FinalRender to a byte[]
@@ -2999,11 +2891,7 @@ namespace FEGame
                             }
                             Global.save_suspend(writer, FILE_ID, screenshot);
                         }
-                        /* Close the Stream */
-                        // Close the file.
                     }
-                    /* Dispose the StorageContainer */
-                    // Dispose the container, to commit changes.
                     return true;
                 }
             }
@@ -3071,7 +2959,6 @@ namespace FEGame
                                 FILE_ID = file_id;
                                 DEBUG_FILE_ID_TEST = FILE_ID; //Yeti
                                 Global.game_options.post_read();
-                                //Global.Audio.clear_map_theme(); //@Debug
                                 if (!Global.Audio.stop_me(true))
                                     Global.Audio.BgmFadeOut(20);
                                 Global.Audio.stop_bgs();
@@ -3252,6 +3139,7 @@ namespace FEGame
             {
                 // Close the wait handle.
                 result.AsyncWaitHandle.Close();
+
                 // Get valid save file names
                 List<string> save_files = new List<string>(
                     container.GetFileNames("*" + Config.SAVE_FILE_EXTENSION)
@@ -3393,7 +3281,7 @@ namespace FEGame
                                 modified_time = info.time;
                                 if (STARTING)
                                 {
-                                    Global.game_options = data.Options;  //Debug // This needs to only happen when just starting the game
+                                    Global.game_options = data.Options;  //@Debug: // This needs to only happen when just starting the game
                                     STARTING = false;
                                 }
                             }
