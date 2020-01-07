@@ -112,9 +112,13 @@ namespace FE7x
         /// </summary>
         static void Main(string[] args)
         {
-            if (!test_for_openal())
+            if (!TestForXNA())
             {
-                System.Windows.Forms.MessageBox.Show("FEXNA uses OpenAL for audio, and needs it to be installed.\nPlease install it by running 'oalinst.exe' from the\ngame folder before you can play this game.", "OpenAL is not installed");
+                System.Windows.Forms.MessageBox.Show("Microsoft XNA Framework not found.\nPlease install it by running 'xnafx40_redist.msi' from\nthe 'Installers' folder before you can play this game.", "XNA is not installed");
+            }
+            else if (!TestForOpenAL())
+            {
+                System.Windows.Forms.MessageBox.Show("FEXNA uses OpenAL for audio, and needs it to be installed.\nPlease install it by running 'oalinst.exe' from\nthe 'Installers' folder before you can play this game.", "OpenAL is not installed");
             }
             else
             {
@@ -127,10 +131,15 @@ namespace FE7x
                     File.Delete("temp.log");
                 }*/
 #endif
-                using (Game1 game = new Game1(args))
-                {
-                    game.Run();
-                }
+                RunGame(args);
+            }
+        }
+
+        private static void RunGame(string[] args)
+        {
+            using (Game1 game = new Game1(args))
+            {
+                game.Run();
             }
         }
 
@@ -147,7 +156,29 @@ namespace FE7x
         }
 #endif
 
-        public static bool test_for_openal()
+        public static bool TestForXNA()
+        {
+            string baseKeyName = @"SOFTWARE\Microsoft\XNA\Framework";
+            //string baseKeyName = @"SOFTWARE\Wow6432Node\Microsoft\XNA\Framework"; //@Debug: actual location on x64, doesn't need checked in 32 bit programs like this one
+            //string baseKeyName = @"SOFTWARE\Microsoft\XNA\Game Studio"; //@Debug: can check if installed for devs
+            Microsoft.Win32.RegistryKey installedFrameworkVersions = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(baseKeyName);
+
+            if (installedFrameworkVersions != null)
+            {
+                string[] versionNames = installedFrameworkVersions.GetSubKeyNames();
+
+                foreach (string s in versionNames)
+                {
+                    if (s == "v4.0")
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        public static bool TestForOpenAL()
         {
             try
             {
