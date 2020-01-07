@@ -111,8 +111,8 @@ namespace FEXNA
             subtitle_help = 1;
             autocursor = 0;
             auto_turn_end = 2;
-            Data[(int)Constants.Options.Music_Volume] = 100;
-            Data[(int)Constants.Options.Sound_Volume] = 100;
+            Data[(int)Constants.Options.Music_Volume] = 70;
+            Data[(int)Constants.Options.Sound_Volume] = 70;
             //music_on = 0; //Yeti
             //sound_on = 0;
             window_color = 0;

@@ -811,6 +811,7 @@ namespace FEXNA
                     kill_gain = kill_gain + (diff * 3);
                 // 1.5x diff when below target level
                 else
+                    // ????? //@Debug
                     kill_gain = kill_gain + (diff * 3); //kill_gain + (diff * 3 / 2);
                 kill_gain = Math.Max(exp_gain, kill_gain);
 
@@ -825,19 +826,7 @@ namespace FEXNA
             }
             exp_gain = Math.Max(1, exp_gain);
 
-            return Math.Min(Constants.Actor.EXP_TO_LVL, exp_gain);
-
-            /*
-            // Attack exp
-            int exp_gain = Math.Max(1, (21 + diff) / 2);
-            // Kill bonus
-            if (kill)
-            {
-                exp_gain += Math.Max(1, diff + 20);
-                if (boss)
-                    exp_gain += 30;
-            }
-            return Math.Min(Constants.Actor.EXP_TO_LVL, exp_gain);*/
+            return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
 
         private static int exp_difficulty_adjustment(float exp_gain, bool kill)
@@ -892,6 +881,8 @@ namespace FEXNA
                 exp_gain = (int)(weapon.Staff_Exp * 1.5);
             else
                 exp_gain = (int)(weapon.Staff_Exp / (Math.Pow(2, actor.tier - 1)));
+            exp_gain = exp_difficulty_adjustment(exp_gain, false);
+
             return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
 
