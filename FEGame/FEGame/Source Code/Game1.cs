@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using FEXNA;
+using FEXNA.Rendering;
 using FEXNAVersionExtension;
 
 using System.Runtime.InteropServices; //fullscreen test
@@ -32,11 +33,6 @@ namespace FEGame
         const string SUSPEND_FILENAME = "suspend";
         const string SAVE_LOCATION = "Save";
 
-        const int ZOOM_MAX = 5;
-        const int ZOOM_MIN = 1;
-        public const int Window_Width = Config.WINDOW_WIDTH;
-        public const int Window_Height = Config.WINDOW_HEIGHT;
-
 #if DEBUG
         const bool HYPER_SPEED_ENABLED = true;
         const bool PAUSE_ENABLED = true;
@@ -48,8 +44,6 @@ namespace FEGame
 #endif
         const int HYPER_SPEED_MULT = 15;
 
-        const int RENDER_TARGETS = 4;
-
 #if WINDOWS || MONOMAC
         const bool METRICS_ENABLED = Config.METRICS_ENABLED;
 #else
@@ -59,22 +53,10 @@ namespace FEGame
         #endregion
 
         #region Fields
-#if WINDOWS || MONOMAC
-        static int ZOOM = 1;
-#elif XBOX
-        static int ZOOM = 2;
-#else
-        static int ZOOM = 1;
-#endif
+        private GameRenderer Renderer;
 
         protected int Savestate_File_Id = -1;
         protected bool Savestate_Testing = false;
-
-        protected int Screen_Width, Screen_Height;
-
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
-        Camera camera;
 
         StorageDevice device;
         IAsyncResult result;
@@ -86,31 +68,19 @@ namespace FEGame
 
         KeyboardState PreviousKeyState;
 
-        // Textures
-        RenderTarget2D[] ShaderRenderTargets = new RenderTarget2D[RENDER_TARGETS];
-        RenderTarget2D Stereoscopic_Render_Target;
-        RenderTarget2D FinalRender;
-
-        private float TouchCursorOpacity;
-        private Vector2 TouchCursorLoc;
-        private Texture2D MouseCursorTexture;
-
         Thread MoveRangeUpdateThread = null, GraphicsLoadingThread = null, UpdateCheckThread = null;
         List<Thread> MetricsThreads = new List<Thread>();
         object MetricsLock = new object();
 
         protected bool Quick_Load = false;
-#if DEBUG || GET_FPS
 
+#if DEBUG || GET_FPS
         protected Stopwatch FramerateStopWatch = new Stopwatch();
         protected TimeSpan FramerateTime = new TimeSpan();
         protected int FramerateFrames = 0;
         protected double CurrentFrameRate = FRAME_RATE;
 #endif
-#if DEBUG
-        const bool DEBUG_VIEW = true;
 
-#endif
 #if DEBUGMONITOR
         Debug_Monitor.DebugMonitorForm MonitorForm;
 #endif
@@ -128,46 +98,13 @@ namespace FEGame
         //@Debug: // True until game options are loaded
         private bool STARTING = true;
         #endregion
-
-        #region Accessors
-        public static int zoom
-        {
-            get { return Global.fullscreen ? 2 : ZOOM; }
-            private set { ZOOM = value; }
-        }
-
-        public static int render_target_zoom
-        {
-            get { return 1; }
-        }
-        #endregion
-
-        //fullscreen test
-        #region fullscreen
-        private bool fullscreen = false;
-#if WINDOWS && !MONOGAME
-
-        private void FullScreen()
-        {
-            Fullscreen.fullscreen(Window.Handle);
-        }
-        private void Restore()
-        {
-            System.Windows.Forms.Form.FromHandle(Window.Handle).FindForm().WindowState =
-                System.Windows.Forms.FormWindowState.Normal;
-            System.Windows.Forms.Form.FromHandle(Window.Handle).FindForm().FormBorderStyle =
-                System.Windows.Forms.FormBorderStyle.FixedDialog;
-            System.Windows.Forms.Form.FromHandle(Window.Handle).FindForm().TopMost = false;
-        }
-#elif __ANDROID__
-        public static int STATUS_BAR_HEIGHT;
-
+        
+#if __ANDROID__
         protected bool Started;
         public bool started { get { return Started; } }
         protected bool In_Background, Ready_To_Resume;
         protected bool Has_Been_Backgrounded;
 #endif
-        #endregion
 
         public Game1(string[] args)
         {
@@ -179,8 +116,9 @@ namespace FEGame
 #endif
 
             Global.RUNNING_VERSION = System.Reflection.Assembly.GetAssembly(typeof(Global)).GetName().Version;
-            graphics = new GraphicsDeviceManager(this);
-            set_initial_resolution();
+            var fullscreenService = new FullscreenService(this);
+            Renderer = new GameRenderer(this, fullscreenService);
+            SetInitialFramerateValues();
 
             Content.RootDirectory = "Content";
 #if !MONOGAME
@@ -211,34 +149,12 @@ namespace FEGame
 #endif
                 }
         }
-
-        protected void set_initial_resolution()
+        private void SetInitialFramerateValues()
         {
-#if __ANDROID__
-            Screen_Width = graphics.PreferredBackBufferWidth;
-            Screen_Height = graphics.PreferredBackBufferHeight - STATUS_BAR_HEIGHT;
-            graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
-#else
-            Screen_Width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            Screen_Height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-#endif
-            int zoom_max = Math.Min( // this is a bad solution, need a catch block that's elegant //@Yeti
-                ZOOM_MAX, Screen_Width / Window_Width);
-            zoom_max = Math.Min(
-                zoom_max, (Screen_Height - 64) / Window_Height);
-
-            Global.set_zoom_limits(ZOOM_MIN, zoom_max);
-            Global.zoom = ZOOM;
-            
             this.TargetElapsedTime = TimeSpan.FromTicks(
                 (long)(TimeSpan.TicksPerSecond * (1.0f / (float)FRAME_RATE)));
-            refresh_zoom(true);
 
-            // This was commented out, for some reason I've forgotten
-            // But commenting this out causes multiple instances to lag each other //@Debug
-            graphics.SynchronizeWithVerticalRetrace = false;
-
-            IsFixedTimeStep = false;
+            this.IsFixedTimeStep = false;
             this.InactiveSleepTime = TimeSpan.FromTicks(0);
         }
 
@@ -255,7 +171,6 @@ namespace FEGame
             Global.check_for_updates_from_server += Global_check_for_updates_from_server;
             Global.set_update_uri(Update_Checker.GAME_DOWNLOAD);
 
-            camera = new Camera(Window_Width, Window_Height, Vector2.Zero);
             FEXNA.Input.default_controls();
 
             base.Initialize();
@@ -310,188 +225,12 @@ namespace FEGame
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            MouseCursorTexture =
-                Content.Load<Texture2D>(@"Graphics/Pictures/MouseCursor");
+            Renderer.CreateSpriteBatch(this);
 
             Global.init(this, Content, Services);
-            
-            refresh_effect_projection();
+            Renderer.LoadContent(Content);
+
             initialize_text_glow();
-            set_render_targets();
-        }
-
-        private void refresh_effect_projection()
-        {
-            if (Global.effect_shader() != null)
-            {
-                Effect shader = Global.effect_shader();
-                SetBlurEffectParameters(shader, 1f / (float)Window_Width, 1f / (float)Window_Height);
-            }
-        }
-
-        #region Blur Calculation
-        /// <summary>
-        /// Computes sample weightings and texture coordinate offsets
-        /// for one pass of a separable gaussian blur filter.
-        /// </summary>
-        /// <remarks>
-        /// This function was originally provided in the BloomComponent class in the 
-        /// Bloom Postprocess sample.
-        /// </remarks>
-        void SetBlurEffectParameters(Effect effect, float dx, float dy)
-        {
-            // Look up the sample weight and offset effect parameters.
-            EffectParameter weightsParameter, offsetsParameter;
-
-            weightsParameter = effect.Parameters["SampleWeights"];
-            offsetsParameter = effect.Parameters["SampleOffsets"];
-
-            if (weightsParameter != null && offsetsParameter != null)
-            {
-                // Look up how many samples our gaussian blur effect supports.
-                int sampleCount = weightsParameter.Elements.Count;
-
-                // Create temporary arrays for computing our filter settings.
-                float[] sampleWeights = new float[sampleCount];
-                Vector2[] sampleOffsets = new Vector2[sampleCount];
-
-                // The first sample always has a zero offset.
-                sampleWeights[0] = ComputeGaussian(0);
-                sampleOffsets[0] = new Vector2(0);
-
-                // Maintain a sum of all the weighting values.
-                float totalWeights = sampleWeights[0];
-
-                // Add pairs of additional sample taps, positioned
-                // along a line in both directions from the center.
-                for (int i = 0; i < sampleCount / 2; i++)
-                {
-                    // Store weights for the positive and negative taps.
-                    float weight = ComputeGaussian(i + 1);
-
-                    sampleWeights[i * 2 + 1] = weight;
-                    sampleWeights[i * 2 + 2] = weight;
-
-                    totalWeights += weight * 2;
-
-                    // To get the maximum amount of blurring from a limited number of
-                    // pixel shader samples, we take advantage of the bilinear filtering
-                    // hardware inside the texture fetch unit. If we position our texture
-                    // coordinates exactly halfway between two texels, the filtering unit
-                    // will average them for us, giving two samples for the price of one.
-                    // This allows us to step in units of two texels per sample, rather
-                    // than just one at a time. The 1.5 offset kicks things off by
-                    // positioning us nicely in between two texels.
-                    float sampleOffset = i * 2 + 1.5f;
-
-                    Vector2 delta = new Vector2(dx, dy) * sampleOffset;
-
-                    // Store texture coordinate offsets for the positive and negative taps.
-                    sampleOffsets[i * 2 + 1] = delta;
-                    sampleOffsets[i * 2 + 2] = -delta;
-                }
-
-                // Normalize the list of sample weightings, so they will always sum to one.
-                for (int i = 0; i < sampleWeights.Length; i++)
-                {
-                    sampleWeights[i] /= totalWeights;
-                }
-
-                // Tell the effect about our new filter settings.
-                weightsParameter.SetValue(sampleWeights);
-                offsetsParameter.SetValue(sampleOffsets);
-            }
-        }
-
-        /// <summary>
-        /// Evaluates a single point on the gaussian falloff curve.
-        /// Used for setting up the blur filter weightings.
-        /// </summary>
-        /// <remarks>
-        /// This function was originally provided in the BloomComponent class in the 
-        /// Bloom Postprocess sample.
-        /// </remarks>
-        static float ComputeGaussian(float n)
-        {
-            const float BLUR_AMOUNT = 2f;
-
-            return (float)((1.0 / Math.Sqrt(2 * Math.PI * BLUR_AMOUNT)) *
-                           Math.Exp(-(n * n) / (2 * BLUR_AMOUNT * BLUR_AMOUNT)));
-        }
-        #endregion
-
-        private void set_render_targets()
-        {
-            dispose_render_targets();
-            try
-            {
-                for (int i = 0; i < RENDER_TARGETS; i++)
-                {
-                    RenderTarget2D target = CloneRenderTarget(graphics.GraphicsDevice, 1);
-                    ShaderRenderTargets[i] = target;
-                }
-                if (true)//fullscreen) //@Debug
-                    Stereoscopic_Render_Target = CloneRenderTarget(graphics.GraphicsDevice, 1, true);
-                FinalRender = CloneRenderTarget(graphics.GraphicsDevice, 1);
-            }
-            catch (OutOfMemoryException e)
-            {
-                Global.zoom = 1;
-                dispose_render_targets();
-                return;
-            }
-        }
-
-        public void dispose_render_targets()
-        {
-            foreach (RenderTarget2D render_target in ShaderRenderTargets)
-                if (render_target != null)
-                    render_target.Dispose();
-            if (Stereoscopic_Render_Target != null)
-                Stereoscopic_Render_Target.Dispose();
-            if (FinalRender != null)
-                FinalRender.Dispose();
-
-            for (int i = 0; i < ShaderRenderTargets.Length; i++)
-                ShaderRenderTargets[i] = null;
-            Stereoscopic_Render_Target = null;
-            FinalRender = null;
-            try
-            {
-                graphics.GraphicsDevice.Present();
-            }
-#if MONOGAME
-            catch (Exception e)
-            {
-                throw;
-#else
-            catch (DeviceLostException e)
-            {
-                System.Threading.Thread.Sleep(500);
-#endif
-            }
-        }
-
-        private static RenderTarget2D CloneRenderTarget(GraphicsDevice device, int numberLevels)
-        {
-            return CloneRenderTarget(device, numberLevels, false);
-        }
-        private static RenderTarget2D CloneRenderTarget(GraphicsDevice device, int numberLevels, bool stereo)
-        {
-            return new RenderTarget2D(device,
-                Window_Width * render_target_zoom * (stereo ? 2 : 1),
-                Window_Height * render_target_zoom,
-                false,
-#if MONOGAME
-                SurfaceFormat.Color,
-#else
-                device.DisplayMode.Format,
-#endif
-                DepthFormat.None,
-                0,
-                RenderTargetUsage.PreserveContents);
         }
 
 #if __ANDROID__
@@ -612,16 +351,7 @@ namespace FEGame
                 {
                     Global.update_input(this, gameTime, IsActive, key_state, controller_state);
                     Global.Rumble.Update(gameTime);
-                    if (Global.Input.touch_pressed(false))
-                    {
-                        TouchCursorLoc = Global.Input.touchPressPosition;
-                        TouchCursorOpacity += 0.5f;
-                    }
-                    else
-                    {
-                        TouchCursorOpacity -= 0.075f;
-                    }
-                    TouchCursorOpacity = MathHelper.Clamp(TouchCursorOpacity, 0, 1);
+                    Renderer.UpdateTouch();
                 }
 
                 update_pause(key_state, controller_state);
@@ -674,7 +404,7 @@ namespace FEGame
             update_debug_monitor(key_state);
 
             Global.Audio.post_update();
-            update_screen_scale();
+            Renderer.UpdateScreenScale();
             update_text_glow(i + 1);
             Hyperspeed_Stop_Watch.Stop(); //@Debug
 
@@ -688,7 +418,7 @@ namespace FEGame
                 System.Diagnostics.Process.Start(
                     string.Format("http://{0}", Update_Checker.GAME_DOWNLOAD));
 #if !__MOBILE__
-                if (this.fullscreen)
+                if (Global.fullscreen)
                 {
 #if !MONOGAME
                     System.Windows.Forms.Form.FromHandle(Window.Handle).FindForm().WindowState =
@@ -726,25 +456,6 @@ namespace FEGame
 #endif
         }
 
-        private void update_screen_scale()
-        {
-            Vector2 game_size = new Vector2(graphics.PreferredBackBufferWidth,
-                graphics.PreferredBackBufferHeight);
-            Vector2 render_size = new Vector2(
-                ShaderRenderTargets[0].Width,
-                ShaderRenderTargets[0].Height);
-            Vector2 window_size = new Vector2(
-                graphics.GraphicsDevice.DisplayMode.Width,
-                graphics.GraphicsDevice.DisplayMode.Height);
-#if __MOBILE__
-            FEXNA.Input.update_screen_scale(true ? 
-#else
-            FEXNA.Input.update_screen_scale(Global.fullscreen ?
-#endif
- game_size / render_size : new Vector2(Global.zoom),
-                window_size);
-        }
-
         #region Zoom
         private bool update_zoom()
         {
@@ -758,65 +469,7 @@ namespace FEGame
             }
 #endif
 
-            // If zoom value changed
-            if (Global.zoom != ZOOM || this.fullscreen != Global.fullscreen)
-            {
-                refresh_zoom();
-                // Create new properly sized render targets
-                set_render_targets();
-                return true;
-            }
-
-            return false;
-        }
-
-        private void refresh_zoom()
-        {
-            refresh_zoom(false);
-        }
-        private void refresh_zoom(bool initial_set)
-        {
-            ZOOM = Global.zoom;
-            // Resize window
-            if (this.fullscreen != Global.fullscreen)
-            {
-                this.fullscreen = Global.fullscreen;
-#if !MONOGAME
-                if (this.fullscreen)
-                    FullScreen();
-                else
-                    Restore();
-#elif MONOMAC || WINDOWS
-#if MONOMAC
-                bool regain_focus = fullscreen != graphics.IsFullScreen;
-#endif
-                graphics.IsFullScreen = fullscreen;
-#if MONOMAC
-                // going to or from fullscreen loses focus on the window, it's still on the program? //@Yeti
-                //if (regain_focus)
-                //    this.Window.MakeCurrent();
-#endif
-
-#endif
-            }
-#if !MONOGAME
-            graphics.PreferredBackBufferWidth = (int)(Global.fullscreen ? Fullscreen.ScreenX(Window.Handle) : Window_Width * zoom);
-            graphics.PreferredBackBufferHeight = (int)(Global.fullscreen ? Fullscreen.ScreenY(Window.Handle) : Window_Height * zoom);
-#elif MONOMAC || WINDOWS
-            graphics.PreferredBackBufferWidth = (int)(Global.fullscreen ? GraphicsDevice.DisplayMode.Width : Window_Width * zoom);
-            graphics.PreferredBackBufferHeight = (int)(Global.fullscreen ? GraphicsDevice.DisplayMode.Height : Window_Height * zoom);
-#elif __MOBILE__
-            graphics.PreferredBackBufferWidth = Screen_Width;
-            graphics.PreferredBackBufferHeight = Screen_Height;
-#else
-            graphics.PreferredBackBufferWidth = (int)(Window_Width * zoom);
-            graphics.PreferredBackBufferHeight = (int)(Window_Height * zoom);
-#endif
-            if (!initial_set)
-            {
-                refresh_effect_projection();
-                graphics.ApplyChanges();
-            }
+            return Renderer.UpdateZoom();
         }
         #endregion
 
@@ -1719,71 +1372,16 @@ namespace FEGame
 #endif
             {
                 Frame_Advanced = false;
-                // Reset data
-                Global.palette_pool.update();
-                if (ShaderRenderTargets[0] == null)
-                    return;
-                clear_render_targets();
 
-                camera.pos = new Vector2(graphics.PreferredBackBufferWidth / 2, graphics.PreferredBackBufferHeight / 2);
-                camera.offset = new Vector2(ShaderRenderTargets[0].Width / 2, ShaderRenderTargets[0].Height / 2);
-                Vector2 ratio = new Vector2(screen_size_ratio);
-                camera.zoom = ratio;
-
-                // Always draw the screen normally to FinalRender, for screenshotting/suspend images
-                draw_scene(spriteBatch, Stereoscopic_Mode.Center);
-                // Copy render to final render
-                FEXNARenderTarget2DExtension.RenderTarget2DExtensions.raw_copy_render_target(
-                    ShaderRenderTargets[0], spriteBatch, GraphicsDevice, FinalRender);
-
-                // Draws scene
-                if (!Global.stereoscopic)
-                {
-                    // Draw rendertarget to screen
-                    draw_to_screen(spriteBatch);
-                }
-                else
-                {
-                    // Clear the stereo render target to black
-                    GraphicsDevice.SetRenderTarget(Stereoscopic_Render_Target);
-                    GraphicsDevice.Clear(Color.Black);
-
-                    draw_scene(spriteBatch, Stereoscopic_Mode.Left);
-                    draw_scene(spriteBatch, Stereoscopic_Mode.Right);
-
-                    // If Anaglyph, copy back to rendertarget[0] since it's only normal screen size
-                    // Maybe the scene renderer should always draw to Stereoscopic_Render_Target as if it's non-anaglyph mode //@Yeti
-                    // And then this block would take the two halves and combine them on ShaderRenderTargets[0] in anaglyph //@Yeti
-                    if (Global.anaglyph_mode)
-                    {
-                        GraphicsDevice.SetRenderTarget(ShaderRenderTargets[0]);
-                        GraphicsDevice.Clear(Color.Transparent);
-                        spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null);
-                        spriteBatch.Draw(Stereoscopic_Render_Target, new Rectangle(
-                            0, 0, Stereoscopic_Render_Target.Width / 2, Stereoscopic_Render_Target.Height),
-                            new Rectangle(0, 0, ShaderRenderTargets[0].Width, ShaderRenderTargets[0].Height), Color.White);
-                        spriteBatch.End();
-                    }
-                    // Else that thing is not true, so halve the x scale of the camera
-                    else
-                        camera.zoom *= new Vector2(0.5f, 1);
-
-                    // Draw rendertarget to screen
-                    if (Global.anaglyph_mode)
-                        draw_to_screen(spriteBatch, ShaderRenderTargets[0]);
-                    else
-                        draw_to_screen(spriteBatch, Stereoscopic_Render_Target);
-                }
-
-                GraphicsDevice.SetRenderTarget(null);
+                Renderer.Draw();
 
                 base.Draw(gameTime);
             }
             else
-                draw_to_screen(spriteBatch, !Global.stereoscopic ? ShaderRenderTargets[0] : Stereoscopic_Render_Target);
+                Renderer.RedrawPreviousFrame();
 
             // Save a screenshot if F12 is pressed
-            update_screenshot(FinalRender);
+            update_screenshot();
 
 #if __ANDROID__
             Off_Draw_Frame = !Off_Draw_Frame;
@@ -1791,23 +1389,7 @@ namespace FEGame
 
 #if DEBUG && (__MOBILE__ || GET_FPS)
             // Draw frame rate in debug mode on mobile
-            var font = Global.Content.Load<SpriteFont>(@"DiagFont");
-            string fps_text;
-            Vector2 loc;
-            float width_ratio = graphics.PreferredBackBufferWidth /
-                (float)Config.WINDOW_WIDTH / 2;
-
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            fps_text = string.Format("{0:0.0}fps", CurrentFrameRate);
-            fps_text += string.Format("\nMemory: {0}KB", GC.GetTotalMemory(false) / 1024);
-            loc = new Vector2(4, 4);
-            spriteBatch.DrawString(
-                font,
-                fps_text,
-                loc,
-                Color.White,
-                0f, Vector2.Zero, width_ratio, SpriteEffects.None, 0f);
-            spriteBatch.End();
+            Renderer.DrawMobileFps(CurrentFrameRate);
 #endif
 
 #if DEBUGMONITOR
@@ -1816,412 +1398,7 @@ namespace FEGame
 #endif
         }
 
-        private float screen_size_ratio
-        {
-            get
-            {
-                if (graphics.PreferredBackBufferWidth / (float)graphics.PreferredBackBufferHeight >
-                        Window_Width / (float)Window_Height)
-                    return graphics.PreferredBackBufferHeight / (float)ShaderRenderTargets[0].Height;
-                else
-                    return graphics.PreferredBackBufferWidth / (float)ShaderRenderTargets[0].Width;
-            }
-        }
-
-        private void clear_render_targets()
-        {
-            foreach (RenderTarget2D render_target in ShaderRenderTargets)
-            {
-                GraphicsDevice.SetRenderTarget(render_target);
-                GraphicsDevice.Clear(Color.Transparent);
-            }
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Transparent);
-        }
-
-        private void draw_scene(SpriteBatch sprite_batch, bool clear_render_target = false)
-        {
-            GraphicsDevice.SetRenderTarget(ShaderRenderTargets[0]);
-            if (clear_render_target)
-                GraphicsDevice.Clear(Color.Transparent);
-            Global.scene.draw(sprite_batch, GraphicsDevice, ShaderRenderTargets);
-        }
-
-        private void draw_scene(SpriteBatch sprite_batch, Stereoscopic_Mode stereo)
-        {
-            Stereoscopic_Graphic_Object.stereoscopic_view = stereo;
-            draw_scene(spriteBatch, stereo == Stereoscopic_Mode.Right);
-
-            if (stereo == Stereoscopic_Mode.Center)
-                return;
-
-            GraphicsDevice.SetRenderTarget(Stereoscopic_Render_Target);
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null);
-            // In anaglyph, left is drawn in red channel, right is drawn cyan
-            if (Global.anaglyph_mode)
-            {
-                Color anaglyph_color = stereo == Stereoscopic_Mode.Left ? new Color(255, 0, 0, 0) : new Color(0, 255, 255, 0);
-                spriteBatch.Draw(ShaderRenderTargets[0], new Rectangle(
-                    0, 0, Stereoscopic_Render_Target.Width / 2, Stereoscopic_Render_Target.Height),
-                    new Rectangle(0, 0, ShaderRenderTargets[0].Width, ShaderRenderTargets[0].Height), anaglyph_color);
-            }
-            // Otherwise, the left channel is drawn on the left half of the screen and the right on the right, and the display sorts it out
-            else
-            {
-                int x = stereo == Stereoscopic_Mode.Left ? 0 : Stereoscopic_Render_Target.Width / 2;
-                    spriteBatch.Draw(ShaderRenderTargets[0], new Rectangle(
-                        x, 0, Stereoscopic_Render_Target.Width / 2, Stereoscopic_Render_Target.Height),
-                        new Rectangle(0, 0, ShaderRenderTargets[0].Width, ShaderRenderTargets[0].Height), Color.White);
-            }
-            spriteBatch.End();
-        }
-
-        private void draw_to_screen(SpriteBatch sprite_batch)
-        {
-            draw_to_screen(sprite_batch, ShaderRenderTargets[0]);
-        }
-        private void draw_to_screen(SpriteBatch sprite_batch, RenderTarget2D render_target)
-        {
-            RenderTarget2D stereo_target = null;
-            if (render_target == Stereoscopic_Render_Target)
-            {
-                for (int i = 0; i < ShaderRenderTargets.Length; i++)
-                {
-                    GraphicsDevice.SetRenderTarget(ShaderRenderTargets[i]);
-                    GraphicsDevice.Clear(Color.Transparent);
-                }
-
-                stereo_target = ShaderRenderTargets[RENDER_TARGETS - 2];
-            }
-
-            // Copy the render target to another render target and draw the mouse on it
-            RenderTarget2D temp_target =
-                render_target == ShaderRenderTargets[RENDER_TARGETS - 1] ?
-                ShaderRenderTargets[RENDER_TARGETS - 2] :
-                ShaderRenderTargets[RENDER_TARGETS - 1];
-
-            if (Global.stereoscopic && !Global.anaglyph && stereo_target != null)
-            {
-                copy_mouse_render(
-                    sprite_batch, render_target, temp_target, Stereoscopic_Mode.Left);
-                copy_mouse_render(
-                    sprite_batch, render_target, stereo_target, Stereoscopic_Mode. Right);
-            }
-            else
-                copy_mouse_render(sprite_batch, render_target, temp_target, Stereoscopic_Mode.Center);
-
-            GraphicsDevice.SetRenderTarget(temp_target);
-
-            render_target = temp_target;
-
-            Effect shader = Global.effect_shader();
-
-            // Change back to the back buffer, so the final rendertarget is available as a texture
-            GraphicsDevice.SetRenderTarget(null);
-            GraphicsDevice.Clear(Color.Black);
-
-            shader = Global.effect_shader(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
-
-            // Determines resize scale to best fit game ratio to window/screen size
-            Vector2 width_ratio = new Vector2(graphics.PreferredBackBufferWidth / (float)render_target.Width);
-            float ratio = screen_size_ratio;
-
-            Matrix shader_matrix = screen_space_matrix(
-                new Vector2(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight),
-                new Vector2(render_target.Width, render_target.Height), width_ratio, ratio);
-            shader.Parameters["MatrixTransform"].SetValue(shader_matrix);
-            shader.CurrentTechnique = shader.Techniques["Normal"];
-
-#if DEBUG && !MONOGAME
-            // Draw a debug view screen
-            if (DEBUG_VIEW && !Global.fullscreen && !Global.stereoscopic && zoom >= 3)
-            {
-                draw_debug_view(sprite_batch, render_target, shader);
-            } else
-#endif
-            {
-#if !__ANDROID__
-                if (!Global.fullscreen && shader.CurrentTechnique == shader.Techniques["Normal"])
-                    shader = null;
-#endif
-                if (Global.stereoscopic && !Global.anaglyph && stereo_target != null)
-                    draw_to_screen(
-                        sprite_batch, render_target, stereo_target, shader, camera.matrix, width_ratio, ratio);
-                else
-                    draw_to_screen(
-                        sprite_batch, render_target, shader, camera.matrix, width_ratio, ratio);
-            }
-        }
-
-        private void copy_mouse_render(
-            SpriteBatch sprite_batch,
-            RenderTarget2D render_target,
-            RenderTarget2D temp_target,
-            Stereoscopic_Mode stereo)
-        {
-            GraphicsDevice.SetRenderTarget(temp_target);
-            GraphicsDevice.Clear(Color.Transparent);
-
-            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, null, null, null);
-            switch (stereo)
-            {
-                case Stereoscopic_Mode.Center:
-                default:
-                    sprite_batch.Draw(render_target, Vector2.Zero, Color.White);
-                    break;
-                case Stereoscopic_Mode.Left:
-                    sprite_batch.Draw(render_target, Vector2.Zero,
-                        new Rectangle(0, 0,
-                            render_target.Width / 2, render_target.Height),
-                        Color.White);
-                    break;
-                case Stereoscopic_Mode.Right:
-                    sprite_batch.Draw(render_target, Vector2.Zero,
-                        new Rectangle(render_target.Width / 2, 0,
-                            render_target.Width / 2, render_target.Height),
-                        Color.White);
-                    break;
-            }
-#if !__MOBILE__
-            if (FEXNA.Input.IsControllingOnscreenMouse)
-            {
-                spriteBatch.Draw(MouseCursorTexture,
-                    Global.Input.mousePosition,
-                    null, Color.White, 0f, new Vector2(20, 20), 1f, SpriteEffects.None, 0f);
-            }
-            else if (FEXNA.Input.ControlScheme == ControlSchemes.Touch)
-            {
-                Color tint = new Color(
-                    TouchCursorOpacity, TouchCursorOpacity, TouchCursorOpacity, TouchCursorOpacity);
-                spriteBatch.Draw(MouseCursorTexture,
-                    TouchCursorLoc,
-                    null, tint, 0f, new Vector2(20, 20), 1f, SpriteEffects.None, 0f);
-            }
-#endif
-            sprite_batch.End();
-        }
-
-        private void draw_debug_view(
-            SpriteBatch sprite_batch, RenderTarget2D render_target, Effect shader)
-        {
-            int width = ShaderRenderTargets[0].Width;
-            int height = ShaderRenderTargets[0].Height;
-
-            // Draw 2x scale render in top right
-            shader = Global.effect_shader(width * (zoom - 1), height * (zoom - 1));
-            draw_to_debug_screen(sprite_batch, render_target, null, zoom - 1, new Vector2(width, 0));
-            // Draw 1x scale render in top left
-            shader = Global.effect_shader(width * 1, height * 1);
-            draw_to_debug_screen(sprite_batch, render_target, null, 1, new Vector2(0, height * (zoom - 2) / 2));
-            // Draw 1x scale color deficient renders across the bottom
-            shader.CurrentTechnique = shader.Techniques["Protanopia"];
-            draw_to_debug_screen(sprite_batch, render_target, shader, 1,
-                new Vector2(width * 0, height * (zoom - 1)));
-            shader.CurrentTechnique = shader.Techniques["Deuteranopia"];
-            draw_to_debug_screen(sprite_batch, render_target, shader, 1,
-                new Vector2(width * 1, height * (zoom - 1)));
-            shader.CurrentTechnique = shader.Techniques["Tritanopia"];
-            draw_to_debug_screen(sprite_batch, render_target, shader, 1,
-                new Vector2(width * 2, height * (zoom - 1)));
-            // Draw labels for the different renders
-            var font = Global.Content.Load<SpriteFont>(@"DiagFont");
-            Vector2 text_size;
-            string debug_text;
-            Vector2 loc;
-
-            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            debug_text = string.Format("{0}x scale", zoom - 1);
-            text_size = font.MeasureString(debug_text);
-            loc = new Vector2(width - 4, 4) -
-                new Vector2(text_size.X, 0);
-            loc = new Vector2((int)loc.X, (int)loc.Y);
-            sprite_batch.DrawString(
-                font,
-                debug_text,
-                loc,
-                Color.White);
-
-            debug_text = "1x scale";
-            text_size = font.MeasureString(debug_text);
-            loc = new Vector2(width * 0.5f, height * ((zoom - 2) * 0.5f) - 4) -
-                text_size / new Vector2(2, 1);
-            loc = new Vector2((int)loc.X, (int)loc.Y);
-            sprite_batch.DrawString(
-                font,
-                debug_text,
-                loc,
-                Color.White);
-
-            debug_text = "Protanopia(-R) | Deuteranopia(-G) | Tritanopia(-B)";
-            text_size = font.MeasureString(debug_text);
-            loc = new Vector2(width * 0.5f, height * (zoom - 1) - 4) -
-                text_size / new Vector2(2, 1);
-            loc = new Vector2((int)loc.X, (int)loc.Y);
-            sprite_batch.DrawString(
-                font,
-                debug_text,
-                loc,
-                Color.White);
-            sprite_batch.End();
-        }
-
-        private void draw_to_debug_screen(SpriteBatch sprite_batch, RenderTarget2D render_target, Effect shader, float scale, Vector2 loc)
-        {
-            int width = ShaderRenderTargets[0].Width;
-            int height = ShaderRenderTargets[0].Height;
-
-            Vector2 width_ratio = new Vector2(scale);
-            float ratio = scale;
-            camera.pos = loc + new Vector2(width * scale / 2,
-                height * scale / 2);
-            camera.zoom = new Vector2(ratio);
-            if (shader != null)
-            {
-                Matrix shader_matrix = screen_space_matrix(
-                    new Vector2(width * scale, height * scale),
-                    new Vector2(width, height),
-                        width_ratio, (width * scale) / graphics.PreferredBackBufferWidth,
-                    loc - new Vector2(
-                        (graphics.PreferredBackBufferWidth - width) / 2,
-                        (graphics.PreferredBackBufferHeight - height) / 2));
-                shader.Parameters["MatrixTransform"].SetValue(shader_matrix);
-            }
-            draw_to_screen(sprite_batch, render_target, shader, camera.matrix, width_ratio, ratio);
-        }
-
-        private void draw_to_screen(SpriteBatch sprite_batch, RenderTarget2D render_target,
-            Effect shader, Matrix m, Vector2 width_ratio, float ratio)
-        {
-            being_draw_to_screen_spritebatch(
-                sprite_batch, new Vector2(render_target.Width, render_target.Height),
-                shader, m, width_ratio, ratio);
-
-            if (Global.stereoscopic && !Global.anaglyph_mode)
-            {
-                sprite_batch.Draw(
-                    render_target,
-                    new Vector2(0, 0),
-                    new Rectangle(0, 0,
-                        (int)(render_target.Width * (camera.zoom.X * 2 / ratio)),
-                        render_target.Height),
-                    Color.White);
-            }
-            else
-            {
-                sprite_batch.Draw(render_target, Vector2.Zero, Color.White);
-            }
-
-            sprite_batch.End();
-        }
-        private void draw_to_screen(
-            SpriteBatch sprite_batch, RenderTarget2D leftTarget, RenderTarget2D rightTarget,
-            Effect shader, Matrix m, Vector2 width_ratio, float ratio)
-        {
-            being_draw_to_screen_spritebatch(
-                sprite_batch, new Vector2(leftTarget.Width * 1.5f, leftTarget.Height),
-                shader, m, width_ratio, ratio);
-
-            sprite_batch.Draw(
-                leftTarget,
-                new Vector2(0, 0),
-                new Rectangle(0, 0,
-                    (int)(leftTarget.Width * (camera.zoom.X * 2 / ratio)),
-                    leftTarget.Height),
-                Color.White);
-
-            sprite_batch.Draw(rightTarget,
-                new Vector2(rightTarget.Width * (width_ratio.X / camera.zoom.X) / 2, 0),
-                new Rectangle(
-                    0, 0,
-                    (int)(rightTarget.Width * 2 * (camera.zoom.X / ratio)),
-                    rightTarget.Height),
-                Color.White);
-
-            sprite_batch.End();
-        }
-
-        private void being_draw_to_screen_spritebatch(
-            SpriteBatch sprite_batch, Vector2 size,
-            Effect shader, Matrix m, Vector2 width_ratio, float ratio)
-        {
-#if !__MOBILE__
-            if (Global.fullscreen)
-#endif
-            {
-                begin_fullscreen_spritebatch(sprite_batch,
-                    size, shader, width_ratio, ratio);
-            }
-#if !__MOBILE__
-            else
-                sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                    SamplerState.PointClamp, null, null, shader, m);
-#endif
-        }
-
-        private void begin_fullscreen_spritebatch(
-            SpriteBatch sprite_batch, Vector2 render_target_size, Effect shader,
-            Vector2 width_ratio, float ratio)
-        {
-            if (shader != null)
-            {
-                shader.CurrentTechnique = shader.Techniques["Coverage_Shader"];
-                shader.Parameters["game_size"].SetValue(render_target_size);
-                shader.Parameters["display_scale"].SetValue(new Vector2(ratio));
-
-                // 'Disables' the shader and uses normal lerp, for testing that the positioning is right //@Debug
-                if (false)
-                {
-                    shader.Parameters["game_size"].SetValue(
-                        new Vector2(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight));
-                    shader.Parameters["display_scale"].SetValue(new Vector2(1));
-                }
-
-                Matrix fullscreen_matrix = screen_space_matrix(
-                    new Vector2(graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight),
-                    render_target_size, width_ratio, ratio);
-                shader.Parameters["MatrixTransform"].SetValue(fullscreen_matrix);
-            }
-            // Matrix parameter doesn't actually work when using a custom vertex shader, herp
-            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend,
-                SamplerState.LinearClamp, null, null, shader);
-        }
-
-        private Matrix screen_space_matrix(Vector2 target_size, Vector2 source_render_size, Vector2 width_ratio, float ratio)
-        {
-            return screen_space_matrix(target_size, source_render_size, width_ratio, ratio, Vector2.Zero);
-        }
-        private Matrix screen_space_matrix(Vector2 target_size, Vector2 source_render_size, Vector2 width_ratio, float ratio, Vector2 offset)
-        {
-            Matrix matrix = Matrix.Identity *
-                // Move top left corner to the origin
-                Matrix.CreateTranslation(new Vector3(1f, -1f, 0)) *
-                // Move downright another pixel, for some reason
-                Matrix.CreateTranslation(new Vector3(1f / (Window_Width * ratio), -1f / (Window_Height * ratio), 0)) *
-                // Move the the center of the render to the center of the screen
-                Matrix.CreateTranslation(new Vector3(
-                    -(1 / (target_size.X / source_render_size.X)),
-                    (1 / (target_size.Y / source_render_size.Y)), 0));
-            if (Global.stereoscopic && !Global.anaglyph_mode)
-            {
-                matrix *= Matrix.CreateTranslation(new Vector3((0.5f / width_ratio.X) - (1 / ratio), 0, 0)) *
-                    Matrix.CreateScale(0.5f, 1, 1);
-            }
-            matrix *=
-                // Scale up to the size of the screen
-                Matrix.CreateScale(ratio, ratio, 1) *
-                // Adjust for weird half pixel offset
-                Matrix.CreateTranslation(new Vector3( // Can't actually do the half pixel before scaling because it messes up! //@Debug
-                    -(1f / target_size.X),
-                    (1f / target_size.Y), 0)) *
-                // Add offset
-                Matrix.CreateTranslation(new Vector3(
-                    offset.X / (graphics.PreferredBackBufferWidth / 2),
-                    -offset.Y / (graphics.PreferredBackBufferHeight / 2), 0));
-            return matrix;
-        }
-
-        private void update_screenshot(RenderTarget2D render_target)
+        private void update_screenshot()
         {
 #if WINDOWS || MONOMAC
             bool f12_pressed = false;
@@ -2246,12 +1423,12 @@ namespace FEGame
                             path, filename + i.ToString("D4") + ".png")))
                         i++;
 
+                    // save render target to disk
                     using (FileStream fs = new FileStream(Path.Combine(
                             path, filename + i.ToString("D4") + ".png"),
                         FileMode.OpenOrCreate))
                     {
-                        // save render target to disk
-                        render_target.SaveAsPng(fs, render_target.Width, render_target.Height);
+                        Renderer.SaveScreenshot(fs);
                     }
                 }
                 // Could not save screenshot because no folder permissions
@@ -2886,7 +2063,7 @@ namespace FEGame
                             byte[] screenshot;
                             using (MemoryStream ms = new MemoryStream())
                             {
-                                FinalRender.SaveAsPng(ms, FinalRender.Width, FinalRender.Height);
+                                Renderer.SaveScreenshot(ms);
                                 screenshot = ms.ToArray();
                             }
                             Global.save_suspend(writer, FILE_ID, screenshot);
@@ -3387,7 +2564,7 @@ namespace FEGame
                             writer.Write(version.Build);
                             writer.Write(version.Revision);
 
-                            writer.Write(ZOOM);
+                            writer.Write(GameRenderer.ZOOM); //@Debug
                             writer.Write(Global.fullscreen);
                             writer.Write(Global.stereoscopic_level);
                             writer.Write(Global.anaglyph);
