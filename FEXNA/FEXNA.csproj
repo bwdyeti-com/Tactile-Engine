@@ -64,6 +64,7 @@
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.GamerServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="Microsoft.Xna.Framework.Storage, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -174,6 +175,7 @@
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuData.cs" />
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuManager.cs" />
     <Compile Include="Source Code\PastRankings.cs" />
+    <Compile Include="Source Code\Saving\GameIOHandler.cs" />
     <Compile Include="Source Code\Services\Audio\MusicInstance.cs" />
     <Compile Include="Source Code\Services\Audio\MusicPlayer.cs" />
     <Compile Include="Source Code\Services\Input\IInputService.cs" />

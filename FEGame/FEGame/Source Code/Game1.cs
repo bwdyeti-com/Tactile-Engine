@@ -13,34 +13,25 @@ using MonoGame.Framework.Audio;
 #endif
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Storage;
 using FEXNA;
+using FEXNA.IO;
 using FEXNA.Rendering;
-using FEXNAVersionExtension;
 
 using System.Runtime.InteropServices; //fullscreen test
 
 namespace FEGame
 {
-    public class Game1 : Game
+    public class Game1 : Game, ISaveCallbacker
     {
         #region Constants
         public const int FRAME_RATE = 60;
-        readonly static Version OLDEST_ALLOWED_SUSPEND_VERSION = new Version(0, 6, 7, 0);
-        readonly static Version OLDEST_ALLOWED_SAVE_VERSION = new Version(0, 4, 4, 0);
-
-        const string SAVESTATE_FILENAME = "savestate1";
-        const string SUSPEND_FILENAME = "suspend";
-        const string SAVE_LOCATION = "Save";
 
 #if DEBUG
         const bool HYPER_SPEED_ENABLED = true;
         const bool PAUSE_ENABLED = true;
-        const bool SAVESTATE_ENABLED = true;
 #else
         const bool HYPER_SPEED_ENABLED = false; // This is prone to softlocking, don't turn it on for release
         const bool PAUSE_ENABLED = false;
-        const bool SAVESTATE_ENABLED = false;
 #endif
         const int HYPER_SPEED_MULT = 15;
 
@@ -54,12 +45,7 @@ namespace FEGame
 
         #region Fields
         private GameRenderer Renderer;
-
-        protected int Savestate_File_Id = -1;
-        protected bool Savestate_Testing = false;
-
-        StorageDevice device;
-        IAsyncResult result;
+        private GameIOHandler IOHandler;
 
         bool Paused = false;
         bool Pause_Pressed = false, Next_Pressed = false;
@@ -71,8 +57,6 @@ namespace FEGame
         Thread MoveRangeUpdateThread = null, GraphicsLoadingThread = null, UpdateCheckThread = null;
         List<Thread> MetricsThreads = new List<Thread>();
         object MetricsLock = new object();
-
-        protected bool Quick_Load = false;
 
 #if DEBUG || GET_FPS
         protected Stopwatch FramerateStopWatch = new Stopwatch();
@@ -92,11 +76,7 @@ namespace FEGame
         protected string Map_Editor_Map, Map_Editor_Units, Map_Editor_Units_Source;
 #endif
 
-        public static int FILE_ID = 1;
         private static Assembly GAME_ASSEMBLY { get { return Global.GAME_ASSEMBLY; } }
-
-        //@Debug: // True until game options are loaded
-        private bool STARTING = true;
         #endregion
         
 #if __ANDROID__
@@ -116,9 +96,10 @@ namespace FEGame
 #endif
 
             Global.RUNNING_VERSION = System.Reflection.Assembly.GetAssembly(typeof(Global)).GetName().Version;
+            SetInitialFramerateValues();
             var fullscreenService = new FullscreenService(this);
             Renderer = new GameRenderer(this, fullscreenService);
-            SetInitialFramerateValues();
+            IOHandler = new GameIOHandler(this, Renderer);
 
             Content.RootDirectory = "Content";
 #if !MONOGAME
@@ -374,7 +355,7 @@ namespace FEGame
                 if (Global.scene != null)
                 {
                     // Suspend
-                    update_suspend();
+                    IOHandler.UpdateSuspend();
                     // Update Scene
                     if (process_next_frame)
                         update_scene(gameTime, key_state, controller_state);
@@ -594,279 +575,27 @@ namespace FEGame
 
         private void update_io()
         {
-            bool f1_pressed = false;
-            if (SAVESTATE_ENABLED)
+            bool createSaveState = false, loadSaveState = false;
+            
+            if (!Paused)
             {
-                if (!Paused)
+                KeyboardState key_state = Keyboard.GetState();
+                bool f1_pressed = key_state.IsKeyDown(Keys.F1);
+                bool f1Triggered = f1_pressed && !F1_Pressed;
+                F1_Pressed = f1_pressed;
+
+                if (f1Triggered)
                 {
-                    KeyboardState key_state = Keyboard.GetState();
-                    f1_pressed = key_state.IsKeyDown(Keys.F1);
-                    if (f1_pressed && !F1_Pressed && (key_state.IsKeyDown(Keys.LeftShift) || key_state.IsKeyDown(Keys.LeftShift)))
-                    {
-                        if (Global.savestate_ready)
-                        {
-                            Global.play_se(System_Sounds.Confirm);
-                            Global.scene.suspend();
-                            Global.savestate = true;
-                        }
-                        else
-                            Global.play_se(System_Sounds.Buzzer);
-                        F1_Pressed = true;
-                    }
+                    if (key_state.IsKeyDown(Keys.LeftShift) ||
+                            key_state.IsKeyDown(Keys.LeftShift))
+                        createSaveState = true;
+                    else
+                        loadSaveState = true;
                 }
             }
 
-            while (true)
-            {
-                // Select storage
-                if ((Global.Loading_Suspend || Global.load_save_file || Global.load_save_info) && device == null)
-                    Global.storage_selection_requested = true;
-
-                if (Global.storage_selection_requested)
-                {
-#if XBOX
-                if (!Guide.IsVisible)
-#endif
-                    {
-                        result = StorageDevice.BeginShowSelector(null, null);
-#if !XBOX
-                        while (!result.IsCompleted)
-                            result = StorageDevice.BeginShowSelector(null, null);
-#endif
-                    }
-                    if (result.IsCompleted)
-                    {
-                        device = StorageDevice.EndShowSelector(result);
-                        Global.storage_selection_requested = false;
-                        // If no device selected and trying to load suspend
-                        if (device == null && Global.Loading_Suspend)
-                        {
-                            Global.play_se(System_Sounds.Buzzer);
-                            Global.reset_suspend_load();
-                        }
-                    }
-                    else
-                        break;
-                }
-                // Saving suspends or files is handled in a method below, this handles more utility actions and loading
-                // Config
-                else if (Global.load_config)
-                {
-                    if (device != null && device.IsConnected)
-                    {
-                        load_config();
-                    }
-                    Global.load_config = false;
-                }
-                else if (Global.save_config)
-                {
-                    if (device != null && device.IsConnected)
-                    {
-                        save_config();
-                    }
-                    Global.save_config = false;
-                }
-                #region Delete (File, Map Save, Suspend)
-                // Delete File
-                else if (Global.delete_file)
-                {
-                    Global.file_deleted();
-                    if (device != null && device.IsConnected)
-                    {
-                        Global.save_files_info.Remove(Global.start_game_file_id);
-                        if (Global.suspend_file_info != null &&
-                                Global.suspend_file_info.save_id == Global.start_game_file_id)
-                            Global.suspend_file_info = null;
-
-                        delete_save_file(Global.start_game_file_id);
-                        Global.start_game_file_id = -1;
-                        // Rechecks the most recent suspend and reloads save info
-                        load_suspend_info();
-                        load_save_info();
-                        Global.load_save_info = false;
-                    }
-                }
-                // Delete Map Save
-                else if (Global.delete_map_save)
-                {
-                    Global.map_save_deleted();
-                    if (device != null && device.IsConnected)
-                    {
-                        // Same question as below //@Yeti
-                        delete_file(map_save_filename(FILE_ID));
-                        delete_file(suspend_filename(FILE_ID));
-                        // Rechecks the most current suspend
-                        load_suspend_info(update_file_id: false);
-                        // Updates the save info for the selected file
-                        load_save_info();
-                        Global.load_save_info = false;
-                    }
-                }
-                // Delete Suspend
-                else if (Global.delete_suspend)
-                {
-                    Global.suspend_deleted();
-                    if (device != null && device.IsConnected)
-                    {
-                        delete_file(suspend_filename(FILE_ID));
-                        // Rechecks the most current suspend
-                        load_suspend_info(update_file_id: false);
-                        // Updates the save info for the selected file
-                        load_save_info();
-                        Global.load_save_info = false;
-                    }
-                }
-                #endregion
-                #region Load (Save Info, Suspend, Save File)
-                // Load Save Info
-                else if (Global.load_save_info)
-                {
-                    if (device != null && device.IsConnected)
-                    {
-                        // Load progress data
-                        load_progress();
-                        // Rechecks the most recent suspend and reloads save info
-                        load_suspend_info();
-                        load_save_info();
-                    }
-                    Global.load_save_info = false;
-                }
-                // Load Suspend
-                else if (Global.Loading_Suspend)
-                {
-                    if (device != null && device.IsConnected)
-                    {
-                        // If a specific file is selected, use it
-                        if (Global.start_game_file_id != -1)
-                        {
-                            FILE_ID = Global.start_game_file_id;
-                            Global.start_game_file_id = -1;
-                        }
-                        // Otherwise loading the most recent suspend
-                        else
-                            FILE_ID = Global.suspend_file_info.save_id;
-                        // Load save file first, then test if the suspend works
-                        if (load_file() && test_load(true))
-                        {
-                            // Then load relevant suspend
-                            if (Global.scene.scene_type != "Scene_Soft_Reset")
-                            {
-                                Global.cancel_sound();
-                                Global.play_se(System_Sounds.Confirm);
-                            }
-                            load();
-#if DEBUG
-                            if (Savestate_File_Id != -1)
-                            {
-                                FILE_ID = Savestate_File_Id;
-                                DEBUG_FILE_ID_TEST = FILE_ID;
-                                Savestate_File_Id = -1;
-                            }
-#endif
-                        }
-                        else
-                        {
-                            if (Global.scene.scene_type != "Scene_Soft_Reset")
-                                Global.play_se(System_Sounds.Buzzer);
-                            Global.scene.reset_suspend_filename();
-                        }
-                    }
-                    else
-                        Global.play_se(System_Sounds.Buzzer);
-                    Global.reset_suspend_load();
-                }
-                // Load Save File
-                else if (Global.load_save_file)
-                {
-                    if (device != null && device.IsConnected)
-                    {
-                        if (Global.start_game_file_id != -1)
-                        {
-                            FILE_ID = Global.start_game_file_id;
-                            Global.start_game_file_id = -1;
-                        }
-                        DEBUG_FILE_ID_TEST = FILE_ID;
-                        load_file();
-                        Global.game_options.post_read();
-                    }
-                    else
-                    {
-                        reset_file();
-                    }
-                    Global.load_save_file = false;
-                }
-                #endregion
-                // Copy File
-                else if (Global.copying)
-                {
-                    // Why is there a breakpoint here though //@Debug
-                    Global.copying = false;
-                    if (device != null && device.IsConnected)
-                    {
-                        Global.save_files_info[Global.move_to_file_id] = new FEXNA.IO.Save_Info(Global.save_files_info[Global.start_game_file_id]);
-                        Global.save_files_info[Global.move_to_file_id].reset_suspend_exists();
-
-                        move_file(Global.start_game_file_id, Global.move_to_file_id, true);
-                        Global.start_game_file_id = -1;
-                        Global.move_to_file_id = -1;
-
-                    }
-                }
-                // Move File
-                else if (Global.move_file)
-                {
-                    // Why is there a breakpoint here though //@Debug
-                    Global.move_file = false;
-                    if (device != null && device.IsConnected)
-                    {
-                        Global.save_files_info[Global.move_to_file_id] = new FEXNA.IO.Save_Info(Global.save_files_info[Global.start_game_file_id]);
-                        Global.save_files_info.Remove(Global.start_game_file_id);
-
-                        move_file(Global.start_game_file_id, Global.move_to_file_id);
-                        Global.start_game_file_id = -1;
-                        Global.move_to_file_id = -1;
-                    }
-                }
-                else
-                {
-                    // Load suspend with F1, in Debug
-                    if (SAVESTATE_ENABLED)
-                    {
-                        if (Global.savestate_load_ready)
-                            if (f1_pressed && !F1_Pressed)
-                            {
-                                if (device != null && device.IsConnected)
-                                {
-                                    Quick_Load = true;
-                                    // Tells the game to ignore suspend id/current save id disparity temporarily
-                                    Savestate_Testing = true;
-                                    // Checks if the suspend can be loaded, and sets Savestate_File_Id to its file id
-                                    if (test_load(SAVESTATE_FILENAME + Config.SAVE_FILE_EXTENSION, true))
-                                    {
-                                        FILE_ID = Savestate_File_Id;
-                                        DEBUG_FILE_ID_TEST = FILE_ID;
-                                        Savestate_File_Id = -1;
-                                        load_file();
-                                        Global.cancel_sound();
-                                        load(SAVESTATE_FILENAME + Config.SAVE_FILE_EXTENSION);
-                                        Global.current_save_id = FILE_ID;
-                                    }
-                                    else
-                                    {
-                                        if (Global.scene.scene_type == "Scene_Title")
-                                            Global.play_se(System_Sounds.Buzzer);
-                                        Global.scene.reset_suspend_filename();
-                                    }
-                                    Savestate_Testing = false;
-                                }
-                            }
-                    }
-                    break;
-                }
-            }
-            F1_Pressed = f1_pressed;
+            IOHandler.UpdateIO(createSaveState, loadSaveState);
         }
-        protected int DEBUG_FILE_ID_TEST;
 
         private void update_scene_change()
         {
@@ -876,63 +605,7 @@ namespace FEGame
                 change_scene(Global.new_scene);
             }
         }
-
-        private void update_suspend()
-        {
-            if (Global.scene.suspend_calling && !Global.scene.suspend_blocked())
-            {
-                if (device != null && device.IsConnected)
-                {
-                    bool map_save = Global.scene.is_map_save_filename;
-                    if (SAVESTATE_ENABLED && Global.savestate)
-                    {
-                        save(SAVESTATE_FILENAME + Config.SAVE_FILE_EXTENSION);
-                        Global.savestate = false;
-                    }
-                    else
-                    {
-                        if (save())
-                            if (map_save)
-                                Global.map_save_created();
-                    }
-                    // Write progress data
-                    save_progress();
-                    Global.scene.reset_suspend_calling();
-                    Global.scene.reset_suspend_filename();
-                    if (Global.return_to_title)
-#if DEBUG
-                        if (Global.UnitEditorActive)
-                            Global.scene_change("Scene_Map_Unit_Editor");
-                        else
-#endif
-                            change_scene("Scene_Title_Load");
-                }
-            }
-            if (Global.scene.save_data_calling)
-            {
-                if (device != null && device.IsConnected)
-                {
-                    if (Global.start_new_game)
-                    {
-                        FILE_ID = Global.start_game_file_id;
-                        DEBUG_FILE_ID_TEST = FILE_ID;
-
-                        Global.start_new_game = false;
-                        Global.start_game_file_id = -1;
-                    }
-                    if (DEBUG_FILE_ID_TEST != FILE_ID)
-                    {
-                        throw new Exception();
-                    }
-                    save_file(FILE_ID);
-                    // Update and write progress data
-                    Global.progress.update_progress(Global.save_file);
-                    save_progress();
-                    Global.scene.EndSaveData();
-                }
-            }
-        }
-
+        
         private void update_pause(
             KeyboardState key_state, GamePadState controller_state)
         {
@@ -1140,21 +813,19 @@ namespace FEGame
 #endif
                 case "Start_Game":
                 case "Scene_Worldmap":
-                    Global.current_save_id = FILE_ID;
+
+                    IOHandler.RefreshSaveId();
 #if DEBUG
+                    IOHandler.RefreshDebugFileId(new_scene == "Debug_Start");
+                    
                     if (new_scene == "Start_Game" || new_scene == "Debug_Start")
                     {
-                        if (new_scene == "Debug_Start")
-                        {
-                            DEBUG_FILE_ID_TEST = FILE_ID = 1;
-                            Global.current_save_id = FILE_ID;
-                        }
                         new_scene = "Start_Game";
 #else
                     if (new_scene == "Start_Game")
                     {
 #endif
-                        load_file();
+                        IOHandler.LoadFile();
                         Global.game_options.post_read();
                         Global.game_temp = new Game_Temp();
                     }
@@ -1189,9 +860,8 @@ namespace FEGame
                     }
                     else
                     {
-                        // Switch to the appropriate save file
-                        FILE_ID = Global.current_save_id;
-                        load_file();
+                        IOHandler.RefreshFileId();
+                        IOHandler.LoadFile();
                         Global.game_options.post_read();
                         Global.game_temp = new Game_Temp();
 
@@ -1206,7 +876,7 @@ namespace FEGame
                     break;
 #endif
                 case "Load_Suspend":
-                    Global.current_save_id = FILE_ID;
+                    IOHandler.RefreshSaveId();
 
                     // Resume Arena
                     if (Global.in_arena())
@@ -1442,1226 +1112,7 @@ namespace FEGame
 #endif
         }
         #endregion
-
-        #region Save/Load Data
-        protected string save_location()
-        {
-#if WINDOWS
-#if !MONOGAME
-            return SAVE_LOCATION;
-#else
-            return string.Format("{0}\\Save\\AllPlayers", GAME_ASSEMBLY.GetName().Name);
-#endif
-#else
-            return GAME_ASSEMBLY.GetName().Name;
-            //return GAME_ASSEMBLY.GetName().Name + "\\" + SAVE_LOCATION;
-#endif
-        }
-
-        protected string convert_save_name()
-        {
-            // If the scene has a specific filename it wants
-            if (Global.scene != null && !string.IsNullOrEmpty(Global.scene.suspend_filename))
-            {
-                if (Global.scene.is_map_save_filename)
-                    return FILE_ID + Global.scene.suspend_filename + Config.SAVE_FILE_EXTENSION;
-                else
-                    return Global.scene.suspend_filename;
-            }
-            // Otherwise load the suspend for the current file
-            else
-                return suspend_filename(FILE_ID);
-        }
-
-        private string suspend_filename(int id)
-        {
-            return id + SUSPEND_FILENAME + Config.SAVE_FILE_EXTENSION;
-        }
-        private string map_save_filename(int id)
-        {
-            return id + Config.MAP_SAVE_FILENAME + Config.SAVE_FILE_EXTENSION;
-        }
-
-        private bool test_load(bool suspend)
-        {
-            return test_load(convert_save_name(), suspend);
-        }
-        protected bool test_load(string filename, bool suspend)
-        {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
-                {
-                    Global.suspend_load_successful = false;
-                    return false;
-                }
-                // Is a suspend/checkpoint/savestate, make sure the file opens properly, check that the version isn't too old, and test the file id
-                else if (suspend)
-                {
-                    using (Stream stream = container.OpenFile(
-                        filename, FileMode.Open, FileAccess.Read))
-                    {
-                        try
-                        {
-                            using (BinaryReader reader = new BinaryReader(stream))
-                            {
-                                Global.LOADED_VERSION = load_version(reader);
-                                if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
-                                {
-                                    DateTime modified_time = DateTime.FromBinary(reader.ReadInt64());
-                                    FEXNA.IO.Suspend_Info info = FEXNA.IO.Suspend_Info.read(reader);
-                                    // If the file id isn't the currently active one, return false
-                                    Savestate_File_Id = info.save_id;
-                                    if (!Savestate_Testing)
-                                    {
-                                        if (Savestate_File_Id != FILE_ID)
-                                        {
-#if DEBUG
-                                            Print.message(string.Format(
-                                                "Trying to load a suspend for file {0},\n" +
-                                                "but the suspend was saved to slot {1}.\n" +
-                                                "This would fail in release.",
-                                                FILE_ID, Savestate_File_Id));
-                                            Savestate_File_Id = FILE_ID;
-                                        }
-                                        else
-#else
-                                            Global.suspend_load_successful = false;
-                                            return false;
-                                        }
-#endif
-                                            Savestate_File_Id = -1;
-                                    }
-                                    Savestate_Testing = false;
-                                }
-                            }
-                        }
-                        catch (EndOfStreamException e)
-                        {
-                            Global.suspend_load_successful = false;
-                            return false;
-                        }
-                    }
-                }
-                // Saves Files/etc, check that the file opens and isn't too out of date
-                else
-                {
-                    using (Stream stream = container.OpenFile(
-                        filename, FileMode.Open, FileAccess.Read))
-                    {
-                        try
-                        {
-                            using (BinaryReader reader = new BinaryReader(stream))
-                                Global.LOADED_VERSION = load_version(reader);
-                            if (!valid_save_version(Global.LOADED_VERSION))
-                                return false;
-                        }
-                        catch (EndOfStreamException e)
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-
-        #region Progress Data
-        protected void save_progress()
-        {
-            string filename = "progress" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Delete file if it already exists
-                    if (container.FileExists(filename))
-                        container.DeleteFile(filename);
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
-
-                            Global.progress.write(writer);
-                        }
-                    }
-                }
-            }
-        }
-        protected void load_progress()
-        {
-            string filename = "progress" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-                // If the file doesn't exist, return
-                if (container == null || !container.FileExists(filename))
-                {
-                    return;
-                }
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    try
-                    {
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Version progress_version = load_version(reader);
-
-                            FEXNA.IO.Save_Progress progress = FEXNA.IO.Save_Progress.read(reader, progress_version);
-                            Global.progress.combine_progress(progress);
-                        }
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                    }
-                }
-            }
-        }
-        #endregion
-
-        #region Save File
-        protected void save_file(int id)
-        {
-            string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        // Write the save to a memory stream to make sure the save is successful, before actually writing it to file
-                        // Make all the saving more like this //@Debug
-                        using (BinaryWriter writer = new BinaryWriter(ms))
-                        {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
-                            /* Call Serialize */
-                            Global.game_options.write(writer);
-                            Global.save_file.write(writer);
-                        }
-                        
-                        // Check to see whether the save exists.
-                        if (container.FileExists(filename))
-                            // Delete it so that we can create one fresh.
-                            container.DeleteFile(filename);
-
-                        // Create the file, copy the memory stream to it
-                        using (Stream stream = container.CreateFile(filename))
-                        {
-                            using (BinaryWriter writer = new BinaryWriter(stream))
-                            {
-                                writer.Write(ms.GetBuffer());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        protected void reset_file()
-        {
-            if (!Global.ignore_options_load)
-                Global.game_options = new Game_Options();
-            Global.save_file = new FEXNA.IO.Save_File();
-        }
-
-        protected bool load_file()
-        {
-            string filename = FILE_ID.ToString() + Config.SAVE_FILE_EXTENSION;
-            reset_file();
-            if (!test_load(filename, false))
-            {
-                return false;
-            }
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
-                {
-                    return false;
-                }
-                /* Create Stream object */
-                // Open the file.
-                // Add a IOException handler for if the file is being used by another process //@Yeti
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    try
-                    {
-                        /* Create XmlSerializer */
-                        // Convert the object to XML data and put it in the stream.
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Version v;
-                            Save_File_Data data;
-                            if (load_file(stream, out v, out data))
-                            {
-                                Global.LOADED_VERSION = v;
-
-                                if (false) { } //@Debug: if different versions are handled differently
-                                else
-                                {
-                                    Global.game_options = data.Options;
-                                    Global.save_file = data.File;
-                                }
-                            }
-                            else
-                            {
-                                reset_file();
-                                return false;
-                            }
-                        }
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        reset_file();
-                        return false;
-                    }
-                }
-                /* Dispose the StorageContainer */
-                // Dispose the container, to commit changes.
-            }
-            STARTING = false;
-            return true;
-        }
-
-        private bool load_file(Stream stream, out Version v, out Save_File_Data data)
-        {
-            /* Create XmlSerializer */
-            // Convert the object to XML data and put it in the stream.
-            using (BinaryReader reader = new BinaryReader(stream))
-            {
-                v = load_version(reader);
-                if (!valid_save_version(v))
-                    throw new EndOfStreamException();
-
-                /* Call Deserialize */
-                if (false) { } //@Debug: if different versions are handled differently
-                else
-                {
-                    data = load_file_v_0_4_4_0(reader);
-                }
-                return true;
-            }
-
-            v = new Version();
-            data = new Save_File_Data();
-            return false;
-        }
-
-        protected bool move_file(int id, int move_to_id, bool copying = false)
-        {
-            string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
-            if (!test_load(filename, false))
-            {
-                return false;
-            }
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
-                {
-                    return false;
-                }
-                string target_filename = move_to_id.ToString() + Config.SAVE_FILE_EXTENSION;
-                // Delete old target files
-                delete_save_file(move_to_id, container);
-                
-                // Copy old file to new location
-                using (Stream move_from_stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                using (Stream stream = container.CreateFile(target_filename))
-                {
-                    byte[] buffer = new byte[move_from_stream.Length];
-                    move_from_stream.Read(buffer, 0, buffer.Length);
-                    stream.Write(buffer, 0, buffer.Length);
-                }
-
-                // If not copying (ie just moving)
-                if (!copying)
-                {
-                    // Copy the suspend and map save
-                    copy_suspend(id, move_to_id, container);
-                    copy_map_save(id, move_to_id, container);
-
-                    // And then delete the old files
-                    delete_save_file(id, container);
-                }
-            }
-            return true;
-        }
         
-        private void copy_suspend(int id, int move_to_id, StorageContainer container)
-        {
-            string source_suspend_filename = suspend_filename(id);
-            string target_suspend_filename = suspend_filename(move_to_id);
-
-            copy_suspend(id, move_to_id, container, source_suspend_filename, target_suspend_filename);
-        }
-        private void copy_suspend(int id, int move_to_id, StorageContainer container,
-            string source_suspend_filename, string target_suspend_filename)
-        {
-            if (container.FileExists(source_suspend_filename))
-                using (Stream move_from_stream = container.OpenFile(
-                    source_suspend_filename, FileMode.Open, FileAccess.Read))
-                {
-                    using (BinaryReader reader = new BinaryReader(move_from_stream))
-                    {
-                        try
-                        {
-                            Global.LOADED_VERSION = load_version(reader);
-                            // If the map save is valid
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
-                            {
-                                DateTime modified_time = DateTime.FromBinary(reader.ReadInt64());
-                                FEXNA.IO.Suspend_Info info = FEXNA.IO.Suspend_Info.read(reader);
-
-                                if (info.save_id == id)
-                                    using (Stream stream = container.CreateFile(target_suspend_filename))
-                                    {
-                                        info.save_id = move_to_id;
-                                        using (BinaryWriter writer = new BinaryWriter(stream))
-                                        {
-                                            writer.Write(Global.LOADED_VERSION.Major);
-                                            writer.Write(Global.LOADED_VERSION.Minor);
-                                            writer.Write(Global.LOADED_VERSION.Build);
-                                            writer.Write(Global.LOADED_VERSION.Revision);
-                                            writer.Write(modified_time.ToBinary());
-                                            info.write(writer);
-                                            // Move the actual map save data, everything after the info
-                                            byte[] buffer = new byte[move_from_stream.Length - move_from_stream.Position];
-                                            move_from_stream.Read(buffer, 0, buffer.Length);
-                                            stream.Write(buffer, 0, buffer.Length);
-                                        }
-                                    }
-                            }
-                            // If the map save is too old to read properly, just move everything in it
-                            else
-                            {
-                                using (Stream stream = container.CreateFile(target_suspend_filename))
-                                {
-                                    move_from_stream.Position = 0;
-                                    byte[] buffer = new byte[move_from_stream.Length];
-                                    move_from_stream.Read(buffer, 0, buffer.Length);
-                                    stream.Write(buffer, 0, buffer.Length);
-                                }
-                            }
-                        }
-                        catch (EndOfStreamException e)
-                        {
-#if DEBUG
-                            Print.message("Failed to copy suspend");
-#endif
-                        }
-                    }
-                }
-        }
-        private void copy_map_save(int id, int move_to_id, StorageContainer container)
-        {
-            string source_suspend_filename = map_save_filename(id);
-            string target_suspend_filename = map_save_filename(move_to_id);
-
-            copy_suspend(id, move_to_id, container, source_suspend_filename, target_suspend_filename);
-        }
-
-        protected bool delete_save_file(int id)
-        {
-            string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
-            if (!test_load(filename, false))
-            {
-                return false;
-            }
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                delete_save_file(id, container);
-            }
-            return true;
-        }
-        protected bool delete_save_file(int id, StorageContainer container)
-        {
-            string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
-            // Close the wait handle.
-            result.AsyncWaitHandle.Close();
-            /* Call FileExists */
-            // Check to see whether the save exists.
-            if (container == null || !container.FileExists(filename))
-            {
-                return false;
-            }
-            container.DeleteFile(filename);
-            if (container.FileExists(suspend_filename(id)))
-                container.DeleteFile(suspend_filename(id));
-            if (container.FileExists(map_save_filename(id)))
-                container.DeleteFile(map_save_filename(id));
-
-            return true;
-        }
-
-        protected bool delete_file(string filename)
-        {
-            if (!test_load(filename, false))
-            {
-                return false;
-            }
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
-                {
-                    return false;
-                }
-                container.DeleteFile(filename);
-            }
-            return true;
-        }
-
-        private Save_File_Data load_file_v_0_4_0_2(BinaryReader reader)
-        {
-            return new Save_File_Data
-            {
-                Options = Game_Options.read(reader),
-                File = FEXNA.IO.Save_File.read(reader)
-            };
-        }
-        private Save_File_Data load_file_v_0_4_4_0(BinaryReader reader)
-        {
-            return new Save_File_Data
-            {
-                Options = Game_Options.read(reader),
-                File = FEXNA.IO.Save_File.read(reader)
-            };
-        }
-        #endregion
-
-        #region Map Save
-        protected bool save()
-        {
-            return save(convert_save_name());
-        }
-        protected bool save(string filename)
-        {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Check to see whether the save exists.
-                    if (container.FileExists(filename))
-                        // Delete it so that we can create one fresh.
-                        container.DeleteFile(filename);
-
-                    // Create the file
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        // Write to it
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            // Save FinalRender to a byte[]
-                            byte[] screenshot;
-                            using (MemoryStream ms = new MemoryStream())
-                            {
-                                Renderer.SaveScreenshot(ms);
-                                screenshot = ms.ToArray();
-                            }
-                            Global.save_suspend(writer, FILE_ID, screenshot);
-                        }
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        protected void load()
-        {
-            load(convert_save_name());
-        }
-        protected void load(string filename)
-        {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
-                {
-                    Global.suspend_load_successful = false;
-                    Quick_Load = false;
-                    return;
-                }
-                /* Create Stream object */
-                // Open the file.
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    Scene_Base old_scene = Global.scene;
-                    try
-                    {
-                        /* Create XmlSerializer */
-                        // Convert the object to XML data and put it in the stream.
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Global.LOADED_VERSION = load_version(reader);
-                            // Wait for move range update thread to finish
-                            end_move_range_thread();
-                            MoveRangeUpdateThread = null;
-                            /* Call Deserialize */
-                            int file_id;
-                            bool load_successful = Global.load_suspend(
-                                reader, out file_id,
-                                Global.LOADED_VERSION,
-                                OLDEST_ALLOWED_SUSPEND_VERSION);
-
-                            if (load_successful)
-                            {
-#if !DEBUG
-                                if (FILE_ID != file_id) //Yeti
-                                {
-                                    throw new Exception();
-                                }
-#endif
-                                FILE_ID = file_id;
-                                DEBUG_FILE_ID_TEST = FILE_ID; //Yeti
-                                Global.game_options.post_read();
-                                if (!Global.Audio.stop_me(true))
-                                    Global.Audio.BgmFadeOut(20);
-                                Global.Audio.stop_bgs();
-                            }
-                            else
-                                throw new EndOfStreamException("Load unsuccessful");
-                        }
-
-                        if (Quick_Load)
-                        {
-                            // Resume Arena
-                            if (Global.in_arena())
-                            {
-                                change_scene("Scene_Arena");
-                                move_range_update_thread();
-                            }
-                            else
-                            {
-                                Global.suspend_finish_load(false);
-                                move_range_update_thread();
-                            }
-                        }
-                        else
-                            Global.suspend_load_successful = true;
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        Global.suspend_load_successful = false;
-                        end_move_range_thread();
-                        MoveRangeUpdateThread = null;
-                        Global.suspend_load_fail(old_scene);
-
-                        Print.message("Suspend file not in the right format");
-                    }
-                }
-                /* Dispose the StorageContainer */
-                // Dispose the container, to commit changes.
-            }
-            var key_state = new KeyboardState();
-            var controller_state = new GamePadState();
-            Global.update_input(this, new GameTime(), IsActive, key_state, controller_state);
-            Quick_Load = false;
-        }
-        #endregion
-
-        #region Save Info
-        protected void load_suspend_info(bool update_file_id = true)
-        {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null)
-                {
-                    Global.suspend_file_info = null;
-                    return;
-                }
-
-                // Get valid suspend file names
-                List<string> suspend_files = new List<string>(
-                    container.GetFileNames("*" + SUSPEND_FILENAME + Config.SAVE_FILE_EXTENSION)
-                        .Select(x => Path.GetFileName(x)));
-                int i = 0;
-                int test;
-                while (i < suspend_files.Count)
-                {
-                    // Gets the file id from the file name
-                    string suspend_file = suspend_files[i];
-                    suspend_file = suspend_file.Substring(0, suspend_file.Length - (SUSPEND_FILENAME.Length + Config.SAVE_FILE_EXTENSION.Length));
-                    // If the id is a number, keep it in the list
-                    if (suspend_file.Length > 0 && int.TryParse(suspend_file, System.Globalization.NumberStyles.None, System.Globalization.NumberFormatInfo.InvariantInfo, out test))
-                        i++;
-                    else
-                        suspend_files.RemoveAt(i);
-                }
-                // If no files are valid, return
-                if (suspend_files.Count == 0)
-                {
-                    Global.suspend_file_info = null;
-                    return;
-                }
-                // Get the newest file
-                DateTime modified_time = new DateTime();
-                int index = -1;
-                for (i = 0; i < suspend_files.Count; i++)
-                {
-                    try
-                    {
-                        using (Stream stream = container.OpenFile(
-                            suspend_files[i], FileMode.Open, FileAccess.Read))
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Global.LOADED_VERSION = load_version(reader);
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
-                            {
-                                DateTime time = DateTime.FromBinary(reader.ReadInt64());
-                                Global.suspend_file_info = FEXNA.IO.Suspend_Info.read(reader);
-                                int filename_id = Convert.ToInt32(suspend_files[i].Substring(0,
-                                    suspend_files[i].Length - (SUSPEND_FILENAME.Length + Config.SAVE_FILE_EXTENSION.Length)));
-                                // If the file id in the data does not match the id in the filename, or there isn't a save for this id
-                                if (Global.suspend_file_info.save_id != filename_id ||
-                                        !container.FileExists(Global.suspend_file_info.save_id.ToString() + Config.SAVE_FILE_EXTENSION))
-                                    continue;
-                                if (index == -1 || time > modified_time)
-                                {
-                                    index = i;
-                                    modified_time = time;
-                                }
-                            }
-                        }
-                    }
-                    catch (EndOfStreamException e) { }
-                }
-                // No suspends found
-                if (index == -1)
-                {
-                    Global.suspend_file_info = null;
-                    return;
-                }
-
-                string filename = suspend_files[index];
-                /* Create Stream object */
-                // Open the file.
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    try
-                    {
-                        /* Create XmlSerializer */
-                        // Convert the object to XML data and put it in the stream.
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Global.LOADED_VERSION = load_version(reader);
-                            /* Call Deserialize */
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
-                            {
-                                DateTime time = DateTime.FromBinary(reader.ReadInt64());
-                                Global.suspend_file_info = FEXNA.IO.Suspend_Info.read(reader);
-                                if (update_file_id)
-                                    FILE_ID = Global.suspend_file_info.save_id;
-                            }
-                            else
-                            {
-                                Global.suspend_file_info = new FEXNA.IO.Suspend_Info();
-                            }
-                        }
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        Global.suspend_file_info = null;
-                    }
-                }
-                /* Dispose the StorageContainer */
-                // Dispose the container, to commit changes.
-            }
-        }
-        protected void load_save_info()
-        {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                // Get valid save file names
-                List<string> save_files = new List<string>(
-                    container.GetFileNames("*" + Config.SAVE_FILE_EXTENSION)
-                        .Select(x => Path.GetFileName(x)));
-                int i = 0;
-                int test;
-                while (i < save_files.Count)
-                {
-                    string save_file = save_files[i];
-                    save_file = save_file.Substring(0, save_file.Length - (Config.SAVE_FILE_EXTENSION.Length));
-                    if (save_file.Length > 0 && int.TryParse(save_file, System.Globalization.NumberStyles.None, System.Globalization.NumberFormatInfo.InvariantInfo, out test) &&
-                            (test < Config.SAVES_PER_PAGE * Config.SAVE_PAGES))
-                        i++;
-                    else
-                        save_files.RemoveAt(i);
-                }
-                // If no files are valid, return
-                if (save_files.Count == 0)
-                {
-                    Global.save_files_info = null;
-                    Global.suspend_files_info = null;
-                    Global.checkpoint_files_info = null;
-                    Global.latest_save_id = -1;
-                    return;
-                }
-
-                // If any old data needs referenced
-                var old_save_files_info = Global.save_files_info;
-                // Get the newest file
-                Global.save_files_info = new Dictionary<int, FEXNA.IO.Save_Info>();
-                Global.suspend_files_info = new Dictionary<int, FEXNA.IO.Suspend_Info>();
-                Global.checkpoint_files_info = new Dictionary<int, FEXNA.IO.Suspend_Info>();
-                DateTime modified_time = new DateTime();
-                int index = -1;
-                i = 0;
-                while (i < save_files.Count)
-                {
-                    using (Stream stream = container.OpenFile(
-                        save_files[i], FileMode.Open, FileAccess.Read))
-                    using (BinaryReader reader = new BinaryReader(stream))
-                    {
-                        int file_id = Convert.ToInt32(save_files[i].Substring(0, save_files[i].Length - (Config.SAVE_FILE_EXTENSION.Length)));
-                        Global.LOADED_VERSION = load_version(reader);
-                        try
-                        {
-                            if (!valid_save_version(Global.LOADED_VERSION))
-                                throw new EndOfStreamException(
-                                    "Save file is too outdated or from a newer version");
-
-                            Save_File_Data data = load_file_v_0_4_4_0(reader);
-                            // Updates the progress data with this save file
-                            Global.progress.update_progress(data.File);
-                            bool suspend_exists = container.FileExists(suspend_filename(file_id));
-                            bool map_save_exists = container.FileExists(map_save_filename(file_id));
-                            FEXNA.IO.Save_Info info;
-                            FEXNA.IO.Suspend_Info suspend_info = null;
-                            // Check if the map save actually exists
-                            if (map_save_exists)
-                            {
-                                Version v = Global.LOADED_VERSION;
-                                using (Stream suspend_stream = container.OpenFile(
-                                    map_save_filename(file_id), FileMode.Open, FileAccess.Read))
-                                {
-                                    try
-                                    {
-                                        using (BinaryReader suspend_reader = new BinaryReader(suspend_stream))
-                                        {
-                                            Global.LOADED_VERSION = load_version(suspend_reader);
-                                            /* Call Deserialize */
-                                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
-                                            {
-                                                DateTime time = DateTime.FromBinary(suspend_reader.ReadInt64());
-                                                suspend_info = FEXNA.IO.Suspend_Info.read(suspend_reader);
-                                                Global.checkpoint_files_info[file_id] = suspend_info;
-                                            }
-                                            else
-                                                map_save_exists = false;
-                                        }
-                                    }
-                                    catch (EndOfStreamException e)
-                                    {
-                                        map_save_exists = false;
-                                    }
-                                }
-                                Global.LOADED_VERSION = v;
-                            }
-                            // If a suspend exists, always use its data for the save file instead of the most recent save
-                            if (suspend_exists)
-                            {
-                                Version v = Global.LOADED_VERSION;
-                                using (Stream suspend_stream = container.OpenFile(
-                                    suspend_filename(file_id), FileMode.Open, FileAccess.Read))
-                                {
-                                    try
-                                    {
-                                        using (BinaryReader suspend_reader = new BinaryReader(suspend_stream))
-                                        {
-                                            Global.LOADED_VERSION = load_version(suspend_reader);
-                                            /* Call Deserialize */
-                                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
-                                            {
-                                                DateTime time = DateTime.FromBinary(suspend_reader.ReadInt64());
-                                                suspend_info = FEXNA.IO.Suspend_Info.read(suspend_reader);
-                                                Global.suspend_files_info[file_id] = suspend_info;
-                                            }
-                                            else
-                                                suspend_exists = false;
-                                        }
-                                    }
-                                    catch (EndOfStreamException e)
-                                    {
-                                        suspend_exists = false;
-                                    }
-                                }
-                                Global.LOADED_VERSION = v;
-                            }
-
-                            if (suspend_info != null)
-                            {
-                                info = FEXNA.IO.Save_Info.get_save_info(file_id, data.File, suspend_info, map_save: map_save_exists, suspend: suspend_exists);
-                            }
-                            else
-                                info = FEXNA.IO.Save_Info.get_save_info(file_id, data.File, suspend_exists);
-
-                            // Copy transient file info (last chapter played, last time started)
-                            if (old_save_files_info != null &&
-                                old_save_files_info.ContainsKey(file_id))
-                            {
-                                var old_info = old_save_files_info[file_id];
-                                info.CopyTransientInfo(old_info);
-                            }
-
-                            // Set the file info into the dictionary
-                            Global.save_files_info[file_id] = info;
-
-                            if (index == -1 || info.time > modified_time)
-                            {
-                                index = file_id;
-                                modified_time = info.time;
-                                if (STARTING)
-                                {
-                                    Global.game_options = data.Options;  //@Debug: // This needs to only happen when just starting the game
-                                    STARTING = false;
-                                }
-                            }
-                            i++;
-                        }
-                        catch (EndOfStreamException e)
-                        {
-                            save_files.RemoveAt(i);
-                            continue;
-                        }
-                    }
-                }
-                // If no files were loaded successfully, the index will still be -1
-                if (index == -1)
-                {
-                    // Since nothing was loaded, null things back out
-                    Global.save_files_info = null;
-                    Global.suspend_files_info = null;
-                    Global.checkpoint_files_info = null;
-                    Global.latest_save_id = -1;
-                    return;
-                }
-                Global.latest_save_id = index;
-                /* Dispose the StorageContainer */
-                // Dispose the container, to commit changes.
-            }
-
-            refresh_suspend_screenshots();
-        }
-
-        private bool valid_save_version(Version loadedVersion)
-        {
-            // If game version is older than the save, don't load the save
-            if (Global.save_version_too_new(loadedVersion))
-                return false;
-
-            if (loadedVersion.older_than(OLDEST_ALLOWED_SAVE_VERSION))
-                return false;
-
-            return true;
-        }
-
-        private void refresh_suspend_screenshots()
-        {
-            // Dispose old screenshots
-            Global.dispose_suspend_screenshots();
-            // Load new ones from each suspend info
-            if (Global.suspend_files_info != null)
-            {
-                // Associate each suspend info with its loaded screenshot
-                if (Global.suspend_file_info != null)
-                    Global.suspend_file_info.load_screenshot("recent");
-
-                foreach (var suspend in Global.suspend_files_info)
-                {
-                    string name = suspend_filename(suspend.Key);
-                    suspend.Value.load_screenshot(name);
-                }
-                foreach (var map_save in Global.checkpoint_files_info)
-                {
-                    string name = map_save_filename(map_save.Key);
-                    map_save.Value.load_screenshot(name);
-                }
-            }
-        }
-        #endregion
-
-        private Version load_version(BinaryReader reader)
-        {
-            return new Version(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-        }
-        #endregion
-
-        #region Save/Load Config
-        protected void save_config()
-        {
-            string filename = "config" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Delete file if it already exists
-                    if (container.FileExists(filename))
-                        container.DeleteFile(filename);
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
-
-                            writer.Write(GameRenderer.ZOOM); //@Debug
-                            writer.Write(Global.fullscreen);
-                            writer.Write(Global.stereoscopic_level);
-                            writer.Write(Global.anaglyph);
-                            writer.Write((int)Global.metrics);
-                            writer.Write(Global.updates_active);
-                            writer.Write(Global.rumble);
-                            FEXNA.Input.write(writer);
-                        }
-                    }
-                }
-            }
-        }
-        protected void load_config()
-        {
-            string filename = "config" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                device.BeginOpenContainer(save_location(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = device.EndOpenContainer(result))
-            {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-                // If the file doesn't exist, return
-                if (container == null || !container.FileExists(filename))
-                {
-                    return;
-                }
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    try
-                    {
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Global.LOADED_VERSION = load_version(reader);
-                            if (Global.LOADED_VERSION.older_than(0, 4, 2, 0))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = false;
-                                Global.stereoscopic_level = 0;
-                                Global.anaglyph = true;
-                                bool unused = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                            else if (Global.LOADED_VERSION.older_than(0, 4, 6, 3))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                            else if (Global.LOADED_VERSION.older_than(0, 5, 0, 6))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                                FEXNA.Input.read(reader);
-                            }
-                            else
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                                Global.updates_active = reader.ReadBoolean();
-                                Global.rumble = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                        }
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        reset_config();
-                    }
-                }
-            }
-        }
-
-        private void reset_config()
-        {
-            Global.zoom = 1;
-            Global.fullscreen = false;
-            Global.stereoscopic_level = 0;
-            Global.anaglyph = true;
-            FEXNA.Input.default_controls();
-        }
-        #endregion
-
         private void move_range_update_thread()
         {
             if (MoveRangeUpdateThread != null)
@@ -2700,11 +1151,33 @@ namespace FEGame
                 thread.Join();
             }
         }
-    }
 
-    struct Save_File_Data
-    {
-        public Game_Options Options;
-        public FEXNA.IO.Save_File File;
+        #region ISaveCallbacker
+        public void TitleLoadScene()
+        {
+            change_scene("Scene_Title_Load");
+        }
+        public void ArenaScene()
+        {
+            change_scene("Scene_Arena");
+        }
+
+        public void StartMoveRangeThread()
+        {
+            move_range_update_thread();
+        }
+        public void EndMoveRangeThread()
+        {
+            end_move_range_thread();
+            MoveRangeUpdateThread = null;
+        }
+
+        public void FinishLoad()
+        {
+            var key_state = new KeyboardState();
+            var controller_state = new GamePadState();
+            Global.update_input(this, new GameTime(), IsActive, key_state, controller_state);
+        }
+        #endregion
     }
 }
