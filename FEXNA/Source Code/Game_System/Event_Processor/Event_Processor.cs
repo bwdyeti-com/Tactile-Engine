@@ -6,7 +6,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public partial class Event_Processor
+    partial class Event_Processor
     {
         // Commands that don't break out of skipping the AI turn
         readonly static int[] NO_ACTION_COMMANDS = new int[] { 1, 5, 8, 14, 15, 16, 22, 24, 25, 26, 27, 28, 29, 30, 32, 33, 34, 36, 43, 44, 46,

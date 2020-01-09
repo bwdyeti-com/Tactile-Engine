@@ -137,6 +137,8 @@ namespace FEXNA
 
         public void UnloadContent()
         {
+            Global.palette_pool.Dispose();
+
             // End threads
             if (MoveRangeUpdateThread != null)
             {

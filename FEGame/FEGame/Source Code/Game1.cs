@@ -152,7 +152,6 @@ namespace FEGame
             Global.dispose_miniface_textures();
             Global.dispose_suspend_screenshots();
             // TODO: Unload any non ContentManager content here
-            Global.palette_pool.Dispose();
 
             Loop.UnloadContent();
 

@@ -24,7 +24,7 @@ namespace FEXNA
             set { Suspend_Load_Successful = value; }
         }
 
-        public static void suspend_load_fail(Scene_Base old_scene)
+        internal static void suspend_load_fail(Scene_Base old_scene)
         {
             Game_System.play_se(System_Sounds.Buzzer);
             Game_Actors = null;

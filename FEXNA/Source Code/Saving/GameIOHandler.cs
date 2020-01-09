@@ -1608,7 +1608,7 @@ namespace FEXNA.IO
         #endregion
     }
 
-    public interface ISaveCallbacker
+    interface ISaveCallbacker
     {
         void TitleLoadScene();
         void ArenaScene();

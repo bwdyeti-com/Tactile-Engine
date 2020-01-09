@@ -2,7 +2,7 @@
 
 namespace FEXNA
 {
-    public class SceneInitialLoad : SceneContentLoad
+    class SceneInitialLoad : SceneContentLoad
     {
         public SceneInitialLoad()
         {

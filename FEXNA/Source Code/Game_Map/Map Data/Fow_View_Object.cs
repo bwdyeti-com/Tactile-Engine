@@ -4,7 +4,7 @@ using Vector2Extension;
 
 namespace FEXNA.Map
 {
-    public class Fow_View_Object
+    class Fow_View_Object
     {
         public Vector2 loc;
         protected int Vision;

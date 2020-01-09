@@ -3,7 +3,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Services.Audio
 {
-    public interface IAudioService
+    interface IAudioService
     {
         void update();
 

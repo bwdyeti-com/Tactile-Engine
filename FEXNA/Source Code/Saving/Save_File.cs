@@ -10,7 +10,7 @@ using FEXNA_Library;
 
 namespace FEXNA.IO
 {
-    public class Save_File
+    class Save_File
     {
         public Mode_Styles Style = Mode_Styles.Standard;
         public Difficulty_Modes Difficulty = Difficulty_Modes.Normal;
