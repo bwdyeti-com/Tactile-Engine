@@ -11,5 +11,7 @@ namespace FEXNA.Rendering
 
         int WindowWidth(GraphicsDevice device);
         int WindowHeight(GraphicsDevice device);
+
+        void MinimizeFullscreen(Game game);
     }
 }

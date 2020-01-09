@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA.Rendering
 {
-    public class GameRenderer
+    class GameRenderer
     {
         const int ZOOM_MAX = 5;
         const int ZOOM_MIN = 1;
@@ -28,7 +28,7 @@ namespace FEXNA.Rendering
         static int ZOOM = 1;
 #endif
 
-        protected int ScreenWidth, ScreenHeight;
+        private int ScreenWidth, ScreenHeight;
 
         private GraphicsDevice GraphicsDevice;
         private GraphicsDeviceManager graphics;
@@ -65,7 +65,7 @@ namespace FEXNA.Rendering
             camera = new Camera(WindowWidth, WindowHeight, Vector2.Zero);
         }
 
-        protected void SetInitialResolution()
+        private void SetInitialResolution()
         {
 #if __ANDROID__
             ScreenWidth = graphics.PreferredBackBufferWidth;
@@ -122,7 +122,7 @@ namespace FEXNA.Rendering
             }
         }
 
-#region Blur Calculation
+        #region Blur Calculation
         /// <summary>
         /// Computes sample weightings and texture coordinate offsets
         /// for one pass of a separable gaussian blur filter.
@@ -211,10 +211,10 @@ namespace FEXNA.Rendering
             return (float)((1.0 / Math.Sqrt(2 * Math.PI * BLUR_AMOUNT)) *
                            Math.Exp(-(n * n) / (2 * BLUR_AMOUNT * BLUR_AMOUNT)));
         }
-#endregion
+        #endregion
 
-#region Render Targets
-        private void SetRenderTargets()
+        #region Render Targets
+        public void SetRenderTargets()
         {
             DisposeRenderTargets();
             try
@@ -285,7 +285,7 @@ namespace FEXNA.Rendering
                 0,
                 RenderTargetUsage.PreserveContents);
         }
-#endregion
+        #endregion
 
         public bool ZoomNeedsRefresh { get { return Global.zoom != ZOOM; } }
 
@@ -336,7 +336,12 @@ namespace FEXNA.Rendering
             }
         }
 
-#region Update
+        public void MinimizeFullscreen(Game game)
+        {
+            Fullscreen.MinimizeFullscreen(game);
+        }
+
+        #region Update
         public void UpdateTouch()
         {
             if (Global.Input.touch_pressed(false))
@@ -369,9 +374,9 @@ namespace FEXNA.Rendering
  gameSize / renderSize : new Vector2(Global.zoom),
                 windowSize);
         }
-#endregion
+        #endregion
 
-#region Draw
+        #region Draw
         public void Draw()
         {
             // Reset data
@@ -871,6 +876,6 @@ namespace FEXNA.Rendering
         {
             FinalRender.SaveAsPng(stream, FinalRender.Width, FinalRender.Height);
         }
-#endregion
+        #endregion
     }
 }

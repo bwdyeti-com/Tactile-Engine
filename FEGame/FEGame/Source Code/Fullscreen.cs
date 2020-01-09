@@ -61,6 +61,16 @@ namespace FEGame
 #endif
         }
 
+        public void MinimizeFullscreen(Game game)
+        {
+#if !MONOGAME
+                System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().WindowState =
+                    System.Windows.Forms.FormWindowState.Minimized;
+#elif MONOMAC
+                    game.Window.WindowState = MonoMac.OpenGL.WindowState.Minimized;
+#endif
+        }
+
 #if WINDOWS && !MONOGAME
         private void FullScreen()
         {

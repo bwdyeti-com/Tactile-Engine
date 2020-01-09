@@ -105,6 +105,7 @@
     <Compile Include="Source Code\Debug Monitor\DebugMonitorVariablesPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorOverviewPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorPage.cs" />
+    <Compile Include="Source Code\GameLoop.cs" />
     <Compile Include="Source Code\Rendering\IFullscreenService.cs" />
     <Compile Include="Source Code\Rendering\GameRenderer.cs" />
     <Compile Include="Source Code\Game_Map\Map Data\EscapePoint.cs" />

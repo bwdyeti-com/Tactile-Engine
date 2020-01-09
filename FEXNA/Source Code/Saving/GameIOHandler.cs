@@ -8,7 +8,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA.IO
 {
-    public class GameIOHandler
+    class GameIOHandler
     {
 #if DEBUG
         const bool SAVESTATE_ENABLED = true;
@@ -1065,7 +1065,7 @@ namespace FEXNA.IO
                         {
                             Global.LOADED_VERSION = LoadVersion(reader);
                             // Wait for move range update thread to finish
-                            Callback.EndMoveRangeThread();
+                            Callback.CloseMoveRangeThread();
                             /* Call Deserialize */
                             int fileId;
                             bool loadSuccessful = Global.load_suspend(
@@ -1112,7 +1112,7 @@ namespace FEXNA.IO
                     catch (EndOfStreamException e)
                     {
                         Global.suspend_load_successful = false;
-                        Callback.EndMoveRangeThread();
+                        Callback.CloseMoveRangeThread();
                         Global.suspend_load_fail(oldScene);
 
                         Print.message("Suspend file not in the right format");
@@ -1614,7 +1614,7 @@ namespace FEXNA.IO
         void ArenaScene();
 
         void StartMoveRangeThread();
-        void EndMoveRangeThread();
+        void CloseMoveRangeThread();
 
         void FinishLoad();
     }
