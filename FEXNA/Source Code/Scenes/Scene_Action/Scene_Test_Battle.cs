@@ -57,7 +57,7 @@ namespace FEXNA
         }
     }
 
-    public class Test_Battle_Character_Data
+    class Test_Battle_Character_Data
     {
         private const int DEFAULT_CLASS_ID = 16;
 

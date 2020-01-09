@@ -2,7 +2,7 @@
 
 namespace FEXNA
 {
-    public struct Attack_Result
+    struct Attack_Result
     {
         public int dmg, actual_dmg;
         public bool hit;

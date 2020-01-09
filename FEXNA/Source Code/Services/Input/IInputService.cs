@@ -6,7 +6,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Services.Input
 {
-    public interface IInputService
+    interface IInputService
     {
         void update_input(
             Inputs inputName,

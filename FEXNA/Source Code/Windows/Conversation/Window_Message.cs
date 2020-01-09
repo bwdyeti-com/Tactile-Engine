@@ -8,9 +8,9 @@ using FEXNA_Library;
 
 namespace FEXNA
 {
-    public enum TextSkips { None, NextScene, SkipEvent }
+    enum TextSkips { None, NextScene, SkipEvent }
 
-    public class Window_Message : Stereoscopic_Graphic_Object
+    class Window_Message : Stereoscopic_Graphic_Object
     {
         internal const string FONT = "FE7_Convo";
         internal const int NO_SPEAKER = -2;

@@ -326,7 +326,7 @@ namespace FEXNA.Pathfinding
         }
         #endregion
 
-        public class Builder
+        internal class Builder
         {
             Game_Map Map = null;
             bool IgnoreUnits = false;

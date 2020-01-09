@@ -20,7 +20,7 @@ using FEXNAWeaponExtension;
 namespace FEXNA
 {
     [Flags]
-    public enum Canto_Records : int
+    enum Canto_Records : int
     {
         None = 0,
         Horse = 1 << 0,

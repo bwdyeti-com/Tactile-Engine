@@ -8,7 +8,7 @@ using FEXNA_Library;
 
 namespace FEXNA
 {
-    public enum System_Sounds { Open, Confirm, Cancel, Buzzer, Unit_Select, Cursor_Move, Menu_Move1, Menu_Move2,
+    enum System_Sounds { Open, Confirm, Cancel, Buzzer, Unit_Select, Cursor_Move, Menu_Move1, Menu_Move2,
         Help_Open, Help_Close, Minimap_Open, Minimap_Close, Status_Page_Change, Status_Character_Change, Turn_Change, Chapter_Transition,
         Talk_Boop, Help_Talk_Boop, Worldmap_Talk_Boop, Press_Start, FOW_Surprise, Formation_Change, Gain, Loss, Crowd_Cheer_End,
         HP_Recovery, Exp_Gain, Level_Up_Stat, Support_Gain }

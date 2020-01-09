@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA
 {
-    public class Message_Arrow : Sprite
+    class Message_Arrow : Sprite
     {
         const int CLEAR_TIME = 5;
         protected int Timer = 0;

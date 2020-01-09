@@ -7,7 +7,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Graphics.Text
 {
-    public class FE_Text : Sprite
+    class FE_Text : Sprite
     {
         protected readonly static FEXNA_Library.Noise NoiseGen = new FEXNA_Library.Noise(12345);
 

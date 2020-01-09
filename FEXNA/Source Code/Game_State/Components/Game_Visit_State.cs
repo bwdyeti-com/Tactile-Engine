@@ -5,7 +5,7 @@ using Vector2Extension;
 
 namespace FEXNA.State
 {
-    public enum Visit_Modes { Visit, Chest, Door, Escape }
+    enum Visit_Modes { Visit, Chest, Door, Escape }
     class Game_Visit_State : Game_State_Component
     {
         protected bool Visit_Calling = false;

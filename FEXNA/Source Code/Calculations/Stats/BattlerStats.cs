@@ -5,7 +5,7 @@ using EnumExtension;
 namespace FEXNA.Calculations.Stats
 {
     [Flags]
-    public enum CombatLocationBonuses : byte
+    enum CombatLocationBonuses : byte
     {
         Undefined = 0,
         Defined = 1 << 0,

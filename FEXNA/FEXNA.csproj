@@ -64,6 +64,7 @@
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.GamerServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="Microsoft.Xna.Framework.Storage, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="mscorlib" />
     <Reference Include="System" />
@@ -104,6 +105,9 @@
     <Compile Include="Source Code\Debug Monitor\DebugMonitorVariablesPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorOverviewPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorPage.cs" />
+    <Compile Include="Source Code\GameLoop.cs" />
+    <Compile Include="Source Code\Rendering\IFullscreenService.cs" />
+    <Compile Include="Source Code\Rendering\GameRenderer.cs" />
     <Compile Include="Source Code\Game_Map\Map Data\EscapePoint.cs" />
     <Compile Include="Source Code\Game_Map\Map Data\TileOutlineData.cs" />
     <Compile Include="Source Code\Game_State\Components\Game_Chapter_End_State.cs" />
@@ -172,6 +176,7 @@
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuData.cs" />
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuManager.cs" />
     <Compile Include="Source Code\PastRankings.cs" />
+    <Compile Include="Source Code\Saving\GameIOHandler.cs" />
     <Compile Include="Source Code\Services\Audio\MusicInstance.cs" />
     <Compile Include="Source Code\Services\Audio\MusicPlayer.cs" />
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
@@ -693,7 +698,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <PropertyGroup>
-    <PostBuildEvent></PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!--
       To modify your build process, add your task inside one of the targets below and uncomment it. 

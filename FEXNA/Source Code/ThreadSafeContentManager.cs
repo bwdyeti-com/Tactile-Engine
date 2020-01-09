@@ -11,7 +11,7 @@ namespace ContentManagers
     /// other threads trying to load assets until the current asset
     /// load is completed.
     /// </summary>
-    public class ThreadSafeContentManager : ContentManager
+    class ThreadSafeContentManager : ContentManager
     {
         static object loadLock = new object();
 

@@ -4,8 +4,8 @@ using FEXNA_Library;
 
 namespace FEXNA
 {
-    public enum Stereoscopic_Mode { Left, Center, Right }
-    public abstract class Stereoscopic_Graphic_Object : Graphic_Object
+    enum Stereoscopic_Mode { Left, Center, Right }
+    abstract class Stereoscopic_Graphic_Object : Graphic_Object
     {
 #if DEBUG
         const bool STEREO_TEST_ACTIVE = false;

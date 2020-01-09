@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace FEXNA.Services.Rumble
 {
-    public abstract class BaseRumbleService : GameComponent
+    abstract class BaseRumbleService : GameComponent
     {
         public BaseRumbleService(Game game) : base(game) { }
 

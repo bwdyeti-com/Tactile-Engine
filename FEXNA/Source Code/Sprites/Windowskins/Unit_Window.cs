@@ -7,7 +7,7 @@ using EnumExtension;
 namespace FEXNA
 {
     [Flags]
-    public enum Unit_Burst_Tail : int
+    enum Unit_Burst_Tail : int
     {
         None = 0,
         Left = 1,

@@ -8,19 +8,19 @@ namespace FEGame
 {
     enum OperatingSystems { Windows, OSX, Android, Linux }
 
-    class Metrics_Handler
+    class Metrics_Handler : FEXNA.IMetricsService
     {
         readonly static string PRIVATE_KEY = "put the private key from your php file here, compeltely random characters is most secure!";
         readonly static string ADD_SCORE_URL = "http://put.yoursite.herethough/yourgame/ranking_analytics.php?"; // The question mark lets you pass variables in, okay
         
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
 
-        internal static void enable(System.Reflection.Assembly assembly)
+        public void enable(System.Reflection.Assembly assembly)
         {
             FEXNA.Global.metrics_allowed = true;
         }
 
-        internal static FEXNA_Library.Maybe<bool> send_data(string query, string post)
+        public FEXNA_Library.Maybe<bool> send_data(string query, string post)
         {
             string identifier = FEXNA.Metrics.Metrics_Data.UserIdentifier;
             string hash = hashString(identifier + PRIVATE_KEY);
@@ -68,7 +68,7 @@ namespace FEGame
             return ret;
         }
 
-        internal static bool test_connection()
+        public bool test_connection()
         {
             return NetConnection.test_connection_dns(ADD_SCORE_URL);
         }

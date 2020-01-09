@@ -2,7 +2,7 @@
 
 namespace FEXNA.Windows
 {
-    public interface ISelectionMenu
+    interface ISelectionMenu
     {
         Maybe<int> selected_index();
 

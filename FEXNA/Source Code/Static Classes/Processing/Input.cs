@@ -14,15 +14,15 @@ using Microsoft.Xna.Framework.Input.Touch;
 
 namespace FEXNA
 {
-    public enum Inputs : byte { Down, Left, Right, Up, A, B, Y, X, L, R, Start, Select }
-    public enum MouseButtons
+    enum Inputs : byte { Down, Left, Right, Up, A, B, Y, X, L, R, Start, Select }
+    enum MouseButtons
     {
         None = 0,
         Left = 1 << 0,
         Right = 1 << 1,
         Middle = 1 << 2,
     }
-    public enum TouchGestures
+    enum TouchGestures
     {
         None =          0,
         Tap =           1 << 0,
@@ -41,7 +41,7 @@ namespace FEXNA
         PinchOut =      1 << 13,
         Scrubbing =     1 << 14,
     }
-    public enum Directions : byte
+    enum Directions : byte
     {
         None =          0,
         DownLeft =      1,
@@ -54,7 +54,7 @@ namespace FEXNA
         UpRight =       9,
     }
     [Flags]
-    public enum DirectionFlags : byte
+    enum DirectionFlags : byte
     {
         None = 0,
         Down =          1 << 0,
@@ -67,7 +67,7 @@ namespace FEXNA
         UpLeft =        Up | Left,
         UpRight =       Up | Right,
     }
-    public enum ControlSchemes { Buttons, Mouse, Touch }
+    enum ControlSchemes { Buttons, Mouse, Touch }
 
     public class Input
     {
@@ -167,7 +167,7 @@ namespace FEXNA
 
         public static bool Controller_Active { get; protected set; }
         public static bool ControlSchemeSwitched { get; protected set; }
-        public static ControlSchemes ControlScheme { get; private set; }
+        internal static ControlSchemes ControlScheme { get; private set; }
         public static bool IsControllingOnscreenMouse
         {
             get
@@ -221,12 +221,12 @@ namespace FEXNA
             InputConfig.SetDefaults();
         }
 
-        public static string key_name(Inputs input)
+        internal static string key_name(Inputs input)
         {
             return InputConfig.KeyName(input);
         }
 
-        public static bool remap_key(Inputs input, Keys key)
+        internal static bool remap_key(Inputs input, Keys key)
         {
             return InputConfig.RemapKey(input, key);
         }
@@ -745,12 +745,12 @@ namespace FEXNA
             return Input.PlayerOneInputs.OtherPressed(input_names);
         }
         
-        public static IEnumerable<Inputs> speed_up_inputs()
+        internal static IEnumerable<Inputs> speed_up_inputs()
         {
             yield return Inputs.Y;
         }
 
-        public static void lock_repeat(Inputs input_name)
+        internal static void lock_repeat(Inputs input_name)
         {
             Input.PlayerOneInputs.LockRepeat(input_name);
         }
@@ -817,7 +817,7 @@ namespace FEXNA
         #endregion
         #endregion
 
-        public static DirectionFlags direction_to_flag(Directions dir)
+        internal static DirectionFlags direction_to_flag(Directions dir)
         {
             switch (dir)
             {
@@ -844,7 +844,7 @@ namespace FEXNA
         }
 
 #if DEBUG && WINDOWS
-        public static InputDiagnostics InputDiagnostics()
+        internal static InputDiagnostics InputDiagnostics()
         {
             var inputs = Enum_Values
                 .GetEnumValues(typeof(Inputs))
@@ -863,7 +863,7 @@ namespace FEXNA
     }
 
 #if DEBUG && WINDOWS
-    public struct InputDiagnostics
+    struct InputDiagnostics
     {
         public Dictionary<Inputs, Func<bool>> Inputs { get; private set; }
         public Dictionary<Inputs, Func<int>> HeldInputsTime { get; private set; }
