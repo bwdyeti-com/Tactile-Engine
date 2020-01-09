@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.NetworkInformation;
+using FEXNAVersionExtension;
 
 namespace FEXNA.Metrics
 {
@@ -33,11 +34,7 @@ namespace FEXNA.Metrics
             writer.Write(Battalion);
             writer.Write(BattalionLvl);
 
-            Version version = Global.RUNNING_VERSION;
-            writer.Write(version.Major);
-            writer.Write(version.Minor);
-            writer.Write(version.Build);
-            writer.Write(version.Revision);
+            writer.Write(Global.RUNNING_VERSION);
 
             writer.Write(GameplayStartTime.ToBinary());
 

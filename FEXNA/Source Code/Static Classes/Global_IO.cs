@@ -78,12 +78,7 @@ namespace FEXNA
         // Save/load suspend
         public static void save_suspend(BinaryWriter writer, int fileId, byte[] screenshot)
         {
-            Version version = Global.RUNNING_VERSION;
-
-            writer.Write(version.Major);
-            writer.Write(version.Minor);
-            writer.Write(version.Build);
-            writer.Write(version.Revision);
+            writer.Write(Global.RUNNING_VERSION);
             writer.Write(DateTime.Now.ToBinary());
             var suspend_info = FEXNA.IO.Suspend_Info.get_suspend_info(fileId, screenshot);
             suspend_info.write(writer);

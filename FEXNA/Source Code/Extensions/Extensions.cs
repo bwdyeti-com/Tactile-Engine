@@ -1367,6 +1367,23 @@ namespace FEXNAVersionExtension
 {
     static class Extension
     {
+        public static void Write(this BinaryWriter writer, Version version)
+        {
+            writer.Write(version.Major);
+            writer.Write(version.Minor);
+            writer.Write(version.Build);
+            writer.Write(version.Revision);
+        }
+        public static Version ReadVersion(this BinaryReader reader)
+        {
+            int major = reader.ReadInt32();
+            int minor = reader.ReadInt32();
+            int build = reader.ReadInt32();
+            int revision = reader.ReadInt32();
+
+            return new Version(major, minor, build, revision);
+        }
+
         public static bool older_than(this Version v, Version v2)
         {
             return v.older_than(v2.Major, v2.Minor, v2.Build, v2.Revision);

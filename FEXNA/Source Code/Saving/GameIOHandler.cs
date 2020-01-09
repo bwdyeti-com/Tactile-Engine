@@ -466,7 +466,7 @@ namespace FEXNA.IO
                         {
                             using (BinaryReader reader = new BinaryReader(stream))
                             {
-                                Global.LOADED_VERSION = LoadVersion(reader);
+                                Global.LOADED_VERSION = reader.ReadVersion();
                                 if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
                                 {
                                     DateTime modifiedTime = DateTime.FromBinary(reader.ReadInt64());
@@ -513,7 +513,7 @@ namespace FEXNA.IO
                         try
                         {
                             using (BinaryReader reader = new BinaryReader(stream))
-                                Global.LOADED_VERSION = LoadVersion(reader);
+                                Global.LOADED_VERSION = reader.ReadVersion();
                             if (!ValidSaveVersion(Global.LOADED_VERSION))
                                 return false;
                         }
@@ -553,11 +553,7 @@ namespace FEXNA.IO
                     {
                         using (BinaryWriter writer = new BinaryWriter(stream))
                         {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
+                            writer.Write(Global.RUNNING_VERSION);
 
                             Global.progress.write(writer);
                         }
@@ -592,7 +588,7 @@ namespace FEXNA.IO
                     {
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Version progressVersion = LoadVersion(reader);
+                            Version progressVersion = reader.ReadVersion();
 
                             Save_Progress progress = Save_Progress.read(reader, progressVersion);
                             Global.progress.combine_progress(progress);
@@ -631,11 +627,7 @@ namespace FEXNA.IO
                         // Make all the saving more like this //@Debug
                         using (BinaryWriter writer = new BinaryWriter(ms))
                         {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
+                            writer.Write(Global.RUNNING_VERSION);
                             /* Call Serialize */
                             Global.game_options.write(writer);
                             Global.save_file.write(writer);
@@ -743,7 +735,7 @@ namespace FEXNA.IO
             // Convert the object to XML data and put it in the stream.
             using (BinaryReader reader = new BinaryReader(stream))
             {
-                v = LoadVersion(reader);
+                v = reader.ReadVersion();
                 if (!ValidSaveVersion(v))
                     throw new EndOfStreamException();
 
@@ -832,7 +824,7 @@ namespace FEXNA.IO
                     {
                         try
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
+                            Global.LOADED_VERSION = reader.ReadVersion();
                             // If the map save is valid
                             if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
                             {
@@ -845,10 +837,7 @@ namespace FEXNA.IO
                                         info.save_id = moveToId;
                                         using (BinaryWriter writer = new BinaryWriter(stream))
                                         {
-                                            writer.Write(Global.LOADED_VERSION.Major);
-                                            writer.Write(Global.LOADED_VERSION.Minor);
-                                            writer.Write(Global.LOADED_VERSION.Build);
-                                            writer.Write(Global.LOADED_VERSION.Revision);
+                                            writer.Write(Global.LOADED_VERSION);
                                             writer.Write(modifiedTime.ToBinary());
                                             info.write(writer);
                                             // Move the actual map save data, everything after the info
@@ -1063,7 +1052,7 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
+                            Global.LOADED_VERSION = reader.ReadVersion();
                             // Wait for move range update thread to finish
                             Callback.CloseMoveRangeThread();
                             /* Call Deserialize */
@@ -1183,7 +1172,7 @@ namespace FEXNA.IO
                             suspendFiles[i], FileMode.Open, FileAccess.Read))
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
+                            Global.LOADED_VERSION = reader.ReadVersion();
                             if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
                             {
                                 DateTime time = DateTime.FromBinary(reader.ReadInt64());
@@ -1223,7 +1212,7 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
+                            Global.LOADED_VERSION = reader.ReadVersion();
                             /* Call Deserialize */
                             if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
                             {
@@ -1304,7 +1293,7 @@ namespace FEXNA.IO
                     using (BinaryReader reader = new BinaryReader(stream))
                     {
                         int fileId = Convert.ToInt32(saveFiles[i].Substring(0, saveFiles[i].Length - (Config.SAVE_FILE_EXTENSION.Length)));
-                        Global.LOADED_VERSION = LoadVersion(reader);
+                        Global.LOADED_VERSION = reader.ReadVersion();
                         try
                         {
                             if (!ValidSaveVersion(Global.LOADED_VERSION))
@@ -1329,7 +1318,7 @@ namespace FEXNA.IO
                                     {
                                         using (BinaryReader suspendReader = new BinaryReader(suspendStream))
                                         {
-                                            Global.LOADED_VERSION = LoadVersion(suspendReader);
+                                            Global.LOADED_VERSION = suspendReader.ReadVersion();
                                             /* Call Deserialize */
                                             if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
                                             {
@@ -1359,7 +1348,7 @@ namespace FEXNA.IO
                                     {
                                         using (BinaryReader suspendReader = new BinaryReader(suspendStream))
                                         {
-                                            Global.LOADED_VERSION = LoadVersion(suspendReader);
+                                            Global.LOADED_VERSION = suspendReader.ReadVersion();
                                             /* Call Deserialize */
                                             if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
                                             {
@@ -1470,11 +1459,6 @@ namespace FEXNA.IO
             }
         }
         #endregion
-
-        private Version LoadVersion(BinaryReader reader)
-        {
-            return new Version(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-        }
         #endregion
 
         #region Save/Load Config
@@ -1503,11 +1487,7 @@ namespace FEXNA.IO
                     {
                         using (BinaryWriter writer = new BinaryWriter(stream))
                         {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
+                            writer.Write(Global.RUNNING_VERSION);
 
                             writer.Write(GameRenderer.ZOOM); //@Debug
                             writer.Write(Global.fullscreen);
@@ -1549,7 +1529,7 @@ namespace FEXNA.IO
                     {
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
+                            Global.LOADED_VERSION = reader.ReadVersion();
                             if (Global.LOADED_VERSION.older_than(0, 4, 2, 0))
                             {
                                 Global.zoom = reader.ReadInt32();
