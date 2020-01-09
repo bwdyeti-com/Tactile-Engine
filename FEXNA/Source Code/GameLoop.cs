@@ -115,6 +115,11 @@ namespace FEXNA
             Global.load_config = true;
 #endif
 
+#if DEBUG && !MONOGAME
+            FEXNA_Library.EventInput.Initialize(Game.Window);
+            FEXNA_Library.EventInput.CharEntered += new FEXNA_Library.EventArg.CharEnteredHandler(EventInput_CharEntered);
+#endif
+
             // Set initial scene
 #if DEBUG
             if (!string.IsNullOrEmpty(MapEditorMap))
@@ -123,6 +128,13 @@ namespace FEXNA
 #endif
                 Global.scene = new SceneInitialLoad();
         }
+
+#if !MONOGAME && DEBUG
+        void EventInput_CharEntered(object sender, FEXNA_Library.EventArg.CharacterEventArgs e)
+        {
+            Global.set_text(e.Character);
+        }
+#endif
 
         public void LoadContent(Game game)
         {
@@ -915,7 +927,7 @@ namespace FEXNA
                     }
                 }
                 // Could not save screenshot because no folder permissions
-                catch (UnauthorizedAccessException ex)
+                catch (UnauthorizedAccessException e)
                 {
                     Global.play_se(System_Sounds.Buzzer);
                     return;

@@ -8,15 +8,11 @@ namespace FEGame
 {
     public class Game1 : Game
     {
-        #region Fields
         private GameLoop Loop;
 
 #if DEBUGMONITOR
         Debug_Monitor.DebugMonitorForm MonitorForm;
 #endif
-
-        private static Assembly GAME_ASSEMBLY { get { return Global.GAME_ASSEMBLY; } }
-        #endregion
         
 #if __ANDROID__ 
         protected bool Started;
@@ -91,10 +87,6 @@ namespace FEGame
 #if DEBUGMONITOR
             open_debug_monitor();
 #endif
-#if DEBUG && !MONOGAME
-            FEXNA_Library.EventInput.Initialize(this.Window);
-            FEXNA_Library.EventInput.CharEntered += new FEXNA_Library.EventArg.CharEnteredHandler(EventInput_CharEntered);
-#endif
 #if __ANDROID__
             Started = true;
 #endif
@@ -108,13 +100,6 @@ namespace FEGame
                 Config.EVENT_DATA_MONITOR_PAGE_SIZE, Config.EVENT_DATA_LENGTH);
             MonitorForm.FormClosing += MonitorForm_FormClosing;
             MonitorForm.Show();
-        }
-#endif
-
-#if !MONOGAME && DEBUG
-        void EventInput_CharEntered(object sender, FEXNA_Library.EventArg.CharacterEventArgs e)
-        {
-            Global.set_text(e.Character);
         }
 #endif
 
