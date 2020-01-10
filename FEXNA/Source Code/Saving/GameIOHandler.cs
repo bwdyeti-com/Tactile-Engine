@@ -511,9 +511,15 @@ namespace FEXNA.IO
                         try
                         {
                             using (BinaryReader reader = new BinaryReader(stream))
-                                Global.LOADED_VERSION = reader.ReadVersion();
-                            if (!ValidSaveVersion(Global.LOADED_VERSION))
-                                return false;
+                            {
+                                Save_File_Data fileData;
+                                bool loadSuccessful = Global.load(
+                                    reader,
+                                    out fileData,
+                                    OLDEST_ALLOWED_SAVE_VERSION);
+                                if (!loadSuccessful)
+                                    return false;
+                            }
                         }
                         catch (EndOfStreamException e)
                         {
@@ -625,10 +631,7 @@ namespace FEXNA.IO
                         // Make all the saving more like this //@Debug
                         using (BinaryWriter writer = new BinaryWriter(ms))
                         {
-                            writer.Write(Global.RUNNING_VERSION);
-                            /* Call Serialize */
-                            Global.game_options.write(writer);
-                            Global.save_file.write(writer);
+                            Global.save(writer);
                         }
 
                         // Check to see whether the save exists.
@@ -694,18 +697,15 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Version v;
-                            Save_File_Data data;
-                            if (LoadFile(stream, out v, out data))
+                            Save_File_Data fileData;
+                            bool loadSuccessful = Global.load(
+                                reader,
+                                out fileData,
+                                OLDEST_ALLOWED_SAVE_VERSION);
+                            if (loadSuccessful)
                             {
-                                Global.LOADED_VERSION = v;
-
-                                if (false) { } //@Debug: if different versions are handled differently
-                                else
-                                {
-                                    Global.game_options = data.Options;
-                                    Global.save_file = data.File;
-                                }
+                                Global.game_options = fileData.Options;
+                                Global.save_file = fileData.File;
                             }
                             else
                             {
@@ -726,31 +726,7 @@ namespace FEXNA.IO
             STARTING = false;
             return true;
         }
-
-        private bool LoadFile(Stream stream, out Version v, out Save_File_Data data)
-        {
-            /* Create XmlSerializer */
-            // Convert the object to XML data and put it in the stream.
-            using (BinaryReader reader = new BinaryReader(stream))
-            {
-                v = reader.ReadVersion();
-                if (!ValidSaveVersion(v))
-                    throw new EndOfStreamException();
-
-                /* Call Deserialize */
-                if (false) { } //@Debug: if different versions are handled differently
-                else
-                {
-                    data = LoadFileV0_4_4_0(reader);
-                }
-                return true;
-            }
-
-            v = new Version();
-            data = new Save_File_Data();
-            return false;
-        }
-
+        
         private bool MoveFile(int id, int moveToId, bool copying = false)
         {
             string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
@@ -944,23 +920,6 @@ namespace FEXNA.IO
                 container.DeleteFile(filename);
             }
             return true;
-        }
-
-        private Save_File_Data LoadFileV0_4_0_2(BinaryReader reader)
-        {
-            return new Save_File_Data
-            {
-                Options = Game_Options.read(reader),
-                File = Save_File.read(reader)
-            };
-        }
-        private Save_File_Data LoadFileV0_4_4_0(BinaryReader reader)
-        {
-            return new Save_File_Data
-            {
-                Options = Game_Options.read(reader),
-                File = Save_File.read(reader)
-            };
         }
         #endregion
 
@@ -1291,16 +1250,20 @@ namespace FEXNA.IO
                     using (BinaryReader reader = new BinaryReader(stream))
                     {
                         int fileId = Convert.ToInt32(saveFiles[i].Substring(0, saveFiles[i].Length - (Config.SAVE_FILE_EXTENSION.Length)));
-                        Global.LOADED_VERSION = reader.ReadVersion();
+                        
                         try
                         {
-                            if (!ValidSaveVersion(Global.LOADED_VERSION))
+                            Save_File_Data fileData;
+                            bool loadSuccessful = Global.load(
+                                reader,
+                                out fileData,
+                                OLDEST_ALLOWED_SAVE_VERSION);
+                            if (!loadSuccessful)
                                 throw new EndOfStreamException(
                                     "Save file is too outdated or from a newer version");
-
-                            Save_File_Data data = LoadFileV0_4_4_0(reader);
+                            
                             // Updates the progress data with this save file
-                            Global.progress.update_progress(data.File);
+                            Global.progress.update_progress(fileData.File);
                             bool suspendExists = container.FileExists(SuspendFilename(fileId));
                             bool mapSaveExists = container.FileExists(MapSaveFilename(fileId));
                             Save_Info info;
@@ -1362,10 +1325,10 @@ namespace FEXNA.IO
 
                             if (suspendInfo != null)
                             {
-                                info = Save_Info.get_save_info(fileId, data.File, suspendInfo, map_save: mapSaveExists, suspend: suspendExists);
+                                info = Save_Info.get_save_info(fileId, fileData.File, suspendInfo, map_save: mapSaveExists, suspend: suspendExists);
                             }
                             else
-                                info = Save_Info.get_save_info(fileId, data.File, suspendExists);
+                                info = Save_Info.get_save_info(fileId, fileData.File, suspendExists);
 
                             // Copy transient file info (last chapter played, last time started)
                             if (oldSaveFilesInfo != null &&
@@ -1384,7 +1347,7 @@ namespace FEXNA.IO
                                 modifiedTime = info.time;
                                 if (STARTING)
                                 {
-                                    Global.game_options = data.Options;  //@Debug: // This needs to only happen when just starting the game
+                                    Global.game_options = fileData.Options;  //@Debug: // This needs to only happen when just starting the game
                                     STARTING = false;
                                 }
                             }
@@ -1589,11 +1552,5 @@ namespace FEXNA.IO
         void CloseMoveRangeThread();
 
         void FinishLoad();
-    }
-
-    struct Save_File_Data
-    {
-        public Game_Options Options;
-        public Save_File File;
     }
 }

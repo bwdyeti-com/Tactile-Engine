@@ -15,18 +15,18 @@ namespace FEXNA
         };
 
         // Load Suspend
-        public static bool Loading_Suspend { get; private set; }
-        public static void call_load_suspend()
+        internal static bool Loading_Suspend { get; private set; }
+        internal static void call_load_suspend()
         {
             Loading_Suspend = true;
         }
-        public static void reset_suspend_load()
+        internal static void reset_suspend_load()
         {
             Loading_Suspend = false;
         }
 
         static bool Suspend_Load_Successful = false;
-        public static bool suspend_load_successful
+        internal static bool suspend_load_successful
         {
             get { return Suspend_Load_Successful; }
             set { Suspend_Load_Successful = value; }
@@ -43,7 +43,7 @@ namespace FEXNA
             if (Scene.scene_type != "Scene_Title")
                 scene_change("Scene_Title");
         }
-        public static void suspend_finish_load(bool resume)
+        internal static void suspend_finish_load(bool resume)
         {
             Global.change_to_new_scene("Scene_Map");
             Global.suspend_fade_in();
@@ -77,14 +77,84 @@ namespace FEXNA
             }
         }
 
-        public static bool save_version_too_new(Version v)
+        internal static bool save_version_too_new(Version v)
         {
             // If game version is older than the save, don't load the save
             return Global.RUNNING_VERSION.older_than(v);
         }
 
-        // Save/load suspend
-        public static void save_suspend(BinaryWriter writer, int fileId, byte[] screenshot)
+        #region Save/load file
+        internal static void save(BinaryWriter writer)
+        {
+            // Write version
+            writer.Write(Global.RUNNING_VERSION);
+
+            // Write options and file
+            Global.game_options.write(writer);
+            Global.save_file.write(writer);
+        }
+
+        internal static bool load(
+            BinaryReader reader,
+            out Save_File_Data fileData,
+            Version oldestAllowedVersion)
+        {
+            // Read and check version
+            Version v;
+            if (!ValidFileVersion(reader, oldestAllowedVersion, out v))
+            {
+                fileData = new Save_File_Data();
+                return false;
+            }
+
+            Global.LOADED_VERSION = v;
+
+            // Read options and file
+            fileData = ReadFile(reader);
+            return true;
+        }
+
+        private static Save_File_Data ReadFile(BinaryReader reader)
+        {
+            if (false) { } //@Debug: if different versions are handled differently
+            else
+            {
+                return LoadFileV0_4_4_0(reader);
+            }
+
+            return new Save_File_Data();
+        }
+
+        private static Save_File_Data LoadFileV0_4_4_0(BinaryReader reader)
+        {
+            return new Save_File_Data
+            {
+                Options = Game_Options.read(reader),
+                File = Save_File.read(reader)
+            };
+        }
+        
+        private static bool ValidFileVersion(
+            BinaryReader reader,
+            Version oldestAllowedVersion,
+            out Version version)
+        {
+            // Read version
+            version = reader.ReadVersion();
+
+            // If game version is older than the save, don't load the save
+            if (save_version_too_new(version))
+                return false;
+            // If the game version is too old
+            if (version.older_than(oldestAllowedVersion))
+                return false;
+
+            return true;
+        }
+        #endregion
+
+        #region Save/load suspend
+        internal static void save_suspend(BinaryWriter writer, int fileId, byte[] screenshot)
         {
             // Write version
             writer.Write(Global.RUNNING_VERSION);
@@ -117,17 +187,19 @@ namespace FEXNA
             Global.write_events(writer);
         }
 
-        public static bool load_suspend(
+        internal static bool load_suspend(
             BinaryReader reader,
             out int fileId,
             Version oldestAllowedVersion)
         {
+            // Read and check version
             Version v;
             if (!ValidSuspendVersion(reader, oldestAllowedVersion, out v))
             {
                 fileId = 0;
                 return false;
             }
+
             Global.LOADED_VERSION = v;
 
             return load_suspend(reader, out fileId);
@@ -159,7 +231,7 @@ namespace FEXNA
             return false;
         }
 
-        private static Suspend_Info ReadInfo(BinaryReader reader)
+        private static Suspend_Info ReadSuspendInfo(BinaryReader reader)
         {
             DateTime modified_time = DateTime.FromBinary(reader.ReadInt64());
 
@@ -187,10 +259,10 @@ namespace FEXNA
             Suspend_Info info;
             if (IsEncryptedVersion(Global.LOADED_VERSION))
             {
-                info = DecryptStream(reader, ReadInfo);
+                info = DecryptStream(reader, ReadSuspendInfo);
             }
             else
-                info = ReadInfo(reader);
+                info = ReadSuspendInfo(reader);
 
             return info;
         }
@@ -234,14 +306,10 @@ namespace FEXNA
 
             // If game version is older than the save, don't load the save
             if (save_version_too_new(version))
-            {
                 return false;
-            }
             // If the game version is too old
             if (version.older_than(oldestAllowedVersion))
-            {
                 return false;
-            }
 
             return true;
         }
@@ -267,6 +335,7 @@ namespace FEXNA
             Global.game_map.read(reader);
             Global.read_events(reader);
         }
+        #endregion
 
         #region IO Calling
         static bool Load_Save_File = false;
@@ -375,10 +444,10 @@ namespace FEXNA
             }
         }
 
-        public static bool ignore_options_load = false;
-        public static bool savestate = false;
+        internal static bool ignore_options_load = false;
+        internal static bool savestate = false;
 
-        public static bool savestate_ready
+        internal static bool savestate_ready
         {
             get
             {
@@ -391,7 +460,7 @@ namespace FEXNA
                     Player.is_on_square && !Game_Temp.menuing;
             }
         }
-        public static bool savestate_load_ready
+        internal static bool savestate_load_ready
         {
             get
             {
@@ -402,5 +471,11 @@ namespace FEXNA
                 return Scene != null && (!Scene.is_map_scene || !Game_System.preparations);
             }
         }
+    }
+
+    struct Save_File_Data
+    {
+        public Game_Options Options;
+        public Save_File File;
     }
 }
