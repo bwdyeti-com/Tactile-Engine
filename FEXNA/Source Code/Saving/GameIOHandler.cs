@@ -466,11 +466,9 @@ namespace FEXNA.IO
                         {
                             using (BinaryReader reader = new BinaryReader(stream))
                             {
-                                Global.LOADED_VERSION = reader.ReadVersion();
-                                if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                                var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                                if (info != null)
                                 {
-                                    DateTime modifiedTime = DateTime.FromBinary(reader.ReadInt64());
-                                    Suspend_Info info = Suspend_Info.read(reader);
                                     // If the file id isn't the currently active one, return false
                                     SavestateFileId = info.save_id;
                                     if (!SavestateTesting)
@@ -811,9 +809,13 @@ namespace FEXNA.IO
             string sourceSuspendFilename = SuspendFilename(id);
             string targetSuspendFilename = SuspendFilename(moveToId);
 
-            CopySuspend(id, moveToId, container, sourceSuspendFilename, targetSuspendFilename);
+            bool success = CopySuspend(id, moveToId, container, sourceSuspendFilename, targetSuspendFilename);
+            if (success)
+            {
+                Global.suspend_files_info[moveToId] = (Suspend_Info)Global.suspend_files_info[id].Clone();
+            }
         }
-        private void CopySuspend(int id, int moveToId, StorageContainer container,
+        private bool CopySuspend(int id, int moveToId, StorageContainer container,
             string sourceSuspendFilename, string targetSuspendFilename)
         {
             if (container.FileExists(sourceSuspendFilename))
@@ -824,28 +826,22 @@ namespace FEXNA.IO
                     {
                         try
                         {
-                            Global.LOADED_VERSION = reader.ReadVersion();
-                            // If the map save is valid
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                            var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                            // If the suspend is valid
+                            if (info != null)
                             {
-                                DateTime modifiedTime = DateTime.FromBinary(reader.ReadInt64());
-                                Suspend_Info info = Suspend_Info.read(reader);
-
                                 if (info.save_id == id)
+                                {
                                     using (Stream stream = container.CreateFile(targetSuspendFilename))
                                     {
                                         info.save_id = moveToId;
                                         using (BinaryWriter writer = new BinaryWriter(stream))
                                         {
-                                            writer.Write(Global.LOADED_VERSION);
-                                            writer.Write(modifiedTime.ToBinary());
-                                            info.write(writer);
-                                            // Move the actual map save data, everything after the info
-                                            byte[] buffer = new byte[moveFromStream.Length - moveFromStream.Position];
-                                            moveFromStream.Read(buffer, 0, buffer.Length);
-                                            stream.Write(buffer, 0, buffer.Length);
+                                            Global.copy_suspend(reader, writer, info);
                                         }
                                     }
+                                    return true;
+                                }
                             }
                             // If the map save is too old to read properly, just move everything in it
                             else
@@ -853,10 +849,9 @@ namespace FEXNA.IO
                                 using (Stream stream = container.CreateFile(targetSuspendFilename))
                                 {
                                     moveFromStream.Position = 0;
-                                    byte[] buffer = new byte[moveFromStream.Length];
-                                    moveFromStream.Read(buffer, 0, buffer.Length);
-                                    stream.Write(buffer, 0, buffer.Length);
+                                    moveFromStream.CopyTo(stream);
                                 }
+                                return true;
                             }
                         }
                         catch (EndOfStreamException e)
@@ -867,6 +862,8 @@ namespace FEXNA.IO
                         }
                     }
                 }
+
+            return false;
         }
         private void CopyMapSave(int id, int moveToId, StorageContainer container)
         {
@@ -913,6 +910,9 @@ namespace FEXNA.IO
                 container.DeleteFile(SuspendFilename(id));
             if (container.FileExists(MapSaveFilename(id)))
                 container.DeleteFile(MapSaveFilename(id));
+
+            // Clear suspend info
+            Global.suspend_files_info.Remove(id);
 
             return true;
         }
@@ -1170,11 +1170,12 @@ namespace FEXNA.IO
                             suspendFiles[i], FileMode.Open, FileAccess.Read))
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = reader.ReadVersion();
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                            var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                            if (info != null)
                             {
-                                DateTime time = DateTime.FromBinary(reader.ReadInt64());
-                                Global.suspend_file_info = Suspend_Info.read(reader);
+                                DateTime time = info.SuspendModifiedTime;
+                                Global.suspend_file_info = info;
+
                                 int filenameId = Convert.ToInt32(suspendFiles[i].Substring(0,
                                     suspendFiles[i].Length - (SUSPEND_FILENAME.Length + Config.SAVE_FILE_EXTENSION.Length)));
                                 // If the file id in the data does not match the id in the filename, or there isn't a save for this id
@@ -1210,12 +1211,11 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = reader.ReadVersion();
-                            /* Call Deserialize */
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                            var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                            if (info != null)
                             {
-                                DateTime time = DateTime.FromBinary(reader.ReadInt64());
-                                Global.suspend_file_info = Suspend_Info.read(reader);
+                                Global.suspend_file_info = info;
+                                
                                 if (updateFileId)
                                     FileId = Global.suspend_file_info.save_id;
                             }
@@ -1316,12 +1316,9 @@ namespace FEXNA.IO
                                     {
                                         using (BinaryReader suspendReader = new BinaryReader(suspendStream))
                                         {
-                                            Global.LOADED_VERSION = suspendReader.ReadVersion();
-                                            /* Call Deserialize */
-                                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                                            suspendInfo = Global.load_suspend_info(suspendReader, OLDEST_ALLOWED_SAVE_VERSION);
+                                            if (suspendInfo != null)
                                             {
-                                                DateTime time = DateTime.FromBinary(suspendReader.ReadInt64());
-                                                suspendInfo = Suspend_Info.read(suspendReader);
                                                 Global.checkpoint_files_info[fileId] = suspendInfo;
                                             }
                                             else
@@ -1346,12 +1343,9 @@ namespace FEXNA.IO
                                     {
                                         using (BinaryReader suspendReader = new BinaryReader(suspendStream))
                                         {
-                                            Global.LOADED_VERSION = suspendReader.ReadVersion();
-                                            /* Call Deserialize */
-                                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                                            suspendInfo = Global.load_suspend_info(suspendReader, OLDEST_ALLOWED_SAVE_VERSION);
+                                            if (suspendInfo != null)
                                             {
-                                                DateTime time = DateTime.FromBinary(suspendReader.ReadInt64());
-                                                suspendInfo = Suspend_Info.read(suspendReader);
                                                 Global.suspend_files_info[fileId] = suspendInfo;
                                             }
                                             else

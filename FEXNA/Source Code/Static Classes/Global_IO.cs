@@ -99,6 +99,7 @@ namespace FEXNA
         private static void WriteSuspendInfo(int fileId, byte[] screenshot, BinaryWriter writer)
         {
             writer.Write(DateTime.Now.ToBinary());
+
             var suspend_info = Suspend_Info.get_suspend_info(fileId, screenshot);
             suspend_info.write(writer);
         }
@@ -121,42 +122,27 @@ namespace FEXNA
             out int fileId,
             Version oldestAllowedVersion)
         {
-            // Read version
-            Version v = reader.ReadVersion();
-
-            // If game version is older than the save, don't load the save
-            if (save_version_too_new(v))
+            Version v;
+            if (!ValidSuspendVersion(reader, oldestAllowedVersion, out v))
             {
                 fileId = 0;
                 return false;
             }
-            // If the game version is too old
-            if (v.older_than(oldestAllowedVersion))
-            {
-                fileId = 0;
-                return false;
-            }
-
             Global.LOADED_VERSION = v;
+
             return load_suspend(reader, out fileId);
         }
         private static bool load_suspend(BinaryReader reader, out int fileId)
         {
             // Read suspend info
-            Suspend_Info info;
-            if (!Global.LOADED_VERSION.older_than(0, 6, 9, 0))
-            {
-                info = DecryptStream(reader, ReadInfo);
-            }
-            else
-                info = ReadInfo(reader);
+            Suspend_Info info = load_suspend_info(reader);
 
             // Read game data
             if (Global.Data_Chapters.ContainsKey(info.chapter_id))
             {
                 fileId = info.save_id;
 
-                if (!Global.LOADED_VERSION.older_than(0, 6, 9, 0))
+                if (IsEncryptedVersion(Global.LOADED_VERSION))
                 {
                     DecryptStream(reader, load_v_0_4_7_0);
                     return true;
@@ -178,7 +164,86 @@ namespace FEXNA
             DateTime modified_time = DateTime.FromBinary(reader.ReadInt64());
 
             var info = Suspend_Info.read(reader);
+            info.SuspendModifiedTime = modified_time;
             return info;
+        }
+
+        internal static Suspend_Info load_suspend_info(
+            BinaryReader reader,
+            Version oldestAllowedVersion)
+        {
+            Version v;
+            if (!ValidSuspendVersion(reader, oldestAllowedVersion, out v))
+            {
+                return null;
+            }
+            Global.LOADED_VERSION = v;
+
+            return load_suspend_info(reader);
+        }
+        private static Suspend_Info load_suspend_info(BinaryReader reader)
+        {
+            // Read suspend info
+            Suspend_Info info;
+            if (IsEncryptedVersion(Global.LOADED_VERSION))
+            {
+                info = DecryptStream(reader, ReadInfo);
+            }
+            else
+                info = ReadInfo(reader);
+
+            return info;
+        }
+
+        internal static void copy_suspend(
+            BinaryReader sourceReader,
+            BinaryWriter targetWriter,
+            Suspend_Info info)
+        {
+            // Write version
+            targetWriter.Write(Global.LOADED_VERSION);
+
+            // Write suspend info
+            Action<BinaryWriter> suspendInfoAction = (BinaryWriter memoryWriter) =>
+            {
+                memoryWriter.Write(info.SuspendModifiedTime.ToBinary());
+
+                info.write(memoryWriter);
+            };
+
+            if (Global.IsEncryptedVersion(Global.LOADED_VERSION))
+            {
+                EncryptStream(targetWriter, suspendInfoAction);
+            }
+            else
+            {
+                suspendInfoAction(targetWriter);
+            }
+
+            // Move the actual map save data, everything after the info
+            sourceReader.BaseStream.CopyTo(targetWriter.BaseStream);
+        }
+
+        private static bool ValidSuspendVersion(
+            BinaryReader reader,
+            Version oldestAllowedVersion,
+            out Version version)
+        {
+            // Read version
+            version = reader.ReadVersion();
+
+            // If game version is older than the save, don't load the save
+            if (save_version_too_new(version))
+            {
+                return false;
+            }
+            // If the game version is too old
+            if (version.older_than(oldestAllowedVersion))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /* ReadSuspend */
@@ -202,7 +267,7 @@ namespace FEXNA
             Global.game_map.read(reader);
             Global.read_events(reader);
         }
-        
+
         #region IO Calling
         static bool Load_Save_File = false;
         public static bool load_save_file
@@ -267,6 +332,11 @@ namespace FEXNA
         }
         #endregion
 
+        internal static bool IsEncryptedVersion(Version version)
+        {
+            return !version.older_than(0, 6, 9, 0);
+        }
+
         private static void EncryptStream(BinaryWriter writer, Action<BinaryWriter> save)
         {
             // Create a temporary memory stream to hold the unencrypted data
@@ -279,7 +349,7 @@ namespace FEXNA
 
                 // Reset to the start of the memory stream, then copy it encrypted
                 ms.Seek(0, SeekOrigin.Begin);
-                FEXNA_Library.Encryption.StreamEncryption
+                StreamEncryption
                     .EncryptStream(SAVE_KEY, writer, ms);
             }
         }
