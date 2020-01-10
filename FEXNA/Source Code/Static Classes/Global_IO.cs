@@ -202,48 +202,7 @@ namespace FEXNA
             Global.game_map.read(reader);
             Global.read_events(reader);
         }
-
-        private static void load_v_0_4_3_0(BinaryReader reader)
-        {
-            DateTime modified_time = DateTime.FromBinary(reader.ReadInt64());
-            Suspend_Info info = Suspend_Info.read(reader);
-            int file_id = info.save_id;
-
-            Global.game_temp = new Game_Temp();
-            Global.game_battalions = new Game_Battalions();
-            Global.game_battalions.read(reader);
-            Global.game_actors = new Game_Actors();
-            Global.game_actors.read(reader);
-            Global.read_game_system(reader);
-            Global.game_options = Game_Options.read(reader);
-            //Global.game_options.read(reader);
-
-            Global.player = new Player();
-            Global.player.read(reader);
-            Global.game_map = new Game_Map();
-            Global.game_map.read(reader);
-            Global.read_events(reader);
-        }
-
-        private static void load_v_0_3_2_0(BinaryReader reader)
-        {
-            int file_id = reader.ReadInt32();
-            Global.game_temp = new Game_Temp();
-            Global.game_battalions = new Game_Battalions();
-            Global.game_battalions.read(reader);
-            Global.game_actors = new Game_Actors();
-            Global.game_actors.read(reader);
-            Global.read_game_system(reader);
-            Global.game_options = Game_Options.read(reader);
-            //Global.game_options.read(reader);
-
-            Global.player = new Player();
-            Global.player.read(reader);
-            Global.game_map = new Game_Map();
-            Global.game_map.read(reader);
-            Global.read_events(reader);
-        }
-
+        
         #region IO Calling
         static bool Load_Save_File = false;
         public static bool load_save_file
