@@ -1440,16 +1440,8 @@ namespace FEXNA.IO
                     {
                         using (BinaryWriter writer = new BinaryWriter(stream))
                         {
-                            writer.Write(Global.RUNNING_VERSION);
-
-                            writer.Write(GameRenderer.ZOOM); //@Debug
-                            writer.Write(Global.fullscreen);
-                            writer.Write(Global.stereoscopic_level);
-                            writer.Write(Global.anaglyph);
-                            writer.Write((int)Global.metrics);
-                            writer.Write(Global.updates_active);
-                            writer.Write(Global.rumble);
-                            FEXNA.Input.write(writer);
+                            int zoom = GameRenderer.ZOOM; //@Debug
+                            Global.SaveConfig(writer, zoom);
                         }
                     }
                 }
@@ -1482,44 +1474,7 @@ namespace FEXNA.IO
                     {
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = reader.ReadVersion();
-                            if (Global.LOADED_VERSION.older_than(0, 4, 2, 0))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = false;
-                                Global.stereoscopic_level = 0;
-                                Global.anaglyph = true;
-                                bool unused = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                            else if (Global.LOADED_VERSION.older_than(0, 4, 6, 3))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                            else if (Global.LOADED_VERSION.older_than(0, 5, 0, 6))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                                FEXNA.Input.read(reader);
-                            }
-                            else
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                                Global.updates_active = reader.ReadBoolean();
-                                Global.rumble = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
+                            Global.ReadConfig(reader);
                         }
                     }
                     catch (EndOfStreamException e)
