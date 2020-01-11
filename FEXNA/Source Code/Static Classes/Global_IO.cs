@@ -106,7 +106,7 @@ namespace FEXNA
         {
             // Read and check version
             Version v;
-            if (!ValidFileVersion(reader, oldestAllowedVersion, out v))
+            if (!ValidVersion(reader, oldestAllowedVersion, out v))
             {
                 fileData = new Save_File_Data();
                 return false;
@@ -145,24 +145,6 @@ namespace FEXNA
                 Options = Game_Options.read(reader),
                 File = Save_File.read(reader)
             };
-        }
-        
-        private static bool ValidFileVersion(
-            BinaryReader reader,
-            Version oldestAllowedVersion,
-            out Version version)
-        {
-            // Read version
-            version = reader.ReadVersion();
-
-            // If game version is older than the save, don't load the save
-            if (save_version_too_new(version))
-                return false;
-            // If the game version is too old
-            if (version.older_than(oldestAllowedVersion))
-                return false;
-
-            return true;
         }
         #endregion
 
@@ -207,7 +189,7 @@ namespace FEXNA
         {
             // Read and check version
             Version v;
-            if (!ValidSuspendVersion(reader, oldestAllowedVersion, out v))
+            if (!ValidVersion(reader, oldestAllowedVersion, out v))
             {
                 fileId = 0;
                 return false;
@@ -258,7 +240,7 @@ namespace FEXNA
             Version oldestAllowedVersion)
         {
             Version v;
-            if (!ValidSuspendVersion(reader, oldestAllowedVersion, out v))
+            if (!ValidVersion(reader, oldestAllowedVersion, out v))
             {
                 return null;
             }
@@ -309,24 +291,6 @@ namespace FEXNA
             sourceReader.BaseStream.CopyTo(targetWriter.BaseStream);
         }
 
-        private static bool ValidSuspendVersion(
-            BinaryReader reader,
-            Version oldestAllowedVersion,
-            out Version version)
-        {
-            // Read version
-            version = reader.ReadVersion();
-
-            // If game version is older than the save, don't load the save
-            if (save_version_too_new(version))
-                return false;
-            // If the game version is too old
-            if (version.older_than(oldestAllowedVersion))
-                return false;
-
-            return true;
-        }
-
         /* ReadSuspend */
         private static void load_v_0_4_7_0(BinaryReader reader)
         {
@@ -349,6 +313,69 @@ namespace FEXNA
             Global.read_events(reader);
         }
         #endregion
+
+        #region Save/load progress data
+        internal static void save_progress(BinaryWriter writer)
+        {
+            // Write version
+            writer.Write(Global.RUNNING_VERSION);
+
+            // Write progression
+            SaveProgress(writer);
+        }
+
+        private static void SaveProgress(BinaryWriter writer)
+        {
+            Global.progress.write(writer);
+        }
+
+        internal static bool load_progress(
+            BinaryReader reader,
+            out Save_Progress progress)
+        {
+            // Read and check version
+            Version v;
+            if (!ValidVersion(reader, new Version(0, 0, 0, 0), out v))
+            {
+                progress = null;
+                return false;
+            }
+            
+            // Read progression
+            progress = ReadProgress(reader, v);
+
+            return true;
+        }
+
+        private static Save_Progress ReadProgress(BinaryReader reader, Version version)
+        {
+            if (false) { } //@Debug: if different versions are handled differently
+            else
+            {
+                return Save_Progress.read(reader, version);
+            }
+
+            return null;
+        }
+        #endregion
+
+        private static bool ValidVersion(
+            BinaryReader reader,
+            Version oldestAllowedVersion,
+            out Version version)
+        {
+            // Read version
+            version = reader.ReadVersion();
+
+            // If game version is older than the save, don't load the save
+            if (save_version_too_new(version))
+                return false;
+            // If the game version is too old
+            if (version.older_than(oldestAllowedVersion))
+                return false;
+
+            return true;
+        }
 
         #region IO Calling
         static bool Load_Save_File = false;

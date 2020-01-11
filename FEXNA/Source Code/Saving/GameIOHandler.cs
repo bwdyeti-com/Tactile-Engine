@@ -557,9 +557,7 @@ namespace FEXNA.IO
                     {
                         using (BinaryWriter writer = new BinaryWriter(stream))
                         {
-                            writer.Write(Global.RUNNING_VERSION);
-
-                            Global.progress.write(writer);
+                            Global.save_progress(writer);
                         }
                     }
                 }
@@ -592,10 +590,12 @@ namespace FEXNA.IO
                     {
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Version progressVersion = reader.ReadVersion();
-
-                            Save_Progress progress = Save_Progress.read(reader, progressVersion);
-                            Global.progress.combine_progress(progress);
+                            Save_Progress progress;
+                            bool loadSuccessful = Global.load_progress(reader, out progress);
+                            if (loadSuccessful)
+                            {
+                                Global.progress.combine_progress(progress);
+                            }
                         }
                     }
                     catch (EndOfStreamException e)
