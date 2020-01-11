@@ -535,33 +535,7 @@ namespace FEXNA.IO
         private void SaveProgress()
         {
             string filename = "progress" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
-            {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Delete file if it already exists
-                    if (container.FileExists(filename))
-                        container.DeleteFile(filename);
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            Global.save_progress(writer);
-                        }
-                    }
-                }
-            }
+            StorageWriterBoilerplate(filename, Global.save_progress);
         }
         private void LoadProgress()
         {
@@ -889,46 +863,19 @@ namespace FEXNA.IO
         }
         private bool save(string filename)
         {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            Action<BinaryWriter> action = (BinaryWriter w) =>
             {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
+                // Save FinalRender to a byte[]
+                byte[] screenshot;
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    // Check to see whether the save exists.
-                    if (container.FileExists(filename))
-                        // Delete it so that we can create one fresh.
-                        container.DeleteFile(filename);
-
-                    // Create the file
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        // Write to it
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            // Save FinalRender to a byte[]
-                            byte[] screenshot;
-                            using (MemoryStream ms = new MemoryStream())
-                            {
-                                Renderer.SaveScreenshot(ms);
-                                screenshot = ms.ToArray();
-                            }
-                            Global.save_suspend(writer, FileId, screenshot);
-                        }
-                    }
-                    return true;
+                    Renderer.SaveScreenshot(ms);
+                    screenshot = ms.ToArray();
                 }
-            }
-            return false;
+                Global.save_suspend(w, FileId, screenshot);
+            };
+            bool saveSuccess = StorageWriterBoilerplate(filename, action);
+            return saveSuccess;
         }
 
         private void load()
@@ -1379,34 +1326,12 @@ namespace FEXNA.IO
         private void SaveConfig()
         {
             string filename = "config" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            Action<BinaryWriter> action = (BinaryWriter w) =>
             {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Delete file if it already exists
-                    if (container.FileExists(filename))
-                        container.DeleteFile(filename);
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            int zoom = GameRenderer.ZOOM; //@Debug
-                            Global.SaveConfig(writer, zoom);
-                        }
-                    }
-                }
-            }
+                int zoom = GameRenderer.ZOOM; //@Debug
+                Global.SaveConfig(w, zoom);
+            };
+            StorageWriterBoilerplate(filename, action);
         }
         private void LoadConfig()
         {
@@ -1460,7 +1385,7 @@ namespace FEXNA.IO
         /// Handles creating a StorageContainer and creating a BinaryWriter
         /// to write to it. Calls BufferedWrite() on the passed action.
         /// </summary>
-        private void StorageWriterBoilerplate(
+        private bool StorageWriterBoilerplate(
             string filename,
             Action<BinaryWriter> action)
         {
@@ -1480,16 +1405,18 @@ namespace FEXNA.IO
                 if (container != null)
                 {
                     // Make all the saving more like this //@Debug
-                    BufferedWrite(container, filename, action);
+                    return BufferedWrite(container, filename, action);
                 }
             }
+
+            return false;
         }
 
         /// <summary>
         /// Writes a save action to a memory stream before saving it to disk,
         /// to prevent corrupting the file on errors.
         /// </summary>
-        private void BufferedWrite(
+        private bool BufferedWrite(
             StorageContainer container,
             string filename,
             Action<BinaryWriter> action)
@@ -1514,7 +1441,10 @@ namespace FEXNA.IO
                 {
                     ms.CopyTo(stream);
                 }
+                return true;
             }
+
+            return false;
         }
     }
 
