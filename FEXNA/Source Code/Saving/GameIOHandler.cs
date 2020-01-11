@@ -610,46 +610,7 @@ namespace FEXNA.IO
         private void SaveFile(int id)
         {
             string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        // Write the save to a memory stream to make sure the save is successful, before actually writing it to file
-                        // Make all the saving more like this //@Debug
-                        using (BinaryWriter writer = new BinaryWriter(ms))
-                        {
-                            Global.save(writer);
-                        }
-
-                        // Check to see whether the save exists.
-                        if (container.FileExists(filename))
-                            // Delete it so that we can create one fresh.
-                            container.DeleteFile(filename);
-
-                        // Create the file, copy the memory stream to it
-                        using (Stream stream = container.CreateFile(filename))
-                        {
-                            using (BinaryWriter writer = new BinaryWriter(stream))
-                            {
-                                writer.Write(ms.GetBuffer());
-                            }
-                        }
-                    }
-                }
-            }
+            StorageWriterBoilerplate(filename, Global.save);
         }
 
         private void ResetFile()
@@ -1494,6 +1455,67 @@ namespace FEXNA.IO
             FEXNA.Input.default_controls();
         }
         #endregion
+
+        /// <summary>
+        /// Handles creating a StorageContainer and creating a BinaryWriter
+        /// to write to it. Calls BufferedWrite() on the passed action.
+        /// </summary>
+        private void StorageWriterBoilerplate(
+            string filename,
+            Action<BinaryWriter> action)
+        {
+            /* Create Storage Containter*/
+            // Open a storage container.
+            IAsyncResult result =
+                Storage.BeginOpenContainer(SaveLocation(), null, null);
+
+            // Wait for the WaitHandle to become signaled.
+            result.AsyncWaitHandle.WaitOne();
+
+            using (StorageContainer container = Storage.EndOpenContainer(result))
+            {
+                // Close the wait handle.
+                result.AsyncWaitHandle.Close();
+
+                if (container != null)
+                {
+                    // Make all the saving more like this //@Debug
+                    BufferedWrite(container, filename, action);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes a save action to a memory stream before saving it to disk,
+        /// to prevent corrupting the file on errors.
+        /// </summary>
+        private void BufferedWrite(
+            StorageContainer container,
+            string filename,
+            Action<BinaryWriter> action)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // Write the save to a memory stream to make sure the save is
+                // successful, before actually writing it to file
+                BinaryWriter memoryWriter = new BinaryWriter(ms);
+                action(memoryWriter);
+                memoryWriter.Flush();
+                // Reset to the start of the memory stream
+                ms.Seek(0, SeekOrigin.Begin);
+
+                // Check to see whether the save exists.
+                if (container.FileExists(filename))
+                    // Delete it so that we can create one fresh.
+                    container.DeleteFile(filename);
+
+                // Create the file, copy the memory stream to it
+                using (Stream stream = container.CreateFile(filename))
+                {
+                    ms.CopyTo(stream);
+                }
+            }
+        }
     }
 
     interface ISaveCallbacker
