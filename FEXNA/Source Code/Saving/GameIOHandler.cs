@@ -466,11 +466,9 @@ namespace FEXNA.IO
                         {
                             using (BinaryReader reader = new BinaryReader(stream))
                             {
-                                Global.LOADED_VERSION = LoadVersion(reader);
-                                if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                                var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                                if (info != null)
                                 {
-                                    DateTime modifiedTime = DateTime.FromBinary(reader.ReadInt64());
-                                    Suspend_Info info = Suspend_Info.read(reader);
                                     // If the file id isn't the currently active one, return false
                                     SavestateFileId = info.save_id;
                                     if (!SavestateTesting)
@@ -513,9 +511,15 @@ namespace FEXNA.IO
                         try
                         {
                             using (BinaryReader reader = new BinaryReader(stream))
-                                Global.LOADED_VERSION = LoadVersion(reader);
-                            if (!ValidSaveVersion(Global.LOADED_VERSION))
-                                return false;
+                            {
+                                Save_File_Data fileData;
+                                bool loadSuccessful = Global.load(
+                                    reader,
+                                    out fileData,
+                                    OLDEST_ALLOWED_SAVE_VERSION);
+                                if (!loadSuccessful)
+                                    return false;
+                            }
                         }
                         catch (EndOfStreamException e)
                         {
@@ -531,76 +535,32 @@ namespace FEXNA.IO
         private void SaveProgress()
         {
             string filename = "progress" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
-            {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Delete file if it already exists
-                    if (container.FileExists(filename))
-                        container.DeleteFile(filename);
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
-
-                            Global.progress.write(writer);
-                        }
-                    }
-                }
-            }
+            StorageWriterBoilerplate(filename, Global.save_progress);
         }
         private void LoadProgress()
         {
             string filename = "progress" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            using (Stream stream = StorageReaderBoilerplate(filename))
             {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-                // If the file doesn't exist, return
-                if (container == null || !container.FileExists(filename))
+                if (stream == null)
                 {
                     return;
                 }
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    try
-                    {
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Version progressVersion = LoadVersion(reader);
 
-                            Save_Progress progress = Save_Progress.read(reader, progressVersion);
+                try
+                {
+                    using (BinaryReader reader = new BinaryReader(stream))
+                    {
+                        Save_Progress progress;
+                        bool loadSuccessful = Global.load_progress(reader, out progress);
+                        if (loadSuccessful)
+                        {
                             Global.progress.combine_progress(progress);
                         }
                     }
-                    catch (EndOfStreamException e)
-                    {
-                    }
+                }
+                catch (EndOfStreamException e)
+                {
                 }
             }
         }
@@ -610,53 +570,7 @@ namespace FEXNA.IO
         private void SaveFile(int id)
         {
             string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
-            {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        // Write the save to a memory stream to make sure the save is successful, before actually writing it to file
-                        // Make all the saving more like this //@Debug
-                        using (BinaryWriter writer = new BinaryWriter(ms))
-                        {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
-                            /* Call Serialize */
-                            Global.game_options.write(writer);
-                            Global.save_file.write(writer);
-                        }
-
-                        // Check to see whether the save exists.
-                        if (container.FileExists(filename))
-                            // Delete it so that we can create one fresh.
-                            container.DeleteFile(filename);
-
-                        // Create the file, copy the memory stream to it
-                        using (Stream stream = container.CreateFile(filename))
-                        {
-                            using (BinaryWriter writer = new BinaryWriter(stream))
-                            {
-                                writer.Write(ms.GetBuffer());
-                            }
-                        }
-                    }
-                }
-            }
+            StorageWriterBoilerplate(filename, Global.save);
         }
 
         private void ResetFile()
@@ -674,93 +588,46 @@ namespace FEXNA.IO
             {
                 return false;
             }
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            using (Stream stream = StorageReaderBoilerplate(filename))
             {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
+                if (stream == null)
                 {
                     return false;
                 }
-                /* Create Stream object */
-                // Open the file.
-                // Add a IOException handler for if the file is being used by another process //@Yeti
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
-                {
-                    try
-                    {
-                        /* Create XmlSerializer */
-                        // Convert the object to XML data and put it in the stream.
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Version v;
-                            Save_File_Data data;
-                            if (LoadFile(stream, out v, out data))
-                            {
-                                Global.LOADED_VERSION = v;
 
-                                if (false) { } //@Debug: if different versions are handled differently
-                                else
-                                {
-                                    Global.game_options = data.Options;
-                                    Global.save_file = data.File;
-                                }
-                            }
-                            else
-                            {
-                                ResetFile();
-                                return false;
-                            }
+                try
+                {
+                    /* Create XmlSerializer */
+                    // Convert the object to XML data and put it in the stream.
+                    using (BinaryReader reader = new BinaryReader(stream))
+                    {
+                        Save_File_Data fileData;
+                        bool loadSuccessful = Global.load(
+                            reader,
+                            out fileData,
+                            OLDEST_ALLOWED_SAVE_VERSION);
+                        if (loadSuccessful)
+                        {
+                            Global.game_options = fileData.Options;
+                            Global.save_file = fileData.File;
+                        }
+                        else
+                        {
+                            ResetFile();
+                            return false;
                         }
                     }
-                    catch (EndOfStreamException e)
-                    {
-                        ResetFile();
-                        return false;
-                    }
                 }
-                /* Dispose the StorageContainer */
-                // Dispose the container, to commit changes.
+                catch (EndOfStreamException e)
+                {
+                    ResetFile();
+                    return false;
+                }
             }
             STARTING = false;
             return true;
         }
-
-        private bool LoadFile(Stream stream, out Version v, out Save_File_Data data)
-        {
-            /* Create XmlSerializer */
-            // Convert the object to XML data and put it in the stream.
-            using (BinaryReader reader = new BinaryReader(stream))
-            {
-                v = LoadVersion(reader);
-                if (!ValidSaveVersion(v))
-                    throw new EndOfStreamException();
-
-                /* Call Deserialize */
-                if (false) { } //@Debug: if different versions are handled differently
-                else
-                {
-                    data = LoadFileV0_4_4_0(reader);
-                }
-                return true;
-            }
-
-            v = new Version();
-            data = new Save_File_Data();
-            return false;
-        }
-
+        
         private bool MoveFile(int id, int moveToId, bool copying = false)
         {
             string filename = id.ToString() + Config.SAVE_FILE_EXTENSION;
@@ -795,9 +662,7 @@ namespace FEXNA.IO
                     filename, FileMode.Open, FileAccess.Read))
                 using (Stream stream = container.CreateFile(targetFilename))
                 {
-                    byte[] buffer = new byte[moveFromStream.Length];
-                    moveFromStream.Read(buffer, 0, buffer.Length);
-                    stream.Write(buffer, 0, buffer.Length);
+                    moveFromStream.CopyTo(stream);
                 }
 
                 // If not copying (ie just moving)
@@ -819,9 +684,13 @@ namespace FEXNA.IO
             string sourceSuspendFilename = SuspendFilename(id);
             string targetSuspendFilename = SuspendFilename(moveToId);
 
-            CopySuspend(id, moveToId, container, sourceSuspendFilename, targetSuspendFilename);
+            bool success = CopySuspend(id, moveToId, container, sourceSuspendFilename, targetSuspendFilename);
+            if (success)
+            {
+                Global.suspend_files_info[moveToId] = (Suspend_Info)Global.suspend_files_info[id].Clone();
+            }
         }
-        private void CopySuspend(int id, int moveToId, StorageContainer container,
+        private bool CopySuspend(int id, int moveToId, StorageContainer container,
             string sourceSuspendFilename, string targetSuspendFilename)
         {
             if (container.FileExists(sourceSuspendFilename))
@@ -832,31 +701,22 @@ namespace FEXNA.IO
                     {
                         try
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
-                            // If the map save is valid
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                            var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                            // If the suspend is valid
+                            if (info != null)
                             {
-                                DateTime modifiedTime = DateTime.FromBinary(reader.ReadInt64());
-                                Suspend_Info info = Suspend_Info.read(reader);
-
                                 if (info.save_id == id)
+                                {
                                     using (Stream stream = container.CreateFile(targetSuspendFilename))
                                     {
                                         info.save_id = moveToId;
                                         using (BinaryWriter writer = new BinaryWriter(stream))
                                         {
-                                            writer.Write(Global.LOADED_VERSION.Major);
-                                            writer.Write(Global.LOADED_VERSION.Minor);
-                                            writer.Write(Global.LOADED_VERSION.Build);
-                                            writer.Write(Global.LOADED_VERSION.Revision);
-                                            writer.Write(modifiedTime.ToBinary());
-                                            info.write(writer);
-                                            // Move the actual map save data, everything after the info
-                                            byte[] buffer = new byte[moveFromStream.Length - moveFromStream.Position];
-                                            moveFromStream.Read(buffer, 0, buffer.Length);
-                                            stream.Write(buffer, 0, buffer.Length);
+                                            Global.copy_suspend(reader, writer, info);
                                         }
                                     }
+                                    return true;
+                                }
                             }
                             // If the map save is too old to read properly, just move everything in it
                             else
@@ -864,10 +724,9 @@ namespace FEXNA.IO
                                 using (Stream stream = container.CreateFile(targetSuspendFilename))
                                 {
                                     moveFromStream.Position = 0;
-                                    byte[] buffer = new byte[moveFromStream.Length];
-                                    moveFromStream.Read(buffer, 0, buffer.Length);
-                                    stream.Write(buffer, 0, buffer.Length);
+                                    moveFromStream.CopyTo(stream);
                                 }
+                                return true;
                             }
                         }
                         catch (EndOfStreamException e)
@@ -878,6 +737,8 @@ namespace FEXNA.IO
                         }
                     }
                 }
+
+            return false;
         }
         private void CopyMapSave(int id, int moveToId, StorageContainer container)
         {
@@ -925,6 +786,9 @@ namespace FEXNA.IO
             if (container.FileExists(MapSaveFilename(id)))
                 container.DeleteFile(MapSaveFilename(id));
 
+            // Clear suspend info
+            Global.suspend_files_info.Remove(id);
+
             return true;
         }
 
@@ -956,23 +820,6 @@ namespace FEXNA.IO
             }
             return true;
         }
-
-        private Save_File_Data LoadFileV0_4_0_2(BinaryReader reader)
-        {
-            return new Save_File_Data
-            {
-                Options = Game_Options.read(reader),
-                File = Save_File.read(reader)
-            };
-        }
-        private Save_File_Data LoadFileV0_4_4_0(BinaryReader reader)
-        {
-            return new Save_File_Data
-            {
-                Options = Game_Options.read(reader),
-                File = Save_File.read(reader)
-            };
-        }
         #endregion
 
         #region Map Save
@@ -982,46 +829,19 @@ namespace FEXNA.IO
         }
         private bool save(string filename)
         {
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            Action<BinaryWriter> action = (BinaryWriter w) =>
             {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
+                // Save FinalRender to a byte[]
+                byte[] screenshot;
+                using (MemoryStream ms = new MemoryStream())
                 {
-                    // Check to see whether the save exists.
-                    if (container.FileExists(filename))
-                        // Delete it so that we can create one fresh.
-                        container.DeleteFile(filename);
-
-                    // Create the file
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        // Write to it
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            // Save FinalRender to a byte[]
-                            byte[] screenshot;
-                            using (MemoryStream ms = new MemoryStream())
-                            {
-                                Renderer.SaveScreenshot(ms);
-                                screenshot = ms.ToArray();
-                            }
-                            Global.save_suspend(writer, FileId, screenshot);
-                        }
-                    }
-                    return true;
+                    Renderer.SaveScreenshot(ms);
+                    screenshot = ms.ToArray();
                 }
-            }
-            return false;
+                Global.save_suspend(w, FileId, screenshot);
+            };
+            bool saveSuccess = StorageWriterBoilerplate(filename, action);
+            return saveSuccess;
         }
 
         private void load()
@@ -1063,14 +883,12 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
                             // Wait for move range update thread to finish
                             Callback.CloseMoveRangeThread();
                             /* Call Deserialize */
                             int fileId;
                             bool loadSuccessful = Global.load_suspend(
                                 reader, out fileId,
-                                Global.LOADED_VERSION,
                                 OLDEST_ALLOWED_SUSPEND_VERSION);
 
                             if (loadSuccessful)
@@ -1183,11 +1001,12 @@ namespace FEXNA.IO
                             suspendFiles[i], FileMode.Open, FileAccess.Read))
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                            var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                            if (info != null)
                             {
-                                DateTime time = DateTime.FromBinary(reader.ReadInt64());
-                                Global.suspend_file_info = Suspend_Info.read(reader);
+                                DateTime time = info.SuspendModifiedTime;
+                                Global.suspend_file_info = info;
+
                                 int filenameId = Convert.ToInt32(suspendFiles[i].Substring(0,
                                     suspendFiles[i].Length - (SUSPEND_FILENAME.Length + Config.SAVE_FILE_EXTENSION.Length)));
                                 // If the file id in the data does not match the id in the filename, or there isn't a save for this id
@@ -1223,12 +1042,11 @@ namespace FEXNA.IO
                         // Convert the object to XML data and put it in the stream.
                         using (BinaryReader reader = new BinaryReader(stream))
                         {
-                            Global.LOADED_VERSION = LoadVersion(reader);
-                            /* Call Deserialize */
-                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                            var info = Global.load_suspend_info(reader, OLDEST_ALLOWED_SAVE_VERSION);
+                            if (info != null)
                             {
-                                DateTime time = DateTime.FromBinary(reader.ReadInt64());
-                                Global.suspend_file_info = Suspend_Info.read(reader);
+                                Global.suspend_file_info = info;
+                                
                                 if (updateFileId)
                                     FileId = Global.suspend_file_info.save_id;
                             }
@@ -1304,16 +1122,20 @@ namespace FEXNA.IO
                     using (BinaryReader reader = new BinaryReader(stream))
                     {
                         int fileId = Convert.ToInt32(saveFiles[i].Substring(0, saveFiles[i].Length - (Config.SAVE_FILE_EXTENSION.Length)));
-                        Global.LOADED_VERSION = LoadVersion(reader);
+                        
                         try
                         {
-                            if (!ValidSaveVersion(Global.LOADED_VERSION))
+                            Save_File_Data fileData;
+                            bool loadSuccessful = Global.load(
+                                reader,
+                                out fileData,
+                                OLDEST_ALLOWED_SAVE_VERSION);
+                            if (!loadSuccessful)
                                 throw new EndOfStreamException(
                                     "Save file is too outdated or from a newer version");
-
-                            Save_File_Data data = LoadFileV0_4_4_0(reader);
+                            
                             // Updates the progress data with this save file
-                            Global.progress.update_progress(data.File);
+                            Global.progress.update_progress(fileData.File);
                             bool suspendExists = container.FileExists(SuspendFilename(fileId));
                             bool mapSaveExists = container.FileExists(MapSaveFilename(fileId));
                             Save_Info info;
@@ -1329,12 +1151,9 @@ namespace FEXNA.IO
                                     {
                                         using (BinaryReader suspendReader = new BinaryReader(suspendStream))
                                         {
-                                            Global.LOADED_VERSION = LoadVersion(suspendReader);
-                                            /* Call Deserialize */
-                                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                                            suspendInfo = Global.load_suspend_info(suspendReader, OLDEST_ALLOWED_SAVE_VERSION);
+                                            if (suspendInfo != null)
                                             {
-                                                DateTime time = DateTime.FromBinary(suspendReader.ReadInt64());
-                                                suspendInfo = Suspend_Info.read(suspendReader);
                                                 Global.checkpoint_files_info[fileId] = suspendInfo;
                                             }
                                             else
@@ -1359,12 +1178,9 @@ namespace FEXNA.IO
                                     {
                                         using (BinaryReader suspendReader = new BinaryReader(suspendStream))
                                         {
-                                            Global.LOADED_VERSION = LoadVersion(suspendReader);
-                                            /* Call Deserialize */
-                                            if (!Global.LOADED_VERSION.older_than(OLDEST_ALLOWED_SUSPEND_VERSION))
+                                            suspendInfo = Global.load_suspend_info(suspendReader, OLDEST_ALLOWED_SAVE_VERSION);
+                                            if (suspendInfo != null)
                                             {
-                                                DateTime time = DateTime.FromBinary(suspendReader.ReadInt64());
-                                                suspendInfo = Suspend_Info.read(suspendReader);
                                                 Global.suspend_files_info[fileId] = suspendInfo;
                                             }
                                             else
@@ -1381,10 +1197,10 @@ namespace FEXNA.IO
 
                             if (suspendInfo != null)
                             {
-                                info = Save_Info.get_save_info(fileId, data.File, suspendInfo, map_save: mapSaveExists, suspend: suspendExists);
+                                info = Save_Info.get_save_info(fileId, fileData.File, suspendInfo, map_save: mapSaveExists, suspend: suspendExists);
                             }
                             else
-                                info = Save_Info.get_save_info(fileId, data.File, suspendExists);
+                                info = Save_Info.get_save_info(fileId, fileData.File, suspendExists);
 
                             // Copy transient file info (last chapter played, last time started)
                             if (oldSaveFilesInfo != null &&
@@ -1403,7 +1219,7 @@ namespace FEXNA.IO
                                 modifiedTime = info.time;
                                 if (STARTING)
                                 {
-                                    Global.game_options = data.Options;  //@Debug: // This needs to only happen when just starting the game
+                                    Global.game_options = fileData.Options;  //@Debug: // This needs to only happen when just starting the game
                                     STARTING = false;
                                 }
                             }
@@ -1470,129 +1286,39 @@ namespace FEXNA.IO
             }
         }
         #endregion
-
-        private Version LoadVersion(BinaryReader reader)
-        {
-            return new Version(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
-        }
         #endregion
 
         #region Save/Load Config
         private void SaveConfig()
         {
             string filename = "config" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            Action<BinaryWriter> action = (BinaryWriter w) =>
             {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-
-                if (container != null)
-                {
-                    // Delete file if it already exists
-                    if (container.FileExists(filename))
-                        container.DeleteFile(filename);
-                    using (Stream stream = container.CreateFile(filename))
-                    {
-                        using (BinaryWriter writer = new BinaryWriter(stream))
-                        {
-                            Version version = Global.RUNNING_VERSION;
-                            writer.Write(version.Major);
-                            writer.Write(version.Minor);
-                            writer.Write(version.Build);
-                            writer.Write(version.Revision);
-
-                            writer.Write(GameRenderer.ZOOM); //@Debug
-                            writer.Write(Global.fullscreen);
-                            writer.Write(Global.stereoscopic_level);
-                            writer.Write(Global.anaglyph);
-                            writer.Write((int)Global.metrics);
-                            writer.Write(Global.updates_active);
-                            writer.Write(Global.rumble);
-                            FEXNA.Input.write(writer);
-                        }
-                    }
-                }
-            }
+                int zoom = GameRenderer.ZOOM; //@Debug
+                Global.SaveConfig(w, zoom);
+            };
+            StorageWriterBoilerplate(filename, action);
         }
         private void LoadConfig()
         {
             string filename = "config" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            using (Stream stream = StorageReaderBoilerplate(filename))
             {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-                // If the file doesn't exist, return
-                if (container == null || !container.FileExists(filename))
+                if (stream == null)
                 {
                     return;
                 }
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
+
+                try
                 {
-                    try
+                    using (BinaryReader reader = new BinaryReader(stream))
                     {
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Global.LOADED_VERSION = LoadVersion(reader);
-                            if (Global.LOADED_VERSION.older_than(0, 4, 2, 0))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = false;
-                                Global.stereoscopic_level = 0;
-                                Global.anaglyph = true;
-                                bool unused = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                            else if (Global.LOADED_VERSION.older_than(0, 4, 6, 3))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                            else if (Global.LOADED_VERSION.older_than(0, 5, 0, 6))
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                                FEXNA.Input.read(reader);
-                            }
-                            else
-                            {
-                                Global.zoom = reader.ReadInt32();
-                                Global.fullscreen = reader.ReadBoolean();
-                                Global.stereoscopic_level = reader.ReadInt32();
-                                Global.anaglyph = reader.ReadBoolean();
-                                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                                Global.updates_active = reader.ReadBoolean();
-                                Global.rumble = reader.ReadBoolean();
-                                FEXNA.Input.read(reader);
-                            }
-                        }
+                        Global.LoadConfig(reader);
                     }
-                    catch (EndOfStreamException e)
-                    {
-                        ResetConfig();
-                    }
+                }
+                catch (EndOfStreamException e)
+                {
+                    ResetConfig();
                 }
             }
         }
@@ -1606,6 +1332,106 @@ namespace FEXNA.IO
             FEXNA.Input.default_controls();
         }
         #endregion
+
+        /// <summary>
+        /// Handles creating a StorageContainer and creating a BinaryWriter
+        /// to write to it. Calls BufferedWrite() on the passed action.
+        /// </summary>
+        private bool StorageWriterBoilerplate(
+            string filename,
+            Action<BinaryWriter> action)
+        {
+            /* Create Storage Containter*/
+            // Open a storage container.
+            IAsyncResult result =
+                Storage.BeginOpenContainer(SaveLocation(), null, null);
+
+            // Wait for the WaitHandle to become signaled.
+            result.AsyncWaitHandle.WaitOne();
+
+            using (StorageContainer container = Storage.EndOpenContainer(result))
+            {
+                // Close the wait handle.
+                result.AsyncWaitHandle.Close();
+
+                if (container != null)
+                {
+                    // Make all the saving more like this //@Debug
+                    return BufferedWrite(container, filename, action);
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Writes a save action to a memory stream before saving it to disk,
+        /// to prevent corrupting the file on errors.
+        /// </summary>
+        private bool BufferedWrite(
+            StorageContainer container,
+            string filename,
+            Action<BinaryWriter> action)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // Write the save to a memory stream to make sure the save is
+                // successful, before actually writing it to file
+                BinaryWriter memoryWriter = new BinaryWriter(ms);
+                action(memoryWriter);
+                memoryWriter.Flush();
+                // Reset to the start of the memory stream
+                ms.Seek(0, SeekOrigin.Begin);
+
+                // Check to see whether the save exists.
+                if (container.FileExists(filename))
+                    // Delete it so that we can create one fresh.
+                    container.DeleteFile(filename);
+
+                // Create the file, copy the memory stream to it
+                using (Stream stream = container.CreateFile(filename))
+                {
+                    ms.CopyTo(stream);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Handles creating a StorageContainer and a Stream
+        /// to read from it.
+        /// </summary>
+        private Stream StorageReaderBoilerplate(string filename)
+        {
+            /* Create Storage Containter*/
+            // Open a storage container.
+            IAsyncResult result =
+                Storage.BeginOpenContainer(SaveLocation(), null, null);
+
+            // Wait for the WaitHandle to become signaled.
+            result.AsyncWaitHandle.WaitOne();
+
+            using (StorageContainer container = Storage.EndOpenContainer(result))
+            {
+                // Close the wait handle.
+                result.AsyncWaitHandle.Close();
+                /* Call FileExists */
+                // Check to see whether the file exists.
+                if (container == null || !container.FileExists(filename))
+                {
+                    return null;
+                }
+                /* Create Stream object */
+                // Open the file.
+                // Add a IOException handler for if the file is being used by another process //@Yeti
+                Stream stream = container.OpenFile(filename, FileMode.Open, FileAccess.Read);
+                return stream;
+            }
+            /* Dispose the StorageContainer */
+            // Dispose the container, to commit changes.
+        }
     }
 
     interface ISaveCallbacker
@@ -1617,11 +1443,5 @@ namespace FEXNA.IO
         void CloseMoveRangeThread();
 
         void FinishLoad();
-    }
-
-    struct Save_File_Data
-    {
-        public Game_Options Options;
-        public Save_File File;
     }
 }

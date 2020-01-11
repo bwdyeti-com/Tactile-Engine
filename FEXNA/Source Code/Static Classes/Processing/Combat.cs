@@ -817,7 +817,7 @@ namespace FEXNA
 
                 exp_gain = kill_gain;
             }
-            exp_gain = exp_difficulty_adjustment(exp_gain, kill);
+            exp_gain = exp_difficulty_adjustment(exp_gain, true, kill);
             // Boss bonus
             if (kill)
             {
@@ -829,30 +829,33 @@ namespace FEXNA
             return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
 
-        private static int exp_difficulty_adjustment(float exp_gain, bool kill)
+        private static int exp_difficulty_adjustment(float exp_gain, bool combat, bool kill)
         {
-            // Kill adjustment
-            if (kill)
+            if (combat)
             {
-                if (Constants.Combat.KILL_EXP_MULTIPLIER
-                    .ContainsKey(Global.game_system.Difficulty_Mode))
+                // Kill adjustment
+                if (kill)
                 {
-                    float multiplier =
-                        Constants.Combat.KILL_EXP_MULTIPLIER[
-                            Global.game_system.Difficulty_Mode];
-                    exp_gain = exp_gain * multiplier;
+                    if (Constants.Combat.KILL_EXP_MULTIPLIER
+                        .ContainsKey(Global.game_system.Difficulty_Mode))
+                    {
+                        float multiplier =
+                            Constants.Combat.KILL_EXP_MULTIPLIER[
+                                Global.game_system.Difficulty_Mode];
+                        exp_gain = exp_gain * multiplier;
+                    }
                 }
-            }
-            // Non-kill adjustment
-            else
-            {
-                if (Constants.Combat.NON_KILL_EXP_MULTIPLIER
-                    .ContainsKey(Global.game_system.Difficulty_Mode))
+                // Non-kill adjustment
+                else
                 {
-                    float multiplier =
-                        Constants.Combat.NON_KILL_EXP_MULTIPLIER[
-                            Global.game_system.Difficulty_Mode];
-                    exp_gain = exp_gain * multiplier;
+                    if (Constants.Combat.NON_KILL_EXP_MULTIPLIER
+                        .ContainsKey(Global.game_system.Difficulty_Mode))
+                    {
+                        float multiplier =
+                            Constants.Combat.NON_KILL_EXP_MULTIPLIER[
+                                Global.game_system.Difficulty_Mode];
+                        exp_gain = exp_gain * multiplier;
+                    }
                 }
             }
 
@@ -881,7 +884,7 @@ namespace FEXNA
                 exp_gain = (int)(weapon.Staff_Exp * 1.5);
             else
                 exp_gain = (int)(weapon.Staff_Exp / (Math.Pow(2, actor.tier - 1)));
-            exp_gain = exp_difficulty_adjustment(exp_gain, false);
+            exp_gain = exp_difficulty_adjustment(exp_gain, false, false);
 
             return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
