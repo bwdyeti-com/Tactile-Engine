@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNAVersionExtension;
 using ArrayExtension;
 
 namespace FEXNA.IO
 {
-    class Suspend_Info
+    class Suspend_Info : ICloneable
     {
         private string Chapter_Id;
         private string Lord_Actor_Face;
@@ -22,6 +23,8 @@ namespace FEXNA.IO
         private DateTime Time;
         private byte[] ScreenshotData = new byte[0];
         internal Texture2D Screenshot { get; private set; }
+
+        internal DateTime SuspendModifiedTime;
 
         #region Serialization
         public void write(BinaryWriter writer)
@@ -93,6 +96,26 @@ namespace FEXNA.IO
         public DateTime time { get { return Time; } }
         #endregion
 
+        public Suspend_Info() { }
+        private Suspend_Info(Suspend_Info source)
+        {
+            Chapter_Id = source.Chapter_Id;
+            Lord_Actor_Face = source.Lord_Actor_Face;
+            Turn = source.Turn;
+            Units = source.Units;
+            Playtime = source.Playtime;
+            Gold = source.Gold;
+            Save_Id = source.Save_Id;
+            Preparations = source.Preparations;
+            HomeBase = source.HomeBase;
+            Difficulty = source.Difficulty;
+            Style = source.Style;
+            Time = source.Time;
+            ScreenshotData = source.ScreenshotData.ToArray();
+
+            SuspendModifiedTime = source.SuspendModifiedTime;
+        }
+
         public static Suspend_Info get_suspend_info(int file_id, byte[] screenshot)
         {
             Suspend_Info result = new Suspend_Info();
@@ -145,6 +168,11 @@ namespace FEXNA.IO
                     Global.SuspendScreenshots[name] = Screenshot;
                 }
             }
+        }
+
+        public object Clone()
+        {
+            return new Suspend_Info(this);
         }
     }
 }

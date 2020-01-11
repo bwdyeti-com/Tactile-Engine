@@ -56,7 +56,7 @@ namespace FEXNA
             new_turn_read(reader);
 
             BlockState.read(reader);
-            if (!Global.LOADED_VERSION.older_than(new Version(0, 6, 3, 0)))
+            if (!Global.LOADED_VERSION.older_than(0, 6, 3, 0))
                 ChapterEndState.read(reader);
             ShopState.read(reader);
             AiState.read(reader);
