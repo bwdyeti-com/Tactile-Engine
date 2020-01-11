@@ -7,7 +7,7 @@ using FEXNATexture2DExtension;
 
 namespace FEXNA
 {
-    public class Face_Sprite : Sprite
+    class Face_Sprite : Sprite
     {
         protected Color[] Palette;
         protected int Expression = 0;

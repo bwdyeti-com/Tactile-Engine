@@ -8,7 +8,7 @@ using FEXNA_Library;
 namespace FEXNA.Services.Input
 {
     [Flags]
-    public enum InputStates
+    enum InputStates
     {
         None            = 0,
         Pressed         = 1 << 0,
@@ -18,7 +18,7 @@ namespace FEXNA.Services.Input
         Click           = 1 << 4,
         InputConsumed   = 1 << 5
     }
-    public abstract class BaseInputService : GameComponent, IInputService
+    abstract class BaseInputService : GameComponent, IInputService
     {
         internal BaseInputService(Game game) : base(game) { }
 

@@ -8,7 +8,7 @@ using FEXNA.Graphics.Text;
 
 namespace FEXNA
 {
-    public class Scene_Splash : Scene_Base
+    class Scene_Splash : Scene_Base
     {
         //private readonly static string GAME_SITE = "yoursite.herethough/yourgame";
 

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA
 {
-    public class Text_Box : Sprite
+    class Text_Box : Sprite
     {
         protected int Width, Height;
 

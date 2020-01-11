@@ -10,12 +10,12 @@ using ListExtension;
 
 namespace FEXNA.State
 {
-    public enum Ai_Actions { Idle, Selecting_Target, Move_To_Target, Wait_For_Move, Move_Wait, Attack_Target, Wait_For_Combat,
+    enum Ai_Actions { Idle, Selecting_Target, Move_To_Target, Wait_For_Move, Move_Wait, Attack_Target, Wait_For_Combat,
         Search_For_Targets, Move_In, Wait_For_Move_In, Finish_Movement, Pillage_Target, Open_Target, Wait_For_Visit,
         Wait_For_Move_Escape, Move_Wait_Escape, Escape, Wait_For_Steal, Wait_For_Item, Rescue_Target, Wait_For_Rescue,
         Talk_Target, Wait_For_Talk, Wait_For_Dance, Full_Retreat,
         Seize }
-    public enum Ai_Turn_Skip_State { NotSkipping, SkipStart, Skipping, SkipEnd }
+    enum Ai_Turn_Skip_State { NotSkipping, SkipStart, Skipping, SkipEnd }
     enum NextAIUnitModes { Seize, StatusStaff, HealthyAttacker, Healer, Attacker,
         Other, Savior }
     class Game_Ai_State : Game_State_Component

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace FEXNA.State
 {
-    public enum Rescue_Modes { None, Rescue, Drop, Take, Give, Cover, Refuge }
+    enum Rescue_Modes { None, Rescue, Drop, Take, Give, Cover, Refuge }
     class Game_Rescue_State : Game_State_Component
     {
         protected Rescue_Modes Rescue_Calling = 0;

@@ -6,7 +6,7 @@ using ArrayExtension;
 
 namespace FEXNA.IO
 {
-    public class Suspend_Info
+    class Suspend_Info
     {
         private string Chapter_Id;
         private string Lord_Actor_Face;

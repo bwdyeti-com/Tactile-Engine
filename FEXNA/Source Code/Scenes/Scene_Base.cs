@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA
 {
-    public abstract partial class Scene_Base
+    abstract partial class Scene_Base
     {
         protected string Scene_Type = "Scene_Base";
         protected bool Suspend_Calling = false;

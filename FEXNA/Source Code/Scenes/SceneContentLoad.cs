@@ -7,7 +7,7 @@ using FEXNA.Graphics.Text;
 
 namespace FEXNA
 {
-    public class SceneContentLoad : Scene_Base
+    class SceneContentLoad : Scene_Base
     {
         const int FADE_OUT_TIME = 8;
         const int LOADS_PER_FRAME = 4;

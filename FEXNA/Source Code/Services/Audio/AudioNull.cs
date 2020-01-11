@@ -13,7 +13,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Services.Audio
 {
-    public class AudioNull
+    class AudioNull
     {
         public class AudioNullService : IAudioService
         {

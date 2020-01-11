@@ -4,7 +4,7 @@ using FEXNAVector2Extension;
 
 namespace FEXNA.Map
 {
-    public class Torch_Staff_Point : Fow_View_Object
+    class Torch_Staff_Point : Fow_View_Object
     {
         #region Serialization
         public void write(BinaryWriter writer)

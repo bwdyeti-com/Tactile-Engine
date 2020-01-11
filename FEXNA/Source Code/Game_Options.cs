@@ -6,7 +6,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public class Game_Options
+    class Game_Options
     {
         const int DATA_COUNT = 18;
         public byte[] Data = new byte[DATA_COUNT];

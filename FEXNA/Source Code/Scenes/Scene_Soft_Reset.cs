@@ -1,6 +1,6 @@
 ﻿namespace FEXNA
 {
-    public class Scene_Soft_Reset : Scene_Base
+    class Scene_Soft_Reset : Scene_Base
     {
         const int WAIT_TIME = 8;
         protected int Timer = WAIT_TIME;

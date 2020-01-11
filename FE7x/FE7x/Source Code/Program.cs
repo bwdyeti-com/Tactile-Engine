@@ -36,7 +36,7 @@ namespace FE7x
 		{
             base.OnCreate(bundle);
 			// FE7x.Game1.Activity = this; //Debug
-			Game1.STATUS_BAR_HEIGHT = getStatusBarHeight();
+            FEXNA.Rendering.GameRenderer.SetStatusBarHeight(getStatusBarHeight());
             g = new Game1(new string[0]); //Debug
 
             //SetContentView(g.Window); //Debug

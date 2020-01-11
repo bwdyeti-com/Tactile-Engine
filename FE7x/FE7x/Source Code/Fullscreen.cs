@@ -1,10 +1,93 @@
 ﻿#if WINDOWS && !MONOGAME
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FE7x
 {
-    class Fullscreen
+    class FullscreenService : FEXNA.Rendering.IFullscreenService
+    {
+        private Game Game;
+        private bool IsFullscreen = false;
+
+        public FullscreenService(Game game)
+        {
+            Game = game;
+        }
+
+        public void SetFullscreen(bool value, GraphicsDeviceManager graphics)
+        {
+            // Resize window
+            if (IsFullscreen != value)
+            {
+                IsFullscreen = value;
+#if !MONOGAME
+                if (IsFullscreen)
+                    FullScreen();
+                else
+                    Restore();
+#elif MONOMAC || WINDOWS
+                bool regainFocus = IsFullscreen != graphics.IsFullScreen;
+                graphics.IsFullScreen = IsFullscreen;
+#if MONOMAC
+                // going to or from fullscreen loses focus on the window, it's still on the program? //@Yeti
+                //if (regainFocus)
+                //    Game.Window.MakeCurrent();
+#endif
+#endif
+            }
+        }
+
+        public bool NeedsRefresh(bool value)
+        {
+            return IsFullscreen != value;
+        }
+
+        public int WindowWidth(GraphicsDevice device)
+        {
+#if !MONOGAME
+            return FE7x.Fullscreen.ScreenX(Game.Window.Handle);
+#else
+            return device.DisplayMode.Width;
+#endif
+        }
+        public int WindowHeight(GraphicsDevice device)
+        {
+#if !MONOGAME
+            return FE7x.Fullscreen.ScreenY(Game.Window.Handle);
+#else
+            return device.DisplayMode.Height;
+#endif
+        }
+
+        public void MinimizeFullscreen(Game game)
+        {
+#if !MONOGAME
+                System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().WindowState =
+                    System.Windows.Forms.FormWindowState.Minimized;
+#elif MONOMAC
+                    game.Window.WindowState = MonoMac.OpenGL.WindowState.Minimized;
+#endif
+        }
+
+#if WINDOWS && !MONOGAME
+        private void FullScreen()
+        {
+            Fullscreen.fullscreen(Game.Window.Handle);
+        }
+        private void Restore()
+        {
+            System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().WindowState =
+                System.Windows.Forms.FormWindowState.Normal;
+            System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().FormBorderStyle =
+                System.Windows.Forms.FormBorderStyle.FixedDialog;
+            System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().TopMost = false;
+        }
+#endif
+    }
+
+    static class Fullscreen
     {
         const int MONITOR_DEFAULTTONULL = 0;
         const int MONITOR_DEFAULTTOPRIMARY = 1;

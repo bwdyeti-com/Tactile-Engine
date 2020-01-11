@@ -9,7 +9,7 @@ using FEXNARenderTarget2DExtension;
 
 namespace FEXNA
 {
-    public enum Battle_Actions { New_Attack, Prehit_Check, Hit_Check, Start_Attack, Skill_Activation, Defender_Skill_Activation, Animate_Attack,
+    enum Battle_Actions { New_Attack, Prehit_Check, Hit_Check, Start_Attack, Skill_Activation, Defender_Skill_Activation, Animate_Attack,
         Wait_For_Hit, Magic_Wait_For_Hit, Spell_Start, Anima_Effect_End, Spell_Pan, Wait_For_Spell, On_Hit_Skill, Hit, Miss, Wait_For_Shake, Wait_For_Death,
         Death_Quote, Wait_For_Death_Quote, Wait_For_Miss, Wait_For_Pan, No_Damage_Pan, Pan_Hit_Over, Hit_Over, Life_Drain_Pause, Life_Drain_Pan,
         Wait_Life_Drain_Effect1, Wait_Life_Drain_Effect2, Wait_Life_Drain_Heal, Life_Drain_Pan_Back, No_Damage_Hit_Over, Wait_For_Return, Cleanup }

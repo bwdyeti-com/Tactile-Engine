@@ -5,7 +5,7 @@ using System;
 
 namespace FEXNA
 {
-    public class Game_Temp
+    class Game_Temp
     {
         public int highlighted_unit_id = -1;
         public int dying_unit_id = -1;

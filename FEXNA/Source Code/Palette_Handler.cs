@@ -2,7 +2,7 @@
 
 namespace FEXNA
 {
-    public class Palette_Handler
+    class Palette_Handler
     {
         const int PALETTE_COUNT = 64;
         public const int PALETTE_SIZE = 256;

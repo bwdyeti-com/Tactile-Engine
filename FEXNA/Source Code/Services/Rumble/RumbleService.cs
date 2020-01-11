@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FEXNA.Services.Rumble
 {
-    public class RumbleService : BaseRumbleService
+    class RumbleService : BaseRumbleService
     {
         private static Enum[] PlayerEnums;
 

@@ -81,7 +81,7 @@ namespace FEXNA
         }
     }
     
-    public class Battle_Convo
+    class Battle_Convo
     {
         public int Id1;
         public int Id2;

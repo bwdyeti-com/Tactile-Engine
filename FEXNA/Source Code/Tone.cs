@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace FEXNA
 {
-    public struct Tone
+    struct Tone
     {
         // These should be bytes (or shorts, since bytes don't have enough data for [-255 - 255] //Yeti
         private int R;

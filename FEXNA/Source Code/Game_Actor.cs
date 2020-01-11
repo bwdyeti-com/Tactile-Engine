@@ -12,7 +12,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public enum Power_Types { Strength, Magic, Power }
+    enum Power_Types { Strength, Magic, Power }
     enum Equippability { CanEquip, CannotEquip, CannotEquipPrf, CanEquipSiege, Silenced }
     internal partial class Game_Actor
     {
