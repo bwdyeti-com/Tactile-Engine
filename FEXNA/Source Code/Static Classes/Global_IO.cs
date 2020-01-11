@@ -155,7 +155,7 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write suspend info encrypted
-            EncryptStream(writer, (BinaryWriter memoryWriter) => WriteSuspendInfo(fileId, screenshot, memoryWriter));
+            EncryptStream(writer, (BinaryWriter w) => WriteSuspendInfo(fileId, screenshot, w));
 
             // Write game data encrypted
             EncryptStream(writer, WriteSuspend);
@@ -271,11 +271,11 @@ namespace FEXNA
             targetWriter.Write(Global.LOADED_VERSION);
 
             // Write suspend info
-            Action<BinaryWriter> suspendInfoAction = (BinaryWriter memoryWriter) =>
+            Action<BinaryWriter> suspendInfoAction = (BinaryWriter w) =>
             {
-                memoryWriter.Write(info.SuspendModifiedTime.ToBinary());
+                w.Write(info.SuspendModifiedTime.ToBinary());
 
-                info.write(memoryWriter);
+                info.write(w);
             };
 
             if (Global.IsEncryptedVersion(Global.LOADED_VERSION))
@@ -321,7 +321,7 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write progression
-            SaveProgress(writer);
+            EncryptStream(writer, SaveProgress);
         }
 
         private static void SaveProgress(BinaryWriter writer)
@@ -340,10 +340,22 @@ namespace FEXNA
                 progress = null;
                 return false;
             }
-            
-            // Read progression
-            progress = ReadProgress(reader, v);
 
+            // Read progression
+            Func<BinaryReader, Save_Progress> suspendInfoFunction = (BinaryReader r) =>
+            {
+                return ReadProgress(r, v);
+            };
+            
+            if (IsEncryptedVersion(v))
+            {
+                progress = DecryptStream(reader, suspendInfoFunction);
+            }
+            else
+            {
+                progress = suspendInfoFunction(reader);
+            }
+            
             return true;
         }
 
