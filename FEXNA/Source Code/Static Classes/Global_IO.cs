@@ -90,10 +90,10 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write options and file
-            EncryptStream(writer, SaveFile);
+            EncryptStream(writer, WriteFile);
         }
 
-        private static void SaveFile(BinaryWriter writer)
+        private static void WriteFile(BinaryWriter writer)
         {
             Global.game_options.write(writer);
             Global.save_file.write(writer);
@@ -321,10 +321,10 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write progression
-            EncryptStream(writer, SaveProgress);
+            EncryptStream(writer, WriteProgress);
         }
 
-        private static void SaveProgress(BinaryWriter writer)
+        private static void WriteProgress(BinaryWriter writer)
         {
             Global.progress.write(writer);
         }
@@ -378,10 +378,10 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write config
-            _SaveConfig(writer, zoom);
+            WriteConfig(writer, zoom);
         }
 
-        private static void _SaveConfig(BinaryWriter writer, int zoom)
+        private static void WriteConfig(BinaryWriter writer, int zoom)
         {
             writer.Write(zoom);
             writer.Write(Global.fullscreen);
@@ -393,7 +393,7 @@ namespace FEXNA
             FEXNA.Input.write(writer);
         }
 
-        internal static bool ReadConfig(
+        internal static bool LoadConfig(
             BinaryReader reader)
         {
             // Read and check version
@@ -406,12 +406,12 @@ namespace FEXNA
             Global.LOADED_VERSION = v;
 
             // Read config
-            _ReadConfig(reader);
+            ReadConfig(reader);
 
             return true;
         }
 
-        private static void _ReadConfig(BinaryReader reader)
+        private static void ReadConfig(BinaryReader reader)
         {
             if (Global.LOADED_VERSION.older_than(0, 4, 2, 0))
             {

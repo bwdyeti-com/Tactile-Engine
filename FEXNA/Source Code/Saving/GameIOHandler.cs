@@ -540,41 +540,27 @@ namespace FEXNA.IO
         private void LoadProgress()
         {
             string filename = "progress" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            using (Stream stream = StorageReaderBoilerplate(filename))
             {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-                // If the file doesn't exist, return
-                if (container == null || !container.FileExists(filename))
+                if (stream == null)
                 {
                     return;
                 }
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
+
+                try
                 {
-                    try
+                    using (BinaryReader reader = new BinaryReader(stream))
                     {
-                        using (BinaryReader reader = new BinaryReader(stream))
+                        Save_Progress progress;
+                        bool loadSuccessful = Global.load_progress(reader, out progress);
+                        if (loadSuccessful)
                         {
-                            Save_Progress progress;
-                            bool loadSuccessful = Global.load_progress(reader, out progress);
-                            if (loadSuccessful)
-                            {
-                                Global.progress.combine_progress(progress);
-                            }
+                            Global.progress.combine_progress(progress);
                         }
                     }
-                    catch (EndOfStreamException e)
-                    {
-                    }
+                }
+                catch (EndOfStreamException e)
+                {
                 }
             }
         }
@@ -602,61 +588,41 @@ namespace FEXNA.IO
             {
                 return false;
             }
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            using (Stream stream = StorageReaderBoilerplate(filename))
             {
-                // Close the wait handle.
-                result.AsyncWaitHandle.Close();
-                /* Call FileExists */
-                // Check to see whether the save exists.
-                if (container == null || !container.FileExists(filename))
+                if (stream == null)
                 {
                     return false;
                 }
-                /* Create Stream object */
-                // Open the file.
-                // Add a IOException handler for if the file is being used by another process //@Yeti
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
+
+                try
                 {
-                    try
+                    /* Create XmlSerializer */
+                    // Convert the object to XML data and put it in the stream.
+                    using (BinaryReader reader = new BinaryReader(stream))
                     {
-                        /* Create XmlSerializer */
-                        // Convert the object to XML data and put it in the stream.
-                        using (BinaryReader reader = new BinaryReader(stream))
+                        Save_File_Data fileData;
+                        bool loadSuccessful = Global.load(
+                            reader,
+                            out fileData,
+                            OLDEST_ALLOWED_SAVE_VERSION);
+                        if (loadSuccessful)
                         {
-                            Save_File_Data fileData;
-                            bool loadSuccessful = Global.load(
-                                reader,
-                                out fileData,
-                                OLDEST_ALLOWED_SAVE_VERSION);
-                            if (loadSuccessful)
-                            {
-                                Global.game_options = fileData.Options;
-                                Global.save_file = fileData.File;
-                            }
-                            else
-                            {
-                                ResetFile();
-                                return false;
-                            }
+                            Global.game_options = fileData.Options;
+                            Global.save_file = fileData.File;
+                        }
+                        else
+                        {
+                            ResetFile();
+                            return false;
                         }
                     }
-                    catch (EndOfStreamException e)
-                    {
-                        ResetFile();
-                        return false;
-                    }
                 }
-                /* Dispose the StorageContainer */
-                // Dispose the container, to commit changes.
+                catch (EndOfStreamException e)
+                {
+                    ResetFile();
+                    return false;
+                }
             }
             STARTING = false;
             return true;
@@ -1336,37 +1302,23 @@ namespace FEXNA.IO
         private void LoadConfig()
         {
             string filename = "config" + Config.SAVE_FILE_EXTENSION;
-            /* Create Storage Containter*/
-            // Open a storage container.
-            IAsyncResult result =
-                Storage.BeginOpenContainer(SaveLocation(), null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            using (StorageContainer container = Storage.EndOpenContainer(result))
+            using (Stream stream = StorageReaderBoilerplate(filename))
             {
-                // Close the wait handle
-                result.AsyncWaitHandle.Close();
-                // If the file doesn't exist, return
-                if (container == null || !container.FileExists(filename))
+                if (stream == null)
                 {
                     return;
                 }
-                using (Stream stream = container.OpenFile(
-                    filename, FileMode.Open, FileAccess.Read))
+
+                try
                 {
-                    try
+                    using (BinaryReader reader = new BinaryReader(stream))
                     {
-                        using (BinaryReader reader = new BinaryReader(stream))
-                        {
-                            Global.ReadConfig(reader);
-                        }
+                        Global.LoadConfig(reader);
                     }
-                    catch (EndOfStreamException e)
-                    {
-                        ResetConfig();
-                    }
+                }
+                catch (EndOfStreamException e)
+                {
+                    ResetConfig();
                 }
             }
         }
@@ -1445,6 +1397,40 @@ namespace FEXNA.IO
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Handles creating a StorageContainer and a Stream
+        /// to read from it.
+        /// </summary>
+        private Stream StorageReaderBoilerplate(string filename)
+        {
+            /* Create Storage Containter*/
+            // Open a storage container.
+            IAsyncResult result =
+                Storage.BeginOpenContainer(SaveLocation(), null, null);
+
+            // Wait for the WaitHandle to become signaled.
+            result.AsyncWaitHandle.WaitOne();
+
+            using (StorageContainer container = Storage.EndOpenContainer(result))
+            {
+                // Close the wait handle.
+                result.AsyncWaitHandle.Close();
+                /* Call FileExists */
+                // Check to see whether the file exists.
+                if (container == null || !container.FileExists(filename))
+                {
+                    return null;
+                }
+                /* Create Stream object */
+                // Open the file.
+                // Add a IOException handler for if the file is being used by another process //@Yeti
+                Stream stream = container.OpenFile(filename, FileMode.Open, FileAccess.Read);
+                return stream;
+            }
+            /* Dispose the StorageContainer */
+            // Dispose the container, to commit changes.
         }
     }
 
