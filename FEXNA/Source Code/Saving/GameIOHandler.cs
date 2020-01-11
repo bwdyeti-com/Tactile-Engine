@@ -761,9 +761,7 @@ namespace FEXNA.IO
                     filename, FileMode.Open, FileAccess.Read))
                 using (Stream stream = container.CreateFile(targetFilename))
                 {
-                    byte[] buffer = new byte[moveFromStream.Length];
-                    moveFromStream.Read(buffer, 0, buffer.Length);
-                    stream.Write(buffer, 0, buffer.Length);
+                    moveFromStream.CopyTo(stream);
                 }
 
                 // If not copying (ie just moving)

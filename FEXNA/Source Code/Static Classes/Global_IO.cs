@@ -90,6 +90,11 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write options and file
+            EncryptStream(writer, SaveFile);
+        }
+
+        private static void SaveFile(BinaryWriter writer)
+        {
             Global.game_options.write(writer);
             Global.save_file.write(writer);
         }
@@ -110,7 +115,15 @@ namespace FEXNA
             Global.LOADED_VERSION = v;
 
             // Read options and file
-            fileData = ReadFile(reader);
+            if (IsEncryptedVersion(Global.LOADED_VERSION))
+            {
+                fileData = DecryptStream(reader, ReadFile);
+            }
+            else
+            {
+                fileData = ReadFile(reader);
+            }
+
             return true;
         }
 
