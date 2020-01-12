@@ -95,12 +95,14 @@ namespace FEXNA
 #endif
         }
 
+#if DEBUG
         public void SetUnitEditorValues(string map, string units, string unitsSource)
         {
             MapEditorMap = map;
             MapEditorUnits = units;
             MapEditorUnitsSource = unitsSource;
         }
+#endif
 
         public void Initialize()
         {
