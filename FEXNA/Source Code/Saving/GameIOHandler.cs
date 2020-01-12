@@ -894,7 +894,7 @@ namespace FEXNA.IO
                             if (loadSuccessful)
                             {
 #if !DEBUG
-                                if (FILE_ID != fileId) //Yeti
+                                if (FileId != fileId) //Yeti
                                 {
                                     throw new Exception();
                                 }
