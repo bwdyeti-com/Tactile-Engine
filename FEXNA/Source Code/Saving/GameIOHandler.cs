@@ -10,7 +10,7 @@ namespace FEXNA.IO
 {
     class GameIOHandler
     {
-#if DEBUG
+#if DEBUG //Cheat codes
         const bool SAVESTATE_ENABLED = true;
 #else
         const bool SAVESTATE_ENABLED = false;

@@ -22,7 +22,7 @@ namespace FEXNA
         #region Constants
         public const int FRAME_RATE = 60;
 
-#if DEBUG
+#if DEBUG //Cheat codes
         const bool HYPER_SPEED_ENABLED = true;
         const bool PAUSE_ENABLED = true;
 #else
