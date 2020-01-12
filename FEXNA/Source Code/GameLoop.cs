@@ -22,7 +22,7 @@ namespace FEXNA
         #region Constants
         public const int FRAME_RATE = 60;
 
-#if DEBUG
+#if DEBUG //Cheat codes
         const bool HYPER_SPEED_ENABLED = true;
         const bool PAUSE_ENABLED = true;
 #else
@@ -95,12 +95,14 @@ namespace FEXNA
 #endif
         }
 
+#if DEBUG
         public void SetUnitEditorValues(string map, string units, string unitsSource)
         {
             MapEditorMap = map;
             MapEditorUnits = units;
             MapEditorUnitsSource = unitsSource;
         }
+#endif
 
         public void Initialize()
         {

@@ -10,7 +10,7 @@ namespace FEXNA.IO
 {
     class GameIOHandler
     {
-#if DEBUG
+#if DEBUG //Cheat codes
         const bool SAVESTATE_ENABLED = true;
 #else
         const bool SAVESTATE_ENABLED = false;
@@ -894,7 +894,7 @@ namespace FEXNA.IO
                             if (loadSuccessful)
                             {
 #if !DEBUG
-                                if (FILE_ID != fileId) //Yeti
+                                if (FileId != fileId) //Yeti
                                 {
                                     throw new Exception();
                                 }
