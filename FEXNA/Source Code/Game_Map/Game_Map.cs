@@ -1594,6 +1594,7 @@ namespace FEXNA
             if (dead)
             {
                 Defeated_Units[unit.id] = unit.actor.id;
+                //@Debug: there should probably be a version of this for PCs
                 if (unit.is_player_allied)
                     DefeatedAlliedUnits.Add(unit.id);
             }

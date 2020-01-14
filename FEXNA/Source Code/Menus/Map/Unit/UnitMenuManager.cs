@@ -1317,7 +1317,7 @@ namespace FEXNA.Menus.Map.Unit
             var targetWindow = new Window_Target_Door(unit.id, new Vector2(4, 0));
             var targetMenu = new LocationTargetMenu(targetWindow, unitMenu);
             targetMenu.Selected += doorTargetMenu_Selected;
-            targetMenu.Canceled += unitTargetMenu_Canceled;
+            targetMenu.Canceled += locationTargetMenu_Canceled;
             AddMenu(targetMenu);
 
             Global.player.facing = 4;
