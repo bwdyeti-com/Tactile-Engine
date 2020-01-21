@@ -161,8 +161,8 @@ namespace FEXNA.IO
                     if (Storage != null && Storage.IsConnected)
                     {
                         // Same question as below //@Yeti
-                        DeleteFile(MapSaveFilename(FileId));
-                        DeleteFile(SuspendFilename(FileId));
+                        DeleteSuspend(MapSaveFilename(FileId));
+                        DeleteSuspend(SuspendFilename(FileId));
                         // Rechecks the most current suspend
                         LoadSuspendInfo(updateFileId: false);
                         // Updates the save info for the selected file
@@ -176,7 +176,7 @@ namespace FEXNA.IO
                     Global.suspend_deleted();
                     if (Storage != null && Storage.IsConnected)
                     {
-                        DeleteFile(SuspendFilename(FileId));
+                        DeleteSuspend(SuspendFilename(FileId));
                         // Rechecks the most current suspend
                         LoadSuspendInfo(updateFileId: false);
                         // Updates the save info for the selected file
@@ -792,9 +792,9 @@ namespace FEXNA.IO
             return true;
         }
 
-        private bool DeleteFile(string filename)
+        private bool DeleteSuspend(string filename)
         {
-            if (!TestLoad(filename, false))
+            if (!TestLoad(filename, true))
             {
                 return false;
             }

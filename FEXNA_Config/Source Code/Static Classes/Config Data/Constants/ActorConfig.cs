@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FEXNA.Constants
 {
@@ -48,6 +49,13 @@ namespace FEXNA.Constants
         public const int GROWTH_AVERAGE_COLOR_MIN = 0; // For growth stat coloring. Anything equal or lesser will be the darkest red.
         public const int GROWTH_AVERAGE_COLOR_MED = 30; // For growth stat coloring. Anything equal will be exact white.
         public const int GROWTH_AVERAGE_COLOR_MAX = 60; // For growth stat coloring. Anything equal or greater will be the brightest green.
+
+        // Assumed promotion levels for each tier, for coloring stat label averages
+        public static readonly Dictionary<int, int> AVERAGE_PROMOTION_LEVELS = new Dictionary<int, int>
+        {
+            { 0, TIER0_LVL_CAP },
+            { 1, LVL_CAP }
+        };
 
         public const bool CHILD_WEAPON_TYPE_ALLOWS_PARENT = true; // Having ranks in a child weapon type allows using all of its ancestors
         public const bool PARENT_WEAPON_TYPE_ALLOWS_CHILD = true; // Having ranks in a parent weapon type allows using all of its descendants
