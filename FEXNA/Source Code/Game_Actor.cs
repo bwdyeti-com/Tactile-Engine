@@ -1054,6 +1054,33 @@ namespace FEXNA
             }
         }
 
+        private int GainedLevelsForAverages()
+        {
+            int gained = gained_levels();
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION && !this.is_generic_actor)
+            {
+                var baseClass = Global.data_classes[Data.ClassId];
+                for (int i = baseClass.Tier; i < this.tier; i++)
+                {
+                    int avgPromotionLevel = Constants.Actor.PromotionLevel(i);
+                    // If this tier has an assumed promotion level
+                    if (Constants.Actor.AVERAGE_PROMOTION_LEVELS.ContainsKey(i))
+                        avgPromotionLevel = Math.Max(Constants.Actor.AVERAGE_PROMOTION_LEVELS[i], avgPromotionLevel);
+                    // Use the starting level for the base tier,
+                    // if can promote at base
+                    if (i == baseClass.Tier)
+                        avgPromotionLevel = Math.Max(Data.Level, avgPromotionLevel);
+
+                    int levelCap = Constants.Actor.LevelCap(i);
+                    avgPromotionLevel = Math.Min(levelCap, avgPromotionLevel);
+
+                    // Subtract out the assumed promotion level from the cap
+                    gained -= levelCap - avgPromotionLevel;
+                }
+            }
+            return gained;
+        }
+
         internal float stat_avg_comparison(int index, int level_offset = 0)
         {
             return stat_avg_comparison((Stat_Labels)index, level_offset);
@@ -1073,7 +1100,8 @@ namespace FEXNA
                         growth += Constants.Support.AFFINITY_GROWTH_MOD;
                 }
             }
-            float average_stat = (growth * (gained_levels() + level_offset)) / 100f;
+            int gainedLevels = GainedLevelsForAverages();
+            float average_stat = (growth * (gainedLevels + level_offset)) / 100f;
             return Stats[(int)stat] - average_stat;
         }
         
