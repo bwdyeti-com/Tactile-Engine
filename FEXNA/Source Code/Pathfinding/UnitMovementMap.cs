@@ -60,8 +60,9 @@ namespace FEXNA.Pathfinding
 #if DEBUG
                     if (!Global.game_system.is_interpreter_running)
                         // if the location is already occupied, problems
-                        Debug.Assert(!UnitLocs.ContainsKey(loc),
-                            "Two units share a location when trying to start pathfinding");
+                        Debug.Assert(!UnitLocs.ContainsKey(loc), string.Format(
+                            "Two units share a location when trying to start pathfinding\n\n{0}\n{1}",
+                            unit, test_unit));
                     UnitLocs[loc] = tile_unit_passability(unit, loc, test_unit);
 #else
                     if (!UnitLocs.ContainsKey(loc))

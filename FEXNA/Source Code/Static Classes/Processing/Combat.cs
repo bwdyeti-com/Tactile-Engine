@@ -805,6 +805,9 @@ namespace FEXNA
             // Kill exp
             if (kill)
             {
+                // Multiplier to hit exp on kill
+                exp_gain *= 2;
+
                 int kill_gain = Constants.Combat.BASE_COMBAT_EXP * 3; // Exp for a kill
                 // 3x diff when above target level
                 if (diff < 0)

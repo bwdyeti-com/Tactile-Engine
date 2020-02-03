@@ -321,9 +321,9 @@ namespace FEXNA
 
                         if (hpChange != 0)
                         {
-                            int hp = unit.actor.hp;
-                            unit.actor.hp = Math.Max(1, unit.actor.hp + hpChange);
-                            if (hp != unit.actor.hp)
+                            int hp = unit.hp;
+                            unit.hp = Math.Max(1, unit.hp + hpChange);
+                            if (hp != unit.hp)
                                 result = true;
                         }
                     }
