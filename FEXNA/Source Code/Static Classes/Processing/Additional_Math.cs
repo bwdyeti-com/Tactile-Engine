@@ -20,6 +20,11 @@ namespace FEXNA
             return source + val;
         }
 
+        public static double Logistic(double x, double steepness = 1f, double midpoint = 0f)
+        {
+            return 1 / (1 + Math.Exp(-steepness * (x - midpoint)));
+        }
+
         /// <summary>
         /// If formula(value) is 0, returns the sign of value. Otherwise returns the result.
         /// </summary>
