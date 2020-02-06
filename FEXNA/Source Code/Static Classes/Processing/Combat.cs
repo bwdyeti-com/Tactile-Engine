@@ -900,7 +900,9 @@ namespace FEXNA
         }
         public static int training_exp(Game_Actor actor, int exp)
         {
-            return (int)Math.Round(exp / Math.Pow(2, (actor.full_level - 30) / 20f));
+            const int offset = 30;
+            const float scale = 20f;
+            return (int)Math.Round(exp / Math.Pow(2, (actor.full_level - offset) / scale));
         }
         #endregion
 

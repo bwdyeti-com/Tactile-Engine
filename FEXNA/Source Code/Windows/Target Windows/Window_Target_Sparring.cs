@@ -189,6 +189,8 @@ namespace FEXNA.Windows.Target
             gauge.fill_width = (exp * EXP_GAUGE_WIDTH) / gauge_max_exp;
             gauge.bonus_width = (win_exp * EXP_GAUGE_WIDTH) / gauge_max_exp;
             gauge.malus_width = (loss_exp * EXP_GAUGE_WIDTH) / gauge_max_exp;
+            if (gauge.malus_width_has_space && loss_exp > 0)
+                gauge.malus_width = Math.Max(gauge.malus_width, 1);
         }
 
         public override void draw(SpriteBatch sprite_batch)
