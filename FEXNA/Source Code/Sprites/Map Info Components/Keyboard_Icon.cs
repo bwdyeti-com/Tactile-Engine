@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using FEXNA.Graphics.Text;
+using FEXNA_Library;
 
 namespace FEXNA.Graphics.Help
 {
@@ -11,10 +13,11 @@ namespace FEXNA.Graphics.Help
         const int LETTER_OFFSET = 2;
         const int WIDTH_ADDITION = 5;
 
-        protected Inputs Key;
+        protected Inputs Input;
         protected FE_Text Letter;
         protected int _width, _textWidth;
         protected bool Colon_Visible;
+        private Maybe<Keys> Key;
 
         #region Accessors
         internal virtual int minimum_width { get { return MINIMUM_WIDTH; } }
@@ -56,7 +59,7 @@ namespace FEXNA.Graphics.Help
 
         public Keyboard_Icon(Inputs input, Texture2D texture, bool colon = true)
         {
-            Key = input;
+            Input = input;
 
             this.texture = texture;
 
@@ -69,9 +72,21 @@ namespace FEXNA.Graphics.Help
             Colon_Visible = colon;
         }
 
+        internal void SetKey(Keys key)
+        {
+            Key = key;
+        }
+        internal void ResetKey()
+        {
+            Key = Maybe<Keys>.Nothing;
+        }
+
         internal void refresh()
         {
-            this.letter = Input.key_name(Key);
+            if (Key.IsSomething)
+                this.letter = FEXNA.Input.key_name(Key);
+            else
+                this.letter = FEXNA.Input.key_name(Input);
         }
 
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))

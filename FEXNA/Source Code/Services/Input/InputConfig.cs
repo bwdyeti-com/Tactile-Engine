@@ -136,7 +136,14 @@ namespace FEXNA.Services.Input
 
         public string KeyName(Inputs inputName)
         {
-            return FEXNA.Input.REMAPPABLE_KEYS[KeyRedirect[inputName]];
+            return KeyName(KeyRedirect[inputName]);
+        }
+        public string KeyName(Keys key)
+        {
+            if (FEXNA.Input.REMAPPABLE_KEYS.ContainsKey(key))
+                return FEXNA.Input.REMAPPABLE_KEYS[key];
+
+            return "";
         }
 
         public bool RemapKey(Inputs inputName, Keys key)

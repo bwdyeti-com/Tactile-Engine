@@ -225,6 +225,10 @@ namespace FEXNA
         {
             return InputConfig.KeyName(input);
         }
+        internal static string key_name(Keys key)
+        {
+            return InputConfig.KeyName(key);
+        }
 
         internal static bool remap_key(Inputs input, Keys key)
         {
