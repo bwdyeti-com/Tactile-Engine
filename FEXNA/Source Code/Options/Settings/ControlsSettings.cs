@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FEXNA.Options
 {
-    enum ControlsSetting { Rumble, AnalogDeadZone, IconSet, KeyboardConfig }
+    enum ControlsSetting { Rumble, AnalogDeadZone, IconSet, ResetKeyboard, KeyboardConfig }
     enum ButtonIcons { DS, Xbox360 }
 
     class ControlsSettings : SettingsBase
@@ -31,11 +31,12 @@ namespace FEXNA.Options
             return new List<SettingsData>
             {
                 SettingsData.Create("Rumble", ConfigTypes.OnOffSwitch, false),
-                // Need percent sign %
+                //@Debug: Need percent sign % in the font
                 SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 10,
                     formatString: "{0}%", rangeMin: 0, rangeMax: 50),
                 SettingsData.Create("Button Icons", ConfigTypes.Number, 0,
                     rangeMin: 0, rangeMax: 1),
+                SettingsData.Create("Keyboard Controls:", ConfigTypes.Button, "Reset to Default"),
                 SettingsData.CreateCollection(
                     new string[] { "Down", "Left", "Right", "Up",
                         "A\nSelect/Confirm", "B\nCancel", "Y\nCursor Speed", "X\nEnemy Range",
@@ -73,6 +74,12 @@ namespace FEXNA.Options
                     // Update icons
                     Input.RefreshControlScheme();
                     break;
+                case (int)ControlsSetting.ResetKeyboard:
+                    // Reset KeyboardConfig
+                    int startIndex = GetIndexOfEntry((int)ControlsSetting.KeyboardConfig);
+                    for (int i = 0; i < _Data[(int)ControlsSetting.KeyboardConfig].Size; i++)
+                        RestoreDefaultValue(startIndex + i);
+                    break;
             }
         }
 
@@ -86,6 +93,8 @@ namespace FEXNA.Options
                     return _AnalogDeadZone;
                 case (int)ControlsSetting.IconSet:
                     return _IconSet;
+                case (int)ControlsSetting.ResetKeyboard:
+                    return _Data[entry.Item1].GetDefaultValue(entry.Item2);
                 case (int)ControlsSetting.KeyboardConfig:
                     return _KeyboardConfig[entry.Item2];
                 default:
@@ -138,6 +147,9 @@ namespace FEXNA.Options
                         _KeyboardConfig[oldIndex] = _KeyboardConfig[entry.Item2];
                     }
                     SetValue(entry, ref _KeyboardConfig, value);
+                    break;
+                // Buttons
+                case (int)ControlsSetting.ResetKeyboard:
                     break;
             }
         }

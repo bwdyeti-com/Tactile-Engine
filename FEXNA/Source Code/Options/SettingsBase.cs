@@ -69,6 +69,15 @@ namespace FEXNA.Options
         }
 
         /// <summary>
+        /// Gets the real index of a setting.
+        /// </summary>
+        /// <param name="index">The setting index in Data.</param>
+        protected int GetIndexOfEntry(int entry)
+        {
+            return DataIndices[entry];
+        }
+
+        /// <summary>
         /// Returns the list of <see cref="SettingsData"/> to use for these
         /// settings. Called by the constructor.
         /// </summary>
@@ -235,6 +244,9 @@ namespace FEXNA.Options
                 case ConfigTypes.Number:
                 case ConfigTypes.Slider:
                     result = (int)ValueObject(index);
+                    return (T)result;
+                case ConfigTypes.Button:
+                    result = (string)ValueObject(index);
                     return (T)result;
                 case ConfigTypes.Input:
                     result = (Keys)ValueObject(index);
