@@ -106,6 +106,14 @@
     <Compile Include="Source Code\Debug Monitor\DebugMonitorOverviewPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorPage.cs" />
     <Compile Include="Source Code\GameLoop.cs" />
+    <Compile Include="Source Code\Options\Settings Data\NullSettingsData.cs" />
+    <Compile Include="Source Code\Options\Settings\GeneralSettings.cs" />
+    <Compile Include="Source Code\Options\Settings\AudioSettings.cs" />
+    <Compile Include="Source Code\Options\Settings\ControlsSettings.cs" />
+    <Compile Include="Source Code\Options\ISettings.cs" />
+    <Compile Include="Source Code\Options\Settings Data\SettingsData.cs" />
+    <Compile Include="Source Code\Options\Settings\GraphicsSettings.cs" />
+    <Compile Include="Source Code\Options\SettingsBase.cs" />
     <Compile Include="Source Code\Rendering\IFullscreenService.cs" />
     <Compile Include="Source Code\Rendering\GameRenderer.cs" />
     <Compile Include="Source Code\Game_Map\Map Data\EscapePoint.cs" />
