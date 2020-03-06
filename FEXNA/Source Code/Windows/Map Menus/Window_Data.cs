@@ -429,15 +429,17 @@ namespace FEXNA.Windows.Map
         private void refresh_ranking_bar(Stat_Bar bar, int score)
         {
             int bar_length = score * RANKING_BAR_LENGTH / 150;
+            // 100% yellow bar with green bonus
             if (bar_length > RANKING_BAR_LENGTH * 2 / 3)
             {
-                bar.fill_width = RANKING_BAR_LENGTH * 2 / 3;
-                bar.bonus_width = bar_length - RANKING_BAR_LENGTH * 2 / 3;
+                bar.SetFillWidth(RANKING_BAR_LENGTH * 2 / 3);
+                bar.bonus_width = bar_length - bar.fill_width;
             }
+            // Short yellow bar with red penalty
             else
             {
-                bar.fill_width = bar_length;
-                bar.bonus_width = bar_length - RANKING_BAR_LENGTH * 2 / 3;
+                bar.SetFillWidth(bar_length);
+                bar.bonus_width = bar.fill_width - RANKING_BAR_LENGTH * 2 / 3;
             }
         }
 

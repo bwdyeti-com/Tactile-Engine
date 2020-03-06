@@ -80,7 +80,7 @@ namespace FEXNA.Windows.UserInterface.Status
             bonus = total_width - stat;
             if (bonus < 0)
                 stat = total_width;
-            Bar.fill_width = stat;
+            Bar.SetFillWidth(stat, 1, 0, 1); //@Debug: actually use this function
             Bar.bonus_width = bonus;
             Bar.bar_width = (int)Math.Round(cap * STAT_BAR_WIDTH / MAX_STAT);
         }
