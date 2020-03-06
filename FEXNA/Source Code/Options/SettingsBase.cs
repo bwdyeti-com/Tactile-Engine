@@ -6,6 +6,10 @@ using FEXNA_Library;
 
 namespace FEXNA.Options
 {
+    /// <summary>
+    /// An abstract implementation of ISettings, to act as a base class for
+    /// settings data.
+    /// </summary>
     abstract class SettingsBase : ISettings
     {
         protected readonly List<SettingsData> _Data;
@@ -24,8 +28,37 @@ namespace FEXNA.Options
             RestoreDefaults();
         }
 
-        protected abstract List<SettingsData> GetSettingsData();
+        /// <summary>
+        /// Checks if this object and the given <see cref="ISettings"/> are
+        /// the same class, for use before copying data between them.
+        /// </summary>
+        /// <param name="other">The other <see cref="ISettings"/> object.</param>
+        protected bool CheckSameClass(ISettings other)
+        {
+            if (other.GetType() != this.GetType())
+            {
+#if DEBUG
+                throw new ArgumentException(
+                    "Tried to copy different types of settings.");
+#endif
+                return false;
+            }
 
+            return true;
+        }
+
+        /// <summary>
+        /// Copies additional data of another <see cref="ISettings"/> into this object
+        /// that are not part of the settings.
+        /// </summary>
+        /// <param name="other">The other <see cref="ISettings"/> object.</param>
+        protected abstract void CopyAdditionalSettingsFrom(ISettings other);
+
+        /// <summary>
+        /// Gets the real index of a setting and the offset for the value in
+        /// that setting.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
         protected Tuple<int, int> GetEntryIndex(int index)
         {
             int key = DataIndices
@@ -35,19 +68,72 @@ namespace FEXNA.Options
             return Tuple.Create(key, index - DataIndices[key]);
         }
 
+        /// <summary>
+        /// Returns the list of <see cref="SettingsData"/> to use for these
+        /// settings. Called by the constructor.
+        /// </summary>
+        protected abstract List<SettingsData> GetSettingsData();
+
+        /// <summary>
+        /// Returns true if any settings are valid,
+        /// meaning they have a <see cref="SettingsData.Size"/>
+        /// greater than or equal to 1.
+        /// </summary>
         public bool AnyValidOptions
         {
             get
             {
-                return _Data.Any(x => x.Size > 0);
+                return _Data.Any(x => x.Size >= 1);
             }
         }
 
+        /// <summary>
+        /// Gets a format string to use with a setting's value.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
         public virtual string FormatString(int index)
         {
             var entry = GetEntryIndex(index);
 
             return _Data[entry.Item1].FormatString;
+        }
+
+        /// <summary>
+        /// Gets the value of a setting as an <see cref="object"/>.
+        /// </summary>
+        /// <param name="entry">
+        /// <see cref="Tuple{int, int}.Item1"/> is the index of the setting data;
+        /// <see cref="Tuple{int, int}.Item2"/> is the offset for the value.
+        /// </param>
+        public abstract object ValueObject(Tuple<int, int> entry);
+
+        /// <summary>
+        /// Changes the value of a setting.
+        /// </summary>
+        /// <param name="entry">
+        /// <see cref="Tuple{int, int}.Item1"/> is the index of the setting data;
+        /// <see cref="Tuple{int, int}.Item2"/> is the offset for the value.
+        /// </param>
+        /// <param name="value">The new value of the setting.</param>
+        public abstract void SetValue(Tuple<int, int> entry, object value);
+
+        /// <summary>
+        /// Changes the value of a setting.
+        /// </summary>
+        /// <param name="entry">
+        /// <see cref="Tuple{int, int}.Item1"/> is the index of the setting data;
+        /// <see cref="Tuple{int, int}.Item2"/> is the offset for the value.
+        /// </param>
+        /// <param name="setting">The reference to the actual setting being edited.</param>
+        /// <param name="value">The new value of the setting.</param>
+        protected void SetValue<T>(Tuple<int, int> entry, ref T setting, object value)
+        {
+            object o = setting;
+
+            var settingData = _Data[entry.Item1];
+            settingData.SetValue(ref o, value, () => ValueRange(entry.Item1), entry.Item2);
+
+            setting = (T)o;
         }
 
         #region ICloneable
@@ -70,30 +156,6 @@ namespace FEXNA.Options
 
             return true;
         }
-        protected abstract void CopyAdditionalSettingsFrom(ISettings other);
-
-        protected bool CheckSameClass(ISettings other)
-        {
-            if (other.GetType() != this.GetType())
-            {
-#if DEBUG
-                throw new ArgumentException(
-                    "Tried to copy different types of settings.");
-#endif
-                return false;
-            }
-
-            return true;
-        }
-
-        public void RestoreDefaultValue(int index)
-        {
-            var entry = GetEntryIndex(index);
-
-            // unconvert DataIndices
-            object value = _Data[entry.Item1].GetDefaultValue(entry.Item2);
-            SetValue(index, value);
-        }
 
         public void RestoreDefaults()
         {
@@ -104,6 +166,14 @@ namespace FEXNA.Options
             }
         }
         
+        public void RestoreDefaultValue(int index)
+        {
+            var entry = GetEntryIndex(index);
+
+            object value = _Data[entry.Item1].GetDefaultValue(entry.Item2);
+            SetValue(index, value);
+        }
+
         public IEnumerable<string> SettingLabels
         {
             get
@@ -143,9 +213,12 @@ namespace FEXNA.Options
             yield break;
         }
 
-        public virtual void ConfirmOption(int index) { }
+        public virtual void ConfirmSetting(int index, object value)
+        {
+            SetValue(index, value);
+        }
 
-        public virtual bool IsOptionEnabled(int index)
+        public virtual bool IsSettingEnabled(int index)
         {
             return true;
         }
@@ -175,7 +248,6 @@ namespace FEXNA.Options
         {
             return ValueObject(GetEntryIndex(index));
         }
-        public abstract object ValueObject(Tuple<int, int> entry);
 
         public virtual string ValueString(int index)
         {
@@ -201,16 +273,6 @@ namespace FEXNA.Options
         {
             SetValue(GetEntryIndex(index), value);
         }
-        public abstract void SetValue(Tuple<int, int> entry, object value);
-        protected void SetValue<T>(Tuple<int, int> entry, ref T setting, object value)
-        {
-            object o = setting;
-
-            var settingData = _Data[entry.Item1];
-            settingData.SetValue(ref o, value, () => ValueRange(entry.Item1), entry.Item2);
-
-            setting = (T)o;
-        }
 
         public void CopyValueFrom(ISettings other, int index)
         {
@@ -233,10 +295,20 @@ namespace FEXNA.Options
                 "Tried to get the range of a\nsetting that isn't a number value.");
 #endif
         }
-
+        
         public virtual int ValueInterval(int index)
         {
-            return 1;
+            switch (SettingType(index))
+            {
+                case ConfigTypes.Number:
+                case ConfigTypes.Slider:
+                    return 1;
+            }
+
+#if DEBUG
+            throw new ArgumentException(
+                "Tried to get the interval of a\nsetting that isn't a number value.");
+#endif
         }
         #endregion
     }

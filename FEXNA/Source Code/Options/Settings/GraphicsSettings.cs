@@ -66,12 +66,12 @@ namespace FEXNA.Options
             ZoomMax = otherGraphics.ZoomMax;
         }
         
-        public override bool IsOptionEnabled(int index)
+        public override bool IsSettingEnabled(int index)
         {
             if (index == (int)GraphicsSetting.Anaglyph)
                 return _Fullscreen && (_StereoscopicLevel > 0);
 
-            return base.IsOptionEnabled(index);
+            return base.IsSettingEnabled(index);
         }
 
         public override object ValueObject(Tuple<int, int> entry)

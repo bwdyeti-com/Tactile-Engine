@@ -61,8 +61,10 @@ namespace FEXNA.Options
             var otherControls = (ControlsSettings)other;
         }
 
-        public override void ConfirmOption(int index)
+        public override void ConfirmSetting(int index, object value)
         {
+            base.ConfirmSetting(index, value);
+
             var entry = GetEntryIndex(index);
 
             switch (entry.Item1)
