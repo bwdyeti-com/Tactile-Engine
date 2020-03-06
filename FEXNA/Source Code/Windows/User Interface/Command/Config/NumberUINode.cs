@@ -49,6 +49,10 @@ namespace FEXNA.Windows.UserInterface.Command.Config
         {
             Value.text = value.ToString();
         }
+        internal void set_text(string text)
+        {
+            Value.text = text;
+        }
 
         protected override void update_graphics(bool activeNode)
         {
