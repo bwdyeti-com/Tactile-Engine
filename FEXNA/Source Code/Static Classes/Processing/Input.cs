@@ -167,6 +167,7 @@ namespace FEXNA
 
         public static bool Controller_Active { get; protected set; }
         public static bool ControlSchemeSwitched { get; protected set; }
+        private static bool ShouldSwitchControlScheme = false;
         internal static ControlSchemes ControlScheme { get; private set; }
         public static bool IsControllingOnscreenMouse
         {
@@ -397,6 +398,13 @@ namespace FEXNA
         private static void update_control_scheme(
             KeyboardState keyState, GamePadState controllerState)
         {
+            // Force updating icons/etc
+            if (GameActive && ShouldSwitchControlScheme)
+            {
+                ControlSchemeSwitched = true;
+                ShouldSwitchControlScheme = false;
+            }
+
             if (!GameActive)
                 LastMouseState = new Microsoft.Xna.Framework.Input.MouseState(
                     LastMouseState.X, LastMouseState.Y, LastMouseState.ScrollWheelValue,
@@ -456,6 +464,11 @@ namespace FEXNA
             }
 #endif
 #endif
+        }
+
+        internal static void RefreshControlScheme()
+        {
+            ShouldSwitchControlScheme = true;
         }
 
         private static void update_mouse_click_locs()
