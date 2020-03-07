@@ -64,6 +64,8 @@ namespace FEXNA
                 Global.game_system = new Game_System();
                 Global.game_temp = new Game_Temp();
 
+                Global.gameSettings = new Options.Settings();
+
 #if DEBUG && WINDOWS
                 DebugMonitor = new Debug_Monitor.DebugMonitorState();
 #endif
@@ -1082,6 +1084,15 @@ namespace FEXNA
                     return null;
                 return @Game_Battalions.battalion;
             }
+        }
+
+        // Game Config
+        static Options.Settings GameSettings;
+
+        internal static Options.Settings gameSettings
+        {
+            get { return GameSettings; }
+            set { GameSettings = value; }
         }
 
         // Game Map

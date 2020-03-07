@@ -114,6 +114,7 @@
     <Compile Include="Source Code\Options\Settings\ControlsSettings.cs" />
     <Compile Include="Source Code\Options\ISettings.cs" />
     <Compile Include="Source Code\Options\Settings Data\SettingsData.cs" />
+    <Compile Include="Source Code\Options\Settings.cs" />
     <Compile Include="Source Code\Options\Settings\GraphicsSettings.cs" />
     <Compile Include="Source Code\Options\SettingsBase.cs" />
     <Compile Include="Source Code\Rendering\IFullscreenService.cs" />
