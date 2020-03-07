@@ -52,6 +52,8 @@ namespace FEXNA.Options
 
         /// <summary>
         /// Changes the value of a setting and confirms the change.
+        /// Also called when modifying values of temporary settings before
+        /// copying them back to real settings objects.
         /// </summary>
         /// <param name="index">The index of the setting.</param>
         /// <param name="value">The new value of the setting.</param>

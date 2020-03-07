@@ -253,7 +253,7 @@ namespace FEXNA.Windows.Options
             switch (TempSelectedSettings.SettingType(this.index))
             {
                 case ConfigTypes.Input:
-                    TempSelectedSettings.SetValue(this.index, key);
+                    TempSelectedSettings.ConfirmSetting(this.index, key);
                     RefreshCurrentValue(TempSelectedSettings);
                     return true;
             }
@@ -289,7 +289,7 @@ namespace FEXNA.Windows.Options
                     case ConfigTypes.Number:
                     case ConfigTypes.Slider:
                         int value = settings.Value<int>(index);
-                        settings.SetValue(
+                        settings.ConfirmSetting(
                             this.index,
                             value + settings.ValueInterval(this.index) * (right ? 1 : -1));
                         // Menu move sound
@@ -300,7 +300,7 @@ namespace FEXNA.Windows.Options
                         bool flag = settings.Value<bool>(index);
                         if (!flag == right)
                         {
-                            settings.SetValue(this.index, !flag);
+                            settings.ConfirmSetting(this.index, !flag);
                             // Menu move sound
                             Global.game_system.play_se(System_Sounds.Menu_Move2);
                         }
