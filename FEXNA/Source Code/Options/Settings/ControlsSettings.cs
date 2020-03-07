@@ -144,7 +144,8 @@ namespace FEXNA.Options
                     if (_KeyboardConfig != null && _KeyboardConfig.Contains((Keys)value))
                     {
                         int oldIndex = Array.IndexOf(_KeyboardConfig, (Keys)value);
-                        _KeyboardConfig[oldIndex] = _KeyboardConfig[entry.Item2];
+                        if (oldIndex != entry.Item2)
+                            _KeyboardConfig[oldIndex] = _KeyboardConfig[entry.Item2];
                     }
                     SetValue(entry, ref _KeyboardConfig, value);
                     break;

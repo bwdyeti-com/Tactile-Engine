@@ -108,6 +108,27 @@ namespace FEXNA.Options
         }
 
         /// <summary>
+        /// Changes the value of a setting and confirms the change.
+        /// Also called when modifying values of temporary settings before
+        /// copying them back to real settings objects.
+        /// </summary>
+        /// <param name="entryIndex">The index of the setting data. Must be an enum.</param>
+        /// <param name="offset">The offset for the value.</param>
+        /// <param name="value">The new value of the setting.</param>
+        public void ConfirmSetting<TEnum>(TEnum entryIndex, int offset, object value) where TEnum : struct, IConvertible
+        {
+            if (typeof(TEnum).IsEnum)
+            {
+                Enum enumValue = Enum.Parse(typeof(TEnum), entryIndex.ToString()) as Enum;
+                int index = Convert.ToInt32(enumValue);
+
+                ConfirmSetting(GetIndexOfEntry(index) + offset, value);
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        /// <summary>
         /// Gets the value of a setting as an <see cref="object"/>.
         /// </summary>
         /// <param name="entry">
@@ -125,6 +146,24 @@ namespace FEXNA.Options
         /// </param>
         /// <param name="value">The new value of the setting.</param>
         public abstract void SetValue(Tuple<int, int> entry, object value);
+        /// <summary>
+        /// Changes the value of a setting.
+        /// </summary>
+        /// <param name="entryIndex">The index of the setting data. Must be an enum.</param>
+        /// <param name="offset">The offset for the value.</param>
+        /// <param name="value">The new value of the setting.</param>
+        public void SetValue<TEnum>(TEnum entryIndex, int offset, object value) where TEnum : struct, IConvertible
+        {
+            if (typeof(TEnum).IsEnum)
+            {
+                Enum enumValue = Enum.Parse(typeof(TEnum), entryIndex.ToString()) as Enum;
+                int index = Convert.ToInt32(enumValue);
+
+                SetValue(Tuple.Create(index, offset), value);
+            }
+            else
+                throw new ArgumentException();
+        }
 
         /// <summary>
         /// Changes the value of a setting.

@@ -7,10 +7,10 @@ namespace FEXNA.Options
 
     class GeneralSettings : SettingsBase
     {
-        private bool _Metrics;
+        private Metrics_Settings _Metrics = Metrics_Settings.Not_Set;
         private bool _CheckForUpdates;
 
-        public bool Metrics { get { return _Metrics; } }
+        public Metrics_Settings Metrics { get { return (Metrics_Settings)_Metrics; } }
         public bool CheckForUpdates { get { return _CheckForUpdates; } }
 
         public GeneralSettings() { }
@@ -50,12 +50,28 @@ namespace FEXNA.Options
             var otherGeneral = (GeneralSettings)other;
         }
 
+        public override void ConfirmSetting(int index, object value)
+        {
+            var entry = GetEntryIndex(index);
+
+            switch (entry.Item1)
+            {
+                // If confirming a value, force removing not set
+                case (int)GeneralSetting.Metrics:
+                    if (_Metrics == Metrics_Settings.Not_Set)
+                        _Metrics = Metrics_Settings.Off;
+                    break;
+            }
+
+            base.ConfirmSetting(index, value);
+        }
+
         public override object ValueObject(Tuple<int, int> entry)
         {
             switch (entry.Item1)
             {
                 case (int)GeneralSetting.Metrics:
-                    return _Metrics;
+                    return _Metrics == Metrics_Settings.On;
                 case (int)GeneralSetting.CheckForUpdates:
                     return _CheckForUpdates;
                 default:
@@ -69,7 +85,12 @@ namespace FEXNA.Options
             {
                 // bool
                 case (int)GeneralSetting.Metrics:
-                    SetValue(entry, ref _Metrics, value);
+                    if (_Metrics != Metrics_Settings.Not_Set)
+                    {
+                        bool metrics = _Metrics == Metrics_Settings.On;
+                        SetValue(entry, ref metrics, value);
+                        _Metrics = metrics ? Metrics_Settings.On : Metrics_Settings.Off;
+                    }
                     break;
                 case (int)GeneralSetting.CheckForUpdates:
                     SetValue(entry, ref _CheckForUpdates, value);
