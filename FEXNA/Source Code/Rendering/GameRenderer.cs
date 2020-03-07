@@ -21,7 +21,7 @@ namespace FEXNA.Rendering
 #endif
 
 #if WINDOWS || MONOMAC
-        public static int ZOOM = 1; //@Debug: why is this static
+        public static int ZOOM = 2; //@Debug: why is this static
 #elif XBOX
         static int ZOOM = 2;
 #else
