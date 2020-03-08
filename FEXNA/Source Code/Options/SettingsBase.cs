@@ -88,7 +88,7 @@ namespace FEXNA.Options
         /// meaning they have a <see cref="SettingsData.Size"/>
         /// greater than or equal to 1.
         /// </summary>
-        public bool AnyValidOptions
+        public bool AnyValidSettings
         {
             get
             {

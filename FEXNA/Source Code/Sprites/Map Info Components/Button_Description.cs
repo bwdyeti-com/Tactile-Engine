@@ -120,7 +120,7 @@ namespace FEXNA.Graphics.Help
             return result;
         }
 
-        protected Button_Description(Inputs input)
+        public Button_Description(Inputs input)
         {
             set_button(input);
 
