@@ -194,13 +194,13 @@ namespace FEXNA.Options
             if (!CheckSameClass(other))
                 return false;
 
+            CopyAdditionalSettingsFrom(other);
+
             for (int i = 0; i < _Data.Count; i++)
             {
                 for (int j = 0; j < _Data[i].Size; j++)
                     CopyValueFrom(other, DataIndices[i] + j);
             }
-
-            CopyAdditionalSettingsFrom(other);
 
             return true;
         }

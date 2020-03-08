@@ -21,7 +21,7 @@ namespace FEXNA.Services.Rumble
 
         public override void add_rumble(TimeSpan time, float left_motor, float right_motor, PlayerIndex player, float mult)
         {
-            if (Global.rumble)
+            if (Global.gameSettings.Controls.Rumble)
                 Rumbles.Add(new RumbleData(time, player, left_motor, right_motor, mult));
         }
 
@@ -29,7 +29,7 @@ namespace FEXNA.Services.Rumble
         {
             base.Update(gameTime);
             // If the rumble setting is turned off
-            if (!Global.rumble)
+            if (!Global.gameSettings.Controls.Rumble)
             {
                 Rumbles.Clear();
                 return;

@@ -26,7 +26,7 @@ namespace FEXNA.Options
             _Controls = new ControlsSettings();
         }
 
-        private void RestoreDefaults()
+        public void RestoreDefaults()
         {
             _General.RestoreDefaults();
             _Graphics.RestoreDefaults();

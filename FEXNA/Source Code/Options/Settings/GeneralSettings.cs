@@ -24,15 +24,12 @@ namespace FEXNA.Options
             var settingsData = new List<SettingsData>();
 
             // Metrics
-            if (true)
+            if (Global.metrics_allowed)
                 settingsData.Add(SettingsData.Create("Metrics", ConfigTypes.OnOffSwitch, false));
             else
                 settingsData.Add(new NullSettingsData());
             // Check for Updates
-            if (true)
-                settingsData.Add(SettingsData.Create("Check for Updates", ConfigTypes.OnOffSwitch, true));
-            else
-                settingsData.Add(new NullSettingsData());
+            settingsData.Add(SettingsData.Create("Check for Updates", ConfigTypes.OnOffSwitch, true));
 
             return settingsData;
         }

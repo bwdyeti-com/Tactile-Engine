@@ -99,7 +99,8 @@ namespace FEXNA.Menus.Title
         #region First Run Metrics
         private void CheckMetrics()
         {
-            if (Global.metrics_allowed && Global.metrics == Metrics_Settings.Not_Set)
+            if (Global.metrics_allowed &&
+                Global.gameSettings.General.Metrics == Metrics_Settings.Not_Set)
             {
                 // Show first run metrics setting confirmation window
                 var metricsConfirmWindow = new Parchment_Confirm_Window();
@@ -126,7 +127,8 @@ improving this game?");
         {
             Global.game_system.play_se(System_Sounds.Confirm);
             menu_Closed(sender, e);
-            Global.metrics = Metrics_Settings.On;
+            Global.gameSettings.General.ConfirmSetting(
+                FEXNA.Options.GeneralSetting.Metrics, 0, true);
             MenuHandler.TitleSaveConfig();
             AddMetricsSetMenu();
         }
@@ -134,7 +136,8 @@ improving this game?");
         void metricsConfirmMenu_Canceled(object sender, EventArgs e)
         {
             menu_Closed(sender, e);
-            Global.metrics = Metrics_Settings.Off;
+            Global.gameSettings.General.ConfirmSetting(
+                FEXNA.Options.GeneralSetting.Metrics, 0, false);
             MenuHandler.TitleSaveConfig();
             AddMetricsSetMenu();
         }
@@ -142,7 +145,7 @@ improving this game?");
         private void AddMetricsSetMenu()
         {
             var metricsSetWindow = new Parchment_Info_Window();
-            if (Global.metrics == Metrics_Settings.On)
+            if (Global.gameSettings.General.Metrics == Metrics_Settings.On)
                 metricsSetWindow.set_text(
 @"Thank you for participating. Metrics
 collection can be turned on or off

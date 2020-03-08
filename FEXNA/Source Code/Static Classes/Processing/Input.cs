@@ -209,11 +209,6 @@ namespace FEXNA
         {
             InputConfig.write(writer);
         }
-
-        public static void read(BinaryReader reader)
-        {
-            InputConfig.read(reader);
-        }
         #endregion
 
         #region Config

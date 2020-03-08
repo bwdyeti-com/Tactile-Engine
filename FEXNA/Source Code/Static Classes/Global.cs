@@ -64,8 +64,6 @@ namespace FEXNA
                 Global.game_system = new Game_System();
                 Global.game_temp = new Game_Temp();
 
-                Global.gameSettings = new Options.Settings();
-
 #if DEBUG && WINDOWS
                 DebugMonitor = new Debug_Monitor.DebugMonitorState();
 #endif
@@ -476,7 +474,7 @@ namespace FEXNA
 
         // Zoom
         static int Zoom = 0;
-        static int? Zoom_Max = null, Zoom_Min = null;
+        static int? Zoom_Max = 1, Zoom_Min = 1;
         public static void set_zoom_limits(int min, int max)
         {
             if (Zoom_Min == null && Zoom_Max == null)
@@ -560,7 +558,7 @@ namespace FEXNA
         public static bool sending_metrics { get { return Sending_Metrics; } }
         public static void send_metrics()
         {
-            if (Metrics == Metrics_Settings.On)
+            if (Global.gameSettings.General.Metrics == Metrics_Settings.On)
             {
                 Gameplay_Metrics metrics = new Gameplay_Metrics(Global.game_state.metrics);
                 metrics.set_pc_ending_stats();

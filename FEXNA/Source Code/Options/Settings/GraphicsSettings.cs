@@ -8,6 +8,8 @@ namespace FEXNA.Options
 
     class GraphicsSettings : SettingsBase
     {
+        const int MAX_STEREOSCOPIC_LEVEL = 10;
+
         private bool _Fullscreen;
         private int _Zoom;
         private int _StereoscopicLevel;
@@ -18,7 +20,9 @@ namespace FEXNA.Options
         public bool Fullscreen { get { return _Fullscreen; } }
         public int Zoom { get { return _Zoom; } }
         public int StereoscopicLevel { get { return _StereoscopicLevel; } }
-        public bool Anaglyph { get { return (!_Fullscreen && _StereoscopicLevel > 0) ? true : _Anaglyph; } }
+        public bool Stereoscopic { get { return _StereoscopicLevel > 0; } }
+        public bool Anaglyph { get { return _Anaglyph; } }
+        public bool AnaglyphMode { get { return this.Stereoscopic && (!_Fullscreen || _Anaglyph); } }
         public Maybe<int> MonitorIndex { get { return _MonitorIndex; } }
         public bool MinimizeWhenInactive { get { return _MinimizeWhenInactive; } }
 
@@ -40,14 +44,26 @@ namespace FEXNA.Options
             {
                 SettingsData.Create("Fullscreen", ConfigTypes.OnOffSwitch, false,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph }),
-                SettingsData.Create("Zoom", ConfigTypes.Number, 2),
+                SettingsData.Create("Zoom", ConfigTypes.Number,
+                    Rendering.GameRenderer.ZOOM),
                 SettingsData.Create("Stereoscopic 3D", ConfigTypes.Number, 0,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
-                    formatString: "On ({0})", rangeMin: 0, rangeMax: Global.MAX_STEREOSCOPIC_LEVEL),
+                    formatString: "On ({0})", rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL),
                 SettingsData.Create("  Red-Cyan (3D)", ConfigTypes.OnOffSwitch, false),
                 SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
                 SettingsData.Create("Minimize When Inactive", ConfigTypes.OnOffSwitch, false)
             };
+        }
+
+        public void SwitchFullscreen()
+        {
+            ConfirmSetting(GraphicsSetting.Fullscreen, 0, !_Fullscreen);
+        }
+
+        public void SetZoomLimits(int zoomMin, int zoomMax)
+        {
+            ZoomMin = zoomMin;
+            ZoomMax = zoomMax;
         }
 
         #region ICloneable
@@ -65,7 +81,7 @@ namespace FEXNA.Options
             ZoomMin = otherGraphics.ZoomMin;
             ZoomMax = otherGraphics.ZoomMax;
         }
-        
+
         public override bool IsSettingEnabled(int index)
         {
             if (index == (int)GraphicsSetting.Anaglyph)
@@ -107,7 +123,7 @@ namespace FEXNA.Options
                         return "Off";
                     break;
                 case (int)GraphicsSetting.Anaglyph:
-                    return this.Anaglyph ? "On" : "Off";
+                    return this.AnaglyphMode ? "On" : "Off";
             }
 
             return base.ValueString(index);
@@ -151,8 +167,9 @@ namespace FEXNA.Options
             switch (entry.Item1)
             {
                 case (int)GraphicsSetting.Zoom:
-                    return new Range<int>(Global.zoom_min, Global.zoom_max);
-                    return new Range<int>(ZoomMin, ZoomMax); //@Yeti
+                    return new Range<int>(
+                        ZoomMin.OrIfNothing(1),
+                        ZoomMax.OrIfNothing(2));
                 case (int)GraphicsSetting.MonitorIndex:
                     return new Range<int>(0, 0);
             }
