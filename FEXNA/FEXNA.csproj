@@ -177,6 +177,11 @@
     <Compile Include="Source Code\Menus\World Map\WorldmapMenuManager.cs" />
     <Compile Include="Source Code\PastRankings.cs" />
     <Compile Include="Source Code\Saving\GameIOHandler.cs" />
+    <Compile Include="Source Code\Saving\Serialization\ExplicitSaveSerializer.cs" />
+    <Compile Include="Source Code\Saving\Serialization\ISerializableGameObject.cs" />
+    <Compile Include="Source Code\Saving\Serialization\SaveSerializer.cs" />
+    <Compile Include="Source Code\Saving\Serialization\SerializerData.cs" />
+    <Compile Include="Source Code\Saving\Serialization\SerializerMetaData.cs" />
     <Compile Include="Source Code\Services\Audio\MusicInstance.cs" />
     <Compile Include="Source Code\Services\Audio\MusicPlayer.cs" />
     <Compile Include="Source Code\Services\Input\IInputService.cs" />
