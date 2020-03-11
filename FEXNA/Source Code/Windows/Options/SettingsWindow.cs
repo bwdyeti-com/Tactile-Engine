@@ -18,7 +18,7 @@ namespace FEXNA.Windows.Options
 
         private ISettings Settings;
         private bool SettingSelected;
-        private ISettings TempSelectedSettings;
+        private ISettings TempSelectedSettings, TempOriginalSettings;
 
         private Hand_Cursor SelectedSettingCursor;
 
@@ -220,6 +220,7 @@ namespace FEXNA.Windows.Options
             if (SettingSelected)
             {
                 TempSelectedSettings = (ISettings)Settings.Clone();
+                TempOriginalSettings = (ISettings)Settings.Clone();
                 SelectedSettingCursor.force_loc(UICursor.loc);
                 SelectedSettingCursor.set_loc(UICursor.target_loc + new Vector2(VALUE_OFFSET, 0));
                 SelectedSettingCursor.update();
@@ -227,6 +228,7 @@ namespace FEXNA.Windows.Options
             else
             {
                 TempSelectedSettings = null;
+                TempOriginalSettings = null;
                 RefreshCurrentValue(Settings);
                 UICursor.force_loc(SelectedSettingCursor.loc);
                 UICursor.update();
@@ -236,16 +238,31 @@ namespace FEXNA.Windows.Options
             return SettingSelected;
         }
 
+        public void CancelSetting()
+        {
+            if (TempOriginalSettings != null)
+            {
+                Settings.CopySettingsFrom(TempOriginalSettings);
+            }
+
+            SelectSetting(false);
+        }
+
         public void ConfirmSetting()
         {
             if (TempSelectedSettings != null)
             {
-                Settings.ConfirmSetting(this.index, TempSelectedSettings.ValueObject(this.index));
+                ConfirmTempSetting(this.index);
 
                 SelectSetting(false);
 
                 RefreshItemValues();
             }
+        }
+
+        private void ConfirmTempSetting(int index)
+        {
+            Settings.ConfirmSetting(index, TempSelectedSettings.ValueObject(index));
         }
 
         public bool RemapInput(Keys key)
@@ -309,6 +326,10 @@ namespace FEXNA.Windows.Options
                         break;
                 }
                 RefreshCurrentValue(settings);
+
+                // Copy to settings object if updating before confirm
+                if (settings.SettingUpdatesBeforeConfirm(this.index))
+                    ConfirmTempSetting(this.index);
             }
         }
         

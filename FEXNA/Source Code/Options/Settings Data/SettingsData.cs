@@ -11,22 +11,31 @@ namespace FEXNA.Options
         public string FormatString { get; private set; }
         private readonly int[] _DependentSettings;
         public Range<int> Range { get; private set; }
+        public bool UpdateBeforeConfirming { get; private set; }
 
         public int[] DependentSettings { get { return _DependentSettings == null ? null : _DependentSettings.ToArray(); } }
 
+        protected SettingsData()
+        {
+            Label = null;
+            Type = ConfigTypes.None;
+            FormatString = "{0}";
+        }
         protected SettingsData(
             string[] label,
             ConfigTypes type,
-            string formatString = "{0}",
-            int[] dependentSettings = null,
-            int rangeMin = 0,
-            int rangeMax = 0)
+            string formatString,
+            int[] dependentSettings,
+            int rangeMin,
+            int rangeMax,
+            bool updateBeforeConfirming)
         {
             Label = label;
             Type = type;
             FormatString = formatString;
             _DependentSettings = dependentSettings;
             Range = new Range<int>(rangeMin, rangeMax);
+            UpdateBeforeConfirming = updateBeforeConfirming;
         }
 
         public static SettingsData<T> Create<T>(
@@ -36,9 +45,18 @@ namespace FEXNA.Options
             string formatString = "{0}",
             int[] dependentSettings = null,
             int rangeMin = 0,
-            int rangeMax = 0)
+            int rangeMax = 0,
+            bool updateBeforeConfirming = false)
         {
-            return new SettingsData<T>(label, type, defaultValue, formatString, dependentSettings, rangeMin, rangeMax);
+            return new SettingsData<T>(
+                label,
+                type,
+                defaultValue,
+                formatString,
+                dependentSettings,
+                rangeMin,
+                rangeMax,
+                updateBeforeConfirming);
         }
         public static CollectionSettingsData<T> CreateCollection<T>(
             string[] labels,
@@ -47,9 +65,18 @@ namespace FEXNA.Options
             string formatString = "{0}",
             int[] dependentSettings = null,
             int rangeMin = 0,
-            int rangeMax = 0)
+            int rangeMax = 0,
+            bool updateBeforeConfirming = false)
         {
-            return new CollectionSettingsData<T>(labels, type, defaultValue, formatString, dependentSettings, rangeMin, rangeMax);
+            return new CollectionSettingsData<T>(
+                labels,
+                type,
+                defaultValue,
+                formatString,
+                dependentSettings,
+                rangeMin,
+                rangeMax,
+                updateBeforeConfirming);
         }
 
         public abstract int Size { get; }
@@ -67,10 +94,18 @@ namespace FEXNA.Options
             string label,
             ConfigTypes type,
             T defaultValue,
-            string formatString = "{0}",
-            int[] dependentSettings = null,
-            int rangeMin = 0,
-            int rangeMax = 0) : base(new string[] { label }, type, formatString, dependentSettings, rangeMin, rangeMax)
+            string formatString,
+            int[] dependentSettings,
+            int rangeMin,
+            int rangeMax,
+            bool updateBeforeConfirming) : base(
+                new string[] { label },
+                type,
+                formatString,
+                dependentSettings,
+                rangeMin,
+                rangeMax,
+                updateBeforeConfirming)
         {
             DefaultValue = defaultValue;
         }
@@ -123,10 +158,18 @@ namespace FEXNA.Options
             string[] labels,
             ConfigTypes type,
             T[] defaultValue,
-            string formatString = "{0}",
-            int[] dependentSettings = null,
-            int rangeMin = 0,
-            int rangeMax = 0) : base(labels, type, formatString, dependentSettings, rangeMin, rangeMax)
+            string formatString,
+            int[] dependentSettings,
+            int rangeMin,
+            int rangeMax,
+            bool updateBeforeConfirming) : base(
+                labels,
+                type,
+                formatString,
+                dependentSettings,
+                rangeMin,
+                rangeMax,
+                updateBeforeConfirming)
         {
             if (labels.Length != defaultValue.Length)
             {

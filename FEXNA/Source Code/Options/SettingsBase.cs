@@ -261,6 +261,12 @@ namespace FEXNA.Options
             yield break;
         }
 
+        public bool SettingUpdatesBeforeConfirm(int index)
+        {
+            var entry = GetEntryIndex(index);
+            return _Data[entry.Item1].UpdateBeforeConfirming;
+        }
+
         public virtual void ConfirmSetting(int index, object value)
         {
             SetValue(index, value);

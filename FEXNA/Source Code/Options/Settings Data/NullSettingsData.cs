@@ -5,7 +5,7 @@ namespace FEXNA.Options
 {
     class NullSettingsData : SettingsData
     {
-        public NullSettingsData() : base(null, ConfigTypes.None) { }
+        public NullSettingsData() : base() { }
 
         public override int Size
         {

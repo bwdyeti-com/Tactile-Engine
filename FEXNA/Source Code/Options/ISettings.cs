@@ -51,6 +51,13 @@ namespace FEXNA.Options
         IEnumerable<int> DependentSettings(int index);
 
         /// <summary>
+        /// Returns true if the given setting, when changed in an options menu,
+        /// should preview the new value even before confirming.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
+        bool SettingUpdatesBeforeConfirm(int index);
+
+        /// <summary>
         /// Changes the value of a setting and confirms the change.
         /// Also called when modifying values of temporary settings before
         /// copying them back to real settings objects.

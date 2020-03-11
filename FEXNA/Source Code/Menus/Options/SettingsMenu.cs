@@ -64,7 +64,7 @@ namespace FEXNA.Menus.Options
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         MenuSettingSelected = false;
-                        settingsWindow.SelectSetting(false);
+                        settingsWindow.CancelSetting();
                     }
                     else
                     {
@@ -98,7 +98,7 @@ namespace FEXNA.Menus.Options
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         MenuSettingSelected = false;
-                        settingsWindow.SelectSetting(false);
+                        settingsWindow.CancelSetting();
                     }
                     else if (Global.Input.KeyPressed(Keys.Enter) ||
                         Global.Input.triggered(Inputs.A) ||

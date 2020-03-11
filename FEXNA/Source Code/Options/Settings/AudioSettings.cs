@@ -35,11 +35,11 @@ namespace FEXNA.Options
             return new List<SettingsData>
             {
                 SettingsData.Create("Master Volume", ConfigTypes.Slider, 7,
-                    rangeMin: 0, rangeMax: 10),
+                    rangeMin: 0, rangeMax: 10, updateBeforeConfirming: true),
                 SettingsData.Create("Music Volume", ConfigTypes.Slider, 10,
-                    rangeMin: 0, rangeMax: 10),
+                    rangeMin: 0, rangeMax: 10, updateBeforeConfirming: true),
                 SettingsData.Create("Sound Volume", ConfigTypes.Slider, 10,
-                    rangeMin: 0, rangeMax: 10),
+                    rangeMin: 0, rangeMax: 10, updateBeforeConfirming: true),
 #if !__MOBILE__
                 SettingsData.Create("Mute When Inactive", ConfigTypes.OnOffSwitch, false)
 #else
