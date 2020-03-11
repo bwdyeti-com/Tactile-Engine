@@ -108,12 +108,12 @@ namespace FEXNA.Services.Input
                     result[(int)i] = new InputState(
                         this,
                         controllerState, keyState,
-                        inputs[(int)i], FEXNA.Input.STICK_DEAD_ZONE);
+                        inputs[(int)i]);
                 else
                     result[(int)i] = new InputState(
                         this,
                         controllerState, default(Maybe<KeyboardState>),
-                        inputs[(int)i], FEXNA.Input.STICK_DEAD_ZONE);
+                        inputs[(int)i]);
             }
 
             MouseState mouseState = Mouse.GetState();

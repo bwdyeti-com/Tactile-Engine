@@ -18,7 +18,7 @@ namespace FEXNA.Options
         private Keys[] _KeyboardConfig;
 
         public bool Rumble { get { return _Rumble; } }
-        public int AnalogDeadZone { get { return _AnalogDeadZone; } }
+        public float AnalogDeadZone { get { return _AnalogDeadZone / 100f; } }
         public ButtonIcons IconSet { get { return (ButtonIcons)_IconSet; } }
         public Keys[] KeyboardConfig { get { return _KeyboardConfig; } }
         
@@ -35,8 +35,8 @@ namespace FEXNA.Options
                 SettingsData.Create("Rumble", ConfigTypes.OnOffSwitch, false,
                     updateBeforeConfirming: true),
                 //@Debug: Need percent sign % in the font
-                SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 10,
-                    formatString: "{0}%", rangeMin: 0, rangeMax: 50),
+                SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 20,
+                    formatString: "{0}%", rangeMin: 10, rangeMax: 80),
                 SettingsData.Create("Button Icons", ConfigTypes.Number, 0,
                     rangeMin: 0, rangeMax: 1),
                 SettingsData.Create("Keyboard Controls:", ConfigTypes.Button, "Reset to Default"),
