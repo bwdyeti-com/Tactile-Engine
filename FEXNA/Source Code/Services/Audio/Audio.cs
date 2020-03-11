@@ -106,11 +106,6 @@ namespace FEXNA.Services.Audio
             #endregion
 
             #region BGS
-            public void set_bgs_volume(float volume)
-            {
-                _audio.set_bgs_volume(volume);
-            }
-
             public void play_bgs(string cue_name)
             {
                 _audio.play_bgs(cue_name);
@@ -123,11 +118,6 @@ namespace FEXNA.Services.Audio
             #endregion
 
             #region SFX
-            public void set_sfx_volume(float volume)
-            {
-                _audio.set_sfx_volume(volume);
-            }
-
             public void play_se(string bank, string cue_name,
                 Maybe<float> pitch = default(Maybe<float>),
                 Maybe<int> channel = default(Maybe<int>),
@@ -229,7 +219,10 @@ namespace FEXNA.Services.Audio
         private void update()
         {
             BgmManager.Update();
-            
+
+            // Update volume
+            UpdateSoundVolume();
+
             update_sounds();
             update_bgs_fade();
         }
@@ -239,6 +232,18 @@ namespace FEXNA.Services.Audio
             if (New_System_Sound_Data != null)
                 play_system_se(New_System_Sound_Data.Bank, New_System_Sound_Data.Name, New_System_Sound_Data.Priority, New_System_Sound_Data.Pitch);
             New_System_Sound_Data = null;
+        }
+
+        private void UpdateSoundVolume()
+        {
+            float volume = Global.gameSettings.Audio.SoundVolume / 100f;
+            volume = MathHelper.Clamp(volume, 0, 1);
+
+            if (Sound_Volume != volume)
+            {
+                set_bgs_volume(volume);
+                set_sfx_volume(volume);
+            }
         }
 
         protected void update_sounds()

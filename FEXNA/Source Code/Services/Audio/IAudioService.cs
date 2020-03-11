@@ -36,16 +36,12 @@ namespace FEXNA.Services.Audio
         #endregion
 
         #region BGS
-        void set_bgs_volume(float volume);
-
         void play_bgs(string cue_name);
 
         void stop_bgs();
         #endregion
 
         #region SFX
-        void set_sfx_volume(float volume);
-
         void play_se(string bank, string cue_name,
             Maybe<float> pitch = default(Maybe<float>),
             Maybe<int> channel = default(Maybe<int>),

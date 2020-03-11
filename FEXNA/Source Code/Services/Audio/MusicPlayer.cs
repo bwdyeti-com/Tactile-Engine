@@ -17,6 +17,7 @@ namespace FEXNA.Services.Audio
         const int SIMULTANEOUS_TRACKS = 4;
         private Dictionary<string, MusicInstance> Music = new Dictionary<string, MusicInstance>();
         private List<MusicCue> CuedTracks = new List<MusicCue>();
+        // Used for ducking and restoring music level
         private float Volume = 1f, TargetVolume = 1f;
         public bool IsBgmDucked { get; private set; }
         private SoundEffectInstance MusicEffect;
@@ -28,7 +29,7 @@ namespace FEXNA.Services.Audio
         {
             get
             {
-                return Volume * (Global.game_options.music_volume / 100f);
+                return Volume * Global.gameSettings.Audio.MusicVolume / 100f;
             }
         }
         private bool TracksFadingOut { get { return Music.Any(x => x.Value.IsFadeOut); } }

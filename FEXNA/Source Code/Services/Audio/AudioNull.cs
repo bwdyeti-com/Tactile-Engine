@@ -55,16 +55,12 @@ namespace FEXNA.Services.Audio
             #endregion
 
             #region BGS
-            public void set_bgs_volume(float volume) { }
-
             public void play_bgs(string cue_name) { }
 
             public void stop_bgs() { }
             #endregion
 
             #region SFX
-            public void set_sfx_volume(float volume) { }
-
             public void play_se(string bank, string cue_name,
                 Maybe<float> pitch,
                 Maybe<int> channel,

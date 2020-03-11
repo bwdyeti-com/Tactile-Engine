@@ -691,12 +691,6 @@ namespace FEXNA.Windows.Map
                     Global.game_state.block_auto_turn_end();
                     //Global.game_state.update_autoend_turn(); //Debug
                     break;
-                case Constants.Options.Music_Volume:
-                    Global.game_options.update_music_volum();
-                    break;
-                case Constants.Options.Sound_Volume:
-                    Global.game_options.update_sound_volume();
-                    break;
             }
         }
 

@@ -15,8 +15,22 @@ namespace FEXNA.Options
         private bool _MuteWhenInactive;
 
         public int MasterVolume { get { return _MasterVolume; } }
-        public int MusicVolume { get { return _MusicVolume; } }
-        public int SoundVolume { get { return _SoundVolume; } }
+        public int MusicVolume
+        {
+            get
+            {
+                int volume = _MasterVolume * _MusicVolume;
+                return volume;
+            }
+        }
+        public int SoundVolume
+        {
+            get
+            {
+                int volume = _MasterVolume * _SoundVolume;
+                return volume;
+            }
+        }
         public bool MuteWhenInactive { get { return _MuteWhenInactive; } }
 
         public AudioSettings()

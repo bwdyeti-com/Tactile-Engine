@@ -44,8 +44,6 @@ namespace FEXNA
 
         public void post_read()
         {
-            update_music_volum();
-            update_sound_volume();
         }
         #endregion
 
@@ -73,7 +71,6 @@ namespace FEXNA
             set
             {
                 Data[(int)Constants.Options.Music_Volume] = value;
-                update_music_volum();
             }
         }
         public byte sound_volume
@@ -82,7 +79,6 @@ namespace FEXNA
             set
             {
                 Data[(int)Constants.Options.Sound_Volume] = value;
-                update_sound_volume();
             }
         }
         public byte window_color { get { return Data[(int)Constants.Options.Window_Color]; } set { Data[(int)Constants.Options.Window_Color] = value; } }
@@ -116,17 +112,6 @@ namespace FEXNA
             //music_on = 0; //Yeti
             //sound_on = 0;
             window_color = 0;
-        }
-
-        public void update_music_volum()
-        {
-            //@Yeti
-        }
-
-        public void update_sound_volume()
-        {
-            Global.Audio.set_bgs_volume(sound_volume / 100f);
-            Global.Audio.set_sfx_volume(sound_volume / 100f);
         }
     }
 }
