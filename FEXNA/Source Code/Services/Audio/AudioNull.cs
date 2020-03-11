@@ -24,7 +24,7 @@ namespace FEXNA.Services.Audio
                 _audio = new AudioNull();
             }
             
-            public void update() { }
+            public void update(bool gameInactive) { }
 
             public void post_update() { }
 

@@ -20,6 +20,7 @@ namespace FEXNA.Services.Audio
         // Used for ducking and restoring music level
         private float Volume = 1f, TargetVolume = 1f;
         public bool IsBgmDucked { get; private set; }
+        private bool GameInactive;
         private SoundEffectInstance MusicEffect;
         private List<string> MusicPausedForME = new List<string>();
 
@@ -29,6 +30,9 @@ namespace FEXNA.Services.Audio
         {
             get
             {
+                if (GameInactive && Global.gameSettings.Audio.MuteWhenInactive)
+                    return 0;
+
                 return Volume * Global.gameSettings.Audio.MusicVolume / 100f;
             }
         }
@@ -290,8 +294,10 @@ namespace FEXNA.Services.Audio
         #endregion
 
         #region Update
-        public void Update()
+        public void Update(bool gameInactive)
         {
+            GameInactive = gameInactive;
+
             if (Volume != TargetVolume)
                 Volume = (float)Additional_Math.double_closer(Volume, TargetVolume, 0.08f);
 

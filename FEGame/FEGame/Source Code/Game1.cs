@@ -147,6 +147,20 @@ namespace FEGame
             GamePad.SetVibration(PlayerIndex.Four, 0, 0);
         }
 
+        protected override void OnActivated(object sender, EventArgs args)
+        {
+            Loop.GameGainedFocus();
+
+            base.OnActivated(sender, args);
+        }
+
+        protected override void OnDeactivated(object sender, EventArgs args)
+        {
+            Loop.GameLostFocus();
+
+            base.OnDeactivated(sender, args);
+        }
+
         protected override void OnExiting(object sender, EventArgs args)
         {
             Loop.CancelGraphicsLoadingThread();

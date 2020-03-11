@@ -66,6 +66,7 @@ namespace FEXNA
         private double CurrentFrameRate = FRAME_RATE;
 #endif
 
+        public bool GameInactive { get; private set; }
         private float ProcessTime = 0;
 
         private Stopwatch HyperspeedStopWatch = new Stopwatch();
@@ -167,6 +168,23 @@ namespace FEXNA
             EndThreads();
         }
 
+        public void GameGainedFocus()
+        {
+            GameInactive = false;
+        }
+
+        public void GameLostFocus()
+        {
+            GameInactive = true;
+
+#if !__MOBILE__
+            if (Global.gameSettings.Graphics.MinimizeWhenInactive)
+            {
+                Renderer.MinimizeFullscreen(Game);
+            }
+#endif
+        }
+
         public void CancelGraphicsLoadingThread()
         {
             if (GraphicsLoadingThread != null)
@@ -241,7 +259,7 @@ namespace FEXNA
                 // Don't update audio handling when the game is paused,
                 // to better debug fades etc
                 if (processNextFrame)
-                    Global.Audio.update();
+                    Global.Audio.update(GameInactive);
                 Stereoscopic_Graphic_Object.update_stereoscopy();
 
                 UpdateIO();
@@ -311,10 +329,10 @@ namespace FEXNA
                 keyState.IsKeyDown(Keys.Enter) && !PreviousKeyState.IsKeyDown(Keys.Enter))
             {
                 if (!Global.scene.fullscreen_switch_blocked())
-            {
-                Global.gameSettings.Graphics.SwitchFullscreen();
-                Global.save_config = true;
-            }
+                {
+                    Global.gameSettings.Graphics.SwitchFullscreen();
+                    Global.save_config = true;
+                }
             }
 #endif
 

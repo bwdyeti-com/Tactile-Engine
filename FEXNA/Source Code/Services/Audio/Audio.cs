@@ -24,9 +24,9 @@ namespace FEXNA.Services.Audio
                 _audio = new Audio_Engine();
             }
             
-            public void update()
+            public void update(bool gameInactive)
             {
-                _audio.update();
+                _audio.update(gameInactive);
             }
 
             public void post_update()
@@ -216,12 +216,12 @@ namespace FEXNA.Services.Audio
 
         private Audio_Engine() { }
 
-        private void update()
+        private void update(bool gameInactive)
         {
-            BgmManager.Update();
+            BgmManager.Update(gameInactive);
 
             // Update volume
-            UpdateSoundVolume();
+            UpdateSoundVolume(gameInactive);
 
             update_sounds();
             update_bgs_fade();
@@ -234,10 +234,12 @@ namespace FEXNA.Services.Audio
             New_System_Sound_Data = null;
         }
 
-        private void UpdateSoundVolume()
+        private void UpdateSoundVolume(bool gameInactive)
         {
             float volume = Global.gameSettings.Audio.SoundVolume / 100f;
             volume = MathHelper.Clamp(volume, 0, 1);
+            if (gameInactive && Global.gameSettings.Audio.MuteWhenInactive)
+                volume = 0;
 
             if (Sound_Volume != volume)
             {

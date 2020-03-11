@@ -5,7 +5,7 @@ namespace FEXNA.Services.Audio
 {
     interface IAudioService
     {
-        void update();
+        void update(bool gameInactive);
 
         void post_update();
 
