@@ -41,6 +41,21 @@ namespace FEXNA.Options
 
         #region Serialization
         /// <summary>
+        /// Creates an instance and reads a stream into it.
+        /// </summary>
+        public void ReadSettings(BinaryReader reader)
+        {
+            if (Global.LOADED_VERSION.older_than(0, 6, 10, 0))
+            {
+                ReadLegacy(reader);
+            }
+            else
+            {
+                Read(reader);
+            }
+        }
+
+        /// <summary>
         /// Reads settings data from files before implementing
         /// <see cref="ISerializableGameObject"/>.
         /// </summary>
@@ -86,18 +101,6 @@ namespace FEXNA.Options
                 rumble = reader.ReadBoolean();
             }
             keyConfig = ReadLegacyInputs(reader);
-
-            Global.zoom = zoom;
-            Global.fullscreen = fullscreen;
-            Global.stereoscopic_level = stereoscopicLevel;
-            Global.anaglyph = anaglyph;
-            Global.metrics = metrics;
-            Global.updates_active = updatesActive;
-            Global.rumble = rumble;
-            for (int i = keyConfig.Length - 1; i >= 0; i--)
-            {
-                Input.remap_key((Inputs)i, keyConfig[i]);
-            }
 
             // Apply the read values to the settings
             RestoreDefaults();
@@ -173,10 +176,17 @@ namespace FEXNA.Options
 
         public void SetReadValues(SerializerData data)
         {
+            // Copy zoom limits into the new grpahics object
+            //@Yeti: the zoom limits should really be stored somewhere else,
+            // like the renderer
+            var zoomRange = _Graphics.ValueRange((int)GraphicsSetting.Zoom);
+
             data.ReadValue(out _General, "General");
             data.ReadValue(out _Graphics, "Graphics");
             data.ReadValue(out _Audio, "Audio");
             data.ReadValue(out _Controls, "Controls");
+
+            _Graphics.SetZoomLimits(zoomRange.Minimum, zoomRange.Maximum);
         }
 
         public SerializerData GetSaveData()

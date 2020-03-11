@@ -18,19 +18,6 @@ namespace FEXNA.Services.Input
             SetDefaults();
         }
 
-        #region Serialization
-        public void write(BinaryWriter writer)
-        {
-            writer.Write(KeyRedirect.Count);
-
-            foreach (var pair in KeyRedirect)
-            {
-                writer.Write((byte)pair.Key);
-                writer.Write((int)pair.Value);
-            }
-        }
-        #endregion
-
         #region Config
         public Dictionary<Inputs, Keys> KeyRedirect
         {
@@ -101,11 +88,6 @@ namespace FEXNA.Services.Input
                 return FEXNA.Input.REMAPPABLE_KEYS[key];
 
             return "";
-        }
-
-        public bool RemapKey(Inputs inputName, Keys key)
-        {
-            return true;
         }
         #endregion
 

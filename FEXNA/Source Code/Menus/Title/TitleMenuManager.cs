@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
+using FEXNA.Menus.Options;
 using FEXNA.Windows.UserInterface.Command;
 
 namespace FEXNA.Menus.Title
@@ -14,11 +14,11 @@ namespace FEXNA.Menus.Title
 
         public bool SoftResetBlocked
         {
-            get { return Menus.Peek() is Windows.Command.Window_Config_Options; }
+            get { return Menus.Any(x => x is SettingsTopMenu); }
         }
         public bool FullscreenSwitchBlocked
         {
-            get { return Menus.Peek() is Windows.Command.Window_Config_Options; }
+            get { return Menus.Any(x => x is SettingsTopMenu); }
         }
 
         public static TitleMenuManager Intro(ITitleMenuHandler handler)
@@ -197,11 +197,10 @@ at any time from the options menu.");
                     break;
                 case Main_Menu_Selections.Options:
                     Global.game_system.play_se(System_Sounds.Confirm);
-                    var optionsMenu = new ConfigOptionsMenu();
-                    optionsMenu.Stereoscopic = Config.TITLE_OPTIONS_DEPTH;
-                    optionsMenu.Canceled += optionsMenu_Canceled;
-                    optionsMenu.Closed += menu_Closed;
-                    AddMenu(optionsMenu);
+                    var settingsTopMenu = new SettingsTopMenu();
+                    settingsTopMenu.Selected += SettingsTopMenu_Selected;
+                    settingsTopMenu.Closed += menu_Closed;
+                    settingsTopMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
                     break;
 #if !MONOGAME && DEBUG
                 case Main_Menu_Selections.Test_Battle:
@@ -251,7 +250,39 @@ at any time from the options menu.");
                     break;
             }
         }
-        
+
+        private void SettingsTopMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var settingsTopMenu = (sender as SettingsTopMenu);
+            SettingsMenu settingsMenu;
+
+            int index = settingsTopMenu.Index;
+            switch (index)
+            {
+                case 0:
+                    settingsMenu = new SettingsMenu(Global.gameSettings.General, settingsTopMenu);
+                    settingsMenu.Canceled += settingsMenu_Canceled;
+                    AddMenu(settingsMenu);
+                    break;
+                case 1:
+                    settingsMenu = new SettingsMenu(Global.gameSettings.Graphics, settingsTopMenu);
+                    settingsMenu.Canceled += settingsMenu_Canceled;
+                    AddMenu(settingsMenu);
+                    break;
+                case 2:
+                    settingsMenu = new SettingsMenu(Global.gameSettings.Audio, settingsTopMenu);
+                    settingsMenu.Canceled += settingsMenu_Canceled;
+                    AddMenu(settingsMenu);
+                    break;
+                case 3:
+                    settingsMenu = new SettingsMenu(Global.gameSettings.Controls, settingsTopMenu);
+                    settingsMenu.Canceled += settingsMenu_Canceled;
+                    AddMenu(settingsMenu);
+                    break;
+            }
+        }
+
 #if !MONOGAME && DEBUG
         void testBattleMenu_Confirm(object sender, EventArgs e)
         {
@@ -261,10 +292,12 @@ at any time from the options menu.");
         }
 #endif
 
-        void optionsMenu_Canceled(object sender, EventArgs e)
+        void settingsMenu_Canceled(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Cancel);
             MenuHandler.TitleSaveConfig();
+
+            menu_Closed(sender, e);
         }
 
         private void ExtrasMenu_Selected(object sender, EventArgs e)

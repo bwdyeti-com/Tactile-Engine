@@ -171,7 +171,6 @@
     <Compile Include="Source Code\Menus\Save\SaveComparisonMenu.cs" />
     <Compile Include="Source Code\Menus\Save\SaveMenuManager.cs" />
     <Compile Include="Source Code\Menus\ScreenFadeMenu.cs" />
-    <Compile Include="Source Code\Menus\Title\ConfigOptionsMenu.cs" />
     <Compile Include="Source Code\Menus\Title\CreditsMenu.cs" />
     <Compile Include="Source Code\Menus\Title\DifficultySelectionMenu.cs" />
     <Compile Include="Source Code\Menus\Title\SupportViewerActorMenu.cs" />
@@ -639,12 +638,10 @@
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ButtonUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ConfigUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\NumberUINode.cs" />
-    <Compile Include="Source Code\Windows\User Interface\Command\Config\SwitchUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\MapSpriteUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\RankingUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\SupportUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\ItemUINode.cs" />
-    <Compile Include="Source Code\Windows\User Interface\Command\Config\InputUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\WorldmapUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\TextUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\IUIObject.cs" />
@@ -683,7 +680,6 @@
     <Compile Include="Source Code\Windows\Command Windows\Window_Command_Scroll.cs" />
     <Compile Include="Source Code\Windows\Command Windows\Window_Command_Support.cs" />
     <Compile Include="Source Code\Windows\Command Windows\Window_Command_Worldmap.cs" />
-    <Compile Include="Source Code\Windows\Title\Window_Config_Options.cs" />
     <Compile Include="Source Code\Windows\Command Windows\Window_Command_Scroll_Arrow.cs" />
     <Compile Include="Source Code\Windows\Window_Convo_Location.cs" />
     <Compile Include="Source Code\Windows\Help Windows\Window_Help.cs" />

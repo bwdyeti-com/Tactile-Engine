@@ -28,8 +28,9 @@ namespace FEXNA.Options
         public Maybe<int> MonitorIndex { get { return _MonitorIndex; } }
         public bool MinimizeWhenInactive { get { return _MinimizeWhenInactive; } }
 
-        private Maybe<int> ZoomMin, ZoomMax;
-        
+        public Maybe<int> ZoomMin { get; private set; }
+        public Maybe<int> ZoomMax { get; private set; }
+
         public GraphicsSettings()
         {
             ZoomMin = Maybe<int>.Nothing;
