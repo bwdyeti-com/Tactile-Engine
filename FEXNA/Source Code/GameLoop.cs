@@ -310,8 +310,11 @@ namespace FEXNA
             if ((keyState.IsKeyDown(Keys.LeftAlt) || keyState.IsKeyDown(Keys.RightAlt)) &&
                 keyState.IsKeyDown(Keys.Enter) && !PreviousKeyState.IsKeyDown(Keys.Enter))
             {
+                if (!Global.scene.fullscreen_switch_blocked())
+            {
                 Global.gameSettings.Graphics.SwitchFullscreen();
                 Global.save_config = true;
+            }
             }
 #endif
 
