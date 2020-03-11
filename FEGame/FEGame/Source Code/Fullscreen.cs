@@ -78,11 +78,9 @@ namespace FEGame
         }
         private void Restore()
         {
-            System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().WindowState =
-                System.Windows.Forms.FormWindowState.Normal;
-            System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().FormBorderStyle =
-                System.Windows.Forms.FormBorderStyle.FixedDialog;
-            System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().TopMost = false;
+            var form = System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm();
+            form.WindowState = System.Windows.Forms.FormWindowState.Normal;
+            form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
         }
 #endif
     }
@@ -95,12 +93,24 @@ namespace FEGame
 
         public static void fullscreen(IntPtr hWnd)
         {
-            System.Windows.Forms.Form.FromHandle(hWnd).FindForm().WindowState =
-                System.Windows.Forms.FormWindowState.Maximized;
-            System.Windows.Forms.Form.FromHandle(hWnd).FindForm().FormBorderStyle =
-                System.Windows.Forms.FormBorderStyle.None;
-            System.Windows.Forms.Form.FromHandle(hWnd).FindForm().TopMost = true;
-            NativeMethods.SetWindowPos(hWnd, HWND_TOP, 0, 0, PrimaryScreenX(hWnd), PrimaryScreenY(hWnd), SWP_SHOWWINDOW);
+            var form = System.Windows.Forms.Form.FromHandle(hWnd).FindForm();
+            form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+
+            //@Yeti: Should use the setting for which screen index
+            //@Yeti: store the number and sizes of each screen in the renderer,
+            // then if any of them change restore the game window
+            var screen = System.Windows.Forms.Screen.AllScreens[0];
+            var screenBounds = screen.Bounds;
+
+            NativeMethods.SetWindowPos(hWnd, HWND_TOP,
+                screenBounds.X,
+                screenBounds.Y,
+                screenBounds.Width,
+                screenBounds.Height,
+                SWP_SHOWWINDOW);
+            form.Activate();
+            form.BringToFront();
         }
 
         private const int SM_CXSCREEN = 0;
@@ -121,15 +131,6 @@ namespace FEGame
             MONITORINFOEX info = new MONITORINFOEX();
             NativeMethods.GetMonitorInfo(handle, info);
             return info.rcMonitor.bottom - info.rcMonitor.top;
-        }
-
-        private static int PrimaryScreenX(IntPtr hWnd)
-        {
-            return NativeMethods.GetSystemMetrics(SM_CXSCREEN);
-        }
-        private static int PrimaryScreenY(IntPtr hWnd)
-        {
-            return NativeMethods.GetSystemMetrics(SM_CYSCREEN);
         }
     }
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]

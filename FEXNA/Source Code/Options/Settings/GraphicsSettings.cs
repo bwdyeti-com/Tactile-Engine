@@ -7,24 +7,25 @@ using FEXNA_Library;
 namespace FEXNA.Options
 {
     enum GraphicsSetting { Fullscreen, Zoom, Stereoscopic, Anaglyph, MonitorIndex, MinimizeWhenInactive }
+    enum WindowMode { Windowed, Fullscreen }
 
     class GraphicsSettings : SettingsBase, ISerializableGameObject
     {
         const int MAX_STEREOSCOPIC_LEVEL = 10;
 
-        private bool _Fullscreen;
+        private WindowMode _Fullscreen;
         private int _Zoom;
         private int _StereoscopicLevel;
         private bool _Anaglyph;
         private Maybe<int> _MonitorIndex;
         private bool _MinimizeWhenInactive;
 
-        public bool Fullscreen { get { return _Fullscreen; } }
+        public bool Fullscreen { get { return _Fullscreen == WindowMode.Fullscreen; } }
         public int Zoom { get { return _Zoom; } }
         public int StereoscopicLevel { get { return _StereoscopicLevel; } }
         public bool Stereoscopic { get { return _StereoscopicLevel > 0; } }
         public bool Anaglyph { get { return _Anaglyph; } }
-        public bool AnaglyphMode { get { return this.Stereoscopic && (!_Fullscreen || _Anaglyph); } }
+        public bool AnaglyphMode { get { return this.Stereoscopic && (!this.Fullscreen || _Anaglyph); } }
         public Maybe<int> MonitorIndex { get { return _MonitorIndex; } }
         public bool MinimizeWhenInactive { get { return _MinimizeWhenInactive; } }
 
@@ -34,7 +35,7 @@ namespace FEXNA.Options
         public GraphicsSettings()
         {
 #if __MOBILE__
-            _Fullscreen = true;
+            _Fullscreen = FullscreenSetting.Fullscreen;
             _Zoom = 2;
 #endif
             ZoomMin = Maybe<int>.Nothing;
@@ -50,8 +51,10 @@ namespace FEXNA.Options
             return new List<SettingsData>
             {
 #if !__MOBILE__
-                SettingsData.Create("Fullscreen", ConfigTypes.OnOffSwitch, false,
-                    dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph }),
+                SettingsData.Create("Window Mode", ConfigTypes.Number, (int)WindowMode.Windowed,
+                    dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
+                    rangeMin: (int)WindowMode.Windowed,
+                    rangeMax: (int)WindowMode.Fullscreen),
                 SettingsData.Create("Zoom", ConfigTypes.Number,
                     Rendering.GameRenderer.ZOOM),
 #else
@@ -63,7 +66,9 @@ namespace FEXNA.Options
                     formatString: "On ({0})", rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL),
                 SettingsData.Create("  Red-Cyan (3D)", ConfigTypes.OnOffSwitch, false),
 #if !__MOBILE__
-                SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
+                //@Yeti: hide this setting for now, until it's supporting
+                new NullSettingsData(),
+                //SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
                 SettingsData.Create("Minimize When Inactive", ConfigTypes.OnOffSwitch, false)
 #else
                 new NullSettingsData(),
@@ -84,7 +89,12 @@ namespace FEXNA.Options
 
         public void SwitchFullscreen()
         {
-            ConfirmSetting(GraphicsSetting.Fullscreen, 0, !_Fullscreen);
+            //@Yeti
+            var preferredFullscreenSetting = WindowMode.Fullscreen;
+
+            var setting = _Fullscreen == WindowMode.Fullscreen ?
+                WindowMode.Windowed : preferredFullscreenSetting;
+            ConfirmSetting(GraphicsSetting.Fullscreen, 0, setting);
         }
 
         public void SetZoomLimits(int zoomMin, int zoomMax)
@@ -117,7 +127,7 @@ namespace FEXNA.Options
         public override bool IsSettingEnabled(int index)
         {
             if (index == (int)GraphicsSetting.Anaglyph)
-                return _Fullscreen && (_StereoscopicLevel > 0);
+                return this.Fullscreen && (_StereoscopicLevel > 0);
 
             return base.IsSettingEnabled(index);
         }
@@ -127,7 +137,7 @@ namespace FEXNA.Options
             switch (entry.Item1)
             {
                 case (int)GraphicsSetting.Fullscreen:
-                    return _Fullscreen;
+                    return (int)_Fullscreen;
                 case (int)GraphicsSetting.Zoom:
                     return _Zoom;
                 case (int)GraphicsSetting.Stereoscopic:
@@ -149,6 +159,16 @@ namespace FEXNA.Options
 
             switch (entry.Item1)
             {
+                case (int)GraphicsSetting.Fullscreen:
+                    // Show enum name
+                    switch(_Fullscreen)
+                    {
+                        case WindowMode.Windowed:
+                            return "Windowed";
+                        case WindowMode.Fullscreen:
+                        default:
+                            return "Fullscreen";
+                    }
                 case (int)GraphicsSetting.Stereoscopic:
                     // Don't show value if 0
                     if (_StereoscopicLevel == 0)
@@ -166,9 +186,6 @@ namespace FEXNA.Options
             switch (entry.Item1)
             {
                 // bool
-                case (int)GraphicsSetting.Fullscreen:
-                    SetValue(entry, ref _Fullscreen, value);
-                    break;
                 case (int)GraphicsSetting.Anaglyph:
                     SetValue(entry, ref _Anaglyph, value);
                     break;
@@ -176,6 +193,11 @@ namespace FEXNA.Options
                     SetValue(entry, ref _MinimizeWhenInactive, value);
                     break;
                 // int
+                case (int)GraphicsSetting.Fullscreen:
+                    int fullscreen = (int)_Fullscreen;
+                    SetValue(entry, ref fullscreen, value);
+                    _Fullscreen = (WindowMode)fullscreen;
+                    break;
                 case (int)GraphicsSetting.Zoom:
                     SetValue(entry, ref _Zoom, value);
                     break;
@@ -254,7 +276,7 @@ namespace FEXNA.Options
         {
             return new Dictionary<string, Type>
             {
-                { "Fullscreen", typeof(bool) },
+                { "Fullscreen", typeof(WindowMode) },
                 { "Zoom", typeof(int) },
                 { "StereoscopicLevel", typeof(int) },
                 { "Anaglyph", typeof(bool) },

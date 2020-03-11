@@ -105,7 +105,8 @@ namespace FEXNA.Options
             // Apply the read values to the settings
             RestoreDefaults();
             Graphics.SetValue(GraphicsSetting.Zoom, 0, zoom);
-            Graphics.SetValue(GraphicsSetting.Fullscreen, 0, fullscreen);
+            Graphics.SetValue(GraphicsSetting.Fullscreen, 0,
+                fullscreen ? (int)WindowMode.Fullscreen : (int)WindowMode.Windowed);
             Graphics.SetValue(GraphicsSetting.Stereoscopic, 0, stereoscopicLevel);
             Graphics.SetValue(GraphicsSetting.Anaglyph, 0, anaglyph);
             if (metrics != Metrics_Settings.Not_Set)
