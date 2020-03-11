@@ -32,7 +32,8 @@ namespace FEXNA.Options
         {
             return new List<SettingsData>
             {
-                SettingsData.Create("Rumble", ConfigTypes.OnOffSwitch, false),
+                SettingsData.Create("Rumble", ConfigTypes.OnOffSwitch, false,
+                    updateBeforeConfirming: true),
                 //@Debug: Need percent sign % in the font
                 SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 10,
                     formatString: "{0}%", rangeMin: 0, rangeMax: 50),

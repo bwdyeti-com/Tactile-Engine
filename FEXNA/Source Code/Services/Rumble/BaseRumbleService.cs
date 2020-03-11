@@ -3,9 +3,9 @@ using Microsoft.Xna.Framework;
 
 namespace FEXNA.Services.Rumble
 {
-    abstract class BaseRumbleService : GameComponent
+    public abstract class BaseRumbleService : GameComponent
     {
-        public BaseRumbleService(Game game) : base(game) { }
+        internal BaseRumbleService(Game game) : base(game) { }
 
         /// <summary>
         /// 
@@ -18,6 +18,17 @@ namespace FEXNA.Services.Rumble
         /// Rumble force is multiplied by a factor lerped between 1 and this value over the course of the rumble.
         /// Less than 1 causes the force to weaken over time, greater than 1 causes it to increase.
         /// </param>
-        public abstract void add_rumble(TimeSpan time, float left_motor, float right_motor, PlayerIndex player = PlayerIndex.One, float mult = 1);
+        internal abstract void add_rumble(TimeSpan time, float left_motor, float right_motor, PlayerIndex player = PlayerIndex.One, float mult = 1);
+
+        /// <summary>
+        /// Stops rumble for all players.
+        /// </summary>
+        public abstract void StopRumble();
+
+        /// <summary>
+        /// Stops rumble for a player.
+        /// </summary>
+        /// <param name="player"></param>
+        internal abstract void StopRumble(PlayerIndex player);
     }
 }

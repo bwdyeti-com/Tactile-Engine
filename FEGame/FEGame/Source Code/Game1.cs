@@ -141,10 +141,7 @@ namespace FEGame
             Loop.UnloadContent();
 
             // Cancel controller rumble
-            GamePad.SetVibration(PlayerIndex.One, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Two, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Three, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Four, 0, 0);
+            Global.Rumble.StopRumble();
         }
 
         protected override void OnActivated(object sender, EventArgs args)
@@ -165,10 +162,7 @@ namespace FEGame
         {
             Loop.CancelGraphicsLoadingThread();
 
-            GamePad.SetVibration(PlayerIndex.One, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Two, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Three, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Four, 0, 0);
+            Global.Rumble.StopRumble();
 
             base.OnExiting(sender, args);
         }

@@ -276,7 +276,7 @@ namespace FEXNA
                 return ((IAudioService)Global.services.GetService(typeof(IAudioService)));
             }
         }
-        internal static FEXNA.Services.Rumble.BaseRumbleService Rumble
+        public static FEXNA.Services.Rumble.BaseRumbleService Rumble
         {
             get
             {

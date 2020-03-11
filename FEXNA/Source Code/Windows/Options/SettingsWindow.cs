@@ -298,6 +298,8 @@ namespace FEXNA.Windows.Options
 
             bool right = Global.Input.repeated(Inputs.Right);
             bool left = Global.Input.repeated(Inputs.Left);
+
+            bool valueChanged = false;
             if (SettingSelected && (right || left))
             {
                 var settings = TempSelectedSettings;
@@ -309,15 +311,19 @@ namespace FEXNA.Windows.Options
                         settings.ConfirmSetting(
                             this.index,
                             value + settings.ValueInterval(this.index) * (right ? 1 : -1));
-                        // Menu move sound
                         if (value != settings.Value<int>(index))
+                        {
+                            valueChanged = true;
+                            // Menu move sound
                             Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        }
                         break;
                     case ConfigTypes.OnOffSwitch:
                         bool flag = settings.Value<bool>(index);
                         if (!flag == right)
                         {
                             settings.ConfirmSetting(this.index, !flag);
+                            valueChanged = true;
                             // Menu move sound
                             Global.game_system.play_se(System_Sounds.Menu_Move2);
                         }
@@ -330,6 +336,14 @@ namespace FEXNA.Windows.Options
                 // Copy to settings object if updating before confirm
                 if (settings.SettingUpdatesBeforeConfirm(this.index))
                     ConfirmTempSetting(this.index);
+
+                /* //@Yet: Cause a short rumble if rumble is turned on
+                if (valueChanged &&
+                    settings.SettingType(this.index) == ConfigTypes.OnOffSwitch &&
+                    settings.Value<bool>(index))
+                {
+                    Global.Rumble.add_rumble(TimeSpan.FromSeconds(0.2f), 0.8f, 0.8f);
+                }*/
             }
         }
         
