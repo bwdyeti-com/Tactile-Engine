@@ -19,7 +19,12 @@ namespace FEXNA.Options
         public int SoundVolume { get { return _SoundVolume; } }
         public bool MuteWhenInactive { get { return _MuteWhenInactive; } }
 
-        public AudioSettings() { }
+        public AudioSettings()
+        {
+#if __MOBILE__
+            _MuteWhenInactive = true;
+#endif
+        }
         private AudioSettings(AudioSettings source) : this()
         {
             CopySettingsFrom(source);
@@ -35,7 +40,11 @@ namespace FEXNA.Options
                     rangeMin: 0, rangeMax: 10),
                 SettingsData.Create("Sound Volume", ConfigTypes.Slider, 10,
                     rangeMin: 0, rangeMax: 10),
+#if !__MOBILE__
                 SettingsData.Create("Mute When Inactive", ConfigTypes.OnOffSwitch, false)
+#else
+                new NullSettingsData()
+#endif
             };
         }
         
@@ -60,6 +69,10 @@ namespace FEXNA.Options
         protected override void CopyAdditionalSettingsFrom(ISettings other)
         {
             var otherAudio = (AudioSettings)other;
+
+#if __MOBILE__
+            _MuteWhenInactive = otherAudio._MuteWhenInactive;
+#endif
         }
 
         public override object ValueObject(Tuple<int, int> entry)

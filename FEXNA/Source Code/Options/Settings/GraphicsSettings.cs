@@ -33,6 +33,10 @@ namespace FEXNA.Options
 
         public GraphicsSettings()
         {
+#if __MOBILE__
+            _Fullscreen = true;
+            _Zoom = 2;
+#endif
             ZoomMin = Maybe<int>.Nothing;
             ZoomMax = Maybe<int>.Nothing;
         }
@@ -45,16 +49,26 @@ namespace FEXNA.Options
         {
             return new List<SettingsData>
             {
+#if !__MOBILE__
                 SettingsData.Create("Fullscreen", ConfigTypes.OnOffSwitch, false,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph }),
                 SettingsData.Create("Zoom", ConfigTypes.Number,
                     Rendering.GameRenderer.ZOOM),
+#else
+                new NullSettingsData(),
+                new NullSettingsData(),
+#endif
                 SettingsData.Create("Stereoscopic 3D", ConfigTypes.Number, 0,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
                     formatString: "On ({0})", rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL),
                 SettingsData.Create("  Red-Cyan (3D)", ConfigTypes.OnOffSwitch, false),
+#if !__MOBILE__
                 SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
                 SettingsData.Create("Minimize When Inactive", ConfigTypes.OnOffSwitch, false)
+#else
+                new NullSettingsData(),
+                new NullSettingsData(),
+#endif
             };
         }
 
@@ -90,6 +104,11 @@ namespace FEXNA.Options
         protected override void CopyAdditionalSettingsFrom(ISettings other)
         {
             var otherGraphics = (GraphicsSettings)other;
+
+#if __MOBILE__
+            _Fullscreen = otherGraphics._Fullscreen;
+            _Zoom = otherGraphics.Zoom;
+#endif
 
             ZoomMin = otherGraphics.ZoomMin;
             ZoomMax = otherGraphics.ZoomMax;

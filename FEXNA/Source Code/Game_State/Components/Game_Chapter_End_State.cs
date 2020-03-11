@@ -149,6 +149,7 @@ namespace FEXNA.State
         {
 #if !__MOBILE__
 #if DEBUG || PRERELEASE
+            // Save a copy of metrics locally
             Gameplay_Metrics gameplay = new Gameplay_Metrics(Global.game_state.metrics);
             gameplay.set_pc_ending_stats();
             Metrics_Data metrics = new Metrics_Data(gameplay);
@@ -179,6 +180,7 @@ namespace FEXNA.State
             catch (UnauthorizedAccessException ex) { }
 #endif
 #endif
+
             // Send metrics to remote server
             Global.send_metrics();
         }
