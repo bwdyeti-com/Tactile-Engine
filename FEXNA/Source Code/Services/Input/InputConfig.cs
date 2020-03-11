@@ -9,61 +9,29 @@ namespace FEXNA.Services.Input
 {
     class InputConfig
     {
-
-        public Dictionary<Inputs, Keys> KeyRedirect;
         public Dictionary<Inputs, Buttons> PadRedirect;
 
         public InputConfig()
         {
-            KeyRedirect = new Dictionary<Inputs, Keys>();
             PadRedirect = new Dictionary<Inputs, Buttons>();
 
             SetDefaults();
         }
 
-        #region Serialization
-        public void write(BinaryWriter writer)
-        {
-            writer.Write(KeyRedirect.Count);
-
-            foreach (var pair in KeyRedirect)
-            {
-                writer.Write((byte)pair.Key);
-                writer.Write((int)pair.Value);
-            }
-        }
-
-        public void read(BinaryReader reader)
-        {
-            SetDefaults();
-
-            if (Global.LOADED_VERSION.older_than(0, 6, 5, 0))
-            {
-                var keyRedirect = new Dictionary<byte, Keys>();
-                for (byte i = 0; i < (byte)Inputs.Select; i++)
-                    keyRedirect[i] = (Keys)reader.ReadInt32();
-                foreach (var pair in keyRedirect)
-                {
-                    if (FEXNA.Input.REMAPPABLE_KEYS.ContainsKey(pair.Value))
-                        KeyRedirect[(Inputs)pair.Key] = pair.Value;
-                }
-            }
-            else
-            {
-                int count = reader.ReadInt32();
-
-                for (int i = 0; i < count; i++)
-                {
-                    Inputs key = (Inputs)reader.ReadByte();
-                    Keys value = (Keys)reader.ReadInt32();
-                    if (FEXNA.Input.REMAPPABLE_KEYS.ContainsKey(value))
-                        KeyRedirect[key] = value;
-                }
-            }
-        }
-        #endregion
-
         #region Config
+        public Dictionary<Inputs, Keys> KeyRedirect
+        {
+            get
+            {
+                Dictionary<Inputs, Keys> keys = new Dictionary<Inputs, Keys>();
+                for (int i = 0; i < Global.gameSettings.Controls.KeyboardConfig.Length; i++)
+                {
+                    keys.Add((Inputs)i, Global.gameSettings.Controls.KeyboardConfig[i]);
+                }
+                return keys;
+            }
+        }
+
         public void SetDefaults()
         {
             PadRedirect.Clear();
@@ -108,30 +76,6 @@ namespace FEXNA.Services.Input
 #else
             PadRedirect.Add(Inputs.Select, Buttons.Back);
 #endif
-
-            DefaultKeys();
-        }
-
-        public void DefaultKeys()
-        {
-            KeyRedirect.Clear();
-
-            KeyRedirect.Add(Inputs.Down, Keys.NumPad2);
-            KeyRedirect.Add(Inputs.Left, Keys.NumPad4);
-            KeyRedirect.Add(Inputs.Right, Keys.NumPad6);
-            KeyRedirect.Add(Inputs.Up, Keys.NumPad8);
-            KeyRedirect.Add(Inputs.A, Keys.X);
-            KeyRedirect.Add(Inputs.B, Keys.Z);
-            KeyRedirect.Add(Inputs.Y, Keys.D);
-            KeyRedirect.Add(Inputs.X, Keys.C);
-            KeyRedirect.Add(Inputs.L, Keys.A);
-            KeyRedirect.Add(Inputs.R, Keys.S);
-            /*KeyRedirect.Add(Inputs.L2, Keys.Q); //@Debug
-            KeyRedirect.Add(Inputs.R2, Keys.W);
-            KeyRedirect.Add(Inputs.L3, Keys.LeftShift);
-            KeyRedirect.Add(Inputs.R3, Keys.LeftControl);*/
-            KeyRedirect.Add(Inputs.Start, Keys.Enter);
-            KeyRedirect.Add(Inputs.Select, Keys.RightShift);
         }
 
         public string KeyName(Inputs inputName)
@@ -144,22 +88,6 @@ namespace FEXNA.Services.Input
                 return FEXNA.Input.REMAPPABLE_KEYS[key];
 
             return "";
-        }
-
-        public bool RemapKey(Inputs inputName, Keys key)
-        {
-            if (!FEXNA.Input.REMAPPABLE_KEYS.ContainsKey(key))
-                return false;
-
-            if (KeyRedirect.ContainsValue(key))
-                foreach (var pair in KeyRedirect)
-                    if (pair.Value == key)
-                    {
-                        KeyRedirect[pair.Key] = KeyRedirect[inputName];
-                        break;
-                    }
-            KeyRedirect[inputName] = key;
-            return true;
         }
         #endregion
 

@@ -47,8 +47,13 @@ namespace FEXNA.Rendering
 
         public static int zoom
         {
-            get { return Global.fullscreen ? 2 : ZOOM; }
+            get { return GameRenderer.IsFullscreen ? 2 : ZOOM; }
             private set { ZOOM = value; }
+        }
+
+        private static bool IsFullscreen
+        {
+            get { return Global.gameSettings.Graphics.Fullscreen; }
         }
 
         public static int RenderTargetZoom
@@ -80,8 +85,7 @@ namespace FEXNA.Rendering
             zoomMax = Math.Min(
                 zoomMax, (ScreenHeight - 64) / WindowHeight);
 
-            Global.set_zoom_limits(ZOOM_MIN, zoomMax);
-            Global.zoom = ZOOM;
+            Global.gameSettings.Graphics.SetZoomLimits(ZOOM_MIN, zoomMax);
 
             RefreshZoom(true);
 
@@ -230,7 +234,8 @@ namespace FEXNA.Rendering
             }
             catch (OutOfMemoryException e)
             {
-                Global.zoom = 1;
+                Global.gameSettings.Graphics.ConfirmSetting(
+                    FEXNA.Options.GraphicsSetting.Zoom, 0, 1);
                 DisposeRenderTargets();
                 return;
             }
@@ -287,12 +292,15 @@ namespace FEXNA.Rendering
         }
         #endregion
 
-        public bool ZoomNeedsRefresh { get { return Global.zoom != ZOOM; } }
+        public bool ZoomNeedsRefresh
+        {
+            get { return Global.gameSettings.Graphics.Zoom != ZOOM; }
+        }
 
         public bool UpdateZoom()
         {
             // If zoom value changed
-            if (this.ZoomNeedsRefresh || Fullscreen.NeedsRefresh(Global.fullscreen))
+            if (this.ZoomNeedsRefresh || Fullscreen.NeedsRefresh(GameRenderer.IsFullscreen))
             {
                 RefreshZoom();
                 // Create new properly sized render targets
@@ -309,19 +317,19 @@ namespace FEXNA.Rendering
         }
         private void RefreshZoom(bool initialSet)
         {
-            ZOOM = Global.zoom;
+            ZOOM = Global.gameSettings.Graphics.Zoom;
 
             // refresh fullscreen
-            Fullscreen.SetFullscreen(Global.fullscreen, graphics);
+            Fullscreen.SetFullscreen(GameRenderer.IsFullscreen, graphics);
 
             int fullscreenWidth = Fullscreen.WindowWidth(GraphicsDevice);
             int fullscreenHeight = Fullscreen.WindowHeight(GraphicsDevice);
 #if !MONOGAME
-            graphics.PreferredBackBufferWidth = (int)(Global.fullscreen ? fullscreenWidth : WindowWidth * zoom);
-            graphics.PreferredBackBufferHeight = (int)(Global.fullscreen ? fullscreenHeight : WindowHeight * zoom);
+            graphics.PreferredBackBufferWidth = (int)(GameRenderer.IsFullscreen ? fullscreenWidth : WindowWidth * zoom);
+            graphics.PreferredBackBufferHeight = (int)(GameRenderer.IsFullscreen ? fullscreenHeight : WindowHeight * zoom);
 #elif MONOMAC || WINDOWS
-            graphics.PreferredBackBufferWidth = (int)(Global.fullscreen ? fullscreenHeight : WindowWidth * zoom);
-            graphics.PreferredBackBufferHeight = (int)(Global.fullscreen ? fullscreenHeight : WindowHeight * zoom);
+            graphics.PreferredBackBufferWidth = (int)(GameRenderer.IsFullscreen ? fullscreenHeight : WindowWidth * zoom);
+            graphics.PreferredBackBufferHeight = (int)(GameRenderer.IsFullscreen ? fullscreenHeight : WindowHeight * zoom);
 #elif __MOBILE__
             graphics.PreferredBackBufferWidth = ScreenWidth;
             graphics.PreferredBackBufferHeight = ScreenHeight;
@@ -369,9 +377,9 @@ namespace FEXNA.Rendering
 #if __MOBILE__
             FEXNA.Input.update_screen_scale(true ? 
 #else
-            FEXNA.Input.update_screen_scale(Global.fullscreen ?
+            FEXNA.Input.update_screen_scale(GameRenderer.IsFullscreen ?
 #endif
- gameSize / renderSize : new Vector2(Global.zoom),
+ gameSize / renderSize : new Vector2(Global.gameSettings.Graphics.Zoom),
                 windowSize);
         }
         #endregion
@@ -397,7 +405,7 @@ namespace FEXNA.Rendering
                 ShaderRenderTargets[0], spriteBatch, GraphicsDevice, FinalRender);
 
             // Draws scene
-            if (!Global.stereoscopic)
+            if (!Global.gameSettings.Graphics.Stereoscopic)
             {
                 // Draw rendertarget to screen
                 DrawToScreen(spriteBatch);
@@ -414,7 +422,7 @@ namespace FEXNA.Rendering
                 // If Anaglyph, copy back to rendertarget[0] since it's only normal screen size
                 // Maybe the scene renderer should always draw to StereoscopicRenderTarget as if it's non-anaglyph mode //@Yeti
                 // And then this block would take the two halves and combine them on ShaderRenderTargets[0] in anaglyph //@Yeti
-                if (Global.anaglyph_mode)
+                if (Global.gameSettings.Graphics.AnaglyphMode)
                 {
                     GraphicsDevice.SetRenderTarget(ShaderRenderTargets[0]);
                     GraphicsDevice.Clear(Color.Transparent);
@@ -429,7 +437,7 @@ namespace FEXNA.Rendering
                     camera.zoom *= new Vector2(0.5f, 1);
 
                 // Draw rendertarget to screen
-                if (Global.anaglyph_mode)
+                if (Global.gameSettings.Graphics.AnaglyphMode)
                     DrawToScreen(spriteBatch, ShaderRenderTargets[0]);
                 else
                     DrawToScreen(spriteBatch, StereoscopicRenderTarget);
@@ -439,7 +447,8 @@ namespace FEXNA.Rendering
         }
         public void RedrawPreviousFrame()
         {
-            DrawToScreen(spriteBatch, !Global.stereoscopic ? ShaderRenderTargets[0] : StereoscopicRenderTarget);
+            DrawToScreen(spriteBatch, !Global.gameSettings.Graphics.Stereoscopic ?
+                ShaderRenderTargets[0] : StereoscopicRenderTarget);
         }
 
 #if DEBUG && (__MOBILE__ || GET_FPS)
@@ -508,7 +517,7 @@ namespace FEXNA.Rendering
             GraphicsDevice.SetRenderTarget(StereoscopicRenderTarget);
             this.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null);
             // In anaglyph, left is drawn in red channel, right is drawn cyan
-            if (Global.anaglyph_mode)
+            if (Global.gameSettings.Graphics.AnaglyphMode)
             {
                 Color anaglyphColor = stereo == Stereoscopic_Mode.Left ? new Color(255, 0, 0, 0) : new Color(0, 255, 255, 0);
                 this.spriteBatch.Draw(ShaderRenderTargets[0], new Rectangle(
@@ -550,7 +559,8 @@ namespace FEXNA.Rendering
                 ShaderRenderTargets[RENDER_TARGETS - 2] :
                 ShaderRenderTargets[RENDER_TARGETS - 1];
 
-            if (Global.stereoscopic && !Global.anaglyph && stereoTarget != null)
+            if (Global.gameSettings.Graphics.Stereoscopic &&
+                !Global.gameSettings.Graphics.Anaglyph && stereoTarget != null)
             {
                 CopyMouseRender(
                     spriteBatch, renderTarget, tempTarget, Stereoscopic_Mode.Left);
@@ -584,7 +594,8 @@ namespace FEXNA.Rendering
 
 #if DEBUG && !MONOGAME
             // Draw a debug view screen
-            if (DEBUG_VIEW && !Global.fullscreen && !Global.stereoscopic && zoom >= 3)
+            if (DEBUG_VIEW && !GameRenderer.IsFullscreen &&
+                !Global.gameSettings.Graphics.Stereoscopic && zoom >= 3)
             {
                 DrawDebugView(spriteBatch, renderTarget, shader);
             }
@@ -592,10 +603,11 @@ namespace FEXNA.Rendering
 #endif
             {
 #if !__ANDROID__
-                if (!Global.fullscreen && shader.CurrentTechnique == shader.Techniques["Normal"])
+                if (!GameRenderer.IsFullscreen && shader.CurrentTechnique == shader.Techniques["Normal"])
                     shader = null;
 #endif
-                if (Global.stereoscopic && !Global.anaglyph && stereoTarget != null)
+                if (Global.gameSettings.Graphics.Stereoscopic &&
+                        !Global.gameSettings.Graphics.Anaglyph && stereoTarget != null)
                     DrawToScreen(
                         spriteBatch, renderTarget, stereoTarget, shader, camera.matrix, widthRatio, ratio);
                 else
@@ -748,7 +760,8 @@ namespace FEXNA.Rendering
                 spriteBatch, new Vector2(renderTarget.Width, renderTarget.Height),
                 shader, m, widthRatio, ratio);
 
-            if (Global.stereoscopic && !Global.anaglyph_mode)
+            if (Global.gameSettings.Graphics.Stereoscopic &&
+                !Global.gameSettings.Graphics.AnaglyphMode)
             {
                 spriteBatch.Draw(
                     renderTarget,
@@ -797,7 +810,7 @@ namespace FEXNA.Rendering
             Effect shader, Matrix m, Vector2 widthRatio, float ratio)
         {
 #if !__MOBILE__
-            if (Global.fullscreen)
+            if (GameRenderer.IsFullscreen)
 #endif
             {
                 BeginFullscreenSpriteBatch(spriteBatch,
@@ -853,7 +866,8 @@ namespace FEXNA.Rendering
                 Matrix.CreateTranslation(new Vector3(
                     -(1 / (targetSize.X / sourceRenderSize.X)),
                     (1 / (targetSize.Y / sourceRenderSize.Y)), 0));
-            if (Global.stereoscopic && !Global.anaglyph_mode)
+            if (Global.gameSettings.Graphics.Stereoscopic &&
+                !Global.gameSettings.Graphics.AnaglyphMode)
             {
                 matrix *= Matrix.CreateTranslation(new Vector3((0.5f / widthRatio.X) - (1 / ratio), 0, 0)) *
                     Matrix.CreateScale(0.5f, 1, 1);

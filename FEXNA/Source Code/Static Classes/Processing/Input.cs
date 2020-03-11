@@ -204,18 +204,6 @@ namespace FEXNA
         private static Enum[] MouseEnums;
         private static Enum[] GestureEnums;
 
-        #region Serialization
-        public static void write(BinaryWriter writer)
-        {
-            InputConfig.write(writer);
-        }
-
-        public static void read(BinaryReader reader)
-        {
-            InputConfig.read(reader);
-        }
-        #endregion
-
         #region Config
         public static void default_controls()
         {
@@ -229,11 +217,6 @@ namespace FEXNA
         internal static string key_name(Keys key)
         {
             return InputConfig.KeyName(key);
-        }
-
-        internal static bool remap_key(Inputs input, Keys key)
-        {
-            return InputConfig.RemapKey(input, key);
         }
         #endregion
 

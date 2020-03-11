@@ -1,57 +1,49 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using FEXNA.Graphics.Text;
+using FEXNA.Graphics.Help;
 
 namespace FEXNA.Windows.UserInterface.Command.Config
 {
-    class ButtonUINode : ConfigUINode
+    class KeyRemapUINode : ConfigUINode
     {
-        protected FE_Text Text, Value;
+        private Button_Description Text;
+        private Keyboard_Icon Value;
 
-        internal ButtonUINode(
+        internal KeyRemapUINode(
                 string helpLabel,
+                Inputs input,
                 string str,
-                string description,
                 int width)
             : base(helpLabel)
         {
-            Text = new FE_Text();
-            Text.Font = "FE7_Text";
-            Text.texture = Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White");
-            Text.text = str;
+            Button_Description button = new Button_Description(input);
+            button.description = str;
+            button.draw_offset = new Vector2(8, 0);
+            Text = button;
 
-            Value = new FE_Text();
+            Value = new Keyboard_Icon(
+                input,
+                Global.Content.Load<Texture2D>(
+                    @"Graphics/Pictures/Buttons_Keyboard"), false);
+            Value.refresh();
             Value.draw_offset = new Vector2(120, 0);
-            Value.Font = "FE7_Text";
-            Value.texture = Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White");
-            Value.text = description;
 
             Size = new Vector2(width, 16);
         }
 
-        protected override void set_label_color(string color)
-        {
-            base.set_label_color(color);
-            Text.texture = Global.Content.Load<Texture2D>(
-                string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
-        }
+        internal override void set_text_color(string color) { }
 
-        internal override void set_text_color(string color)
+        internal void set_key(Keys key)
         {
-            if (this.locked)
-                color = "Grey";
-            Value.texture = Global.Content.Load<Texture2D>(
-                string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
-        }
-
-        internal void set_description(string description)
-        {
-            Value.text = description;
+            Value.SetKey(key);
         }
 
         protected override void update_graphics(bool activeNode)
         {
-            Text.update();
+            Text.Update(false);
+            Value.refresh();
             Value.update();
         }
 
@@ -73,7 +65,7 @@ namespace FEXNA.Windows.UserInterface.Command.Config
 
         public override void Draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
-            Text.draw(sprite_batch, draw_offset - (loc + draw_vector()));
+            Text.Draw(sprite_batch, draw_offset - (loc + draw_vector()));
             Value.draw(sprite_batch, draw_offset - (loc + draw_vector()));
         }
     }

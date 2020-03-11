@@ -90,10 +90,13 @@ namespace FEXNA.Graphics.Help
                 result = new Button_Description_Touch(input);
             else if (!Input.Controller_Active)
                 result = new Button_Description_Keyboard(input);
-            else if (true)
-                result = new Button_Description_360(input);
             else
-                result = new Button_Description(input);
+            {
+                if (Global.gameSettings.Controls.IconSet == Options.ButtonIcons.Xbox360)
+                    result = new Button_Description_360(input);
+                else
+                    result = new Button_Description(input);
+            }
             result.loc = loc;
             return result;
         }
@@ -112,15 +115,18 @@ namespace FEXNA.Graphics.Help
                 result = new Button_Description_Touch(input, description_texture, description_rect);
             else if (!Input.Controller_Active)
                 result = new Button_Description_Keyboard(input, description_texture, description_rect);
-            else if (true)
-                result = new Button_Description_360(input, description_texture, description_rect);
             else
-                result = new Button_Description(input, description_texture, description_rect);
+            {
+                if (Global.gameSettings.Controls.IconSet == Options.ButtonIcons.Xbox360)
+                    result = new Button_Description_360(input, description_texture, description_rect);
+                else
+                    result = new Button_Description(input, description_texture, description_rect);
+            }
             result.loc = loc;
             return result;
         }
 
-        protected Button_Description(Inputs input)
+        public Button_Description(Inputs input)
         {
             set_button(input);
 

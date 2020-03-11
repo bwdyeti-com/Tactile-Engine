@@ -185,9 +185,10 @@ namespace FEXNA
         public void TitleOpenFullCredits()
         {
 #if !__MOBILE__
-            if (Global.fullscreen)
+            if (Global.gameSettings.Graphics.Fullscreen)
             {
-                Global.fullscreen = false;
+                Global.gameSettings.Graphics.ConfirmSetting(
+                    FEXNA.Options.GraphicsSetting.Fullscreen, 0, false);
                 Global.save_config = true;
             }
 #endif
