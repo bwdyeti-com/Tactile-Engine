@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using FEXNA.IO.Serialization;
 
 namespace FEXNA.Options
 {
     enum GeneralSetting { Metrics, CheckForUpdates }
 
-    class GeneralSettings : SettingsBase
+    class GeneralSettings : SettingsBase, ISerializableGameObject
     {
         private Metrics_Settings _Metrics = Metrics_Settings.Not_Set;
         private bool _CheckForUpdates;
@@ -34,6 +36,16 @@ namespace FEXNA.Options
             return settingsData;
         }
         
+        /// <summary>
+        /// Creates an instance and reads a stream into it.
+        /// </summary>
+        public static GeneralSettings ReadObject(BinaryReader reader)
+        {
+            var result = new GeneralSettings();
+            result.Read(reader);
+            return result;
+        }
+
         #region ICloneable
         public override object Clone()
         {
@@ -93,6 +105,48 @@ namespace FEXNA.Options
                     SetValue(entry, ref _CheckForUpdates, value);
                     break;
             }
+        }
+        #endregion
+
+        #region ISerializableGameObject
+        public void Write(BinaryWriter writer)
+        {
+            SaveSerializer.Write(
+                writer,
+                this,
+                SaveSerialization.ExplicitTypes);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            SaveSerializer.Read(
+                reader,
+                this);
+        }
+
+        public void UpdateReadValues(Version v, SerializerData data) { }
+
+        public void SetReadValues(SerializerData data)
+        {
+            data.ReadValue(out _Metrics, "Metrics");
+            data.ReadValue(out _CheckForUpdates, "CheckForUpdates");
+        }
+
+        public SerializerData GetSaveData()
+        {
+            return new SerializerData.Builder()
+                .Add("Metrics", _Metrics)
+                .Add("CheckForUpdates", _CheckForUpdates)
+                .Build();
+        }
+
+        public Dictionary<string, Type> ExpectedData(Version version)
+        {
+            return new Dictionary<string, Type>
+            {
+                { "Metrics", typeof(Metrics_Settings) },
+                { "CheckForUpdates", typeof(bool) },
+            };
         }
         #endregion
     }

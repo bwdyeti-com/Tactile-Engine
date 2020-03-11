@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using FEXNA.IO.Serialization;
 using FEXNA_Library;
 
 namespace FEXNA.Options
 {
     enum GraphicsSetting { Fullscreen, Zoom, Stereoscopic, Anaglyph, MonitorIndex, MinimizeWhenInactive }
 
-    class GraphicsSettings : SettingsBase
+    class GraphicsSettings : SettingsBase, ISerializableGameObject
     {
         const int MAX_STEREOSCOPIC_LEVEL = 10;
 
@@ -53,6 +55,16 @@ namespace FEXNA.Options
                 SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
                 SettingsData.Create("Minimize When Inactive", ConfigTypes.OnOffSwitch, false)
             };
+        }
+
+        /// <summary>
+        /// Creates an instance and reads a stream into it.
+        /// </summary>
+        public static GraphicsSettings ReadObject(BinaryReader reader)
+        {
+            var result = new GraphicsSettings();
+            result.Read(reader);
+            return result;
         }
 
         public void SwitchFullscreen()
@@ -175,6 +187,60 @@ namespace FEXNA.Options
             }
 
             return base.ValueRange(index);
+        }
+        #endregion
+
+        #region ISerializableGameObject
+        public void Write(BinaryWriter writer)
+        {
+            SaveSerializer.Write(
+                writer,
+                this,
+                SaveSerialization.ExplicitTypes);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            SaveSerializer.Read(
+                reader,
+                this);
+        }
+
+        public void UpdateReadValues(Version v, SerializerData data) { }
+
+        public void SetReadValues(SerializerData data)
+        {
+            data.ReadValue(out _Fullscreen, "Fullscreen");
+            data.ReadValue(out _Zoom, "Zoom");
+            data.ReadValue(out _StereoscopicLevel, "StereoscopicLevel");
+            data.ReadValue(out _Anaglyph, "Anaglyph");
+            data.ReadValue(out _MonitorIndex, "MonitorIndex");
+            data.ReadValue(out _MinimizeWhenInactive, "MinimizeWhenInactive");
+        }
+
+        public SerializerData GetSaveData()
+        {
+            return new SerializerData.Builder()
+                .Add("Fullscreen", _Fullscreen)
+                .Add("Zoom", _Zoom)
+                .Add("StereoscopicLevel", _StereoscopicLevel)
+                .Add("Anaglyph", _Anaglyph)
+                .Add("MonitorIndex", _MonitorIndex)
+                .Add("MinimizeWhenInactive", _MinimizeWhenInactive)
+                .Build();
+        }
+
+        public Dictionary<string, Type> ExpectedData(Version version)
+        {
+            return new Dictionary<string, Type>
+            {
+                { "Fullscreen", typeof(bool) },
+                { "Zoom", typeof(int) },
+                { "StereoscopicLevel", typeof(int) },
+                { "Anaglyph", typeof(bool) },
+                { "MonitorIndex", typeof(Maybe<int>) },
+                { "MinimizeWhenInactive", typeof(bool) },
+            };
         }
         #endregion
     }

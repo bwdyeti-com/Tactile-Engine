@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using FEXNA_Library;
+using System.IO;
+using FEXNA.IO.Serialization;
 
 namespace FEXNA.Options
 {
     enum AudioSetting { MasterVolume, MusicVolume, SoundVolume, MuteWhenInactive }
 
-    class AudioSettings : SettingsBase
+    class AudioSettings : SettingsBase, ISerializableGameObject
     {
         private int _MasterVolume;
         private int _MusicVolume;
@@ -39,6 +39,16 @@ namespace FEXNA.Options
             };
         }
         
+        /// <summary>
+        /// Creates an instance and reads a stream into it.
+        /// </summary>
+        public static AudioSettings ReadObject(BinaryReader reader)
+        {
+            var result = new AudioSettings();
+            result.Read(reader);
+            return result;
+        }
+
         #region ICloneable
         public override object Clone()
         {
@@ -105,6 +115,54 @@ namespace FEXNA.Options
                     SetValue(entry, ref _SoundVolume, value);
                     break;
             }
+        }
+        #endregion
+
+        #region ISerializableGameObject
+        public void Write(BinaryWriter writer)
+        {
+            SaveSerializer.Write(
+                writer,
+                this,
+                SaveSerialization.ExplicitTypes);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            SaveSerializer.Read(
+                reader,
+                this);
+        }
+
+        public void UpdateReadValues(Version v, SerializerData data) { }
+
+        public void SetReadValues(SerializerData data)
+        {
+            data.ReadValue(out _MasterVolume, "MasterVolume");
+            data.ReadValue(out _MusicVolume, "MusicVolume");
+            data.ReadValue(out _SoundVolume, "SoundVolume");
+            data.ReadValue(out _MuteWhenInactive, "MuteWhenInactive");
+        }
+
+        public SerializerData GetSaveData()
+        {
+            return new SerializerData.Builder()
+                .Add("MasterVolume", _MasterVolume)
+                .Add("MusicVolume", _MusicVolume)
+                .Add("SoundVolume", _SoundVolume)
+                .Add("MuteWhenInactive", _MuteWhenInactive)
+                .Build();
+        }
+
+        public Dictionary<string, Type> ExpectedData(Version version)
+        {
+            return new Dictionary<string, Type>
+            {
+                { "MasterVolume", typeof(int) },
+                { "MusicVolume", typeof(int) },
+                { "SoundVolume", typeof(int) },
+                { "MuteWhenInactive", typeof(bool) },
+            };
         }
         #endregion
     }

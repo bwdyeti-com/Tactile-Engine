@@ -406,7 +406,7 @@ namespace FEXNA
             Global.LOADED_VERSION = v;
 
             // Read config
-            Global.gameSettings.Read(reader);
+            Global.gameSettings.ReadLegacy(reader);
 
             return true;
         }

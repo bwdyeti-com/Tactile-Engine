@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Input;
+using FEXNA.IO.Serialization;
 using FEXNAVersionExtension;
 
 namespace FEXNA.Options
 {
-    class Settings
+    class Settings : ISerializableGameObject
     {
         private GeneralSettings _General;
         private GraphicsSettings _Graphics;
@@ -26,6 +28,9 @@ namespace FEXNA.Options
             _Controls = new ControlsSettings();
         }
 
+        /// <summary>
+        /// Restores all settings to their default values.
+        /// </summary>
         public void RestoreDefaults()
         {
             _General.RestoreDefaults();
@@ -35,7 +40,11 @@ namespace FEXNA.Options
         }
 
         #region Serialization
-        public void Read(BinaryReader reader)
+        /// <summary>
+        /// Reads settings data from files before implementing
+        /// <see cref="ISerializableGameObject"/>.
+        /// </summary>
+        public void ReadLegacy(BinaryReader reader)
         {
             int zoom;
             bool fullscreen = false;
@@ -141,6 +150,54 @@ namespace FEXNA.Options
                 }
             }
             return keys;
+        }
+        #endregion
+
+        #region ISerializableGameObject
+        public void Write(BinaryWriter writer)
+        {
+            SaveSerializer.Write(
+                writer,
+                this,
+                SaveSerialization.ExplicitTypes);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            SaveSerializer.Read(
+                reader,
+                this);
+        }
+
+        public void UpdateReadValues(Version v, SerializerData data) { }
+
+        public void SetReadValues(SerializerData data)
+        {
+            data.ReadValue(out _General, "General");
+            data.ReadValue(out _Graphics, "Graphics");
+            data.ReadValue(out _Audio, "Audio");
+            data.ReadValue(out _Controls, "Controls");
+        }
+
+        public SerializerData GetSaveData()
+        {
+            return new SerializerData.Builder()
+                .Add("General", _General)
+                .Add("Graphics", _Graphics)
+                .Add("Audio", _Audio)
+                .Add("Controls", _Controls)
+                .Build();
+        }
+
+        public Dictionary<string, Type> ExpectedData(Version version)
+        {
+            return new Dictionary<string, Type>
+            {
+                { "General", typeof(GeneralSettings) },
+                { "Graphics", typeof(GraphicsSettings) },
+                { "Audio", typeof(AudioSettings) },
+                { "Controls", typeof(ControlsSettings) },
+            };
         }
         #endregion
     }

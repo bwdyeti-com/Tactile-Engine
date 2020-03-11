@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using FEXNA.IO.Serialization;
 using Microsoft.Xna.Framework.Input;
 
 namespace FEXNA.Options
@@ -8,7 +10,7 @@ namespace FEXNA.Options
     enum ControlsSetting { Rumble, AnalogDeadZone, IconSet, ResetKeyboard, KeyboardConfig }
     enum ButtonIcons { DS, Xbox360 }
 
-    class ControlsSettings : SettingsBase
+    class ControlsSettings : SettingsBase, ISerializableGameObject
     {
         private bool _Rumble;
         private int _AnalogDeadZone;
@@ -47,6 +49,16 @@ namespace FEXNA.Options
                         Keys.A, Keys.S, Keys.Enter, Keys.RightShift },
                     rangeMin: 0, rangeMax: 10),
             };
+        }
+
+        /// <summary>
+        /// Creates an instance and reads a stream into it.
+        /// </summary>
+        public static ControlsSettings ReadObject(BinaryReader reader)
+        {
+            var result = new ControlsSettings();
+            result.Read(reader);
+            return result;
         }
 
         #region ICloneable
@@ -153,6 +165,54 @@ namespace FEXNA.Options
                 case (int)ControlsSetting.ResetKeyboard:
                     break;
             }
+        }
+        #endregion
+
+        #region ISerializableGameObject
+        public void Write(BinaryWriter writer)
+        {
+            SaveSerializer.Write(
+                writer,
+                this,
+                SaveSerialization.ExplicitTypes);
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            SaveSerializer.Read(
+                reader,
+                this);
+        }
+
+        public void UpdateReadValues(Version v, SerializerData data) { }
+
+        public void SetReadValues(SerializerData data)
+        {
+            data.ReadValue(out _Rumble, "Rumble");
+            data.ReadValue(out _AnalogDeadZone, "AnalogDeadZone");
+            data.ReadValue(out _IconSet, "IconSet");
+            data.ReadValue(out _KeyboardConfig, "KeyboardConfig");
+        }
+
+        public SerializerData GetSaveData()
+        {
+            return new SerializerData.Builder()
+                .Add("Rumble", _Rumble)
+                .Add("AnalogDeadZone", _AnalogDeadZone)
+                .Add("IconSet", _IconSet)
+                .Add("KeyboardConfig", _KeyboardConfig)
+                .Build();
+        }
+
+        public Dictionary<string, Type> ExpectedData(Version version)
+        {
+            return new Dictionary<string, Type>
+            {
+                { "Rumble", typeof(bool) },
+                { "AnalogDeadZone", typeof(int) },
+                { "IconSet", typeof(int) },
+                { "KeyboardConfig", typeof(Keys[]) },
+            };
         }
         #endregion
     }
