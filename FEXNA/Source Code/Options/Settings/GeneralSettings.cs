@@ -12,8 +12,24 @@ namespace FEXNA.Options
         private Metrics_Settings _Metrics = Metrics_Settings.Not_Set;
         private bool _CheckForUpdates;
 
-        public Metrics_Settings Metrics { get { return (Metrics_Settings)_Metrics; } }
-        public bool CheckForUpdates { get { return _CheckForUpdates; } }
+        public Metrics_Settings Metrics
+        {
+            get
+            {
+                if (!Global.metrics_allowed)
+                    return Metrics_Settings.Off;
+                return (Metrics_Settings)_Metrics;
+            }
+        }
+        public bool CheckForUpdates
+        {
+            get
+            {
+                if (!Global.update_check_allowed)
+                    return false;
+                return _CheckForUpdates;
+            }
+        }
 
         public GeneralSettings() { }
         private GeneralSettings(GeneralSettings source) : this()
@@ -31,7 +47,10 @@ namespace FEXNA.Options
             else
                 settingsData.Add(new NullSettingsData());
             // Check for Updates
-            settingsData.Add(SettingsData.Create("Check for Updates", ConfigTypes.OnOffSwitch, true));
+            if (Global.update_check_allowed)
+                settingsData.Add(SettingsData.Create("Check for Updates", ConfigTypes.OnOffSwitch, true));
+            else
+                settingsData.Add(new NullSettingsData());
 
             return settingsData;
         }

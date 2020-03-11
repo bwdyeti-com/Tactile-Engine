@@ -85,8 +85,10 @@ namespace FEXNA
 
 #if WINDOWS || MONOMAC
             if (METRICS_ENABLED)
-                MetricsHandler.enable(Global.GAME_ASSEMBLY);
+                Global.metrics_allowed = true;
 #endif
+            if (Config.UPDATE_CHECK_ENABLED)
+                Global.update_check_allowed = true;
 
             //@Yeti: make this work without Global later?
             GameSettings = new Settings();
@@ -1040,7 +1042,6 @@ namespace FEXNA
 
     public interface IMetricsService
     {
-        void enable(System.Reflection.Assembly assembly);
         FEXNA_Library.Maybe<bool> send_data(string query, string post);
         bool test_connection();
     }

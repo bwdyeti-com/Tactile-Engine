@@ -15,11 +15,6 @@ namespace FEGame
         
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
 
-        public void enable(System.Reflection.Assembly assembly)
-        {
-            FEXNA.Global.metrics_allowed = true;
-        }
-
         public FEXNA_Library.Maybe<bool> send_data(string query, string post)
         {
             string identifier = FEXNA.Metrics.Metrics_Data.UserIdentifier;

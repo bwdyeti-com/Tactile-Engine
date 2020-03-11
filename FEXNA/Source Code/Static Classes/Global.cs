@@ -518,6 +518,8 @@ namespace FEXNA
         public static event EventHandler send_metrics_to_server;
 
         // Check for update
+        public static bool update_check_allowed = false;
+
         internal static string UpdateUri { get; private set; }
         public static void set_update_uri(string uri)
         {
