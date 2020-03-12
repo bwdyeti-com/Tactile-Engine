@@ -55,6 +55,7 @@ namespace FEXNA.Windows.Options
             {
                 RefreshItemValue(Settings, i);
             }
+            RefreshKeyboardButtonIcons();
         }
         private void RefreshItemValue(ISettings settings, int index)
         {
@@ -288,6 +289,24 @@ namespace FEXNA.Windows.Options
                         return true;
                 }
                 return false;
+            }
+        }
+
+        protected override void update_ui(bool input)
+        {
+            // Refresh key remap button icons
+            if (FEXNA.Input.ControlSchemeSwitched)
+                RefreshKeyboardButtonIcons();
+
+            base.update_ui(input);
+        }
+
+        private void RefreshKeyboardButtonIcons()
+        {
+            foreach (var button in Items)
+            {
+                if (button is KeyRemapUINode)
+                    (button as KeyRemapUINode).RefreshButton();
             }
         }
 

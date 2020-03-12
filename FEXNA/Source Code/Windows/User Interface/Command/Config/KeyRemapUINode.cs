@@ -10,6 +10,8 @@ namespace FEXNA.Windows.UserInterface.Command.Config
     {
         private Button_Description Text;
         private Keyboard_Icon Value;
+        private Inputs Input;
+        private string Description;
 
         internal KeyRemapUINode(
                 string helpLabel,
@@ -18,10 +20,10 @@ namespace FEXNA.Windows.UserInterface.Command.Config
                 int width)
             : base(helpLabel)
         {
-            Button_Description button = new Button_Description(input);
-            button.description = str;
-            button.draw_offset = new Vector2(8, 0);
-            Text = button;
+            Input = input;
+            Description = str;
+
+            RefreshButton();
 
             Value = new Keyboard_Icon(
                 input,
@@ -31,6 +33,16 @@ namespace FEXNA.Windows.UserInterface.Command.Config
             Value.draw_offset = new Vector2(120, 0);
 
             Size = new Vector2(width, 16);
+        }
+
+        public void RefreshButton()
+        {
+            Buttons button = FEXNA.Input.PadRedirect(Input);
+
+            Button_Description buttonIcon = Button_Description.button(button);
+            buttonIcon.description = Description;
+            buttonIcon.draw_offset = new Vector2(8, 0);
+            Text = buttonIcon;
         }
 
         internal override void set_text_color(string color) { }
