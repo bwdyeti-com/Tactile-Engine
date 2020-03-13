@@ -174,7 +174,7 @@ namespace FEXNA.Windows.Command
 
         public void update()
         {
-            MapSprite.Update(false);
+            MapSprite.Update();
         }
 
         public void draw(SpriteBatch spriteBatch, Vector2 draw_offset = default(Vector2))

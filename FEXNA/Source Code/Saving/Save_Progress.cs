@@ -24,7 +24,21 @@ namespace FEXNA.IO
 
         public HashSet<int> recruitedActors
         {
-            get { return new HashSet<int>(RecruitedActors); }
+            get
+            {
+#if DEBUG
+                //@Debug
+                if (false)
+                {
+                    var recruitedActors = new HashSet<int>(
+                        Global.data_supports.Select(x => x.Value.Id1));
+                    recruitedActors.UnionWith(
+                        Global.data_supports.Select(x => x.Value.Id2));
+                    return recruitedActors;
+                }
+#endif
+                return new HashSet<int>(RecruitedActors);
+            }
         }
         #endregion
 
@@ -224,8 +238,8 @@ namespace FEXNA.IO
             get
             {
                 // If there are any recruited actors, and they have any supports
-                if (RecruitedActors.Any())
-                    foreach (int actorId in RecruitedActors)
+                if (this.recruitedActors.Any())
+                    foreach (int actorId in this.recruitedActors)
                     {
                         var actorData = Global.data_actors[actorId];
                         if (actorData.SupportPartners(Global.data_supports, Global.data_actors).Any())

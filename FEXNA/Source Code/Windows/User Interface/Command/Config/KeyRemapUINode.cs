@@ -54,7 +54,7 @@ namespace FEXNA.Windows.UserInterface.Command.Config
 
         protected override void update_graphics(bool activeNode)
         {
-            Text.Update(false);
+            Text.Update();
             Value.refresh();
             Value.update();
         }

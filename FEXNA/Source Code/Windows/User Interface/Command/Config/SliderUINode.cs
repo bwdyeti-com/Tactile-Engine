@@ -56,7 +56,23 @@ namespace FEXNA.Windows.UserInterface.Command.Config
             base.update_graphics(activeNode);
             Bar.update();
         }
-        
+
+        protected override void mouse_off_graphic()
+        {
+            base.mouse_off_graphic();
+            Bar.tint = Color.White;
+        }
+        protected override void mouse_highlight_graphic()
+        {
+            base.mouse_highlight_graphic();
+            Bar.tint = FEXNA.Config.MOUSE_OVER_ELEMENT_COLOR;
+        }
+        protected override void mouse_click_graphic()
+        {
+            base.mouse_click_graphic();
+            Bar.tint = FEXNA.Config.MOUSE_PRESSED_ELEMENT_COLOR;
+        }
+
         public override void Draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
             base.Draw(sprite_batch, draw_offset);
