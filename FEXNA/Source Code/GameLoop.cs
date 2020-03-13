@@ -120,8 +120,6 @@ namespace FEXNA
             Global.check_for_updates_from_server += Global_CheckForUpdatesFromServer;
             Global.set_update_uri(UpdateChecker.GameDownloadUrl);
 
-            Input.default_controls();
-
 #if WINDOWS || MONOMAC
             Global.load_config = true;
 #endif
@@ -532,7 +530,7 @@ namespace FEXNA
 #if !MONOGAME && DEBUG
                 Global.update_text_input();
 #endif
-                Global.update_scene(Keyboard.GetState());
+                Global.update_scene(keyState);
             }
         }
 

@@ -227,7 +227,7 @@ namespace FEXNA.Graphics.Help
 
         protected virtual void set_button(Inputs input)
         {
-            var button = Global.gameSettings.Controls.GamepadConfig[(int)input];
+            var button = Input.PadRedirect(input);
             set_button(button);
         }
         protected virtual void set_button(Buttons button)

@@ -4,7 +4,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Options
 {
-    enum ConfigTypes { None, Number, Slider, OnOffSwitch, Button, Input }
+    enum ConfigTypes { None, Number, Slider, OnOffSwitch, Button, Keyboard, Gamepad }
 
     interface ISettings : ICloneable
     {

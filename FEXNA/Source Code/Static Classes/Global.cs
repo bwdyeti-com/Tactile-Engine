@@ -80,6 +80,7 @@ namespace FEXNA
         {
             FEXNA.Input.update(gameActive, gameTime, key_state, controller_state);
             Input.UpdateKeyboardStart(key_state);
+            Input.UpdateGamepadState(controller_state);
             FEXNA.Input.update_input_state(Input);
         }
 

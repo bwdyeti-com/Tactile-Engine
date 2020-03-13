@@ -74,8 +74,11 @@ namespace FEXNA.Windows.Options
                 case ConfigTypes.Button:
                     (Items[index] as ButtonUINode).set_description(settings.Value<String>(index));
                     break;
-                case ConfigTypes.Input:
+                case ConfigTypes.Keyboard:
                     (Items[index] as KeyRemapUINode).set_key(settings.Value<Keys>(index));
+                    break;
+                case ConfigTypes.Gamepad:
+                    (Items[index] as GamepadRemapUINode).RefreshButton();
                     break;
             }
 
@@ -128,55 +131,12 @@ namespace FEXNA.Windows.Options
                     node = new ConfigTextUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Button:
+                default:
                     node = new ButtonUINode("", str, "", this.column_width);
                     break;
-                case ConfigTypes.Input:
-                default:
-                    Inputs input;
-                    switch (str.Split('\n')[0])
-                    {
-                        case "A":
-                            input = Inputs.A;
-                            break;
-                        case "B":
-                            input = Inputs.B;
-                            break;
-                        case "Y":
-                            input = Inputs.Y;
-                            break;
-                        case "X":
-                            input = Inputs.X;
-                            break;
-                        case "L":
-                            input = Inputs.L;
-                            break;
-                        case "R":
-                            input = Inputs.R;
-                            break;
-                        case "Start":
-                            input = Inputs.Start;
-                            break;
-                        case "Select":
-                            input = Inputs.Select;
-                            break;
+                case ConfigTypes.Keyboard:
+                    Inputs input = GetRemapInput(str.Split('\n')[0]);
 
-                        case "Down":
-                            input = Inputs.Down;
-                            break;
-                        case "Left":
-                            input = Inputs.Left;
-                            break;
-                        case "Right":
-                            input = Inputs.Right;
-                            break;
-                        case "Up":
-                            input = Inputs.Up;
-                            break;
-
-                        default:
-                            input = Inputs.A;
-                            break;
-                    }
                     string label;
                     if (str.Split('\n').Length == 1)
                         label = str.Split('\n')[0];
@@ -185,9 +145,69 @@ namespace FEXNA.Windows.Options
 
                     node = new KeyRemapUINode("", input, label, this.column_width);
                     break;
+                case ConfigTypes.Gamepad:
+                    input = GetRemapInput(str.Split('\n')[0]);
+
+                    if (str.Split('\n').Length == 1)
+                        label = str.Split('\n')[0];
+                    else
+                        label = str.Split('\n')[1];
+
+                    node = new GamepadRemapUINode("", input, label, this.column_width);
+                    break;
             }
             node.loc = item_loc(index);
             return node;
+        }
+
+        private Inputs GetRemapInput(string str)
+        {
+            Inputs input;
+            switch (str)
+            {
+                case "A":
+                    input = Inputs.A;
+                    break;
+                case "B":
+                    input = Inputs.B;
+                    break;
+                case "Y":
+                    input = Inputs.Y;
+                    break;
+                case "X":
+                    input = Inputs.X;
+                    break;
+                case "L":
+                    input = Inputs.L;
+                    break;
+                case "R":
+                    input = Inputs.R;
+                    break;
+                case "Start":
+                    input = Inputs.Start;
+                    break;
+                case "Select":
+                    input = Inputs.Select;
+                    break;
+
+                case "Down":
+                    input = Inputs.Down;
+                    break;
+                case "Left":
+                    input = Inputs.Left;
+                    break;
+                case "Right":
+                    input = Inputs.Right;
+                    break;
+                case "Up":
+                    input = Inputs.Up;
+                    break;
+
+                default:
+                    input = Inputs.A;
+                    break;
+            }
+            return input;
         }
 
         public bool IsSettingEnabled()
@@ -209,7 +229,8 @@ namespace FEXNA.Windows.Options
                         selected = false;
                     }
                     break;
-                case ConfigTypes.Input:
+                case ConfigTypes.Keyboard:
+                case ConfigTypes.Gamepad:
                     break;
                 default:
                     Items[this.index].set_text_color(selected ? "Green" : "White");
@@ -270,7 +291,7 @@ namespace FEXNA.Windows.Options
         {
             switch (TempSelectedSettings.SettingType(this.index))
             {
-                case ConfigTypes.Input:
+                case ConfigTypes.Keyboard:
                     TempSelectedSettings.ConfirmSetting(this.index, key);
                     RefreshCurrentValue(TempSelectedSettings);
                     return true;
@@ -278,14 +299,38 @@ namespace FEXNA.Windows.Options
             
             return false;
         }
+        public bool RemapInput(Buttons button)
+        {
+            switch (TempSelectedSettings.SettingType(this.index))
+            {
+                case ConfigTypes.Gamepad:
+                    TempSelectedSettings.ConfirmSetting(this.index, button);
+                    RefreshCurrentValue(TempSelectedSettings);
+                    return true;
+            }
+            
+            return false;
+        }
 
-        public bool InputRemapSetting
+        public bool KeyboardRemapSetting
         {
             get
             {
                 switch (Settings.SettingType(this.index))
                 {
-                    case ConfigTypes.Input:
+                    case ConfigTypes.Keyboard:
+                        return true;
+                }
+                return false;
+            }
+        }
+        public bool GamepadRemapSetting
+        {
+            get
+            {
+                switch (Settings.SettingType(this.index))
+                {
+                    case ConfigTypes.Gamepad:
                         return true;
                 }
                 return false;
@@ -307,6 +352,8 @@ namespace FEXNA.Windows.Options
             {
                 if (button is KeyRemapUINode)
                     (button as KeyRemapUINode).RefreshButton();
+                if (button is GamepadRemapUINode)
+                    (button as GamepadRemapUINode).RefreshButton();
             }
         }
 

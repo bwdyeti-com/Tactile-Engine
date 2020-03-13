@@ -66,6 +66,7 @@ namespace FEXNA.Menus.Options
                 return false;
 
             bool selected = Window.is_selected();
+            selected |= Global.Input.KeyPressed(Microsoft.Xna.Framework.Input.Keys.Enter);
             return selected;
         }
 

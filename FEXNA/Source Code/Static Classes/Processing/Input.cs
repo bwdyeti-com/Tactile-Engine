@@ -134,7 +134,27 @@ namespace FEXNA
             { Keys.OemPeriod, "." },
             { Keys.OemQuestion, "/" }
         };
-        
+        internal readonly static HashSet<Buttons> REMAPPABLE_BUTTONS = new HashSet<Buttons>
+        {
+            Buttons.DPadUp,
+            Buttons.DPadDown,
+            Buttons.DPadLeft,
+            Buttons.DPadRight,
+            Buttons.Start,
+            Buttons.Back,
+            Buttons.LeftStick,
+            Buttons.RightStick,
+            Buttons.LeftShoulder,
+            Buttons.RightShoulder,
+            Buttons.A,
+            Buttons.B,
+            Buttons.X,
+            Buttons.Y,
+            Buttons.RightTrigger,
+            Buttons.LeftTrigger
+        };
+
+
         private static InputConfig InputConfig;
         private static InputState[] PlayerInputs;
         private static InputState PlayerOneInputs { get { return PlayerInputs[0]; } }
@@ -204,11 +224,6 @@ namespace FEXNA
         private static Enum[] GestureEnums;
 
         #region Config
-        public static void default_controls()
-        {
-            InputConfig.SetDefaults();
-        }
-
         internal static string key_name(Inputs input)
         {
             return InputConfig.KeyName(input);
@@ -216,6 +231,11 @@ namespace FEXNA
         internal static string key_name(Keys key)
         {
             return InputConfig.KeyName(key);
+        }
+
+        internal static Buttons PadRedirect(Inputs input)
+        {
+            return InputConfig.PadRedirect[input];
         }
         #endregion
 
@@ -261,7 +281,7 @@ namespace FEXNA
         public static void update(bool game_active, GameTime gameTime,
             KeyboardState key_state, GamePadState controller_state)
         {
-            PlayerInputs = InputConfig.Update(PlayerInputs);
+            PlayerInputs = InputConfig.Update(PlayerInputs, key_state, controller_state);
             
             LastMouseState = MouseState;
             MouseState = Mouse.GetState();

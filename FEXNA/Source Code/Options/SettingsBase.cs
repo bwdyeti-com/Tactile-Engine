@@ -293,7 +293,7 @@ namespace FEXNA.Options
                 case ConfigTypes.Button:
                     result = (string)ValueObject(index);
                     return (T)result;
-                case ConfigTypes.Input:
+                case ConfigTypes.Keyboard:
                     result = (Keys)ValueObject(index);
                     return (T)result;
             }
@@ -318,7 +318,7 @@ namespace FEXNA.Options
                 case ConfigTypes.Slider:
                     int intValue = Value<int>(index);
                     return string.Format(FormatString(index), intValue);
-                case ConfigTypes.Input:
+                case ConfigTypes.Keyboard:
                     Keys keyValue = Value<Keys>(index);
                     return keyValue.ToString(); ;
             }
