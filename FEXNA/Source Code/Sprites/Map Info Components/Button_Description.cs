@@ -246,6 +246,20 @@ namespace FEXNA.Graphics.Help
                 Math.Max(16, descriptionSize.Y));
         }
 
+        public void ColonVisible(bool visible)
+        {
+            if (Button is Icon_Sprite)
+            {
+                if (visible)
+                {
+                    if (Button.texture != null)
+                        (Button as Icon_Sprite).size.X = Button.texture.Width;
+                }
+                else
+                    (Button as Icon_Sprite).size.X = this.button_offset.X - 4;
+            }
+        }
+
         protected override void update_graphics(bool activeNode)
         {
             Button.update();

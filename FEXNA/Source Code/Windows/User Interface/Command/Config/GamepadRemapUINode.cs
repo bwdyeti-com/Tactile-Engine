@@ -39,6 +39,7 @@ namespace FEXNA.Windows.UserInterface.Command.Config
             Button_Description buttonIcon = Button_Description.button(button);
             buttonIcon.description = "";
             buttonIcon.draw_offset = new Vector2(120, 0);
+            buttonIcon.ColonVisible(false);
             Value = buttonIcon;
         }
 
