@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FEXNA.Options
 {
-    enum ControlsSetting { Rumble, AnalogDeadZone, IconSet, ResetKeyboard, KeyboardConfig }
+    enum ControlsSetting { Rumble, AnalogDeadZone, IconSet, Keyboard, Gamepad }
     enum ButtonIcons { DS, Xbox360 }
 
     class ControlsSettings : SettingsBase, ISerializableGameObject
@@ -15,40 +15,56 @@ namespace FEXNA.Options
         private bool _Rumble;
         private int _AnalogDeadZone;
         private int _IconSet;
-        private Keys[] _KeyboardConfig;
+        private KeyboardSettings _Keyboard;
+        private GamepadSettings _Gamepad;
 
         public bool Rumble { get { return _Rumble; } }
-        public int AnalogDeadZone { get { return _AnalogDeadZone; } }
+        public float AnalogDeadZone { get { return _AnalogDeadZone / 100f; } }
         public ButtonIcons IconSet { get { return (ButtonIcons)_IconSet; } }
-        public Keys[] KeyboardConfig { get { return _KeyboardConfig; } }
-        
+        public Keys[] KeyboardConfig { get { return _Keyboard.KeyboardConfig; } }
+        public Buttons[] GamepadConfig { get { return _Gamepad.GamepadConfig; } }
+
         public ControlsSettings() { }
         private ControlsSettings(ControlsSettings source) : this()
         {
             CopySettingsFrom(source);
         }
 
+        protected override void RestoreAdditionalDefaults()
+        {
+            if (_Keyboard == null)
+                _Keyboard = new KeyboardSettings();
+            else
+                _Keyboard.RestoreDefaults();
+
+            if (_Gamepad == null)
+                _Gamepad = new GamepadSettings();
+            else
+                _Gamepad.RestoreDefaults();
+        }
+
         protected override List<SettingsData> GetSettingsData()
         {
             return new List<SettingsData>
             {
-                SettingsData.Create("Rumble", ConfigTypes.OnOffSwitch, false),
+                SettingsData.Create("Rumble", ConfigTypes.OnOffSwitch, false,
+                    updateBeforeConfirming: true),
                 //@Debug: Need percent sign % in the font
-                SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 10,
-                    formatString: "{0}%", rangeMin: 0, rangeMax: 50),
-                SettingsData.Create("Button Icons", ConfigTypes.Number, 0,
+                SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 20,
+                    formatString: "{0}%", rangeMin: 10, rangeMax: 80),
+                SettingsData.Create("Button Icons", ConfigTypes.Number, (int)ButtonIcons.Xbox360,
                     rangeMin: 0, rangeMax: 1),
-                SettingsData.Create("Keyboard Controls:", ConfigTypes.Button, "Reset to Default"),
-                SettingsData.CreateCollection(
-                    new string[] { "Down", "Left", "Right", "Up",
-                        "A\nSelect/Confirm", "B\nCancel", "Y\nCursor Speed", "X\nEnemy Range",
-                        "L\nNext Unit", "R\nStatus", "Start\nSkip/Map", "Select\nMenu" },
-                    ConfigTypes.Input,
-                    new Keys[] { Keys.NumPad2, Keys.NumPad4, Keys.NumPad6, Keys.NumPad8,
-                        Keys.X, Keys.Z, Keys.D, Keys.C,
-                        Keys.A, Keys.S, Keys.Enter, Keys.RightShift },
-                    rangeMin: 0, rangeMax: 10),
+                SettingsData.Create("Keyboard Controls", ConfigTypes.SubSettings, ""),
+                SettingsData.Create("Gamepad Controls", ConfigTypes.SubSettings, ""),
             };
+        }
+
+        internal void SetLegacyKeyboardConfig(Keys[] keyConfig)
+        {
+            for (int i = keyConfig.Length - 1; i >= 0; i--)
+            {
+                _Keyboard.SetValue(KeyboardSetting.KeyboardConfig, i, keyConfig[i]);
+            }
         }
 
         /// <summary>
@@ -72,6 +88,8 @@ namespace FEXNA.Options
         protected override void CopyAdditionalSettingsFrom(ISettings other)
         {
             var otherControls = (ControlsSettings)other;
+
+            _Gamepad.CopySettingsFrom(otherControls._Gamepad);
         }
 
         public override void ConfirmSetting(int index, object value)
@@ -86,12 +104,6 @@ namespace FEXNA.Options
                     // Update icons
                     Input.RefreshControlScheme();
                     break;
-                case (int)ControlsSetting.ResetKeyboard:
-                    // Reset KeyboardConfig
-                    int startIndex = GetIndexOfEntry((int)ControlsSetting.KeyboardConfig);
-                    for (int i = 0; i < _Data[(int)ControlsSetting.KeyboardConfig].Size; i++)
-                        RestoreDefaultValue(startIndex + i);
-                    break;
             }
         }
 
@@ -105,10 +117,10 @@ namespace FEXNA.Options
                     return _AnalogDeadZone;
                 case (int)ControlsSetting.IconSet:
                     return _IconSet;
-                case (int)ControlsSetting.ResetKeyboard:
-                    return _Data[entry.Item1].GetDefaultValue(entry.Item2);
-                case (int)ControlsSetting.KeyboardConfig:
-                    return _KeyboardConfig[entry.Item2];
+                case (int)ControlsSetting.Keyboard:
+                    return _Keyboard;
+                case (int)ControlsSetting.Gamepad:
+                    return _Gamepad;
                 default:
                     throw new IndexOutOfRangeException();
             }
@@ -150,19 +162,9 @@ namespace FEXNA.Options
                 case (int)ControlsSetting.IconSet:
                     SetValue(entry, ref _IconSet, value);
                     break;
-                // Keys
-                case (int)ControlsSetting.KeyboardConfig:
-                    // Swap if needed
-                    if (_KeyboardConfig != null && _KeyboardConfig.Contains((Keys)value))
-                    {
-                        int oldIndex = Array.IndexOf(_KeyboardConfig, (Keys)value);
-                        if (oldIndex != entry.Item2)
-                            _KeyboardConfig[oldIndex] = _KeyboardConfig[entry.Item2];
-                    }
-                    SetValue(entry, ref _KeyboardConfig, value);
-                    break;
                 // Buttons
-                case (int)ControlsSetting.ResetKeyboard:
+                case (int)ControlsSetting.Keyboard:
+                case (int)ControlsSetting.Gamepad:
                     break;
             }
         }
@@ -191,7 +193,8 @@ namespace FEXNA.Options
             data.ReadValue(out _Rumble, "Rumble");
             data.ReadValue(out _AnalogDeadZone, "AnalogDeadZone");
             data.ReadValue(out _IconSet, "IconSet");
-            data.ReadValue(out _KeyboardConfig, "KeyboardConfig");
+            data.ReadValue(out _Keyboard, "Keyboard");
+            data.ReadValue(out _Gamepad, "Gamepad");
         }
 
         public SerializerData GetSaveData()
@@ -200,7 +203,8 @@ namespace FEXNA.Options
                 .Add("Rumble", _Rumble)
                 .Add("AnalogDeadZone", _AnalogDeadZone)
                 .Add("IconSet", _IconSet)
-                .Add("KeyboardConfig", _KeyboardConfig)
+                .Add("Keyboard", _Keyboard)
+                .Add("Gamepad", _Gamepad)
                 .Build();
         }
 
@@ -211,7 +215,8 @@ namespace FEXNA.Options
                 { "Rumble", typeof(bool) },
                 { "AnalogDeadZone", typeof(int) },
                 { "IconSet", typeof(int) },
-                { "KeyboardConfig", typeof(Keys[]) },
+                { "Keyboard", typeof(KeyboardSettings) },
+                { "Gamepad", typeof(GamepadSettings) },
             };
         }
         #endregion

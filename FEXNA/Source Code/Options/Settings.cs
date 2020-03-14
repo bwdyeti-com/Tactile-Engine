@@ -105,17 +105,15 @@ namespace FEXNA.Options
             // Apply the read values to the settings
             RestoreDefaults();
             Graphics.SetValue(GraphicsSetting.Zoom, 0, zoom);
-            Graphics.SetValue(GraphicsSetting.Fullscreen, 0, fullscreen);
+            Graphics.SetValue(GraphicsSetting.Fullscreen, 0,
+                fullscreen ? (int)WindowMode.Fullscreen : (int)WindowMode.Windowed);
             Graphics.SetValue(GraphicsSetting.Stereoscopic, 0, stereoscopicLevel);
             Graphics.SetValue(GraphicsSetting.Anaglyph, 0, anaglyph);
             if (metrics != Metrics_Settings.Not_Set)
                 General.ConfirmSetting(GeneralSetting.Metrics, 0, metrics == Metrics_Settings.On);
             General.SetValue(GeneralSetting.CheckForUpdates, 0, updatesActive);
             Controls.SetValue(ControlsSetting.Rumble, 0, rumble);
-            for (int i = keyConfig.Length - 1; i >= 0; i--)
-            {
-                Controls.SetValue(ControlsSetting.KeyboardConfig, i, keyConfig[i]);
-            }
+            Controls.SetLegacyKeyboardConfig(keyConfig);
         }
 
         private Keys[] ReadLegacyInputs(BinaryReader reader)

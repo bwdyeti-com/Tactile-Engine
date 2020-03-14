@@ -106,9 +106,12 @@
     <Compile Include="Source Code\Debug Monitor\DebugMonitorOverviewPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorPage.cs" />
     <Compile Include="Source Code\GameLoop.cs" />
+    <Compile Include="Source Code\Menus\Options\GameplaySettingsTopMenu.cs" />
     <Compile Include="Source Code\Menus\Options\SettingsMenu.cs" />
     <Compile Include="Source Code\Menus\Options\SettingsTopMenu.cs" />
     <Compile Include="Source Code\Options\Settings Data\NullSettingsData.cs" />
+    <Compile Include="Source Code\Options\Settings\KeyboardSettings.cs" />
+    <Compile Include="Source Code\Options\Settings\GamepadSettings.cs" />
     <Compile Include="Source Code\Options\Settings\GeneralSettings.cs" />
     <Compile Include="Source Code\Options\Settings\AudioSettings.cs" />
     <Compile Include="Source Code\Options\Settings\ControlsSettings.cs" />
@@ -335,6 +338,7 @@
     <Compile Include="Source Code\Windows\Preparations Menus\WindowPrepActorList.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Placeable.cs" />
     <Compile Include="Source Code\Windows\Title\WindowSupportViewerActorList.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Command\Config\GamepadRemapUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\KeyRemapUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\SliderUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ConfigTextUINode.cs" />

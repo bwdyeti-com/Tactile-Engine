@@ -255,32 +255,47 @@ at any time from the options menu.");
         {
             Global.game_system.play_se(System_Sounds.Confirm);
             var settingsTopMenu = (sender as SettingsTopMenu);
-            SettingsMenu settingsMenu;
 
             int index = settingsTopMenu.Index;
             switch (index)
             {
                 case 0:
-                    settingsMenu = new SettingsMenu(Global.gameSettings.General, settingsTopMenu);
-                    settingsMenu.Canceled += settingsMenu_Canceled;
-                    AddMenu(settingsMenu);
+                    OpenSettingsMenu(Global.gameSettings.General, settingsTopMenu);
                     break;
                 case 1:
-                    settingsMenu = new SettingsMenu(Global.gameSettings.Graphics, settingsTopMenu);
-                    settingsMenu.Canceled += settingsMenu_Canceled;
-                    AddMenu(settingsMenu);
+                    OpenSettingsMenu(Global.gameSettings.Graphics, settingsTopMenu);
                     break;
                 case 2:
-                    settingsMenu = new SettingsMenu(Global.gameSettings.Audio, settingsTopMenu);
-                    settingsMenu.Canceled += settingsMenu_Canceled;
-                    AddMenu(settingsMenu);
+                    OpenSettingsMenu(Global.gameSettings.Audio, settingsTopMenu);
                     break;
                 case 3:
-                    settingsMenu = new SettingsMenu(Global.gameSettings.Controls, settingsTopMenu);
-                    settingsMenu.Canceled += settingsMenu_Canceled;
-                    AddMenu(settingsMenu);
+                    OpenSettingsMenu(Global.gameSettings.Controls, settingsTopMenu);
                     break;
             }
+        }
+
+        private void OpenSettingsMenu(FEXNA.Options.ISettings settings, IHasCancelButton parent)
+        {
+            SettingsMenu settingsMenu;
+            settingsMenu = new SettingsMenu(settings, parent);
+            settingsMenu.OpenSubMenu += SettingsMenu_OpenSubMenu;
+            settingsMenu.Canceled += settingsMenu_Canceled;
+            AddMenu(settingsMenu);
+        }
+
+        private void SettingsMenu_OpenSubMenu(object sender, EventArgs e)
+        {
+            var parentMenu = (sender as SettingsMenu);
+            var settings = parentMenu.GetSubSettings();
+            OpenSettingsMenu(settings, parentMenu);
+        }
+
+        void settingsMenu_Canceled(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Cancel);
+            MenuHandler.TitleSaveConfig();
+
+            menu_Closed(sender, e);
         }
 
 #if !MONOGAME && DEBUG
@@ -291,14 +306,6 @@ at any time from the options menu.");
             MenuHandler.TitleTestBattle(testBattleMenu.distance);
         }
 #endif
-
-        void settingsMenu_Canceled(object sender, EventArgs e)
-        {
-            Global.game_system.play_se(System_Sounds.Cancel);
-            MenuHandler.TitleSaveConfig();
-
-            menu_Closed(sender, e);
-        }
 
         private void ExtrasMenu_Selected(object sender, EventArgs e)
         {

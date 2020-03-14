@@ -502,6 +502,11 @@ loaded in normal mode. Sorry!");
         #endregion
 
         #region ISetupMenuHandler
+        public void SetupSaveConfig()
+        {
+            Global.save_config = true;
+        }
+
         public void SetupSave()
         {
             // Save file on modifying inventory/etc

@@ -71,7 +71,6 @@ namespace FEXNA
 
     public class Input
     {
-        internal const float STICK_DEAD_ZONE = 0.2f;
         const float CLICK_TRAVEL_DIST = 8f;
 
         internal const bool INVERSE_DIRECTIONS_CANCEL = true;
@@ -135,7 +134,27 @@ namespace FEXNA
             { Keys.OemPeriod, "." },
             { Keys.OemQuestion, "/" }
         };
-        
+        internal readonly static HashSet<Buttons> REMAPPABLE_BUTTONS = new HashSet<Buttons>
+        {
+            Buttons.DPadUp,
+            Buttons.DPadDown,
+            Buttons.DPadLeft,
+            Buttons.DPadRight,
+            Buttons.Start,
+            Buttons.Back,
+            Buttons.LeftStick,
+            Buttons.RightStick,
+            Buttons.LeftShoulder,
+            Buttons.RightShoulder,
+            Buttons.A,
+            Buttons.B,
+            Buttons.X,
+            Buttons.Y,
+            Buttons.RightTrigger,
+            Buttons.LeftTrigger
+        };
+
+
         private static InputConfig InputConfig;
         private static InputState[] PlayerInputs;
         private static InputState PlayerOneInputs { get { return PlayerInputs[0]; } }
@@ -205,11 +224,6 @@ namespace FEXNA
         private static Enum[] GestureEnums;
 
         #region Config
-        public static void default_controls()
-        {
-            InputConfig.SetDefaults();
-        }
-
         internal static string key_name(Inputs input)
         {
             return InputConfig.KeyName(input);
@@ -217,6 +231,11 @@ namespace FEXNA
         internal static string key_name(Keys key)
         {
             return InputConfig.KeyName(key);
+        }
+
+        internal static Buttons PadRedirect(Inputs input)
+        {
+            return InputConfig.PadRedirect[input];
         }
         #endregion
 
@@ -262,7 +281,7 @@ namespace FEXNA
         public static void update(bool game_active, GameTime gameTime,
             KeyboardState key_state, GamePadState controller_state)
         {
-            PlayerInputs = InputConfig.Update(PlayerInputs);
+            PlayerInputs = InputConfig.Update(PlayerInputs, key_state, controller_state);
             
             LastMouseState = MouseState;
             MouseState = Mouse.GetState();
@@ -282,14 +301,6 @@ namespace FEXNA
             MouseState = new MouseState();
 #endif
 
-            // Current keyboard/controller state
-            //KeyboardState key_state = Keyboard.GetState(); //Debug
-            //GamePadState controller_state = GamePad.GetState(PlayerIndex.One);
-            float left_stick_angle = (float)Math.Atan2(controller_state.ThumbSticks.Left.Y, controller_state.ThumbSticks.Left.X);
-            if (left_stick_angle < 0)
-                left_stick_angle += MathHelper.TwoPi;
-            left_stick_angle *= 360 / MathHelper.TwoPi;
-            
             ControlSchemeSwitched = false;
 
 #if __MOBILE__ || TOUCH_EMULATION
@@ -555,7 +566,8 @@ namespace FEXNA
             if (controllerState.IsConnected)
             {
                 // Sticks
-                if (controllerState.ThumbSticks.Left.Length() > STICK_DEAD_ZONE || controllerState.ThumbSticks.Right.Length() > STICK_DEAD_ZONE)
+                if (InputState.LeftStickActive(controllerState) ||
+                        InputState.RightStickActive(controllerState))
                     return true;
                 if (ALL_BUTTONS.Any(x => controllerState.IsButtonDown(x)))
                     return true;

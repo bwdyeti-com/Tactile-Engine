@@ -66,6 +66,7 @@ namespace FEXNA
         private double CurrentFrameRate = FRAME_RATE;
 #endif
 
+        public bool GameInactive { get; private set; }
         private float ProcessTime = 0;
 
         private Stopwatch HyperspeedStopWatch = new Stopwatch();
@@ -84,8 +85,10 @@ namespace FEXNA
 
 #if WINDOWS || MONOMAC
             if (METRICS_ENABLED)
-                MetricsHandler.enable(Global.GAME_ASSEMBLY);
+                Global.metrics_allowed = true;
 #endif
+            if (Config.UPDATE_CHECK_ENABLED)
+                Global.update_check_allowed = true;
 
             //@Yeti: make this work without Global later?
             GameSettings = new Settings();
@@ -116,8 +119,6 @@ namespace FEXNA
             Global.send_metrics_to_server += Global_SendMetricsToServer;
             Global.check_for_updates_from_server += Global_CheckForUpdatesFromServer;
             Global.set_update_uri(UpdateChecker.GameDownloadUrl);
-
-            Input.default_controls();
 
 #if WINDOWS || MONOMAC
             Global.load_config = true;
@@ -165,6 +166,23 @@ namespace FEXNA
                 EndMoveRangeThread();
             }
             EndThreads();
+        }
+
+        public void GameGainedFocus()
+        {
+            GameInactive = false;
+        }
+
+        public void GameLostFocus()
+        {
+            GameInactive = true;
+
+#if !__MOBILE__
+            if (Global.gameSettings.Graphics.MinimizeWhenInactive)
+            {
+                Renderer.MinimizeFullscreen(Game);
+            }
+#endif
         }
 
         public void CancelGraphicsLoadingThread()
@@ -241,7 +259,7 @@ namespace FEXNA
                 // Don't update audio handling when the game is paused,
                 // to better debug fades etc
                 if (processNextFrame)
-                    Global.Audio.update();
+                    Global.Audio.update(GameInactive);
                 Stereoscopic_Graphic_Object.update_stereoscopy();
 
                 UpdateIO();
@@ -310,8 +328,11 @@ namespace FEXNA
             if ((keyState.IsKeyDown(Keys.LeftAlt) || keyState.IsKeyDown(Keys.RightAlt)) &&
                 keyState.IsKeyDown(Keys.Enter) && !PreviousKeyState.IsKeyDown(Keys.Enter))
             {
-                Global.gameSettings.Graphics.SwitchFullscreen();
-                Global.save_config = true;
+                if (!Global.scene.fullscreen_switch_blocked())
+                {
+                    Global.gameSettings.Graphics.SwitchFullscreen();
+                    Global.save_config = true;
+                }
             }
 #endif
 
@@ -509,7 +530,7 @@ namespace FEXNA
 #if !MONOGAME && DEBUG
                 Global.update_text_input();
 #endif
-                Global.update_scene(Keyboard.GetState());
+                Global.update_scene(keyState);
             }
         }
 
@@ -1019,7 +1040,6 @@ namespace FEXNA
 
     public interface IMetricsService
     {
-        void enable(System.Reflection.Assembly assembly);
         FEXNA_Library.Maybe<bool> send_data(string query, string post);
         bool test_connection();
     }

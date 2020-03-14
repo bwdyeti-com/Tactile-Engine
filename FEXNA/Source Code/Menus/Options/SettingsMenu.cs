@@ -10,6 +10,7 @@ namespace FEXNA.Menus.Options
     class SettingsMenu : CommandMenu
     {
         private bool MenuSettingSelected = false;
+        private byte IgnoreInput = 0;
 
         public SettingsMenu(ISettings settings, IHasCancelButton menu = null)
             : base()
@@ -27,9 +28,27 @@ namespace FEXNA.Menus.Options
             Window.stereoscopic = Config.TITLE_CHOICE_DEPTH;
         }
 
+        public event EventHandler<EventArgs> OpenSubMenu;
+        private void OnOpenSubMenu(EventArgs e)
+        {
+            if (OpenSubMenu != null)
+                OpenSubMenu(this, e);
+        }
+
+        protected override void Activate()
+        {
+            base.Activate();
+            Window.visible = true;
+        }
+
         protected override bool CanceledTriggered(bool active)
         {
-            return base.CanceledTriggered(active);
+            bool cancel = base.CanceledTriggered(active);
+            if (active)
+            {
+                cancel |= Global.Input.KeyPressed(Keys.Escape);
+            }
+            return cancel;
         }
         
         protected override void UpdateMenu(bool active)
@@ -45,60 +64,37 @@ namespace FEXNA.Menus.Options
                 OnIndexChanged(new EventArgs());
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    CreateCancelButton(this);
                 CancelButton.Update(active);
-            }
             bool cancel = CanceledTriggered(active);
+
+            // Ignore inputs after remapping controls/any confirm,
+            // to avoid double inputs
+            if (IgnoreInput > 0)
+            {
+                IgnoreInput--;
+                return;
+            }
 
             // Setting selected
             if (MenuSettingSelected)
             {
                 // Input remapping
-                if (settingsWindow.InputRemapSetting)
+                if (settingsWindow.KeyboardRemapSetting)
                 {
-                    // Cancel remapping with escape
-                    if (cancel ||
-                        Global.Input.KeyPressed(Keys.Escape))
-                    {
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        MenuSettingSelected = false;
-                        settingsWindow.SelectSetting(false);
-                    }
-                    else
-                    {
-                        var pressed_keys = Global.Input.PressedKeys();
-                        if (pressed_keys.Any())
-                        {
-                            bool success = false;
-                            foreach (Keys key in Input.REMAPPABLE_KEYS.Keys
-                                    .Intersect(pressed_keys))
-                            {
-                                if (settingsWindow.RemapInput(key))
-                                {
-                                    Global.game_system.play_se(System_Sounds.Confirm);
-                                    MenuSettingSelected = false;
-                                    settingsWindow.ConfirmSetting();
-
-                                    success = true;
-                                    break;
-                                }
-                            }
-                            if (!success)
-                                Global.game_system.play_se(System_Sounds.Buzzer);
-                        }
-                    }
+                    UpdateKeyboardRemap(settingsWindow, cancel);
+                }
+                else if (settingsWindow.GamepadRemapSetting)
+                {
+                    UpdateGamepadRemap(settingsWindow, cancel);
                 }
                 else
                 {
                     if (cancel ||
-                        Global.Input.triggered(Inputs.B) ||
-                        Global.Input.KeyPressed(Keys.Escape))
+                        Global.Input.triggered(Inputs.B))
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         MenuSettingSelected = false;
-                        settingsWindow.SelectSetting(false);
+                        settingsWindow.CancelSetting();
                     }
                     else if (Global.Input.KeyPressed(Keys.Enter) ||
                         Global.Input.triggered(Inputs.A) ||
@@ -106,6 +102,7 @@ namespace FEXNA.Menus.Options
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
                         MenuSettingSelected = false;
+                        IgnoreInputs();
                         settingsWindow.ConfirmSetting();
                     }
                 }
@@ -117,11 +114,100 @@ namespace FEXNA.Menus.Options
                 {
                     Cancel();
                 }
-                else if (Window.is_selected())
+                else if (Window.is_selected() || Global.Input.KeyPressed(Keys.Enter))
                 {
                     SelectItem(true);
                 }
             }
+
+            if (active && settingsWindow.OpenSubMenu)
+            {
+                OnOpenSubMenu(new EventArgs());
+                Window.visible = false;
+                settingsWindow.ClearSubMenu();
+            }
+        }
+
+        private void UpdateKeyboardRemap(SettingsWindow settingsWindow, bool cancel)
+        {
+            // Cancel remapping with escape
+            if (cancel ||
+                Global.Input.KeyPressed(Keys.Escape))
+            {
+                Global.game_system.play_se(System_Sounds.Cancel);
+                MenuSettingSelected = false;
+                settingsWindow.CancelSetting();
+            }
+            else
+            {
+                var pressed_keys = Global.Input.PressedKeys();
+                if (pressed_keys.Any())
+                {
+                    bool success = false;
+                    foreach (Keys key in Input.REMAPPABLE_KEYS.Keys
+                            .Intersect(pressed_keys))
+                    {
+                        if (settingsWindow.RemapInput(key))
+                        {
+                            Global.game_system.play_se(System_Sounds.Confirm);
+                            MenuSettingSelected = false;
+                            settingsWindow.ConfirmSetting();
+                            IgnoreInputs();
+
+                            success = true;
+                            break;
+                        }
+                    }
+                    if (!success)
+                        Global.game_system.play_se(System_Sounds.Buzzer);
+                }
+            }
+        }
+        private void UpdateGamepadRemap(SettingsWindow settingsWindow, bool cancel)
+        {
+            // Cancel remapping with escape
+            if (cancel ||
+                Global.Input.KeyPressed(Keys.Escape))
+            {
+                Global.game_system.play_se(System_Sounds.Cancel);
+                MenuSettingSelected = false;
+                settingsWindow.CancelSetting();
+            }
+            else
+            {
+                var pressed_keys = Global.Input.PressedButtons();
+                if (pressed_keys.Any())
+                {
+                    bool success = false;
+                    foreach (Buttons button in Input.REMAPPABLE_BUTTONS
+                            .Intersect(pressed_keys))
+                    {
+                        if (settingsWindow.RemapInput(button))
+                        {
+                            Global.game_system.play_se(System_Sounds.Confirm);
+                            MenuSettingSelected = false;
+                            settingsWindow.ConfirmSetting();
+                            IgnoreInputs();
+
+                            success = true;
+                            break;
+                        }
+                    }
+                    if (!success)
+                        Global.game_system.play_se(System_Sounds.Buzzer);
+                }
+            }
+        }
+
+        public ISettings GetSubSettings()
+        {
+            var settingsWindow = Window as SettingsWindow;
+            return settingsWindow.GetSubSettings();
+        }
+
+        private void IgnoreInputs()
+        {
+            IgnoreInput = 1;
         }
 
         protected override void SelectItem(bool playConfirmSound = false)
@@ -133,6 +219,11 @@ namespace FEXNA.Menus.Options
                 if (playConfirmSound)
                     Global.game_system.play_se(System_Sounds.Confirm);
                 MenuSettingSelected = settingsWindow.SelectSetting(true);
+
+                // If a setting is not selected (presumably because a button
+                // was pressed), ignore inputs temporarily
+                if (!MenuSettingSelected)
+                    IgnoreInputs();
             }
             else
                 Global.game_system.play_se(System_Sounds.Buzzer);

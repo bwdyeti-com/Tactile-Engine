@@ -55,6 +55,8 @@ namespace FEXNA.Menus
         }
         protected abstract bool SelectedTriggered(bool active);
 
+        protected abstract void UpdateStandardMenu(bool active);
+
         /// <summary>
         /// Occurs when an element on the menu is selected.
         /// </summary>
@@ -225,11 +227,7 @@ namespace FEXNA.Menus
             UpdateStandardMenu(active);
             
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    CreateCancelButton(this);
                 CancelButton.Update(active);
-            }
 
             if (CanceledTriggered(active))
             {
@@ -245,7 +243,14 @@ namespace FEXNA.Menus
             return active && DataDisplayed;
         }
 
-        protected abstract void UpdateStandardMenu(bool active);
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton(this);
+            }
+        }
 
         protected virtual void SelectItem(bool playConfirmSound = false)
         {

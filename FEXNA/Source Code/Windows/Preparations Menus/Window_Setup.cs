@@ -437,8 +437,6 @@ namespace FEXNA
 
         protected override void update_input(bool active)
         {
-            if (Input.ControlSchemeSwitched)
-                create_start_button();
             StartButton.Update(active && input_ready);
 
             if (active && input_ready)
@@ -461,6 +459,12 @@ namespace FEXNA
                     OnStart(new EventArgs());
                 }
             }
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (Input.ControlSchemeSwitched)
+                create_start_button();
         }
 
         protected virtual void command_window_canceled()

@@ -188,7 +188,7 @@ namespace FEXNA.Windows.Command
         {
             if (Units != null)
                 for (int i = 0; i < Units.Count; i++)
-                    Units[i].Update(false);
+                    Units[i].Update();
             if (PlayerCursor != null)
             {
                 PlayerCursor.update();

@@ -141,20 +141,28 @@ namespace FEGame
             Loop.UnloadContent();
 
             // Cancel controller rumble
-            GamePad.SetVibration(PlayerIndex.One, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Two, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Three, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Four, 0, 0);
+            Global.Rumble.StopRumble();
+        }
+
+        protected override void OnActivated(object sender, EventArgs args)
+        {
+            Loop.GameGainedFocus();
+
+            base.OnActivated(sender, args);
+        }
+
+        protected override void OnDeactivated(object sender, EventArgs args)
+        {
+            Loop.GameLostFocus();
+
+            base.OnDeactivated(sender, args);
         }
 
         protected override void OnExiting(object sender, EventArgs args)
         {
             Loop.CancelGraphicsLoadingThread();
 
-            GamePad.SetVibration(PlayerIndex.One, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Two, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Three, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Four, 0, 0);
+            Global.Rumble.StopRumble();
 
             base.OnExiting(sender, args);
         }

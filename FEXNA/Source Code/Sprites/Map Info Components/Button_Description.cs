@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using FEXNA.Graphics.Text;
 using FEXNA.Windows.UserInterface;
 
@@ -9,7 +10,13 @@ namespace FEXNA.Graphics.Help
 {
     class Button_Description : UINode
     {
-        readonly static int[] Offsets = new int[] { 0, 0, 0, 0, 19, 19, 19, 19, 22, 22, 38, 41 };
+        readonly static int[] Offsets = new int[] {
+            19, 19, 19, 19, 38, 41, 19, 19,
+            22, 22, 0, 19, 19, 19, 19, 19,
+            0, 0, 0, 0, 0, 0, 22, 22,
+            0, 0, 0, 0, 0, 0, 0, 0
+        };
+        readonly static Dictionary<Buttons, int> ButtonIndices;
 
         protected Sprite Button;
         protected Sprite Description;
@@ -79,6 +86,60 @@ namespace FEXNA.Graphics.Help
         }
         #endregion
 
+        static Button_Description()
+        {
+            ButtonIndices = new Dictionary<Buttons, int>()
+            {
+                { Buttons.DPadUp, 0 },
+                { Buttons.DPadDown, 1 },
+                { Buttons.DPadLeft, 2 },
+                { Buttons.DPadRight, 3 },
+                { Buttons.Start, 4 },
+                { Buttons.Back, 5 },
+                { Buttons.LeftStick, 6 },
+                { Buttons.RightStick, 7 },
+                { Buttons.LeftShoulder, 8 },
+                { Buttons.RightShoulder, 9 },
+                { Buttons.BigButton, 11 },
+                { Buttons.A, 12 },
+                { Buttons.B, 13 },
+                { Buttons.X, 14 },
+                { Buttons.Y, 15 },
+                { Buttons.LeftThumbstickLeft, 21 },
+                { Buttons.RightTrigger, 22 },
+                { Buttons.LeftTrigger, 23 },
+                { Buttons.RightThumbstickUp, 24 },
+                { Buttons.RightThumbstickDown, 25 },
+                { Buttons.RightThumbstickRight, 26 },
+                { Buttons.RightThumbstickLeft, 27 },
+                { Buttons.LeftThumbstickUp, 28 },
+                { Buttons.LeftThumbstickDown, 29 },
+                { Buttons.LeftThumbstickRight, 30 },
+            };
+        }
+
+        public static int ButtonIndex(Buttons button)
+        {
+            if (!ButtonIndices.ContainsKey(button))
+            {
+#if DEBUG
+                throw new ArgumentException("Tried to get the index of a button that doesn't exist");
+#endif
+                return -1;
+            }
+            return ButtonIndices[button];
+        }
+
+        public static Button_Description button(Buttons button)
+        {
+            Button_Description result;
+            if (Global.gameSettings.Controls.IconSet == Options.ButtonIcons.Xbox360)
+                result = new Button_Description_360(button);
+            else
+                result = new Button_Description(button);
+            return result;
+        }
+
         public static Button_Description button(Inputs input, int x)
         {
             return button(input, new Vector2(x, Config.WINDOW_HEIGHT - 16));
@@ -126,7 +187,21 @@ namespace FEXNA.Graphics.Help
             return result;
         }
 
-        public Button_Description(Inputs input)
+        protected Button_Description(Buttons button)
+        {
+            set_button(button);
+
+            FE_Text description = new FE_Text();
+            description.loc = this.button_offset;
+            //description.loc = new Vector2(Offsets[(int)input], 0);
+            description.Font = "FE7_Text";
+            description.texture = description_texture;
+            Description = description;
+
+            refresh_size(description);
+        }
+
+        protected Button_Description(Inputs input)
         {
             set_button(input);
 
@@ -152,7 +227,12 @@ namespace FEXNA.Graphics.Help
 
         protected virtual void set_button(Inputs input)
         {
-            Button = new Button_Icon(input, Global.Content.Load<Texture2D>(@"Graphics/Pictures/Buttons"));
+            var button = Input.PadRedirect(input);
+            set_button(button);
+        }
+        protected virtual void set_button(Buttons button)
+        {
+            Button = new Button_Icon(button, Global.Content.Load<Texture2D>(@"Graphics/Pictures/Buttons"));
         }
 
         private void refresh_size(FE_Text description)
@@ -164,6 +244,20 @@ namespace FEXNA.Graphics.Help
             Size = new Vector2(
                 button_offset.X + descriptionSize.X,
                 Math.Max(16, descriptionSize.Y));
+        }
+
+        public void ColonVisible(bool visible)
+        {
+            if (Button is Icon_Sprite)
+            {
+                if (visible)
+                {
+                    if (Button.texture != null)
+                        (Button as Icon_Sprite).size.X = Button.texture.Width;
+                }
+                else
+                    (Button as Icon_Sprite).size.X = this.button_offset.X - 4;
+            }
         }
 
         protected override void update_graphics(bool activeNode)

@@ -80,6 +80,7 @@ namespace FEXNA
         {
             FEXNA.Input.update(gameActive, gameTime, key_state, controller_state);
             Input.UpdateKeyboardStart(key_state);
+            Input.UpdateGamepadState(controller_state);
             FEXNA.Input.update_input_state(Input);
         }
 
@@ -276,7 +277,7 @@ namespace FEXNA
                 return ((IAudioService)Global.services.GetService(typeof(IAudioService)));
             }
         }
-        internal static FEXNA.Services.Rumble.BaseRumbleService Rumble
+        public static FEXNA.Services.Rumble.BaseRumbleService Rumble
         {
             get
             {
@@ -518,6 +519,8 @@ namespace FEXNA
         public static event EventHandler send_metrics_to_server;
 
         // Check for update
+        public static bool update_check_allowed = false;
+
         internal static string UpdateUri { get; private set; }
         public static void set_update_uri(string uri)
         {

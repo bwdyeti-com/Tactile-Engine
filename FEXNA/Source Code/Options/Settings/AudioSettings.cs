@@ -15,11 +15,30 @@ namespace FEXNA.Options
         private bool _MuteWhenInactive;
 
         public int MasterVolume { get { return _MasterVolume; } }
-        public int MusicVolume { get { return _MusicVolume; } }
-        public int SoundVolume { get { return _SoundVolume; } }
+        public int MusicVolume
+        {
+            get
+            {
+                int volume = _MasterVolume * _MusicVolume;
+                return volume;
+            }
+        }
+        public int SoundVolume
+        {
+            get
+            {
+                int volume = _MasterVolume * _SoundVolume;
+                return volume;
+            }
+        }
         public bool MuteWhenInactive { get { return _MuteWhenInactive; } }
 
-        public AudioSettings() { }
+        public AudioSettings()
+        {
+#if __MOBILE__
+            _MuteWhenInactive = true;
+#endif
+        }
         private AudioSettings(AudioSettings source) : this()
         {
             CopySettingsFrom(source);
@@ -30,12 +49,16 @@ namespace FEXNA.Options
             return new List<SettingsData>
             {
                 SettingsData.Create("Master Volume", ConfigTypes.Slider, 7,
-                    rangeMin: 0, rangeMax: 10),
+                    rangeMin: 0, rangeMax: 10, updateBeforeConfirming: true),
                 SettingsData.Create("Music Volume", ConfigTypes.Slider, 10,
-                    rangeMin: 0, rangeMax: 10),
+                    rangeMin: 0, rangeMax: 10, updateBeforeConfirming: true),
                 SettingsData.Create("Sound Volume", ConfigTypes.Slider, 10,
-                    rangeMin: 0, rangeMax: 10),
+                    rangeMin: 0, rangeMax: 10, updateBeforeConfirming: true),
+#if !__MOBILE__
                 SettingsData.Create("Mute When Inactive", ConfigTypes.OnOffSwitch, false)
+#else
+                new NullSettingsData()
+#endif
             };
         }
         
@@ -60,6 +83,10 @@ namespace FEXNA.Options
         protected override void CopyAdditionalSettingsFrom(ISettings other)
         {
             var otherAudio = (AudioSettings)other;
+
+#if __MOBILE__
+            _MuteWhenInactive = otherAudio._MuteWhenInactive;
+#endif
         }
 
         public override object ValueObject(Tuple<int, int> entry)
