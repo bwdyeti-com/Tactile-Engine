@@ -354,6 +354,11 @@ namespace FEXNA
         {
             _unitData.Reinforcements.RemoveAt(index);
         }
+        
+        public void UnitEditorMapMenuSaveConfig()
+        {
+            Global.save_config = true;
+        }
 
         public void UnitEditorMapMenuClearUnits()
         {

@@ -44,7 +44,7 @@ namespace FEXNA.Menus.Map
                 case Map_Menu_Options.Options:
                     RemoveTopMenu();
 
-                    var settingsTopMenu = new GameplaySettingsTopMenu();
+                    var settingsTopMenu = new GameplaySettingsTopMenu(true);
                     settingsTopMenu.Selected += SettingsTopMenu_Selected;
                     settingsTopMenu.Closed += menu_ClosedCanceled;
                     settingsTopMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
@@ -117,13 +117,13 @@ namespace FEXNA.Menus.Map
         private void SettingsTopMenu_Selected(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
-            var settingsTopMenu = (sender as SettingsTopMenu);
+            var settingsTopMenu = (sender as GameplaySettingsTopMenu);
 
             int index = settingsTopMenu.Index;
             switch (index)
             {
                 case 0:
-                    var optionsMenu = new Window_Options();
+                    var optionsMenu = new Window_Options(settingsTopMenu.SoloAnimAllowed);
                     optionsMenu.SoloAnim += optionsMenu_SoloAnim;
                     optionsMenu.Closed += menu_Closed;
                     AddMenu(optionsMenu);

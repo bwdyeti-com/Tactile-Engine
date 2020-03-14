@@ -78,7 +78,7 @@ namespace FEXNA.Windows.Map
         }
         #endregion
 
-        public Window_Options(bool soloAnimAllowed = true)
+        public Window_Options(bool soloAnimAllowed)
         {
             SoloAnim_Allowed = soloAnimAllowed;
             initialize_sprites();

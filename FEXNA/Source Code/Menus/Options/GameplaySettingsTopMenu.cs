@@ -7,6 +7,13 @@ namespace FEXNA.Menus.Options
 {
     class GameplaySettingsTopMenu : SettingsTopMenu
     {
+        public bool SoloAnimAllowed { get; private set; }
+
+        public GameplaySettingsTopMenu(bool soloAnimAllowed) : base()
+        {
+            SoloAnimAllowed = soloAnimAllowed;
+        }
+
         protected override List<string> GetSettingsStrings()
         {
             List<string> settings = new List<string> { "Gameplay", "Graphics", "Audio", "Controls" };
