@@ -77,6 +77,8 @@ namespace FEXNA.Options
                     int startIndex = GetIndexOfEntry((int)KeyboardSetting.KeyboardConfig);
                     for (int i = 0; i < _Data[(int)KeyboardSetting.KeyboardConfig].Size; i++)
                         RestoreDefaultValue(startIndex + i);
+                    // Update icons
+                    Input.RefreshControlScheme();
                     break;
             }
         }

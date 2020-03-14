@@ -88,6 +88,8 @@ namespace FEXNA.Options
                     int startIndex = GetIndexOfEntry((int)GamepadSetting.GamepadConfig);
                     for (int i = 0; i < _Data[(int)GamepadSetting.GamepadConfig].Size; i++)
                         RestoreDefaultValue(startIndex + i);
+                    // Update icons
+                    Input.RefreshControlScheme();
                     break;
             }
         }
