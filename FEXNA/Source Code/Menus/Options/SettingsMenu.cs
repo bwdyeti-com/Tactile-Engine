@@ -64,11 +64,7 @@ namespace FEXNA.Menus.Options
                 OnIndexChanged(new EventArgs());
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    CreateCancelButton(this);
                 CancelButton.Update(active);
-            }
             bool cancel = CanceledTriggered(active);
 
             // Ignore inputs after remapping controls, to avoid double inputs

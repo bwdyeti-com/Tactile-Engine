@@ -97,11 +97,7 @@ namespace FEXNA.Menus.Map
             Window.update(active);
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    create_cancel_button();
                 CancelButton.Update(active);
-            }
             bool cancel = CanceledTriggered(active);
 
             if (cancel)
@@ -136,6 +132,16 @@ namespace FEXNA.Menus.Map
                 }
             }
         }
+
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    create_cancel_button();
+            }
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);

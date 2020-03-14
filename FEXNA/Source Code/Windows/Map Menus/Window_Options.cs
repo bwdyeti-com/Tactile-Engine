@@ -306,6 +306,15 @@ namespace FEXNA.Windows.Map
             Solo_Icon.update();
         }
 
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    create_cancel_button();
+            }
+        }
+
         public event EventHandler<EventArgs> SoloAnim;
 
         protected void update_scroll_offset()
@@ -342,7 +351,8 @@ namespace FEXNA.Windows.Map
             bool input = active && this.ready_for_inputs;
 
             update_node_location(input);
-            update_cancel_button(input);
+            if (CancelButton != null)
+                CancelButton.Update(input);
 
             if (input)
             {
@@ -430,16 +440,6 @@ namespace FEXNA.Windows.Map
                         SoloAnim(this, new EventArgs());
                     }
                 }
-            }
-        }
-
-        private void update_cancel_button(bool input)
-        {
-            if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    create_cancel_button();
-                CancelButton.Update(input);
             }
         }
 
