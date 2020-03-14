@@ -19,6 +19,7 @@ namespace FEXNA.Windows.Options
         private ISettings Settings;
         private bool SettingSelected;
         private ISettings TempSelectedSettings, TempOriginalSettings;
+        public bool OpenSubMenu { get; private set; }
 
         private Hand_Cursor SelectedSettingCursor;
 
@@ -80,6 +81,9 @@ namespace FEXNA.Windows.Options
                 case ConfigTypes.Gamepad:
                     (Items[index] as GamepadRemapUINode).RefreshButton();
                     break;
+                case ConfigTypes.SubSettings:
+                    (Items[index] as ButtonUINode).set_description(settings.Value<String>(index));
+                    break;
             }
 
             (Items[index] as ConfigUINode).locked = !settings.IsSettingEnabled(index);
@@ -131,6 +135,7 @@ namespace FEXNA.Windows.Options
                     node = new ConfigTextUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Button:
+                case ConfigTypes.SubSettings:
                 default:
                     node = new ButtonUINode("", str, "", this.column_width);
                     break;
@@ -225,6 +230,14 @@ namespace FEXNA.Windows.Options
                     {
                         Settings.ConfirmSetting(this.index, null);
                         RefreshItemValues();
+                        SelectedSettingCursor.force_loc(UICursor.loc);
+                        selected = false;
+                    }
+                    break;
+                case ConfigTypes.SubSettings:
+                    if (selected)
+                    {
+                        OpenSubMenu = true;
                         SelectedSettingCursor.force_loc(UICursor.loc);
                         selected = false;
                     }
@@ -335,6 +348,15 @@ namespace FEXNA.Windows.Options
                 }
                 return false;
             }
+        }
+
+        public ISettings GetSubSettings()
+        {
+            return Settings.GetSubSettings(this.index);
+        }
+        public void ClearSubMenu()
+        {
+            OpenSubMenu = false;
         }
 
         protected override void update_ui(bool input)

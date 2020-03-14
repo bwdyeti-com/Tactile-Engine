@@ -113,10 +113,7 @@ namespace FEXNA.Options
                 General.ConfirmSetting(GeneralSetting.Metrics, 0, metrics == Metrics_Settings.On);
             General.SetValue(GeneralSetting.CheckForUpdates, 0, updatesActive);
             Controls.SetValue(ControlsSetting.Rumble, 0, rumble);
-            for (int i = keyConfig.Length - 1; i >= 0; i--)
-            {
-                Controls.SetValue(ControlsSetting.KeyboardConfig, i, keyConfig[i]);
-            }
+            Controls.SetLegacyKeyboardConfig(keyConfig);
         }
 
         private Keys[] ReadLegacyInputs(BinaryReader reader)

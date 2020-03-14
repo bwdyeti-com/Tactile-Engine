@@ -109,6 +109,8 @@
     <Compile Include="Source Code\Menus\Options\SettingsMenu.cs" />
     <Compile Include="Source Code\Menus\Options\SettingsTopMenu.cs" />
     <Compile Include="Source Code\Options\Settings Data\NullSettingsData.cs" />
+    <Compile Include="Source Code\Options\Settings\KeyboardSettings.cs" />
+    <Compile Include="Source Code\Options\Settings\GamepadSettings.cs" />
     <Compile Include="Source Code\Options\Settings\GeneralSettings.cs" />
     <Compile Include="Source Code\Options\Settings\AudioSettings.cs" />
     <Compile Include="Source Code\Options\Settings\ControlsSettings.cs" />

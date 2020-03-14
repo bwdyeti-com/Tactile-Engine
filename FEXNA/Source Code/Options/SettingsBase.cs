@@ -55,6 +55,11 @@ namespace FEXNA.Options
         protected abstract void CopyAdditionalSettingsFrom(ISettings other);
 
         /// <summary>
+        /// Resets any other settings necessary to restore defaults.
+        /// </summary>
+        protected virtual void RestoreAdditionalDefaults() { }
+
+        /// <summary>
         /// Gets the real index of a setting and the offset for the value in
         /// that setting.
         /// </summary>
@@ -212,6 +217,8 @@ namespace FEXNA.Options
                 for (int j = 0; j < _Data[i].Size; j++)
                     RestoreDefaultValue(DataIndices[i] + j);
             }
+
+            RestoreAdditionalDefaults();
         }
         
         public void RestoreDefaultValue(int index)
@@ -293,6 +300,10 @@ namespace FEXNA.Options
                 case ConfigTypes.Button:
                     result = (string)ValueObject(index);
                     return (T)result;
+                case ConfigTypes.SubSettings:
+                    var entry = GetEntryIndex(index);
+                    result = _Data[entry.Item1].GetDefaultValue(entry.Item2);
+                    return (T)result;
                 case ConfigTypes.Keyboard:
                     result = (Keys)ValueObject(index);
                     return (T)result;
@@ -366,6 +377,11 @@ namespace FEXNA.Options
             throw new ArgumentException(
                 "Tried to get the interval of a\nsetting that isn't a number value.");
 #endif
+        }
+
+        public ISettings GetSubSettings(int index)
+        {
+            return ValueObject(GetEntryIndex(index)) as ISettings;
         }
         #endregion
     }

@@ -28,10 +28,27 @@ namespace FEXNA.Menus.Options
             Window.stereoscopic = Config.TITLE_CHOICE_DEPTH;
         }
 
+        public event EventHandler<EventArgs> OpenSubMenu;
+        private void OnOpenSubMenu(EventArgs e)
+        {
+            if (OpenSubMenu != null)
+                OpenSubMenu(this, e);
+        }
+
+        protected override void Activate()
+        {
+            base.Activate();
+            Window.visible = true;
+        }
+
         protected override bool CanceledTriggered(bool active)
         {
             bool cancel = base.CanceledTriggered(active);
-            return cancel || Global.Input.KeyPressed(Keys.Escape);
+            if (active)
+            {
+                cancel |= Global.Input.KeyPressed(Keys.Escape);
+            }
+            return cancel;
         }
         
         protected override void UpdateMenu(bool active)
@@ -104,6 +121,13 @@ namespace FEXNA.Menus.Options
                     SelectItem(true);
                 }
             }
+
+            if (active && settingsWindow.OpenSubMenu)
+            {
+                OnOpenSubMenu(new EventArgs());
+                Window.visible = false;
+                settingsWindow.ClearSubMenu();
+            }
         }
 
         private void UpdateKeyboardRemap(SettingsWindow settingsWindow, bool cancel)
@@ -175,6 +199,12 @@ namespace FEXNA.Menus.Options
                         Global.game_system.play_se(System_Sounds.Buzzer);
                 }
             }
+        }
+
+        public ISettings GetSubSettings()
+        {
+            var settingsWindow = Window as SettingsWindow;
+            return settingsWindow.GetSubSettings();
         }
 
         protected override void SelectItem(bool playConfirmSound = false)

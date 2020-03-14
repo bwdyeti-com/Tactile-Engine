@@ -4,7 +4,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Options
 {
-    enum ConfigTypes { None, Number, Slider, OnOffSwitch, Button, Keyboard, Gamepad }
+    enum ConfigTypes { None, Number, Slider, OnOffSwitch, Button, Keyboard, Gamepad, SubSettings }
 
     interface ISettings : ICloneable
     {
@@ -117,5 +117,11 @@ namespace FEXNA.Options
         /// </summary>
         /// <param name="index">The index of the setting.</param>
         int ValueInterval(int index);
+
+        /// <summary>
+        /// Gets the child settings of these settings at the given index.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
+        ISettings GetSubSettings(int index);
     }
 }
