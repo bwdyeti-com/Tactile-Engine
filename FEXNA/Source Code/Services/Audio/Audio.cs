@@ -199,9 +199,6 @@ namespace FEXNA.Services.Audio
         private Sound_Name_Data New_System_Sound_Data;
 
         #region Accessors
-        private bool music_muted { get { return Global.game_options.music_volume == 1; } }
-        private bool sound_muted { get { return Global.game_options.sound_volume == 1; } }
-        
         private bool bgs_fading_out { get { return Bgs_Fade_Out_Time > 0; } }
         private bool sound_fading_out { get { return Sound_Fade_Out_Time > 0; } }
         

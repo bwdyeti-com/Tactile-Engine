@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using FEXNA.Menus.Options;
 using FEXNA.Windows.Map;
 using FEXNA.Windows.UserInterface.Command;
 
@@ -43,10 +44,10 @@ namespace FEXNA.Menus.Map
                 case Map_Menu_Options.Options:
                     RemoveTopMenu();
 
-                    var optionsMenu = new Window_Options();
-                    optionsMenu.SoloAnim += optionsMenu_SoloAnim;
-                    optionsMenu.Closed += menu_ClosedCanceled;
-                    AddMenu(optionsMenu);
+                    var settingsTopMenu = new GameplaySettingsTopMenu();
+                    settingsTopMenu.Selected += SettingsTopMenu_Selected;
+                    settingsTopMenu.Closed += menu_ClosedCanceled;
+                    settingsTopMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
                     break;
                 case Map_Menu_Options.Suspend:
                     var suspendConfirmWindow = new Parchment_Confirm_Window();
@@ -113,6 +114,59 @@ namespace FEXNA.Menus.Map
             menu_ClosedCanceled(sender, e);
         }
 
+        private void SettingsTopMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var settingsTopMenu = (sender as SettingsTopMenu);
+
+            int index = settingsTopMenu.Index;
+            switch (index)
+            {
+                case 0:
+                    var optionsMenu = new Window_Options();
+                    optionsMenu.SoloAnim += optionsMenu_SoloAnim;
+                    optionsMenu.Closed += menu_Closed;
+                    AddMenu(optionsMenu);
+                    break;
+                case 1:
+                    OpenSettingsMenu(Global.gameSettings.General, settingsTopMenu);
+                    break;
+                case 2:
+                    OpenSettingsMenu(Global.gameSettings.Graphics, settingsTopMenu);
+                    break;
+                case 3:
+                    OpenSettingsMenu(Global.gameSettings.Audio, settingsTopMenu);
+                    break;
+                case 4:
+                    OpenSettingsMenu(Global.gameSettings.Controls, settingsTopMenu);
+                    break;
+            }
+        }
+
+        private void OpenSettingsMenu(FEXNA.Options.ISettings settings, IHasCancelButton parent)
+        {
+            SettingsMenu settingsMenu;
+            settingsMenu = new SettingsMenu(settings, parent);
+            settingsMenu.OpenSubMenu += SettingsMenu_OpenSubMenu;
+            settingsMenu.Canceled += settingsMenu_Canceled;
+            AddMenu(settingsMenu);
+        }
+
+        private void SettingsMenu_OpenSubMenu(object sender, EventArgs e)
+        {
+            var parentMenu = (sender as SettingsMenu);
+            var settings = parentMenu.GetSubSettings();
+            OpenSettingsMenu(settings, parentMenu);
+        }
+
+        void settingsMenu_Canceled(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Cancel);
+            MenuHandler.MapSaveConfig();
+
+            menu_Closed(sender, e);
+        }
+
         // Open unit screen from options to change solo anims
         void optionsMenu_SoloAnim(object sender, EventArgs e)
         {
@@ -171,6 +225,7 @@ namespace FEXNA.Menus.Map
 
     interface IMapMenuHandler : IMenuHandler
     {
+        void MapSaveConfig();
         void MapMenuSuspend();
         void MapMenuEndTurn();
     }

@@ -290,6 +290,14 @@ at any time from the options menu.");
             OpenSettingsMenu(settings, parentMenu);
         }
 
+        void settingsMenu_Canceled(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Cancel);
+            MenuHandler.TitleSaveConfig();
+
+            menu_Closed(sender, e);
+        }
+
 #if !MONOGAME && DEBUG
         void testBattleMenu_Confirm(object sender, EventArgs e)
         {
@@ -298,14 +306,6 @@ at any time from the options menu.");
             MenuHandler.TitleTestBattle(testBattleMenu.distance);
         }
 #endif
-
-        void settingsMenu_Canceled(object sender, EventArgs e)
-        {
-            Global.game_system.play_se(System_Sounds.Cancel);
-            MenuHandler.TitleSaveConfig();
-
-            menu_Closed(sender, e);
-        }
 
         private void ExtrasMenu_Selected(object sender, EventArgs e)
         {

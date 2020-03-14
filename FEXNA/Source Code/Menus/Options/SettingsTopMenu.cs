@@ -8,16 +8,14 @@ namespace FEXNA.Menus.Options
 {
     class SettingsTopMenu : StandardMenu //@Yeti: should probably be a CommandMenu, make that descend from StandardMenu
     {
-        private Window_Command Window;
+        protected Window_Command Window;
         private FE_Text VersionNumber;
         private Menu_Background Background;
 
         public SettingsTopMenu() : base()
         {
             Vector2 loc = new Vector2(Config.WINDOW_WIDTH / 2 - 40, 32);
-            List<string> settings = new List<string> { "Graphics", "Audio", "Controls" };
-            if (Global.gameSettings.General.AnyValidSettings)
-                settings.Insert(0, "General");
+            List<string> settings = GetSettingsStrings();
 
             // Window
             Window = new Window_Command(loc, 72, settings);
@@ -46,6 +44,14 @@ namespace FEXNA.Menus.Options
             Background.tile = new Vector2(3, 2);
             Background.tint = new Color(128, 128, 128, 255);
             Background.stereoscopic = Config.MAPMENU_BG_DEPTH;
+        }
+
+        protected virtual List<string> GetSettingsStrings()
+        {
+            List<string> settings = new List<string> { "Graphics", "Audio", "Controls" };
+            if (Global.gameSettings.General.AnyValidSettings)
+                settings.Insert(0, "General");
+            return settings;
         }
 
         #region StandardMenu Abstract
