@@ -67,7 +67,8 @@ namespace FEXNA.Menus.Options
                 CancelButton.Update(active);
             bool cancel = CanceledTriggered(active);
 
-            // Ignore inputs after remapping controls, to avoid double inputs
+            // Ignore inputs after remapping controls/any confirm,
+            // to avoid double inputs
             if (IgnoreInput > 0)
             {
                 IgnoreInput--;
@@ -101,6 +102,7 @@ namespace FEXNA.Menus.Options
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
                         MenuSettingSelected = false;
+                        IgnoreInputs();
                         settingsWindow.ConfirmSetting();
                     }
                 }
@@ -150,7 +152,7 @@ namespace FEXNA.Menus.Options
                             Global.game_system.play_se(System_Sounds.Confirm);
                             MenuSettingSelected = false;
                             settingsWindow.ConfirmSetting();
-                            IgnoreInput = 1;
+                            IgnoreInputs();
 
                             success = true;
                             break;
@@ -185,7 +187,7 @@ namespace FEXNA.Menus.Options
                             Global.game_system.play_se(System_Sounds.Confirm);
                             MenuSettingSelected = false;
                             settingsWindow.ConfirmSetting();
-                            IgnoreInput = 1;
+                            IgnoreInputs();
 
                             success = true;
                             break;
@@ -203,6 +205,11 @@ namespace FEXNA.Menus.Options
             return settingsWindow.GetSubSettings();
         }
 
+        private void IgnoreInputs()
+        {
+            IgnoreInput = 1;
+        }
+
         protected override void SelectItem(bool playConfirmSound = false)
         {
             var settingsWindow = Window as SettingsWindow;
@@ -212,6 +219,11 @@ namespace FEXNA.Menus.Options
                 if (playConfirmSound)
                     Global.game_system.play_se(System_Sounds.Confirm);
                 MenuSettingSelected = settingsWindow.SelectSetting(true);
+
+                // If a setting is not selected (presumably because a button
+                // was pressed), ignore inputs temporarily
+                if (!MenuSettingSelected)
+                    IgnoreInputs();
             }
             else
                 Global.game_system.play_se(System_Sounds.Buzzer);
