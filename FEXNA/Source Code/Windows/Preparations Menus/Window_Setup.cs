@@ -293,59 +293,59 @@ namespace FEXNA
 
         protected void add_deploying_units()
         {
-            int i = 0;
+            int deployPointIndex = 0;
             bool any_units_added = false;
             // Add forced units
-            int j = 0;
-            while (i < Global.game_map.deployment_points.Count && j < Global.game_map.forced_deployment.Count)
+            int forcedCount = 0;
+            while (deployPointIndex < Global.game_map.deployment_points.Count && forcedCount < Global.game_map.forced_deployment.Count)
             {
                 // If deployment point already used
-                if (Global.game_map.get_unit(Global.game_map.deployment_points[i]) != null)
-                    i++;
+                if (Global.game_map.get_unit(Global.game_map.deployment_points[deployPointIndex]) != null)
+                    deployPointIndex++;
                 // Else if actor already deployed
-                else if (Global.game_map.is_actor_deployed(Global.game_map.forced_deployment[j]))
-                    j++;
+                else if (Global.game_map.is_actor_deployed(Global.game_map.forced_deployment[forcedCount]))
+                    forcedCount++;
                 // Else deploy unit
                 else
                 {
-                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[i],
-                        Global.game_map.forced_deployment[j], "");
+                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[deployPointIndex],
+                        Global.game_map.forced_deployment[forcedCount], "");
                     if (unit_added)
                     {
                         Global.game_map.last_added_unit.fix_unit_location(true);
                         Global.game_map.last_added_unit.queue_move_range_update();
                         any_units_added = true;
                     }
-                    i++;
-                    j++;
+                    deployPointIndex++;
+                    forcedCount++;
                 }
             }
             // Sorts battalion because reasons
             Global.battalion.sort_by_deployed();
 
             // Add other units
-            j = 0;
-            while (i < Global.game_map.deployment_points.Count && j < Global.battalion.actors.Count)
+            int deployedCount = 0;
+            while (deployPointIndex < Global.game_map.deployment_points.Count && deployedCount < Global.battalion.actors.Count)
             {
                 // If deployment point already used
-                if (Global.game_map.get_unit(Global.game_map.deployment_points[i]) != null)
-                    i++;
+                if (Global.game_map.get_unit(Global.game_map.deployment_points[deployPointIndex]) != null)
+                    deployPointIndex++;
                 // Else if actor already deployed
-                else if (Global.battalion.is_actor_deployed(j))
-                    j++;
+                else if (Global.battalion.is_actor_deployed(deployedCount))
+                    deployedCount++;
                 // Else deploy unit
                 else
                 {
-                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[i],
-                        Global.battalion.actors[j], "");
+                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[deployPointIndex],
+                        Global.battalion.actors[deployedCount], "");
                     if (unit_added)
                     {
                         Global.game_map.last_added_unit.fix_unit_location(true);
                         Global.game_map.last_added_unit.queue_move_range_update();
                         any_units_added = true;
                     }
-                    i++;
-                    j++;
+                    deployPointIndex++;
+                    deployedCount++;
                 }
             }
             Global.battalion.sort_by_deployed();
