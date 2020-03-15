@@ -23,8 +23,14 @@ namespace FE7x
 
         public Game1(string[] args)
         {
-            Global.GAME_ASSEMBLY = Assembly.GetExecutingAssembly();
-            
+            var gameAsm = Assembly.GetExecutingAssembly();
+            Global.GAME_ASSEMBLY = gameAsm;
+
+#if DEBUG //FEGame
+            // Just some code to ensure I don't accidently distribute FE7x credentials, remove after scrubbing
+            System.Diagnostics.Debug.Assert(gameAsm.ManifestModule.Name == "FE7x.exe", "whoops mistakes");
+#endif
+
             Global.RUNNING_VERSION = Assembly.GetAssembly(typeof(Global)).GetName().Version;
             SetInitialFramerateValues();
 

@@ -18,14 +18,6 @@ namespace FE7x
         
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
 
-        public Metrics_Handler()
-        {
-#if DEBUG //FEGame
-            // Just some code to ensure I don't accidently distribute FE7x credentials, remove after scrubbing
-            System.Diagnostics.Debug.Assert(Global.GAME_ASSEMBLY.ManifestModule.Name == "FE7x.exe", "whoops mistakes");
-#endif
-        }
-
         public FEXNA_Library.Maybe<bool> send_data(string query, string post)
         {
             string identifier = FEXNA.Metrics.Metrics_Data.UserIdentifier;
