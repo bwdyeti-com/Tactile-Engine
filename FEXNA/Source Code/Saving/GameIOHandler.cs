@@ -1318,18 +1318,9 @@ namespace FEXNA.IO
                 }
                 catch (EndOfStreamException e)
                 {
-                    ResetConfig();
+                    Global.gameSettings.RestoreDefaults();
                 }
             }
-        }
-
-        private void ResetConfig()
-        {
-            Global.zoom = 1;
-            Global.fullscreen = false;
-            Global.stereoscopic_level = 0;
-            Global.anaglyph = true;
-            FEXNA.Input.default_controls();
         }
         #endregion
 

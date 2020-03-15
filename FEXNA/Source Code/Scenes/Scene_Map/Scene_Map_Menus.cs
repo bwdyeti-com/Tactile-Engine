@@ -873,6 +873,11 @@ namespace FEXNA
         }
 
         #region IMapMenuHandler
+        public void MapSaveConfig()
+        {
+            Global.save_config = true;
+        }
+
         public void MapMenuSuspend()
         {
             MapMenu = null;

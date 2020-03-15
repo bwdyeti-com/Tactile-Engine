@@ -13,6 +13,8 @@ namespace FEXNA.Services.Input
     {
         const float TOUCH_PRESS_TOLERANCE = 8f;
 
+        readonly static Buttons[] ALL_BUTTONS;
+
         private InputStates[] ButtonStates;
 
         private Dictionary<MouseButtons, InputStates> MouseStates;
@@ -22,6 +24,7 @@ namespace FEXNA.Services.Input
         private int MouseScroll;
 
         private KeyboardState KeyState, LastKeyState;
+        private GamePadState GamepadState, LastGamepadState;
 
         private Dictionary<TouchGestures, GestureSample> Gestures;
         private Dictionary<TouchGestures, InputStates> GestureStates;
@@ -30,6 +33,38 @@ namespace FEXNA.Services.Input
         private List<float> PinchLengthDeltas;
         private List<GestureSample> DeferredTaps;
         private bool TouchPressOutsideTolerance;
+
+        static InputService()
+        {
+            ALL_BUTTONS = new Buttons[]
+            {
+                Buttons.DPadUp,
+                Buttons.DPadDown,
+                Buttons.DPadLeft,
+                Buttons.DPadRight,
+                Buttons.Start,
+                Buttons.Back,
+                Buttons.LeftStick,
+                Buttons.RightStick,
+                Buttons.LeftShoulder,
+                Buttons.RightShoulder,
+                Buttons.BigButton,
+                Buttons.A,
+                Buttons.B,
+                Buttons.X,
+                Buttons.Y,
+                Buttons.LeftThumbstickLeft,
+                Buttons.RightTrigger,
+                Buttons.LeftTrigger,
+                Buttons.RightThumbstickUp,
+                Buttons.RightThumbstickDown,
+                Buttons.RightThumbstickRight,
+                Buttons.RightThumbstickLeft,
+                Buttons.LeftThumbstickUp,
+                Buttons.LeftThumbstickDown,
+                Buttons.LeftThumbstickRight
+            };
+        }
 
         public InputService(Game game)
             : base(game)
@@ -397,6 +432,20 @@ namespace FEXNA.Services.Input
         {
             return KeyState.GetPressedKeys()
                 .Where(x => KeyPressed(x))
+                .ToArray();
+        }
+
+        public override void UpdateGamepadState(GamePadState padState)
+        {
+            LastGamepadState = GamepadState;
+            GamepadState = padState;
+        }
+
+        public override Buttons[] PressedButtons()
+        {
+            return ALL_BUTTONS
+                .Where(x => GamepadState.IsButtonDown(x))
+                .Where(x => !LastGamepadState.IsButtonDown(x))
                 .ToArray();
         }
 

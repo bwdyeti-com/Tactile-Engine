@@ -34,7 +34,7 @@ namespace FEXNA.Windows.UserInterface.Options
 
         internal void refresh_value(int value)
         {
-            Bar.fill_width = Bar.bar_width * (value - GaugeMin) / (GaugeMax - GaugeMin);
+            Bar.SetFillWidth(Bar.bar_width, value, GaugeMin, GaugeMax);
             Label.text = string.Format(FormatString, value);
         }
 

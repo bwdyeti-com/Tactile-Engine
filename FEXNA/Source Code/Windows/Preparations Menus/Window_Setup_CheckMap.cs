@@ -173,11 +173,14 @@ namespace FEXNA.Windows
             base.UpdateMenu(active);
         }
 
-        private void update_ui(bool input)
+        protected override void UpdateAncillary()
         {
             if (Input.ControlSchemeSwitched)
                 refresh_input_help();
+        }
 
+        private void update_ui(bool input)
+        {
             Start.Update(input);
             B_Button.Update(input);
             R_Button.Update(input);

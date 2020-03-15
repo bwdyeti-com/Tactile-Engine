@@ -206,6 +206,11 @@ namespace FEXNA
         }
 
         #region ISetupMenuHandler
+        public void SetupSaveConfig()
+        {
+            Global.save_config = true;
+        }
+
         public void SetupSave()
         {
             Suspend_Filename = Config.MAP_SAVE_FILENAME;

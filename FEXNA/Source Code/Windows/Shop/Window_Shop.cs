@@ -289,8 +289,6 @@ namespace FEXNA
             bool input = !Closing && Delay == 0 && Black_Screen_Timer == 0;
 
             Window.update(input && Trading && !Accepting && Message.text_end);
-            if (Input.ControlSchemeSwitched)
-                create_cancel_button();
             CancelButton.Update(input && !Accepting && Message.text_end);
             if (Choices != null)
             {
@@ -318,6 +316,12 @@ namespace FEXNA
             }
 
             Face.update();
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (Input.ControlSchemeSwitched)
+                create_cancel_button();
         }
 
         protected override void update_message()

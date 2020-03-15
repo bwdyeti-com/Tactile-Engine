@@ -162,7 +162,10 @@ namespace FEXNA.Menus.Preparations
             UpdateUnitWindow(active);
             
             base.UpdateMenu(active);
-            
+        }
+
+        protected override void UpdateAncillary()
+        {
             if (Input.ControlSchemeSwitched)
                 RefreshInputHelp();
         }

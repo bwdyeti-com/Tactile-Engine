@@ -44,6 +44,11 @@ namespace FEXNA.Windows.UserInterface.Command.Config
                 string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
         }
 
+        internal void set_description(string description)
+        {
+            Value.text = description;
+        }
+
         protected override void update_graphics(bool activeNode)
         {
             Text.update();

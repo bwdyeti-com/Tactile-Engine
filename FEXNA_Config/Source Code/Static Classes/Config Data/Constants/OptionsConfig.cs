@@ -9,7 +9,7 @@ namespace FEXNA.Constants
     public enum Options
     {
         Animation_Mode, Game_Speed, Text_Speed, Combat_Window, Unit_Window, Enemy_Window, Terrain_Window, Objective_Window,
-        Grid, Range_Preview, Hp_Gauges, Controller, Subtitle_Help, Autocursor, Auto_Turn_End, Music_Volume, Sound_Volume, Window_Color
+        Grid, Range_Preview, Hp_Gauges, Controller, Subtitle_Help, Autocursor, Auto_Turn_End, Window_Color
     }
 
     public class OptionsConfig
@@ -75,16 +75,6 @@ namespace FEXNA.Constants
                 new OptionsSetting( 0, "ON", "Set turn to end automatically"),
                 new OptionsSetting(23, "OFF", "Set turn to end automatically"),
                 new OptionsSetting(46, "Prompt", "Opens menu after last unit has moved") }},
-            new OptionsData { Label = "Music",
-                Gauge = true, GaugeMin = 0, GaugeMax = 100, GaugeInterval = 10,
-                GaugeWidth = 64, GaugeOffset = 32,
-                Options = new OptionsSetting[] {
-                new OptionsSetting( 0, "{0}", "Asjust music volume") }},
-            new OptionsData { Label = "Sound Effects",
-                Gauge = true, GaugeMin = 0, GaugeMax = 100, GaugeInterval = 10,
-                GaugeWidth = 64, GaugeOffset = 32,
-                Options = new OptionsSetting[] {
-                new OptionsSetting( 0, "{0}", "Adjust sound effects volume") }},
             new OptionsData { Label = "Window Color", Options = new OptionsSetting[] {
                 new OptionsSetting( 0, "1", "Change window color"),
                 new OptionsSetting(18, "2", "Change window color"),

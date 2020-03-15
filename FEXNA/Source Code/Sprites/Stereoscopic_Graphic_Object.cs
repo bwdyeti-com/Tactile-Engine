@@ -26,9 +26,10 @@ namespace FEXNA
         {
             get
             {
-                return Global.stereoscopic_level / 5f;
-                return Global.stereoscopic_level == 0 ? (1 / 8f) : //Debug
-                    (float)Math.Pow(2, Global.stereoscopic_level - 2) / 2f;
+                int stereoscopicLevel = Global.gameSettings.Graphics.StereoscopicLevel;
+                return stereoscopicLevel / 5f;
+                return stereoscopicLevel == 0 ? (1 / 8f) : //Debug
+                    (float)Math.Pow(2, stereoscopicLevel - 2) / 2f;
             }
         }
 

@@ -316,13 +316,12 @@ namespace FEXNA
                     .ToList();
             }
         }
-        public List<int> deployed_actor_units
+        public List<int> actor_units
         {
             get
             {
-                return Deployed_Actors
-                    .Where(x => Actors.Contains(x) &&
-                        Global.game_map.get_unit_id_from_actor(x) != -1)
+                return Actors
+                    .Where(x => Global.game_map.get_unit_id_from_actor(x) != -1)
                     .Select(x => Global.game_map.get_unit_id_from_actor(x))
                     .ToList();
             }
@@ -372,7 +371,7 @@ namespace FEXNA
         {
             get
             {
-                return this.deployed_actor_units
+                return this.actor_units
                     .Any(id => Global.game_map.units[id].is_convoy());
             }
         }
@@ -631,6 +630,8 @@ namespace FEXNA
             Global.game_battalions.optimize_inventory(Convoy_Id, actor);
         }
 
+        //@Yeti: this might need to include predeployed maps and units that join
+        // the player team mid-map
         public void refresh_deployed()
         {
             Deployed_Actors.Clear();

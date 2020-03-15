@@ -142,8 +142,6 @@ namespace FEXNA.Menus.Title
             // Full credits link
             if (FullCreditsButton != null)
             {
-                if (Input.ControlSchemeSwitched)
-                    CreateFullCreditsButton();
                 FullCreditsButton.Update(active);
                 
                 bool fullCredits = false;
@@ -156,6 +154,18 @@ namespace FEXNA.Menus.Title
                     OnOpenFullCredits(new EventArgs());
             }
         }
+
+        protected override void UpdateAncillary()
+        {
+            base.UpdateAncillary();
+
+            if (FullCreditsButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateFullCreditsButton();
+            }
+        }
+
         #endregion
 
         private static int Lines(string str)

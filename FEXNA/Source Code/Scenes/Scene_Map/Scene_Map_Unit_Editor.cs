@@ -170,10 +170,10 @@ namespace FEXNA
             unitDataKey = UnitDataKey;
 
             string event_key = UnitDataKey;
+            // Set a default difficulty value //@Yeti
             if (unitDataKey.Last() == Constants.Difficulty.DIFFICULTY_EVENT_APPEND[Global.game_system.Difficulty_Mode])
                 event_key = UnitDataKey.Substring(0, UnitDataKey.Length - 1);
-
-
+            
             eventDataKey = event_key;
             if (Global.loaded_files.Contains(string.Format("Data/Map Data/Event Data/{0}",
                     event_key + Constants.Difficulty.DIFFICULTY_EVENT_APPEND[Global.game_system.Difficulty_Mode])))
@@ -353,6 +353,11 @@ namespace FEXNA
         public void UnitEditorMapMenuDeleteReinforcement(int index)
         {
             _unitData.Reinforcements.RemoveAt(index);
+        }
+        
+        public void UnitEditorMapMenuSaveConfig()
+        {
+            Global.save_config = true;
         }
 
         public void UnitEditorMapMenuClearUnits()

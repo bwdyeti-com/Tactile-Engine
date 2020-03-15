@@ -16,7 +16,18 @@ namespace FEXNA.Menus
         protected virtual void Activate() { }
         protected virtual void Deactivate() { }
 
+        /// <summary>
+        /// Updates menu processing.
+        /// Only called if the menu <see cref="IsVisible"/>.
+        /// </summary>
+        /// <param name="active"></param>
         protected abstract void UpdateMenu(bool active);
+
+        /// <summary>
+        /// Updates parts of the menu that don't involve user input.
+        /// Called every frame, even when the menu isn't visible.
+        /// </summary>
+        protected virtual void UpdateAncillary() { }
 
         #region IMenu
         public virtual bool HidesParent { get { return true; } }
@@ -42,9 +53,16 @@ namespace FEXNA.Menus
 
         public void Update(bool active)
         {
-            UpdateActive(active);
+            // Things to always update, whether visible or not
+            UpdateAncillary();
 
-            UpdateMenu(Active);
+            // Don't update unless visible
+            if (this.IsVisible)
+            {
+                UpdateActive(active);
+
+                UpdateMenu(Active);
+            }
         }
         public abstract void Draw(SpriteBatch spriteBatch);
         public virtual void Draw(

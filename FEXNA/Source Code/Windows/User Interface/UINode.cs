@@ -33,6 +33,10 @@ namespace FEXNA.Windows.UserInterface
             Update(true, drawOffset);
         }
 
+        internal void Update()
+        {
+            Update((UINodeSet<UINode>)null, ControlSet.Disabled);
+        }
         internal void Update(bool input,
             Vector2 draw_offset = default(Vector2))
         {
@@ -53,24 +57,28 @@ namespace FEXNA.Windows.UserInterface
             if (nodes != null && !nodes.Contains(this as T))
                 return;
 
-            mouse_off_graphic();
-            if (Enabled)
+            bool active_node = false;
+            if (!input.HasFlag(ControlSet.Disabled))
             {
-                if (Input.IsControllingOnscreenMouse)
+                mouse_off_graphic();
+                if (Enabled)
                 {
-                    UpdateMouse<T>(nodes, input, draw_offset);
+                    if (Input.IsControllingOnscreenMouse)
+                    {
+                        UpdateMouse<T>(nodes, input, draw_offset);
+                    }
+                    else if (Input.ControlScheme == ControlSchemes.Touch)
+                    {
+                        UpdateTouch<T>(nodes, input, draw_offset);
+                    }
+                    else if (is_active_node<T>(nodes))
+                    {
+                        UpdateButtons<T>(input);
+                    }
                 }
-                else if (Input.ControlScheme == ControlSchemes.Touch)
-                {
-                    UpdateTouch<T>(nodes, input, draw_offset);
-                }
-                else if (is_active_node<T>(nodes))
-                {
-                    UpdateButtons<T>(input);
-                }
-            }
 
-            bool active_node = is_active_node<T>(nodes);
+                active_node = is_active_node<T>(nodes);
+            }
             update_graphics(active_node);
         }
 

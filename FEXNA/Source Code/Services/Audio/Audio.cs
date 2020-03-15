@@ -24,9 +24,9 @@ namespace FEXNA.Services.Audio
                 _audio = new Audio_Engine();
             }
             
-            public void update()
+            public void update(bool gameInactive)
             {
-                _audio.update();
+                _audio.update(gameInactive);
             }
 
             public void post_update()
@@ -106,11 +106,6 @@ namespace FEXNA.Services.Audio
             #endregion
 
             #region BGS
-            public void set_bgs_volume(float volume)
-            {
-                _audio.set_bgs_volume(volume);
-            }
-
             public void play_bgs(string cue_name)
             {
                 _audio.play_bgs(cue_name);
@@ -123,11 +118,6 @@ namespace FEXNA.Services.Audio
             #endregion
 
             #region SFX
-            public void set_sfx_volume(float volume)
-            {
-                _audio.set_sfx_volume(volume);
-            }
-
             public void play_se(string bank, string cue_name,
                 Maybe<float> pitch = default(Maybe<float>),
                 Maybe<int> channel = default(Maybe<int>),
@@ -209,9 +199,6 @@ namespace FEXNA.Services.Audio
         private Sound_Name_Data New_System_Sound_Data;
 
         #region Accessors
-        private bool music_muted { get { return Global.game_options.music_volume == 1; } }
-        private bool sound_muted { get { return Global.game_options.sound_volume == 1; } }
-        
         private bool bgs_fading_out { get { return Bgs_Fade_Out_Time > 0; } }
         private bool sound_fading_out { get { return Sound_Fade_Out_Time > 0; } }
         
@@ -226,10 +213,13 @@ namespace FEXNA.Services.Audio
 
         private Audio_Engine() { }
 
-        private void update()
+        private void update(bool gameInactive)
         {
-            BgmManager.Update();
-            
+            BgmManager.Update(gameInactive);
+
+            // Update volume
+            UpdateSoundVolume(gameInactive);
+
             update_sounds();
             update_bgs_fade();
         }
@@ -239,6 +229,20 @@ namespace FEXNA.Services.Audio
             if (New_System_Sound_Data != null)
                 play_system_se(New_System_Sound_Data.Bank, New_System_Sound_Data.Name, New_System_Sound_Data.Priority, New_System_Sound_Data.Pitch);
             New_System_Sound_Data = null;
+        }
+
+        private void UpdateSoundVolume(bool gameInactive)
+        {
+            float volume = Global.gameSettings.Audio.SoundVolume / 100f;
+            volume = MathHelper.Clamp(volume, 0, 1);
+            if (gameInactive && Global.gameSettings.Audio.MuteWhenInactive)
+                volume = 0;
+
+            if (Sound_Volume != volume)
+            {
+                set_bgs_volume(volume);
+                set_sfx_volume(volume);
+            }
         }
 
         protected void update_sounds()

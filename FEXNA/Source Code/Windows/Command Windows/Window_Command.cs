@@ -140,6 +140,15 @@ namespace FEXNA.Windows.Command
             }
         }
 
+        public bool WindowVisible
+        {
+            set
+            {
+                if (Window_Img != null)
+                    Window_Img.visible = value;
+            }
+        }
+
         public int color_override
         {
             set
@@ -173,7 +182,11 @@ namespace FEXNA.Windows.Command
             Grey_Cursor.draw_offset = new Vector2(-16, 0);
             //Hand_Texture = Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Menu_Hand");
             this.loc = loc;
-            Window_Img.width = Width = width;
+
+            Width = width;
+            if (Window_Img != null)
+                Window_Img.width = Width;
+
             if (Glowing_Line == null)
             {
                 Glowing_Line = new Unit_Line_Cursor(column_width);
@@ -445,7 +458,7 @@ namespace FEXNA.Windows.Command
 
         protected void draw_window(SpriteBatch sprite_batch)
         {
-            if (Window_Img != null)
+            if (Window_Img != null && Window_Img.visible)
             {
                 // Window background
                 Window_Img.draw(sprite_batch, -(loc + draw_vector()));

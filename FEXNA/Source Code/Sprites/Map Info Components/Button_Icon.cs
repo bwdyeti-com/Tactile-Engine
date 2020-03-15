@@ -1,11 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace FEXNA.Graphics.Help
 {
     class Button_Icon : Icon_Sprite
     {
-        public Button_Icon(Inputs input, Texture2D texture) : this((int)input, texture) { }
+        public Button_Icon(Buttons button, Texture2D texture) : this(Button_Description.ButtonIndex(button), texture) { }
         public Button_Icon(int input, Texture2D texture)
         {
             this.texture = texture;

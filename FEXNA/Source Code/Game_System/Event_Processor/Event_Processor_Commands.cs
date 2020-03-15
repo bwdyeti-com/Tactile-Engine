@@ -814,7 +814,10 @@ namespace FEXNA
                     // Value[3] = Width
                     if (Global.scene.is_strict_map_scene)
                     {
-                        ((Scene_Map)Global.scene).set_popup(command.Value[1], process_number(command.Value[2]), process_number(command.Value[3]));
+                        string[] lines = command.Value[1]
+                            .Split(new string[] { @"\n" }, StringSplitOptions.None);
+                        string text = string.Join("\n", lines);
+                        ((Scene_Map)Global.scene).set_popup(text, process_number(command.Value[2]), process_number(command.Value[3]));
                     }
                     break;
                 case "Weapon":
