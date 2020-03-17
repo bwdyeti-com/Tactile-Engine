@@ -1,63 +1,54 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using FEXNA.Graphics.Text;
+using FEXNA.Graphics.Help;
 
 namespace FEXNA.Windows.UserInterface.Command.Config
 {
-    class SwitchUINode : ConfigUINode
+    class GamepadRemapUINode : ConfigUINode
     {
-        protected FE_Text Text, Value;
+        private FE_Text Text;
+        private Button_Description Value;
+        private Inputs Input;
 
-        internal SwitchUINode(
+        internal GamepadRemapUINode(
                 string helpLabel,
+                Inputs input,
                 string str,
                 int width)
             : base(helpLabel)
         {
+            Input = input;
+
+            RefreshButton();
+
             Text = new FE_Text();
             Text.Font = "FE7_Text";
             Text.texture = Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White");
+            Text.draw_offset = new Vector2(8, 0);
             Text.text = str;
-
-            Value = new FE_Text();
-            Value.draw_offset = new Vector2(120, 0);
-            Value.Font = "FE7_Text";
-            Value.texture = Global.Content.Load<Texture2D>(@"Graphics\Fonts\FE7_Text_White");
-            set_switch(false);
 
             Size = new Vector2(width, 16);
         }
 
-        protected override void set_label_color(string color)
+        public void RefreshButton()
         {
-            base.set_label_color(color);
-            Text.texture = Global.Content.Load<Texture2D>(
-                string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
+            Buttons button = FEXNA.Input.PadRedirect(Input);
+
+            Button_Description buttonIcon = Button_Description.button(button);
+            buttonIcon.description = "";
+            buttonIcon.draw_offset = new Vector2(120, 0);
+            buttonIcon.ColonVisible(false);
+            Value = buttonIcon;
         }
 
-        internal override void set_text_color(string color)
-        {
-            if (this.locked)
-                color = "Grey";
-            Value.texture = Global.Content.Load<Texture2D>(
-                string.Format(@"Graphics/Fonts/FE7_Text_{0}", color));
-        }
-
-        internal void set_switch(bool value)
-        {
-            Value.text = value ? "On" : "Off";
-        }
-        internal void set_switch(bool value, string note)
-        {
-            set_switch(value);
-            if (!string.IsNullOrEmpty(note))
-                Value.text += string.Format(" ({0})", note);
-        }
+        internal override void set_text_color(string color) { }
 
         protected override void update_graphics(bool activeNode)
         {
             Text.update();
-            Value.update();
+            Value.Update();
         }
 
         protected override void mouse_off_graphic()
@@ -79,7 +70,7 @@ namespace FEXNA.Windows.UserInterface.Command.Config
         public override void Draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
             Text.draw(sprite_batch, draw_offset - (loc + draw_vector()));
-            Value.draw(sprite_batch, draw_offset - (loc + draw_vector()));
+            Value.Draw(sprite_batch, draw_offset - (loc + draw_vector()));
         }
     }
 }

@@ -42,6 +42,10 @@ namespace FEXNA.Services.Input
 
         Keys[] PressedKeys();
 
+        void UpdateGamepadState(GamePadState padState);
+
+        Buttons[] PressedButtons();
+
         #region Buttons
         bool triggered(Inputs inputName, bool consumeInput = true);
         bool pressed(Inputs inputName);

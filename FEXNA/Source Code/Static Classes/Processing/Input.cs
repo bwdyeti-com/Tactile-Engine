@@ -71,7 +71,6 @@ namespace FEXNA
 
     public class Input
     {
-        internal const float STICK_DEAD_ZONE = 0.2f;
         const float CLICK_TRAVEL_DIST = 8f;
 
         internal const bool INVERSE_DIRECTIONS_CANCEL = true;
@@ -135,7 +134,27 @@ namespace FEXNA
             { Keys.OemPeriod, "." },
             { Keys.OemQuestion, "/" }
         };
-        
+        internal readonly static HashSet<Buttons> REMAPPABLE_BUTTONS = new HashSet<Buttons>
+        {
+            Buttons.DPadUp,
+            Buttons.DPadDown,
+            Buttons.DPadLeft,
+            Buttons.DPadRight,
+            Buttons.Start,
+            Buttons.Back,
+            Buttons.LeftStick,
+            Buttons.RightStick,
+            Buttons.LeftShoulder,
+            Buttons.RightShoulder,
+            Buttons.A,
+            Buttons.B,
+            Buttons.X,
+            Buttons.Y,
+            Buttons.RightTrigger,
+            Buttons.LeftTrigger
+        };
+
+
         private static InputConfig InputConfig;
         private static InputState[] PlayerInputs;
         private static InputState PlayerOneInputs { get { return PlayerInputs[0]; } }
@@ -167,6 +186,7 @@ namespace FEXNA
 
         public static bool Controller_Active { get; protected set; }
         public static bool ControlSchemeSwitched { get; protected set; }
+        private static bool ShouldSwitchControlScheme = false;
         internal static ControlSchemes ControlScheme { get; private set; }
         public static bool IsControllingOnscreenMouse
         {
@@ -203,32 +223,19 @@ namespace FEXNA
         private static Enum[] MouseEnums;
         private static Enum[] GestureEnums;
 
-        #region Serialization
-        public static void write(BinaryWriter writer)
-        {
-            InputConfig.write(writer);
-        }
-
-        public static void read(BinaryReader reader)
-        {
-            InputConfig.read(reader);
-        }
-        #endregion
-
         #region Config
-        public static void default_controls()
-        {
-            InputConfig.SetDefaults();
-        }
-
         internal static string key_name(Inputs input)
         {
             return InputConfig.KeyName(input);
         }
-
-        internal static bool remap_key(Inputs input, Keys key)
+        internal static string key_name(Keys key)
         {
-            return InputConfig.RemapKey(input, key);
+            return InputConfig.KeyName(key);
+        }
+
+        internal static Buttons PadRedirect(Inputs input)
+        {
+            return InputConfig.PadRedirect[input];
         }
         #endregion
 
@@ -274,7 +281,7 @@ namespace FEXNA
         public static void update(bool game_active, GameTime gameTime,
             KeyboardState key_state, GamePadState controller_state)
         {
-            PlayerInputs = InputConfig.Update(PlayerInputs);
+            PlayerInputs = InputConfig.Update(PlayerInputs, key_state, controller_state);
             
             LastMouseState = MouseState;
             MouseState = Mouse.GetState();
@@ -294,14 +301,6 @@ namespace FEXNA
             MouseState = new MouseState();
 #endif
 
-            // Current keyboard/controller state
-            //KeyboardState key_state = Keyboard.GetState(); //Debug
-            //GamePadState controller_state = GamePad.GetState(PlayerIndex.One);
-            float left_stick_angle = (float)Math.Atan2(controller_state.ThumbSticks.Left.Y, controller_state.ThumbSticks.Left.X);
-            if (left_stick_angle < 0)
-                left_stick_angle += MathHelper.TwoPi;
-            left_stick_angle *= 360 / MathHelper.TwoPi;
-            
             ControlSchemeSwitched = false;
 
 #if __MOBILE__ || TOUCH_EMULATION
@@ -393,6 +392,13 @@ namespace FEXNA
         private static void update_control_scheme(
             KeyboardState keyState, GamePadState controllerState)
         {
+            // Force updating icons/etc
+            if (GameActive && ShouldSwitchControlScheme)
+            {
+                ControlSchemeSwitched = true;
+                ShouldSwitchControlScheme = false;
+            }
+
             if (!GameActive)
                 LastMouseState = new Microsoft.Xna.Framework.Input.MouseState(
                     LastMouseState.X, LastMouseState.Y, LastMouseState.ScrollWheelValue,
@@ -452,6 +458,11 @@ namespace FEXNA
             }
 #endif
 #endif
+        }
+
+        internal static void RefreshControlScheme()
+        {
+            ShouldSwitchControlScheme = true;
         }
 
         private static void update_mouse_click_locs()
@@ -555,7 +566,8 @@ namespace FEXNA
             if (controllerState.IsConnected)
             {
                 // Sticks
-                if (controllerState.ThumbSticks.Left.Length() > STICK_DEAD_ZONE || controllerState.ThumbSticks.Right.Length() > STICK_DEAD_ZONE)
+                if (InputState.LeftStickActive(controllerState) ||
+                        InputState.RightStickActive(controllerState))
                     return true;
                 if (ALL_BUTTONS.Any(x => controllerState.IsButtonDown(x)))
                     return true;

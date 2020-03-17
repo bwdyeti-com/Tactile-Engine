@@ -103,6 +103,10 @@ namespace FEXNA.Windows.Map
             Unit_Window.update(active && ready);
 
             base.UpdateMenu(active && this.ready);
+        }
+
+        protected override void UpdateAncillary()
+        {
             if (Input.ControlSchemeSwitched)
                 refresh_input_help();
         }

@@ -59,9 +59,8 @@ namespace FEXNA.Menus
 
         public void Update(bool active = true)
         {
-            // Update any visible menus under the top menu, starting from the bottom
+            // Update menus under the top menu, starting from the bottom
             foreach (var menu in Menus
-                .Where(x => x.IsVisible)
                 .Skip(1)
                 .Reverse())
             {

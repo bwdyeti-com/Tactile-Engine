@@ -500,8 +500,6 @@ namespace FEXNA
 #endif
 
             // Cancel button
-            if (Input.ControlSchemeSwitched)
-                create_cancel_button();
             CancelButton.Update(input);
 
             StatusNodes[page].Update(!input ? ControlSet.None :
@@ -592,6 +590,12 @@ namespace FEXNA
                 status_page.update();
             Left_Page_Arrow.update();
             Right_Page_Arrow.update();
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (Input.ControlSchemeSwitched)
+                create_cancel_button();
         }
 
         private void update_input()

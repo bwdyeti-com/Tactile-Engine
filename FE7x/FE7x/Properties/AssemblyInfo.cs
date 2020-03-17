@@ -12,7 +12,7 @@ using Android.App;
 [assembly: AssemblyProduct("FE7x")]
 [assembly: AssemblyDescription("Fire Emblem: Immortal Sword")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
-[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2019")]
+[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,7 +34,7 @@ using Android.App;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.6.9.0")]
+[assembly: AssemblyVersion("0.6.10.0")]
 
 // Add some common permissions, these can be removed if not needed
 #if __ANDROID__

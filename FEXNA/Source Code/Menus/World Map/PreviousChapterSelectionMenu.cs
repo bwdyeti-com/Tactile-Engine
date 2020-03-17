@@ -216,11 +216,7 @@ namespace FEXNA.Menus.Worldmap
             UICursor.update();
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    CreateCancelButton(this);
                 CancelButton.Update(input);
-            }
             bool cancel = CanceledTriggered(input);
 
             if (cancel)
@@ -245,6 +241,15 @@ namespace FEXNA.Menus.Worldmap
                     Global.game_system.play_se(System_Sounds.Confirm);
                     OnSelected(new EventArgs());
                 }
+            }
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton(this);
             }
         }
 

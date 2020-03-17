@@ -132,11 +132,13 @@ namespace FEXNA
         }
         private void refresh_font(int i, int actor_id, bool deployed)
         {
+            // If forced by events
             bool forced = Global.game_map.forced_deployment.Contains(actor_id);
             if (!forced)
             {
                 int unit_id = Global.game_map.get_unit_id_from_actor(actor_id);
                 if (unit_id != -1)
+                    // If predeployed
                     forced = !Global.game_map.deployment_points.Contains(Global.game_map.units[unit_id].loc);
             }
 

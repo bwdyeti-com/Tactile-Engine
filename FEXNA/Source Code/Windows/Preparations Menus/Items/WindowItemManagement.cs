@@ -176,7 +176,10 @@ namespace FEXNA.Windows.Map.Items
             HelpFooter.update();
 
             base.UpdateMenu(active);
+        }
 
+        protected override void UpdateAncillary()
+        {
             if (Input.ControlSchemeSwitched)
                 refresh_input_help();
         }

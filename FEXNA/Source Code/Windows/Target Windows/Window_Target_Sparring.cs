@@ -186,7 +186,7 @@ namespace FEXNA.Windows.Target
             win_exp = Math.Min(win_exp, gauge_max_exp - exp);
 
             gauge.bar_width = EXP_GAUGE_WIDTH;
-            gauge.fill_width = (exp * EXP_GAUGE_WIDTH) / gauge_max_exp;
+            gauge.SetFillWidth((exp * EXP_GAUGE_WIDTH) / gauge_max_exp);
             gauge.bonus_width = (win_exp * EXP_GAUGE_WIDTH) / gauge_max_exp;
             gauge.malus_width = (loss_exp * EXP_GAUGE_WIDTH) / gauge_max_exp;
             if (gauge.malus_width_has_space && loss_exp > 0)

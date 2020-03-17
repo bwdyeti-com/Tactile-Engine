@@ -96,8 +96,6 @@ namespace FEXNA.Menus.Title
             Name.update();
 
             // Switch field/base support mode
-            if (Input.ControlSchemeSwitched)
-                SetFieldBase(AtBase);
             if (FieldBaseButton != null)
                 FieldBaseButton.Update(active);
 
@@ -110,6 +108,15 @@ namespace FEXNA.Menus.Title
             if (switchField)
                 OnFieldBaseSwitched(new EventArgs());
         }
+
+        protected override void UpdateAncillary()
+        {
+            base.UpdateAncillary();
+
+            if (Input.ControlSchemeSwitched)
+                SetFieldBase(AtBase);
+        }
+
         #endregion
 
         public void SetFieldBase(bool atBase)

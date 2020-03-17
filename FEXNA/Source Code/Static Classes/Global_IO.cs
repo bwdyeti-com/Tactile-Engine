@@ -379,19 +379,12 @@ namespace FEXNA
             writer.Write(Global.RUNNING_VERSION);
 
             // Write config
-            WriteConfig(writer, zoom);
+            EncryptStream(writer, WriteConfig);
         }
 
-        private static void WriteConfig(BinaryWriter writer, int zoom)
+        private static void WriteConfig(BinaryWriter writer)
         {
-            writer.Write(zoom);
-            writer.Write(Global.fullscreen);
-            writer.Write(Global.stereoscopic_level);
-            writer.Write(Global.anaglyph);
-            writer.Write((int)Global.metrics);
-            writer.Write(Global.updates_active);
-            writer.Write(Global.rumble);
-            FEXNA.Input.write(writer);
+            Global.gameSettings.Write(writer);
         }
 
         internal static bool LoadConfig(
@@ -407,50 +400,21 @@ namespace FEXNA
             Global.LOADED_VERSION = v;
 
             // Read config
-            ReadConfig(reader);
+            if (IsEncryptedConfigVersion(Global.LOADED_VERSION))
+            {
+                DecryptStream(reader, ReadConfig);
+            }
+            else
+            {
+                ReadConfig(reader);
+            }
 
             return true;
         }
 
         private static void ReadConfig(BinaryReader reader)
         {
-            if (Global.LOADED_VERSION.older_than(0, 4, 2, 0))
-            {
-                Global.zoom = reader.ReadInt32();
-                Global.fullscreen = false;
-                Global.stereoscopic_level = 0;
-                Global.anaglyph = true;
-                bool unused = reader.ReadBoolean();
-                FEXNA.Input.read(reader);
-            }
-            else if (Global.LOADED_VERSION.older_than(0, 4, 6, 3))
-            {
-                Global.zoom = reader.ReadInt32();
-                Global.fullscreen = reader.ReadBoolean();
-                Global.stereoscopic_level = reader.ReadInt32();
-                Global.anaglyph = reader.ReadBoolean();
-                FEXNA.Input.read(reader);
-            }
-            else if (Global.LOADED_VERSION.older_than(0, 5, 0, 6))
-            {
-                Global.zoom = reader.ReadInt32();
-                Global.fullscreen = reader.ReadBoolean();
-                Global.stereoscopic_level = reader.ReadInt32();
-                Global.anaglyph = reader.ReadBoolean();
-                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                FEXNA.Input.read(reader);
-            }
-            else
-            {
-                Global.zoom = reader.ReadInt32();
-                Global.fullscreen = reader.ReadBoolean();
-                Global.stereoscopic_level = reader.ReadInt32();
-                Global.anaglyph = reader.ReadBoolean();
-                Global.metrics = (Metrics_Settings)reader.ReadInt32();
-                Global.updates_active = reader.ReadBoolean();
-                Global.rumble = reader.ReadBoolean();
-                FEXNA.Input.read(reader);
-            }
+            Global.gameSettings.ReadSettings(reader);
         }
         #endregion
 
@@ -539,6 +503,10 @@ namespace FEXNA
         internal static bool IsEncryptedVersion(Version version)
         {
             return !version.older_than(0, 6, 9, 0);
+        }
+        internal static bool IsEncryptedConfigVersion(Version version)
+        {
+            return !version.older_than(0, 6, 10, 0);
         }
 
         private static void EncryptStream(BinaryWriter writer, Action<BinaryWriter> save)

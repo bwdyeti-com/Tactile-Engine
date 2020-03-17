@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -7,7 +8,7 @@ namespace FEXNA
     class Stat_Bar : Sprite
     {
         public int bar_width { get; set; }
-        public int fill_width { protected get; set; }
+        public int fill_width { get; protected set; }
         public int bonus_width { protected get; set; }
         protected int Color_Override = -1;
 
@@ -30,6 +31,19 @@ namespace FEXNA
 
         private int color { get { return Color_Override != -1 ? Color_Override : Global.game_options.window_color; } }
         #endregion
+
+        public void SetFillWidth(int value)
+        {
+            this.fill_width = value;
+        }
+        public void SetFillWidth(int totalWidth, int value, int min, int max)
+        {
+            this.fill_width = (int)Math.Round(totalWidth * (value - min) / ((float)max - min));
+            if (totalWidth > 1 && value < max)
+                this.fill_width = Math.Min(this.fill_width, totalWidth - 1);
+            if (value - min > 0 && totalWidth > 0)
+                this.fill_width = Math.Max(this.fill_width, 1);
+        }
 
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {

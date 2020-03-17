@@ -80,6 +80,7 @@ namespace FEXNA
         {
             FEXNA.Input.update(gameActive, gameTime, key_state, controller_state);
             Input.UpdateKeyboardStart(key_state);
+            Input.UpdateGamepadState(controller_state);
             FEXNA.Input.update_input_state(Input);
         }
 
@@ -321,7 +322,7 @@ namespace FEXNA
                 return ((IAudioService)Global.services.GetService(typeof(IAudioService)));
             }
         }
-        internal static FEXNA.Services.Rumble.BaseRumbleService Rumble
+        public static FEXNA.Services.Rumble.BaseRumbleService Rumble
         {
             get
             {
@@ -517,26 +518,6 @@ namespace FEXNA
             set { Load_Config = value; }
         }
 
-        // Zoom
-        static int Zoom = 0;
-        static int? Zoom_Max = null, Zoom_Min = null;
-        public static void set_zoom_limits(int min, int max)
-        {
-            if (Zoom_Min == null && Zoom_Max == null)
-            {
-                Zoom_Min = min;
-                Zoom_Max = max;
-            }
-        }
-
-        public static int zoom_min { get { return (int)Zoom_Min; } }
-        public static int zoom_max { get { return (int)Zoom_Max; } }
-        public static int zoom
-        {
-            get { return Zoom; }
-            set { Zoom = (int)MathHelper.Clamp(value, (int)Zoom_Min, (int)Zoom_Max); }
-        }
-
         // Shader
         public static bool shader_exists { get { return Content.Load<Effect>(@"Effect") != null; } } //Debug
         public static Effect effect_shader(int width = Config.WINDOW_WIDTH, int height = Config.WINDOW_HEIGHT)
@@ -555,44 +536,7 @@ namespace FEXNA
             return shader;
         }
 
-        // Fullscreen
-        static bool Fullscreen = false;
-        public static bool fullscreen
-        {
-            get { return Fullscreen; }
-            set { Fullscreen = value; }
-        }
-
-        // 3D Mode
-        public const int MAX_STEREOSCOPIC_LEVEL = 10;
-        static int Stereoscopic_Level = 0;
-        public static int stereoscopic_level
-        {
-            get { return Stereoscopic_Level; }
-            set { Stereoscopic_Level = value; }
-        }
-        public static bool stereoscopic
-        {
-            get { return Stereoscopic_Level > 0; }
-        }
-
-        // Anaglyph
-        static bool Anaglyph = false;
-        public static bool anaglyph
-        {
-            get { return Anaglyph; }
-            set { Anaglyph = value; }
-        }
-        public static bool anaglyph_mode { get { return stereoscopic && (!Fullscreen || Anaglyph); } }
-
         // Metrics
-        static Metrics_Settings Metrics = Metrics_Settings.Not_Set;
-        internal static Metrics_Settings metrics
-        {
-            get { return Metrics; }
-            set { Metrics = value; }
-        }
-
         public static bool metrics_allowed = false;
 
         private static Metrics_Data Metrics_Data;
@@ -603,7 +547,7 @@ namespace FEXNA
         public static bool sending_metrics { get { return Sending_Metrics; } }
         public static void send_metrics()
         {
-            if (Metrics == Metrics_Settings.On)
+            if (Global.gameSettings.General.Metrics == Metrics_Settings.On)
             {
                 Gameplay_Metrics metrics = new Gameplay_Metrics(Global.game_state.metrics);
                 metrics.set_pc_ending_stats();
@@ -620,12 +564,7 @@ namespace FEXNA
         public static event EventHandler send_metrics_to_server;
 
         // Check for update
-        static bool UpdatesActive = true; // false; //FEGame
-        public static bool updates_active
-        {
-            get { return UpdatesActive; }
-            set { UpdatesActive = value; }
-        }
+        public static bool update_check_allowed = false;
 
         internal static string UpdateUri { get; private set; }
         public static void set_update_uri(string uri)
@@ -685,14 +624,6 @@ namespace FEXNA
             }
         }
 #endif
-
-        // Rumble
-        static bool RumbleActive = true;
-        public static bool rumble
-        {
-            get { return RumbleActive; }
-            set { RumbleActive = value; }
-        }
         #endregion
 
         // Exiting
@@ -1130,6 +1061,15 @@ namespace FEXNA
                     return null;
                 return @Game_Battalions.battalion;
             }
+        }
+
+        // Game Config
+        static Options.Settings GameSettings;
+
+        internal static Options.Settings gameSettings
+        {
+            get { return GameSettings; }
+            set { GameSettings = value; }
         }
 
         // Game Map

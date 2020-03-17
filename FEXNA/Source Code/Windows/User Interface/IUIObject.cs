@@ -14,6 +14,7 @@ namespace FEXNA.Windows.UserInterface
         Mouse = MouseMove | MouseButtons,
         Movement = Buttons | MouseMove | Touch,
         All = Buttons | Mouse | Touch,
+        Disabled = 1 << 4
     }
 
     interface IUIObject

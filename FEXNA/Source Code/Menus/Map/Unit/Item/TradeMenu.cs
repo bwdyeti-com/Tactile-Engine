@@ -73,11 +73,7 @@ namespace FEXNA.Menus.Map.Unit.Item
             TradeWindow.update(active);
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    CreateCancelButton(this);
                 CancelButton.Update(active);
-            }
             bool cancel = CanceledTriggered(active);
             
             if (TradeWindow.is_help_active)
@@ -117,6 +113,16 @@ namespace FEXNA.Menus.Map.Unit.Item
                 }
             }
         }
+
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton(this);
+            }
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             TradeWindow.draw(spriteBatch);

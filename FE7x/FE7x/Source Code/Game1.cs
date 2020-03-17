@@ -23,8 +23,14 @@ namespace FE7x
 
         public Game1(string[] args)
         {
-            Global.GAME_ASSEMBLY = Assembly.GetExecutingAssembly();
-            
+            var gameAsm = Assembly.GetExecutingAssembly();
+            Global.GAME_ASSEMBLY = gameAsm;
+
+#if DEBUG //FEGame
+            // Just some code to ensure I don't accidently distribute FE7x credentials, remove after scrubbing
+            System.Diagnostics.Debug.Assert(gameAsm.ManifestModule.Name == "FE7x.exe", "whoops mistakes");
+#endif
+
             Global.RUNNING_VERSION = Assembly.GetAssembly(typeof(Global)).GetName().Version;
             SetInitialFramerateValues();
 
@@ -141,20 +147,28 @@ namespace FE7x
             Loop.UnloadContent();
 
             // Cancel controller rumble
-            GamePad.SetVibration(PlayerIndex.One, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Two, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Three, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Four, 0, 0);
+            Global.Rumble.StopRumble();
+        }
+
+        protected override void OnActivated(object sender, EventArgs args)
+        {
+            Loop.GameGainedFocus();
+
+            base.OnActivated(sender, args);
+        }
+
+        protected override void OnDeactivated(object sender, EventArgs args)
+        {
+            Loop.GameLostFocus();
+
+            base.OnDeactivated(sender, args);
         }
 
         protected override void OnExiting(object sender, EventArgs args)
         {
             Loop.CancelGraphicsLoadingThread();
 
-            GamePad.SetVibration(PlayerIndex.One, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Two, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Three, 0, 0);
-            GamePad.SetVibration(PlayerIndex.Four, 0, 0);
+            Global.Rumble.StopRumble();
 
             base.OnExiting(sender, args);
         }

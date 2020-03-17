@@ -13,6 +13,7 @@ using MonoGame.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using FEXNA.IO;
+using FEXNA.Options;
 using FEXNA.Rendering;
 
 namespace FEXNA
@@ -42,6 +43,7 @@ namespace FEXNA
         private Game Game;
         private GameRenderer Renderer;
         private GameIOHandler IOHandler;
+        private Settings GameSettings;
 
         private IMetricsService MetricsHandler;
         private IUpdateService UpdateChecker;
@@ -64,6 +66,7 @@ namespace FEXNA
         private double CurrentFrameRate = FRAME_RATE;
 #endif
 
+        public bool GameInactive { get; private set; }
         private float ProcessTime = 0;
 
         private Stopwatch HyperspeedStopWatch = new Stopwatch();
@@ -82,8 +85,14 @@ namespace FEXNA
 
 #if WINDOWS || MONOMAC
             if (METRICS_ENABLED)
-                MetricsHandler.enable(Global.GAME_ASSEMBLY);
+                Global.metrics_allowed = true;
 #endif
+            if (Config.UPDATE_CHECK_ENABLED)
+                Global.update_check_allowed = true;
+
+            //@Yeti: make this work without Global later?
+            GameSettings = new Settings();
+            Global.gameSettings = GameSettings;
 
             Game = game;
             Renderer = new GameRenderer(game, fullscreenService);
@@ -110,8 +119,6 @@ namespace FEXNA
             Global.send_metrics_to_server += Global_SendMetricsToServer;
             Global.check_for_updates_from_server += Global_CheckForUpdatesFromServer;
             Global.set_update_uri(UpdateChecker.GameDownloadUrl);
-
-            Input.default_controls();
 
 #if WINDOWS || MONOMAC
             Global.load_config = true;
@@ -161,6 +168,23 @@ namespace FEXNA
             EndThreads();
         }
 
+        public void GameGainedFocus()
+        {
+            GameInactive = false;
+        }
+
+        public void GameLostFocus()
+        {
+            GameInactive = true;
+
+#if !__MOBILE__
+            if (Global.gameSettings.Graphics.MinimizeWhenInactive)
+            {
+                Renderer.MinimizeFullscreen(Game);
+            }
+#endif
+        }
+
         public void CancelGraphicsLoadingThread()
         {
             if (GraphicsLoadingThread != null)
@@ -190,10 +214,18 @@ namespace FEXNA
             // Stereoscopy debugging
             if (FEXNA.Global.Input.pressed(Inputs.Select))
             {
-                if (Global.stereoscopic_level < Global.MAX_STEREOSCOPIC_LEVEL && Global.Input.triggered(Inputs.Right))
-                    Global.stereoscopic_level = Math.Min(Global.stereoscopic_level + 5, Global.MAX_STEREOSCOPIC_LEVEL);
-                if (Global.stereoscopic_level > 0 && Global.Input.triggered(Inputs.Left))
-                    Global.stereoscopic_level = Math.Max(Global.stereoscopic_level - 5, 0);
+                if (Global.Input.triggered(Inputs.Right))
+                {
+                    Global.gameSettings.Graphics.ConfirmSetting(
+                        FEXNA.Options.GraphicsSetting.Stereoscopic, 0,
+                        Global.gameSettings.Graphics.StereoscopicLevel + 5);
+                }
+                if (Global.Input.triggered(Inputs.Left))
+                {
+                    Global.gameSettings.Graphics.ConfirmSetting(
+                        FEXNA.Options.GraphicsSetting.Stereoscopic, 0,
+                        Global.gameSettings.Graphics.StereoscopicLevel - 5);
+                }
             }
 #endif
             // If changing zoom or fullscreen, return
@@ -227,7 +259,7 @@ namespace FEXNA
                 // Don't update audio handling when the game is paused,
                 // to better debug fades etc
                 if (processNextFrame)
-                    Global.Audio.update();
+                    Global.Audio.update(GameInactive);
                 Stereoscopic_Graphic_Object.update_stereoscopy();
 
                 UpdateIO();
@@ -278,7 +310,7 @@ namespace FEXNA
                     string.Format("http://{0}", UpdateChecker.GameDownloadUrl));
 
 #if !__MOBILE__
-                if (Global.fullscreen)
+                if (Global.gameSettings.Graphics.Fullscreen)
                 {
                     Renderer.MinimizeFullscreen(Game);
                 }
@@ -296,8 +328,11 @@ namespace FEXNA
             if ((keyState.IsKeyDown(Keys.LeftAlt) || keyState.IsKeyDown(Keys.RightAlt)) &&
                 keyState.IsKeyDown(Keys.Enter) && !PreviousKeyState.IsKeyDown(Keys.Enter))
             {
-                Global.fullscreen = !Global.fullscreen;
-                Global.save_config = true;
+                if (!Global.scene.fullscreen_switch_blocked())
+                {
+                    Global.gameSettings.Graphics.SwitchFullscreen();
+                    Global.save_config = true;
+                }
             }
 #endif
 
@@ -495,7 +530,7 @@ namespace FEXNA
 #if !MONOGAME && DEBUG
                 Global.update_text_input();
 #endif
-                Global.update_scene(Keyboard.GetState());
+                Global.update_scene(keyState);
             }
         }
 
@@ -594,7 +629,7 @@ namespace FEXNA
         #region Check for Updates
         void Global_CheckForUpdatesFromServer(object sender, EventArgs e)
         {
-            if (!Global.updates_active)
+            if (!Global.gameSettings.General.CheckForUpdates)
                 return;
 
             // Check update from Server
@@ -1005,7 +1040,6 @@ namespace FEXNA
 
     public interface IMetricsService
     {
-        void enable(System.Reflection.Assembly assembly);
         FEXNA_Library.Maybe<bool> send_data(string query, string post);
         bool test_connection();
     }

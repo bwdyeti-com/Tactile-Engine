@@ -12,8 +12,6 @@ namespace FEXNA.Services.Input
         const int INITIAL_WAIT = 12;
         const int REPEAT_WAIT = 4;
 
-        private float StickDeadZone;
-
         private GamePadState GamePad;
         private KeyboardState KeyState;
 
@@ -33,7 +31,7 @@ namespace FEXNA.Services.Input
 
         internal InputState(InputConfig config,
             GamePadState padState, Maybe<KeyboardState> keyState,
-            InputState previousState, float stickDeadZone)
+            InputState previousState)
         {
             int inputCount = Enum_Values.GetEnumValues(typeof(Inputs)).Length;
             InputsHeldTime = new int[inputCount];
@@ -43,9 +41,21 @@ namespace FEXNA.Services.Input
             GamePad = padState;
             if (keyState.IsSomething)
                 KeyState = keyState;
-            StickDeadZone = stickDeadZone;
 
             UpdateState(config, previousState);
+        }
+
+        public static bool LeftStickActive(GamePadState gamePadState)
+        {
+            float deadZone = Global.gameSettings.Controls.AnalogDeadZone;
+            return gamePadState.ThumbSticks.Left.LengthSquared() >
+                deadZone * deadZone;
+        }
+        public static bool RightStickActive(GamePadState gamePadState)
+        {
+            float deadZone = Global.gameSettings.Controls.AnalogDeadZone;
+            return gamePadState.ThumbSticks.Right.LengthSquared() >
+                deadZone * deadZone;
         }
 
         private void UpdateState(InputConfig config, InputState previousState)
@@ -66,7 +76,7 @@ namespace FEXNA.Services.Input
                     keyPressed |= KeyState.IsKeyDown(FEXNA.Input.INPUT_OVERRIDES[input]);
 
                 // Left stick
-                if (GamePad.ThumbSticks.Left.LengthSquared() > StickDeadZone * StickDeadZone)
+                if (LeftStickActive(GamePad))
                 {
                     switch (key)
                     {

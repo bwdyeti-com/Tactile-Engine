@@ -90,11 +90,7 @@ namespace FEXNA.Menus.Map.Unit.Item
                 OnIndexChanged(new EventArgs());
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    CreateCancelButton(this);
                 CancelButton.Update(active);
-            }
             bool cancel = CanceledTriggered(active);
 
             var itemWindow = Window as Window_Command_Item;
