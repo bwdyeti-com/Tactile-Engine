@@ -362,6 +362,8 @@ namespace FEXNA.Options
             throw new ArgumentException(
                 "Tried to get the range of a\nsetting that isn't a number value.");
 #endif
+
+            return new Range<int>(0, 0);
         }
         
         public virtual int ValueInterval(int index)
@@ -377,6 +379,8 @@ namespace FEXNA.Options
             throw new ArgumentException(
                 "Tried to get the interval of a\nsetting that isn't a number value.");
 #endif
+
+            return 1;
         }
 
         public ISettings GetSubSettings(int index)
