@@ -29,7 +29,7 @@ namespace FEXNA
         public const int SAVES_PER_PAGE = 5;
         public const int SAVE_PAGES = 20;
         public const bool METRICS_ENABLED = true; // false; //FEGame
-        public const bool UPDATE_CHECK_ENABLED = false;
+        public const bool UPDATE_CHECK_ENABLED = true; // false; //FEGame
 
         public const bool PREP_MAP_BACKGROUND = true; // Does the preparations screen use the map as a background
         public readonly static Color MOUSE_PRESSED_ELEMENT_COLOR = new Color(176, 176, 176, 255); // Tint to use for UI elements when the mouse is pressed on them
