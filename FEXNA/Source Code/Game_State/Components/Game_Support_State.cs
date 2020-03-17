@@ -194,6 +194,10 @@ namespace FEXNA.State
                             Support_Id2 = Global.game_system.Rescuee_Id;
                             Global.game_system.Rescuer_Id = -1;
                             Global.game_system.Rescuee_Id = -1;
+                            // Add the new support level to the game progression
+                            Global.progress.AddSupport(
+                                supporter_actor.GetSupportKey(support_target_actor.id),
+                                supporter_actor.get_support_level(support_target_actor.id) + 1);
                             if (!Global.game_system.preparations)
                                 Global.scene.suspend();
                             Support_Timer++;

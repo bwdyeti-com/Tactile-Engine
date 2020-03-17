@@ -10,7 +10,7 @@ using System.Diagnostics;
 [assembly: AssemblyProduct("FEXNA")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
-[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2017")]
+[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,4 +32,4 @@ using System.Diagnostics;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.6.4.0")]
+[assembly: AssemblyVersion("0.6.7.3")]

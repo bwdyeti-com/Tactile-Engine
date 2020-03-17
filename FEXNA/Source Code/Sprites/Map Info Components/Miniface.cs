@@ -10,6 +10,7 @@ namespace FEXNA
 
         protected Color[] Palette;
         private bool Has_Palette;
+        private string Filename;
         protected Texture2D Bg_Texture, Flag_Texture;
         protected Rectangle Bg_Rect, Flag_Rect;
 
@@ -17,6 +18,16 @@ namespace FEXNA
         {
             initialize_palette();
             offset.X = Face_Sprite_Data.MINI_FACE_SIZE.X / 2;
+        }
+
+        public override bool mirrored
+        {
+            get { return Mirrored; }
+            set
+            {
+                Mirrored = value;
+                RefreshSrcRect();
+            }
         }
 
         protected void initialize_palette()
@@ -46,11 +57,9 @@ namespace FEXNA
                     return;
             }
 
-            texture = Global.Content.Load<Texture2D>(@"Graphics/Faces/" + actor_name);
-            Src_Rect = new Rectangle(0, texture.Height - (int)Face_Sprite_Data.MINI_FACE_SIZE.Y,
-                (int)Face_Sprite_Data.MINI_FACE_SIZE.X, (int)Face_Sprite_Data.MINI_FACE_SIZE.Y);
-            refresh_palette(actor_name);
+            SetFilename(actor_name);
         }
+
         public void set_actor(Game_Actor actor)
         {
             reset();
@@ -63,10 +72,7 @@ namespace FEXNA
 
                 if (Global.content_exists(@"Graphics/Faces/" + actor_name))
                 {
-                    texture = Global.Content.Load<Texture2D>(@"Graphics/Faces/" + actor_name);
-                    Src_Rect = new Rectangle(0, texture.Height - (int)Face_Sprite_Data.MINI_FACE_SIZE.Y,
-                        (int)Face_Sprite_Data.MINI_FACE_SIZE.X, (int)Face_Sprite_Data.MINI_FACE_SIZE.Y);
-                    refresh_palette(actor_name);
+                    SetFilename(actor_name);
                 }
 
                 // Generic background/flags
@@ -81,12 +87,50 @@ namespace FEXNA
             }
         }
 
+        private void SetFilename(string filename)
+        {
+            Filename = filename;
+            texture = Global.Content.Load<Texture2D>(@"Graphics/Faces/" + Filename);
+            RefreshSrcRect();
+            refresh_palette(Filename);
+        }
+
         protected void reset()
         {
+            Filename = "";
             texture = null;
             Bg_Texture = null;
             Flag_Texture = null;
             Mirrored = true;
+        }
+        
+        private void RefreshSrcRect()
+        {
+            Src_Rect = new Rectangle(this.SrcX, this.SrcY,
+                (int)Face_Sprite_Data.MINI_FACE_SIZE.X, (int)Face_Sprite_Data.MINI_FACE_SIZE.Y);
+        }
+
+        private int SrcX
+        {
+            get
+            {
+                var faceData = Face_Sprite.get_face_data(Filename);
+                int width = Face_Sprite_Data.FaceWidth(faceData, this.texture.Width);
+
+                int x = 0;
+                if (faceData.Asymmetrical)
+                {
+                    x = Mirrored ? width : 0;
+                }
+                return x;
+            }
+        }
+        private int SrcY
+        {
+            get
+            {
+                return this.texture.Height - (int)Face_Sprite_Data.MINI_FACE_SIZE.Y;
+            }
         }
 
         protected Texture2D flag_texture(Game_Actor actor)

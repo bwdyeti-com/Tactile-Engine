@@ -9,7 +9,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Menus.Worldmap
 {
-    class WorldmapMenu : BaseMenu
+    class WorldmapMenu : BaseMenu, IHasCancelButton
     {
         protected const int WIDTH = 120;
 
@@ -73,21 +73,25 @@ namespace FEXNA.Menus.Worldmap
 
         protected virtual void RefreshRankImages()
         {
-            var ranks = new List<Tuple<string, Difficulty_Modes>>();
+            var ranks = new List<Tuple<string, Maybe<Difficulty_Modes>>>();
             foreach (int i in MenuData.IndexRedirect)
             {
                 if (Global.save_file != null)
                 {
                     string chapter = Global.Chapter_List[i];
                     if (Global.save_file.ContainsKey(chapter))
-                        ranks.Add(Tuple.Create(
+                    {
+                        ranks.Add(Tuple.Create<string, Maybe<Difficulty_Modes>>(
                             Global.save_file.displayed_rank(chapter),
                             Global.save_file.displayed_difficulty(chapter)));
+                    }
                     else
-                        ranks.Add(Tuple.Create("", Difficulty_Modes.Normal));
+                        ranks.Add(Tuple.Create<string, Maybe<Difficulty_Modes>>(
+                            "", Difficulty_Modes.Normal));
                 }
                 else
-                    ranks.Add(Tuple.Create("", Difficulty_Modes.Normal));
+                    ranks.Add(Tuple.Create<string, Maybe<Difficulty_Modes>>(
+                        "", Difficulty_Modes.Normal));
             }
             CommandWindow.refresh_ranks(ranks);
         }
@@ -118,7 +122,7 @@ namespace FEXNA.Menus.Worldmap
         internal void RefreshPreviousChapters(Dictionary<string, int> previousChapterIndices)
         {
             MenuData.SetPreviousChapterIndices(previousChapterIndices);
-            MenuData.PickDefaultUnselectedPreviouschapters();
+            MenuData.PickDefaultUnselectedPreviousChapters();
             DataWindow.set_mode(Global.game_system.Difficulty_Mode, MenuData.MultipleArcs);
             RefreshData(false);
         }
@@ -146,6 +150,9 @@ namespace FEXNA.Menus.Worldmap
 
             Difficulty_Modes difficulty = Global.game_system != null ?
                 Global.game_system.Difficulty_Mode : Difficulty_Modes.Normal;
+            
+            FEXNA_Library.Preset_Chapter_Data chapterData;
+
             if (Global.chapter_by_index(this.Redirect).Standalone ||
                 MenuData.ValidPreviousChapters.Count == 0)
             {
@@ -153,10 +160,7 @@ namespace FEXNA.Menus.Worldmap
                 Global.game_battalions = new Game_Battalions();
                 Global.game_actors = new Game_Actors();
 
-                DataWindow.set(
-                    Global.chapter_by_index(this.Redirect).World_Map_Name,
-                    Global.chapter_by_index(this.Redirect).World_Map_Lord_Id,
-                    Global.chapter_by_index(this.Redirect).Preset_Data);
+                chapterData = Global.chapter_by_index(this.Redirect).Preset_Data;
             }
             else
             {
@@ -171,17 +175,20 @@ namespace FEXNA.Menus.Worldmap
                 // For now, setting the event data so it shows up in the monitor //Yeti
                 Global.game_system.set_event_data(system.SWITCHES, system.VARIABLES);
 
-                DataWindow.set(
-                    Global.chapter_by_index(this.Redirect).World_Map_Name,
-                    Global.chapter_by_index(this.Redirect).World_Map_Lord_Id,
-                    new FEXNA_Library.Preset_Chapter_Data
+                chapterData = new FEXNA_Library.Preset_Chapter_Data
                     {
                         Lord_Lvl = Global.game_actors[Global.chapter_by_index(this.Redirect).World_Map_Lord_Id].level,
                         Units = Global.chapter_by_index(this.Redirect).Preset_Data.Units + Global.battalion.actors.Count,
                         Gold = Global.chapter_by_index(this.Redirect).Preset_Data.Gold + Global.battalion.gold,
                         Playtime = system.total_play_time
-                    });
+                    };
             }
+            
+            DataWindow.set(
+                Global.chapter_by_index(this.Redirect).ShortName,
+                Global.chapter_by_index(this.Redirect).World_Map_Lord_Id,
+                chapterData);
+
             Global.game_system.Difficulty_Mode = difficulty;
 
             UnitWindowAvailable = Global.game_system.Style != Mode_Styles.Classic &&
@@ -231,7 +238,7 @@ namespace FEXNA.Menus.Worldmap
                 commands.Add("Unit");
                 ActiveChapterCommands.Add(ChapterCommands.Unit);
                 // Manage screen blocked in Classic
-                if (!MenuData.Classic)
+                if (!MenuData.AutoSelectChapter)
                 {
                     commands.Add("Manage");
                     ActiveChapterCommands.Add(ChapterCommands.Manage);
@@ -342,6 +349,11 @@ namespace FEXNA.Menus.Worldmap
                 ChapterCommandWindow.greyed_cursor = true;
             }
         }
+
+        #region IHasCancelButton
+        public bool HasCancelButton { get { return CancelButton != null; } }
+        public Vector2 CancelButtonLoc { get { return CancelButton.loc; } }
+        #endregion
 
         #region Events
         public event EventHandler<EventArgs> ChapterSelected;
@@ -478,9 +490,12 @@ namespace FEXNA.Menus.Worldmap
                 SamplerState.PointClamp, null, null);
             DataWindow.draw(spriteBatch);
 
-            CancelButton.Draw(spriteBatch);
-            if (DifficultyChangeButtonVisible())
-                DifficultyButton.Draw(spriteBatch);
+            if (Active)
+            {
+                CancelButton.Draw(spriteBatch);
+                if (DifficultyChangeButtonVisible())
+                    DifficultyButton.Draw(spriteBatch);
+            }
 
             spriteBatch.End();
 

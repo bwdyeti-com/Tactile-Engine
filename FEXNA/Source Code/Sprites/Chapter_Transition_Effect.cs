@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Text;
 
-namespace FEXNA
+namespace FEXNA.Graphics
 {
     enum Chapter_Transition_Actions { Bg_In, Sigil_In, Pause1, Banner_Shape, Banner_In, Pause2, Bg_Out, Banner_Out, Finalize, Done}
     class Chapter_Transition_Effect : Sprite
@@ -19,10 +19,11 @@ namespace FEXNA
         Color Banner_Color = Color.Transparent;
         Color Text_Color = Color.White;
         FE_Text Text;
+        private ChapterTransitionAlternateTitle AlternateTitle;
         Rectangle Text_Scissor_Rect;
         RasterizerState Text_State = new RasterizerState { ScissorTestEnable = true };
 
-        public Chapter_Transition_Effect()
+        public Chapter_Transition_Effect(FEXNA_Library.Data_Chapter chapter)
         {
             // Background
             texture = Global.Content.Load<Texture2D>(@"Graphics/Pictures/Chapter Transition Background");
@@ -55,7 +56,7 @@ namespace FEXNA
             Banner_Bg.stereoscopic = Config.CH_TRANS_SIGIL_DEPTH;
             // Text
             Text = new FE_Text();
-            string str = Global.data_chapters[Global.game_state.chapter_id].ChapterTransitionName;
+            string str = chapter.FullName;
             Text.loc = new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2 - new Vector2(Font_Data.text_width(str, "FE7_Chapter") / 2, 8);
             Text_Scissor_Rect = new Rectangle(0, (int)Banner.loc.Y - Banner.texture.Height / 2, Config.WINDOW_WIDTH, Banner.texture.Height);
             Text.Font = "FE7_Chapter";
@@ -63,6 +64,12 @@ namespace FEXNA
             Text.text = str;
             Text.opacity = 0;
             Text.stereoscopic = Config.CH_TRANS_BANNER_DEPTH;
+            // Text
+            if (!string.IsNullOrEmpty(chapter.AlternateTitle))
+            {
+                AlternateTitle = new ChapterTransitionAlternateTitle(chapter.AlternateTitle);
+                AlternateTitle.loc = Text.loc + new Vector2(-24, -24);
+            }
             // Black Screen
             Black_Fill = new Sprite(Global.Content.Load<Texture2D>(@"Graphics/White_Square"));
             Black_Fill.dest_rect = new Rectangle(0, 0, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
@@ -247,16 +254,24 @@ namespace FEXNA
                         break;
                     // Pause
                     case Chapter_Transition_Actions.Pause2:
-                        switch (Timer)
+                        int pauseTime = AlternateTitle != null ? 180 : 120;
+                        if (Timer == pauseTime)
                         {
-                            case 120:
-                                Global.Audio.BgmFadeOut(60);
-                                Timer = 0;
-                                Action = Chapter_Transition_Actions.Bg_Out;
-                                break;
-                            default:
-                                Timer++;
-                                break;
+                            Global.Audio.BgmFadeOut(60);
+                            Timer = 0;
+                            if (AlternateTitle != null)
+                                AlternateTitle.FadeOut();
+                            Action = Chapter_Transition_Actions.Bg_Out;
+                        }
+                        else if (Timer == 30)
+                        {
+                            if (AlternateTitle != null)
+                                AlternateTitle.FadeIn();
+                            Timer++;
+                        }
+                        else
+                        {
+                            Timer++;
                         }
                         break;
                     // Background/Sigil fade out
@@ -319,6 +334,20 @@ namespace FEXNA
                 }
                 Bg_Move = !Bg_Move;
             }
+
+            UpdateGraphics();
+        }
+
+        private void UpdateGraphics()
+        {
+            Sigil.update();
+            Banner.update();
+            Banner_Bg.update();
+            Black_Fill.update();
+            Text.update();
+            
+            if (AlternateTitle != null)
+                AlternateTitle.Update();
         }
 
         public void clear()
@@ -372,6 +401,7 @@ namespace FEXNA
                     Sigil.draw(sprite_batch);
                     Banner_Bg.draw(sprite_batch);
                     sprite_batch.End();
+
                     // Banner
                     Effect text_shader = Global.effect_shader();
                     if (text_shader != null)
@@ -399,8 +429,13 @@ namespace FEXNA
                         Text.draw(sprite_batch);
                         sprite_batch.End();
                     }
-                    // Black screen
+
+                    // Alternate Title
+                    if (AlternateTitle != null)
+                        AlternateTitle.Draw(sprite_batch);
+
                     sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
+                    // Black screen
                     Black_Fill.draw(sprite_batch);
                     sprite_batch.End();
                 }

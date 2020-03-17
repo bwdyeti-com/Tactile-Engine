@@ -202,15 +202,18 @@ namespace FEXNA
 
         protected virtual void refresh_stat_label_color(int i)
         {
-            if (Constants.Actor.DISPLAY_STAT_AVERAGES &&
-                (unit.average_stat_hue_shown))
+            if (unit.average_stat_hue_shown)
             {
-                float stat_quality = actor.stat_quality(i, actor.needed_levels);
-                if (actor.get_capped(i))
-                    stat_quality = Math.Max(0, stat_quality);
-                Stat_Labels[i].tint = new Color(
-                    255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255),
-                    (int)MathHelper.Clamp(255 + (stat_quality * 255), 0, 255), 255);
+                if (Constants.Actor.STAT_LABEL_COLORING == Constants.StatLabelColoring.Averages)
+                {
+                    Stat_Labels[i].tint = actor.stat_color(
+                        (Stat_Labels)i,
+                        Constants.StatLabelColoring.Averages,
+                        actor.needed_levels,
+                        2f);
+                }
+                else
+                    Stat_Labels[i].tint = actor.stat_color((Stat_Labels)i);
             }
         }
 

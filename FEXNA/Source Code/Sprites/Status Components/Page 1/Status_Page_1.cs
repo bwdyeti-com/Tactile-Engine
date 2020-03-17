@@ -44,7 +44,7 @@ namespace FEXNA
                 };
 
                 Func<Game_Unit, Color> label_color = null;
-                if (Window_Status.show_stat_averages(stat_label))
+                if (Window_Status.show_stat_colors(stat_label))
                 {
                     label_color = (Game_Unit unit) =>
                     {
@@ -307,14 +307,40 @@ namespace FEXNA
         {
             Func<Game_Unit, DirectionFlags, bool> stat_cheat = (unit, dir) =>
             {
-                int stat_gain = 0;
-                if (dir.HasFlag(DirectionFlags.Right))
-                    stat_gain = 1;
-                else if (dir.HasFlag(DirectionFlags.Left))
-                    stat_gain = -1;
-                unit.actor.gain_stat(stat_label, stat_gain);
+                bool result = false;
+                if (dir.HasFlag(DirectionFlags.Up) || dir.HasFlag(DirectionFlags.Down))
+                {
+                    // Gain or lose hp
+                    if (stat_label == Stat_Labels.Hp)
+                    {
+                        int hpChange = 0;
+                        if (dir.HasFlag(DirectionFlags.Up))
+                            hpChange = 1;
+                        else if (dir.HasFlag(DirectionFlags.Down))
+                            hpChange = -1;
+
+                        if (hpChange != 0)
+                        {
+                            int hp = unit.actor.hp;
+                            unit.actor.hp = Math.Max(1, unit.actor.hp + hpChange);
+                            if (hp != unit.actor.hp)
+                                result = true;
+                        }
+                    }
+                }
+                else
+                {
+                    int stat_gain = 0;
+                    if (dir.HasFlag(DirectionFlags.Right))
+                        stat_gain = 1;
+                    else if (dir.HasFlag(DirectionFlags.Left))
+                        stat_gain = -1;
+                    result = stat_gain != 0;
+                    unit.actor.gain_stat(stat_label, stat_gain);
+                }
+                
                 unit.queue_move_range_update();
-                return stat_gain != 0;
+                return result;
             };
             return stat_cheat;
         }

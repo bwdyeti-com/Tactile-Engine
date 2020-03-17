@@ -187,7 +187,8 @@ namespace FEXNA
             {
                 Data_Chapters["Arena"] = new Data_Chapter
                 {
-                    Id = "Arena", Chapter_Name = "Arena Test Map", World_Map_Name = "Arena Test",
+                    Id = "Arena", Chapter_Name = "Arena Test Map",
+                    WorldMapNameFormatString = "Arena Test",
                     World_Map_Loc = new Vector2(1097, 921), Standalone = true, Battalion = 4, World_Map_Lord_Id = 1,
                     Progression_Ids = new List<string> { "Arena" },
                     Completed_Chapters = new List<string> { "Pre" },
@@ -205,7 +206,11 @@ namespace FEXNA
             {
                 Data_Chapters["Ch23"] = new Data_Chapter
                 {
-                    Id = "Ch23", Chapter_Name = "endgame test", World_Map_Name = "Chapter 23",
+                    Id = "Ch23",
+                    Label = ChapterLabels.Act, LabelString = " 8-3",
+                    Chapter_Name = "endgame test",
+                    WorldMapNameFormatString = "Stage 3",
+                    AlternateTitle = "Chapter 23",
                     World_Map_Loc = new Vector2(1885, 542), Standalone = true, Battalion = 0, World_Map_Lord_Id = 1,
                     Progression_Ids = new List<string> { "Ch23" },
                     Completed_Chapters = new List<string> { "Pre" },
@@ -425,6 +430,8 @@ namespace FEXNA
             set { Return_To_Title = value; }
         }
 
+        // Progress meta data completed on any file, such as what chapters
+        // the player has seen, what supports have been acquired, etc
         static Save_Progress Progress = new Save_Progress();
         public static Save_Progress progress { get { return Progress; } }
 
@@ -483,7 +490,14 @@ namespace FEXNA
         static int Current_Save_Id;
         public static int current_save_id
         {
-            set { Current_Save_Id = value; }
+            set
+            {
+                Current_Save_Id = value;
+                if (Global.current_save_info != null)
+                {
+                    Global.current_save_info.SetStartTime();
+                }
+            }
             get { return Current_Save_Id; }
         }
         #endregion
@@ -789,10 +803,6 @@ namespace FEXNA
         {
             if (Scene.scene_type == "Scene_Title")
                 ((Scene_Title)Scene).update(key_state);
-#if !MONOGAME && DEBUG
-            else if (Scene.scene_type == "Scene_Map_Unit_Editor")
-                ((Scene_Map_Unit_Editor)Scene).update(key_state);
-#endif
             else
                 Scene.update();
         }

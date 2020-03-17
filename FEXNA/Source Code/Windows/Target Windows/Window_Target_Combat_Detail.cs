@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Text;
+using FEXNA_Library;
 
 namespace FEXNA.Windows.Target
 {
@@ -13,8 +14,9 @@ namespace FEXNA.Windows.Target
         Sprite Terrain_Label;
 
         public Window_Target_Combat_Detail(
-            int unit_id, int item_index, Vector2 loc, string skill)
-                : base(unit_id, item_index, loc, skill) { }
+            int unit_id, int item_index, Vector2 loc, string skill,
+            Maybe<Vector2> initialTargetLoc = default(Maybe<Vector2>))
+                : base(unit_id, item_index, loc, skill, initialTargetLoc) { }
 
         protected override int window_rows
         {

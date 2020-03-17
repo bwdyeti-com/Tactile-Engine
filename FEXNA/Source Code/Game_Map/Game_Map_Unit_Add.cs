@@ -292,10 +292,11 @@ namespace FEXNA
             if (is_off_map(loc))
                 return;
             new_unit_id();
-            Objects.add_siege_engine(new Siege_Engine(Last_Added_Unit_Id, loc, item));
+            Siege_Engine siege = new Siege_Engine(Last_Added_Unit_Id, loc, item);
+            Objects.add_siege_engine(siege);
             Siege_Locations[(int)loc.X, (int)loc.Y] = Last_Added_Unit_Id + 1;
-            if (get_unit(loc) != null)
-                get_unit(loc).refresh_sprite();
+            if (siege.Unit != null)
+                siege.Unit.refresh_sprite();
             clear_updated_attack_ranges();
             clear_updated_staff_ranges();
         }
@@ -305,10 +306,13 @@ namespace FEXNA
             if (this.siege_engines.ContainsKey(id))
             {
                 Siege_Engine siege = this.siege_engines[id];
+                Game_Unit unit = siege.Unit;
                 Siege_Locations[(int)siege.loc.X, (int)siege.loc.Y] = 0;
                 Objects.remove_siege_engine(id);
                 if (get_scene_map() != null)
                     get_scene_map().remove_map_sprite(id);
+                if (unit != null)
+                    unit.refresh_sprite();
             }
         }
         #endregion

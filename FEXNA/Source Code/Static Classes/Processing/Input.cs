@@ -6,13 +6,15 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using FEXNA_Library;
 using EnumExtension;
+using InputConfig = FEXNA.Services.Input.InputConfig;
+using InputState = FEXNA.Services.Input.InputState;
 #if __MOBILE__ || TOUCH_EMULATION
 using Microsoft.Xna.Framework.Input.Touch;
 #endif
 
 namespace FEXNA
 {
-    public enum Inputs { Down, Left, Right, Up, A, B, Y, X, L, R, Start, Select }
+    public enum Inputs : byte { Down, Left, Right, Up, A, B, Y, X, L, R, Start, Select }
     public enum MouseButtons
     {
         None = 0,
@@ -69,14 +71,13 @@ namespace FEXNA
 
     public class Input
     {
-        const int INITIAL_WAIT = 16;
-        const int REPEAT_WAIT = 4;
-        const float STICK_DEAD_ZONE = 0.2f;
+        internal const float STICK_DEAD_ZONE = 0.2f;
         const float CLICK_TRAVEL_DIST = 8f;
 
-        const bool INVERSE_DIRECTIONS_CANCEL = true;
+        internal const bool INVERSE_DIRECTIONS_CANCEL = true;
 
-        readonly static Dictionary<Inputs, Keys> INPUT_OVERRIDES = new Dictionary<Inputs, Keys> {
+        internal readonly static HashSet<Inputs> DIRECTIONS = new HashSet<Inputs> { Inputs.Up, Inputs.Down, Inputs.Left, Inputs.Right };
+        internal readonly static Dictionary<Inputs, Keys> INPUT_OVERRIDES = new Dictionary<Inputs, Keys> {
             { Inputs.Down, Keys.Down },
             { Inputs.Left, Keys.Left },
             { Inputs.Right, Keys.Right },
@@ -134,15 +135,11 @@ namespace FEXNA
             { Keys.OemPeriod, "." },
             { Keys.OemQuestion, "/" }
         };
-
-        private static Dictionary<int, bool> inputs = new Dictionary<int, bool>();
-        private static Dictionary<int, bool[]> held_inputs = new Dictionary<int, bool[]>();
-        private static Dictionary<int, int> held_inputs_time = new Dictionary<int, int>();
-        private static Dictionary<int, int> input_repeat_timer = new Dictionary<int, int>();
-        private static List<int> locked_repeats = new List<int>();
-        private static Dictionary<int, Keys> key_redirect = new Dictionary<int, Keys>();
-        private static Dictionary<int, Buttons> pad_redirect = new Dictionary<int, Buttons>();
-
+        
+        private static InputConfig InputConfig;
+        private static InputState[] PlayerInputs;
+        private static InputState PlayerOneInputs { get { return PlayerInputs[0]; } }
+        
         private static MouseState MouseState, LastMouseState;
         private static MouseButtons MouseComboHeld;
         private static Dictionary<MouseButtons, Maybe<Vector2>> MouseClickLocs = new Dictionary<MouseButtons, Maybe<Vector2>>
@@ -209,129 +206,29 @@ namespace FEXNA
         #region Serialization
         public static void write(BinaryWriter writer)
         {
-            for (int i = 0; i < (int)Inputs.Select; i++)
-                writer.Write((int)key_redirect[i]);
+            InputConfig.write(writer);
         }
 
         public static void read(BinaryReader reader)
         {
-            for (int i = 0; i < (int)Inputs.Select; i++)
-                key_redirect[i] = (Keys)reader.ReadInt32();
+            InputConfig.read(reader);
         }
         #endregion
 
         #region Config
-        public static void set_defaults()
+        public static void default_controls()
         {
-            inputs.Clear();
-            held_inputs.Clear();
-            // Down
-            inputs.Add((int)Inputs.Down, false);
-            held_inputs.Add((int)Inputs.Down, input_list());
-            input_repeat_timer.Add((int)Inputs.Down, 0);
-            pad_redirect.Add((int)Inputs.Down, Buttons.DPadDown);
-            // Left
-            inputs.Add((int)Inputs.Left, false);
-            held_inputs.Add((int)Inputs.Left, input_list());
-            input_repeat_timer.Add((int)Inputs.Left, 0);
-            pad_redirect.Add((int)Inputs.Left, Buttons.DPadLeft);
-            // Right
-            inputs.Add((int)Inputs.Right, false);
-            held_inputs.Add((int)Inputs.Right, input_list());
-            input_repeat_timer.Add((int)Inputs.Right, 0);
-            pad_redirect.Add((int)Inputs.Right, Buttons.DPadRight);
-            // Up
-            inputs.Add((int)Inputs.Up, false);
-            held_inputs.Add((int)Inputs.Up, input_list());
-            input_repeat_timer.Add((int)Inputs.Up, 0);
-            pad_redirect.Add((int)Inputs.Up, Buttons.DPadUp);
-            // A
-            inputs.Add((int)Inputs.A, false);
-            held_inputs.Add((int)Inputs.A, input_list());
-            input_repeat_timer.Add((int)Inputs.A, 0);
-            pad_redirect.Add((int)Inputs.A, Buttons.B);
-            // B
-            inputs.Add((int)Inputs.B, false);
-            held_inputs.Add((int)Inputs.B, input_list());
-            input_repeat_timer.Add((int)Inputs.B, 0);
-#if __ANDROID__
-            pad_redirect.Add((int)Inputs.B, Buttons.Back);
-#else
-            pad_redirect.Add((int)Inputs.B, Buttons.A);
-#endif
-            // Y
-            inputs.Add((int)Inputs.Y, false);
-            held_inputs.Add((int)Inputs.Y, input_list());
-            input_repeat_timer.Add((int)Inputs.Y, 0);
-            pad_redirect.Add((int)Inputs.Y, Buttons.X);
-            // X
-            inputs.Add((int)Inputs.X, false);
-            held_inputs.Add((int)Inputs.X, input_list());
-            input_repeat_timer.Add((int)Inputs.X, 0);
-            pad_redirect.Add((int)Inputs.X, Buttons.Y);
-            // L
-            inputs.Add((int)Inputs.L, false);
-            held_inputs.Add((int)Inputs.L, input_list());
-            input_repeat_timer.Add((int)Inputs.L, 0);
-            pad_redirect.Add((int)Inputs.L, Buttons.LeftShoulder);
-            // R
-            inputs.Add((int)Inputs.R, false);
-            held_inputs.Add((int)Inputs.R, input_list());
-            input_repeat_timer.Add((int)Inputs.R, 0);
-            pad_redirect.Add((int)Inputs.R, Buttons.RightShoulder);
-            // Start
-            inputs.Add((int)Inputs.Start, false);
-            held_inputs.Add((int)Inputs.Start, input_list());
-            input_repeat_timer.Add((int)Inputs.Start, 0);
-            pad_redirect.Add((int)Inputs.Start, Buttons.Start);
-            // Select
-            inputs.Add((int)Inputs.Select, false);
-            held_inputs.Add((int)Inputs.Select, input_list());
-            input_repeat_timer.Add((int)Inputs.Select, 0);
-#if __ANDROID__
-            pad_redirect.Add((int)Inputs.Select, Buttons.A);
-#else
-            pad_redirect.Add((int)Inputs.Select, Buttons.Back);
-#endif
-
-            default_keys();
+            InputConfig.SetDefaults();
         }
 
-        public static void default_keys()
+        public static string key_name(Inputs input)
         {
-            key_redirect.Clear();
-            key_redirect.Add((int)Inputs.Down, Keys.NumPad2);
-            key_redirect.Add((int)Inputs.Left, Keys.NumPad4);
-            key_redirect.Add((int)Inputs.Right, Keys.NumPad6);
-            key_redirect.Add((int)Inputs.Up, Keys.NumPad8);
-            key_redirect.Add((int)Inputs.A, Keys.X);
-            key_redirect.Add((int)Inputs.B, Keys.Z);
-            key_redirect.Add((int)Inputs.Y, Keys.D);
-            key_redirect.Add((int)Inputs.X, Keys.C);
-            key_redirect.Add((int)Inputs.L, Keys.A);
-            key_redirect.Add((int)Inputs.R, Keys.S);
-            key_redirect.Add((int)Inputs.Start, Keys.Enter);
-            key_redirect.Add((int)Inputs.Select, Keys.RightShift);
+            return InputConfig.KeyName(input);
         }
 
-        public static string key_name(int i)
+        public static bool remap_key(Inputs input, Keys key)
         {
-            return REMAPPABLE_KEYS[key_redirect[i]];
-        }
-
-        public static bool remap_key(int i, Keys key)
-        {
-            if (!REMAPPABLE_KEYS.ContainsKey(key))
-                return false;
-            if (key_redirect.ContainsValue(key))
-                foreach (KeyValuePair<int, Keys> pair in key_redirect)
-                    if (pair.Value == key)
-                    {
-                        key_redirect[pair.Key] = key_redirect[i];
-                        break;
-                    }
-            key_redirect[i] = key;
-            return true;
+            return InputConfig.RemapKey(input, key);
         }
         #endregion
 
@@ -362,41 +259,22 @@ namespace FEXNA
                 GestureType.Pinch | GestureType.PinchComplete;*/
 #endif
 
+            InputConfig = new InputConfig();
+            //PlayerInputs = Enumerable.Range(0, (int)PlayerIndex.Four + 1) //@Debug
+            PlayerInputs = Enumerable.Range(0, (int)PlayerIndex.One + 1)
+                .Select(x => new InputState())
+                .ToArray();
+
             InputEnums = Enum_Values.GetEnumValues(typeof(Inputs));
             MouseEnums = Enum_Values.GetEnumValues(typeof(MouseButtons));
             GestureEnums = Enum_Values.GetEnumValues(typeof(TouchGestures));
         }
-
-        private static bool[] input_list()
-        {
-            bool[] val = new bool[INITIAL_WAIT];
-            for (int i = 0; i < val.Length; i++)
-                val[i] = false;
-            return val;
-        }
-
+        
         #region Update
         public static void update(bool game_active, GameTime gameTime,
             KeyboardState key_state, GamePadState controller_state)
         {
-            // Update input repeats
-            foreach (KeyValuePair<int, bool[]> input in held_inputs)
-            {
-                // If just pressed or locked, reset repeat timer
-                if (triggered((Inputs)input.Key) || locked_repeats.Contains(input.Key))
-                {
-                    input_repeat_timer[input.Key] = 1;
-                }
-                // Else if being held, increment repeat timer
-                else if (held_inputs[input.Key][0])
-                {
-                    input_repeat_timer[input.Key] = Math.Max(
-                        (input_repeat_timer[input.Key] + 1) % (REPEAT_WAIT + 1), 1);
-                }
-                // Reset input held timer
-                if (!held_inputs[input.Key][0])
-                    held_inputs_time[input.Key] = 0;
-            }
+            PlayerInputs = InputConfig.Update(PlayerInputs);
             
             LastMouseState = MouseState;
             MouseState = Mouse.GetState();
@@ -423,9 +301,7 @@ namespace FEXNA
             if (left_stick_angle < 0)
                 left_stick_angle += MathHelper.TwoPi;
             left_stick_angle *= 360 / MathHelper.TwoPi;
-
-            update_buttons(key_state, controller_state, left_stick_angle);
-
+            
             ControlSchemeSwitched = false;
 
 #if __MOBILE__ || TOUCH_EMULATION
@@ -513,111 +389,7 @@ namespace FEXNA
             }
         }
 #endif
-
-        private static void update_buttons(
-            KeyboardState key_state,
-            GamePadState controller_state,
-            float left_stick_angle)
-        {
-            // Loop through inputs
-            foreach (Inputs input in InputEnums)
-            {
-                int key = (int)input;
-                bool[] value = held_inputs[key];
-                // Shift input history
-                for (int i = value.Length - 1; i > 0; i--)
-                {
-                    value[i] = value[i - 1];
-                }
-                inputs[key] = (key_state.IsKeyDown(key_redirect[key]) ||
-                    controller_state.IsButtonDown(pad_redirect[key]));
-                if (INPUT_OVERRIDES.ContainsKey(input))
-                    inputs[key] |= key_state.IsKeyDown(INPUT_OVERRIDES[input]);
-                value[0] = inputs[key];
-                // Left stick
-                if (controller_state.ThumbSticks.Left.Length() > STICK_DEAD_ZONE)
-                {
-                    switch (key)
-                    {
-                        case ((int)Inputs.Right):
-                            //if (controller_state.ThumbSticks.Left.X < -STICK_DEAD_ZONE)
-                            if (left_stick_angle < 67.5f || left_stick_angle > 292.5f)
-                                inputs[key] = value[0] = true;
-                            break;
-                        case ((int)Inputs.Up):
-                            //if (controller_state.ThumbSticks.Left.Y > STICK_DEAD_ZONE)
-                            if (left_stick_angle > 22.5f && left_stick_angle < 157.5f)
-                                inputs[key] = value[0] = true;
-                            break;
-                        case ((int)Inputs.Left):
-                            //if (controller_state.ThumbSticks.Left.X > STICK_DEAD_ZONE)
-                            if (left_stick_angle > 112.5f && left_stick_angle < 247.5f)
-                                inputs[key] = value[0] = true;
-                            break;
-                        case ((int)Inputs.Down):
-                            //if (controller_state.ThumbSticks.Left.Y < -STICK_DEAD_ZONE)
-                            if (left_stick_angle > 202.5f && left_stick_angle < 337.5f)
-                                inputs[key] = value[0] = true;
-                            break;
-                    }
-                }
-                if (!INVERSE_DIRECTIONS_CANCEL)
-                {
-                    // If pressing up and down
-                    if (key == (int)Inputs.Down && inputs[(int)Inputs.Up])
-                    {
-                        inputs[key] = false;
-                        held_inputs[key][0] = false;
-                    }
-                    // If pressing left and right
-                    if (key == (int)Inputs.Right && inputs[(int)Inputs.Left])
-                    {
-                        inputs[key] = false;
-                        held_inputs[key][0] = false;
-                    }
-                }
-                // If pressed but key is locked
-                if (value[0])
-                {
-                    if (locked_repeats.Contains(key))
-                    {
-                        value[0] = false;
-                        continue;
-                    }
-                }
-                // Else if not pressed, remove lock
-                else if (!value[0])
-                {
-                    locked_repeats.Remove(key);
-                    input_repeat_timer[key] = 0;
-                }
-                // Increment input held timer
-                if (value[0])
-                    held_inputs_time[key]++;
-            }
-            if (INVERSE_DIRECTIONS_CANCEL)
-            {
-                if (inputs[(int)Inputs.Down] && inputs[(int)Inputs.Up])
-                {
-                    inputs[(int)Inputs.Down] = held_inputs[(int)Inputs.Down][0] = false;
-                    inputs[(int)Inputs.Up] = held_inputs[(int)Inputs.Up][0] = false;
-                }
-                if (inputs[(int)Inputs.Left] && inputs[(int)Inputs.Right])
-                {
-                    inputs[(int)Inputs.Left] = held_inputs[(int)Inputs.Left][0] = false;
-                    inputs[(int)Inputs.Right] = held_inputs[(int)Inputs.Right][0] = false;
-                }
-            }
-            foreach (Inputs key in new Inputs[] { Inputs.Up, Inputs.Down, Inputs.Left, Inputs.Right })
-            {
-                // If just triggered a direction and it's not locked, unlock repeats
-                if (inputs[(int)key] && !held_inputs[(int)key][1] && !locked_repeats.Contains((int)key))
-                {
-                    clear_locked_repeats();
-                    break;
-                }
-            }
-        }
+        
         private static void update_control_scheme(
             KeyboardState keyState, GamePadState controllerState)
         {
@@ -769,7 +541,8 @@ namespace FEXNA
             ControlSchemeSwitched |= Controller_Active != active;
         }
 
-        readonly static HashSet<Buttons> ALL_BUTTONS = new HashSet<Buttons>{ Buttons.DPadDown, Buttons.DPadLeft, Buttons.DPadRight, Buttons.DPadUp,
+        readonly static HashSet<Buttons> ALL_BUTTONS = new HashSet<Buttons>{
+            Buttons.DPadDown, Buttons.DPadLeft, Buttons.DPadRight, Buttons.DPadUp,
             Buttons.A, Buttons.B, Buttons.X, Buttons.Y, Buttons.Start, Buttons.Back,
             Buttons.LeftShoulder, Buttons.RightShoulder, Buttons.LeftStick, Buttons.RightStick};
 
@@ -807,7 +580,7 @@ namespace FEXNA
 
         public static void clear_locked_repeats()
         {
-            locked_repeats.Clear();
+            Input.PlayerOneInputs.ClearLockedRepeats();
         }
         #endregion
 
@@ -944,126 +717,42 @@ namespace FEXNA
         #region Controls
         private static bool triggered(Inputs input_name)
         {
-            if (!held_inputs.ContainsKey((int)input_name))
-            {
-#if DEBUG
-                Print.message("Nonexistant triggered input value given: " + input_name);
-#endif
-                return false;
-            }
-            return (held_inputs[(int)input_name][0] && !held_inputs[(int)input_name][1]);
+            return Input.PlayerOneInputs.Triggered(input_name);
         }
 
         private static bool pressed(Inputs input_name)
         {
-            if (!inputs.ContainsKey((int)input_name))
-            {
-#if DEBUG
-                Print.message("Nonexistant pressed input value given: " + input_name);
-#endif
-                return false;
-            }
-            return inputs[(int)input_name];
+            return Input.PlayerOneInputs.Pressed(input_name);
         }
 
         private static bool released(Inputs input_name)
         {
-            if (!held_inputs.ContainsKey((int)input_name))
-            {
-#if DEBUG
-                Print.message("Nonexistant released input value given: " + input_name);
-#endif
-                return false;
-            }
-            return (!held_inputs[(int)input_name][0] && held_inputs[(int)input_name][1]);
+            return Input.PlayerOneInputs.Released(input_name);
         }
 
         private static bool repeated(Inputs input_name)
         {
-            if (!held_inputs.ContainsKey((int)input_name))
-            {
-#if DEBUG
-                Print.message("Nonexistant pressed input value given: " + input_name);
-#endif
-                return false;
-            }
-            if (triggered(input_name)) return true;
-            if (!held_repeat(input_name)) return false;
-            return input_repeat_timer[(int)input_name] == REPEAT_WAIT;
+            return Input.PlayerOneInputs.Repeated(input_name);
         }
 
         private static int held_time(Inputs input_name)
         {
-            if (!held_inputs_time.ContainsKey((int)input_name))
-            {
-#if DEBUG
-                Print.message("Nonexistant held input value given: " + input_name);
-#endif
-                return 0;
-            }
-            return held_inputs_time[(int)input_name];
+            return Input.PlayerOneInputs.HeldTime(input_name);
         }
 
         private static bool other_pressed(HashSet<Inputs> input_names)
         {
-            foreach (Inputs input in InputEnums)
-                if (!input_names.Contains(input) && inputs[(int)input])
-                    return true;
-            return false;
+            return Input.PlayerOneInputs.OtherPressed(input_names);
         }
-
-        private static bool held_repeat(Inputs input_name)
-        {
-            foreach (bool input in held_inputs[(int)input_name])
-            {
-                if (!input)
-                    return false;
-            }
-            return true;
-        }
-
-        /* //Debug
-        private static int dir8()
-        {
-            if (held_inputs[(int)Inputs.Down][0])
-            {
-                if (held_inputs[(int)Inputs.Left][0])
-                    return 1;
-                else if (held_inputs[(int)Inputs.Right][0])
-                    return 3;
-                else
-                    return 2;
-            }
-            else if (held_inputs[(int)Inputs.Up][0])
-            {
-                if (held_inputs[(int)Inputs.Left][0])
-                    return 7;
-                else if (held_inputs[(int)Inputs.Right][0])
-                    return 9;
-                else
-                    return 8;
-            }
-            else
-            {
-                if (held_inputs[(int)Inputs.Left][0])
-                    return 4;
-                else if (held_inputs[(int)Inputs.Right][0])
-                    return 6;
-                else
-                    return 0;
-            }
-        }
-        */
-
+        
         public static IEnumerable<Inputs> speed_up_inputs()
         {
             yield return Inputs.Y;
         }
 
-        public static void lock_repeat(Inputs key)
+        public static void lock_repeat(Inputs input_name)
         {
-            if (!locked_repeats.Contains((int)key))
-                locked_repeats.Add((int)key);
+            Input.PlayerOneInputs.LockRepeat(input_name);
         }
 
         #region Mouse
@@ -1153,5 +842,43 @@ namespace FEXNA
                     return DirectionFlags.None;
             }
         }
+
+#if DEBUG && WINDOWS
+        public static InputDiagnostics InputDiagnostics()
+        {
+            var inputs = Enum_Values
+                .GetEnumValues(typeof(Inputs))
+                .Select(x => (Inputs)x)
+                .ToArray();
+            
+            return new InputDiagnostics(
+                inputs
+                    .ToDictionary(x => x, x => new Func<bool>(() => pressed(x))),
+                inputs
+                    .ToDictionary(x => x, x => new Func<int>(() => held_time(x))),
+                inputs
+                    .ToDictionary(x => x, x => new Func<bool>(() => repeated(x) && !triggered(x))));
+        }
+#endif
     }
+
+#if DEBUG && WINDOWS
+    public struct InputDiagnostics
+    {
+        public Dictionary<Inputs, Func<bool>> Inputs { get; private set; }
+        public Dictionary<Inputs, Func<int>> HeldInputsTime { get; private set; }
+        public Dictionary<Inputs, Func<bool>> Repeated { get; private set; }
+
+        public InputDiagnostics(
+                Dictionary<Inputs, Func<bool>> inputs,
+                Dictionary<Inputs, Func<int>> heldInputsTime,
+                Dictionary<Inputs, Func<bool>> repeated)
+            : this()
+        {
+            Inputs = inputs; //@Debug: .ToDictionary(p => p.Key, p => p.Value);
+            HeldInputsTime = heldInputsTime;
+            Repeated = repeated;
+        }
+    }
+#endif
 }

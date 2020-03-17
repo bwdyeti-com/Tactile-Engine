@@ -95,6 +95,9 @@ namespace FEXNA
         public List<Item_Data> active_convoy_data { get { return Convoys[battalion.convoy_id].Data; } }
         internal Shop_Data active_convoy_shop { get { return contains_convoy(battalion.convoy_id) ? Convoys[battalion.convoy_id].Shop : null; } }
 
+        public int active_convoy_size { get { return Convoys[battalion.convoy_id].convoy_size; } }
+        public bool active_convoy_is_full { get { return Convoys[battalion.convoy_id].is_full; } }
+
         public List<int> individual_animations { get { return Individual_Animations; } }
 
         //public Dictionary<int, List<Item_Data>> convoys { get { return Convoys; } } //Debug
@@ -179,11 +182,11 @@ namespace FEXNA
             return Convoys.ContainsKey(id);
         }
 
-        public void add_item_to_convoy(Item_Data item, int id = -1)
+        public void add_item_to_convoy(Item_Data item, bool force = false, int id = -1)
         {
             if (id == -1)
                 id = Global.battalion.convoy_id;
-            if (Convoys[id].Data.Count < Constants.Gameplay.CONVOY_SIZE)
+            if (force || !Convoys[id].is_full)
                 Convoys[id].Data.Add(item);
         }
 
@@ -490,6 +493,12 @@ namespace FEXNA
             OverseerUsed = new Dictionary<int, int>(source.OverseerUsed);
         }
 
+        public override string ToString()
+        {
+            return string.Format("Battalion: {0} Actors, Convoy {1}",
+                Actors.Count, Convoy_Id);
+        }
+
         public void add_actor(int id)
         {
             if (!Actors.Contains(id))
@@ -584,11 +593,22 @@ namespace FEXNA
                 for (int i = 0; i < Global.game_battalions.convoy(Convoy_Id).Count; i++)
                     if (item_data.same_item(Global.game_battalions.convoy(Convoy_Id)[i]))
                         count++;
-            foreach(int actor_id in Actors)
-                foreach(Item_Data actor_item in Global.game_actors[actor_id].items)
+            foreach (int actor_id in Actors)
+                foreach (Item_Data actor_item in Global.game_actors[actor_id].items)
                     if (item_data.same_item(actor_item))
                         count++;
             return count;
+        }
+
+        public bool ItemOwned(Item_Data itemData)
+        {
+            if (convoy_has_item(itemData))
+                return true;
+            foreach (int actorId in Actors)
+                foreach (Item_Data actorItem in Global.game_actors[actorId].items)
+                    if (itemData.same_item(actorItem))
+                        return true;
+            return false;
         }
 
         public bool convoy_has_item(Item_Data item_data)

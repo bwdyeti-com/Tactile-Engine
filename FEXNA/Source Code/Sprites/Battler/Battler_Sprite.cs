@@ -17,7 +17,7 @@ namespace FEXNA
 
         string Battler_Name, Name;
         int Gender;
-        Game_Unit Battler;
+        BattlerSpriteData Battler;
         Texture2D Anim_Bitmap;
         Color[] Palette = new Color[Palette_Handler.PALETTE_SIZE];
         Battle_Animation Animation;
@@ -44,7 +44,7 @@ namespace FEXNA
         protected int Flash_Timer = 0;
 
         #region Accessors
-        public Game_Unit battler { get { return Battler; } }
+        public Game_Unit battler { get { return Battler.Unit; } }
 
         public Battle_Animation spell_effect { get { return Spell_Effect; } }
 
@@ -116,32 +116,21 @@ namespace FEXNA
 
         public bool flash { get { return Flash_Timer > 0; } }
         #endregion
-
-        public Battler_Sprite(Game_Unit battler)
-        {
-            initialize(battler, false, 1, true);
-        }
-        public Battler_Sprite(Game_Unit battler, bool reverse)
-        {
-            initialize(battler, reverse, 1, true);
-        }
-        public Battler_Sprite(Game_Unit battler, bool reverse, int distance)
-        {
-            initialize(battler, reverse, distance, true);
-        }
-        public Battler_Sprite(Game_Unit battler, bool reverse, int distance, bool scene_reverse)
+        
+        public Battler_Sprite(BattlerSpriteData battler, bool reverse = false, int distance = 1, bool scene_reverse = true)
         {
             initialize(battler, reverse, distance, scene_reverse);
         }
 
         public override string ToString()
         {
-            return string.Format("Battler_Sprite: {0}, {1}", Battler.actor.name, Battler_Name);
+            return string.Format("Battler_Sprite: {0}, {1}", Battler.Name, Battler_Name);
         }
 
-        protected void initialize(Game_Unit battler, bool reverse, int distance, bool scene_reverse)
+        protected void initialize(BattlerSpriteData battler, bool reverse, int distance, bool scene_reverse)
         {
             Battler = battler;
+
             // if promoting, using magic = false //Yeti
             Reverse = reverse;
             Distance = distance;
@@ -149,9 +138,10 @@ namespace FEXNA
             Src_Rect = new Rectangle(0, 0, Config.BATTLER_SIZE, Config.BATTLER_SIZE);
             visible = false;
 
-            Battler_Name = (Global.scene.scene_type == "Scene_Dance" && Battler.id == Global.game_state.dancer_id) ?
-                FE_Battler_Image_Wrapper.battler_name(Battler, Global.weapon_types[0].AnimName) :
-                FE_Battler_Image_Wrapper.battler_name(Battler);
+            Battler_Name = (Global.scene.scene_type == "Scene_Dance" &&
+                    Battler.Unit.id == Global.game_state.dancer_id) ?
+                Battler.BattlerName(Global.weapon_types[0].AnimName) :
+                Battler.BattlerName();
             if (Reverse)
                 mirrored = true;
             reset_pose();
@@ -163,7 +153,7 @@ namespace FEXNA
 
         protected void dance_grey_out()
         {
-            if (Global.scene.scene_type == "Scene_Dance" && !Battler.ready)
+            if (Global.scene.scene_type == "Scene_Dance" && !Battler.Unit.ready)
                 if (Global.game_state.dance_item == -1 || Constants.Combat.RING_REFRESH)
                     Greyed_Out = true;
         }
@@ -171,11 +161,11 @@ namespace FEXNA
         protected void initialize_palette()
         {
             // Get and set animation bitmap
-            //Anim_Sprite_Data anim_data = Battler.get_anim_data(Global.scene.scene_type == "Scene_Dance");
+            //Anim_Sprite_Data anim_data = Battler.AnimData(Global.scene.scene_type == "Scene_Dance");
             //string name = anim_data.name;
 
-            if (false)// || Battler.actor.weapon_id == 0) // || promotion //Yeti
-            //if (false)//name == "")// || Battler.actor.weapon_id == 0) // || promotion //Yeti
+            if (false)// || Battler.WeaponId == 0) // || promotion //Yeti
+            //if (false)//name == "")// || Battler.WeaponId == 0) // || promotion //Yeti
             { } //Palette = null; //Debug
             else
             {
@@ -190,7 +180,7 @@ namespace FEXNA
                 if (!Global.palette_data.ContainsKey(name))
                     Has_Palette = false;
                 else
-                    palette_data(name, battler.actor.class_id, battler.actor.battle_gender, battler.actor.name_full).CopyTo(Palette, 0);
+                    palette_data(name, Battler.ClassId, Battler.Gender, Battler.NameFull).CopyTo(Palette, 0);
             }
         }
 
@@ -285,14 +275,14 @@ namespace FEXNA
                 if (Battler_Name != "")
                 {
                     // Get and set animation bitmap
-                    Anim_Sprite_Data anim_data = Battler.get_anim_data(Global.scene.scene_type == "Scene_Dance");
+                    Anim_Sprite_Data anim_data = Battler.AnimData(Global.scene.scene_type == "Scene_Dance");
                     Name = anim_data.name;
                     Gender = anim_data.gender;
                     // I still don't understand what entirely is happening here
                     // For a while it was
-                    // if (Name == "") || Battler.actor.weapon_id == 0)
+                    // if (Name == "") || Battler.WeaponId == 0)
                     // But that defaults to the animation's bitmap when the unit is unarmed, and unarmed units have animations now so
-                    if (Name == "") // || Battler.actor.weapon_id == 0) // || promotion //Yeti
+                    if (Name == "") // || Battler.WeaponId == 0) // || promotion //Yeti
                         Anim_Bitmap = null;
                     else
                     {
@@ -558,15 +548,15 @@ namespace FEXNA
         {
             if (Animation == null) return false;
             int time_offset = 1;
-            if (FE_Battler_Image.SKILL_ACTIVATION_FRAME.ContainsKey(Battler.actor.class_id))
-                time_offset = Math.Max(1, FE_Battler_Image.SKILL_ACTIVATION_FRAME[Battler.actor.class_id][crt ? 1 : 0]);
+            if (FE_Battler_Image.SKILL_ACTIVATION_FRAME.ContainsKey(Battler.ClassId))
+                time_offset = Math.Max(1, FE_Battler_Image.SKILL_ACTIVATION_FRAME[Battler.ClassId][crt ? 1 : 0]);
                 
             return Animation.max_duration - Animation.duration == time_offset;
         }
 
         public void skill_animation(int distance)
         {
-            int? id = Battler.skill_animation_val();
+            int? id = Battler.Unit.skill_animation_val();
             if (id != null && id != -1)
             {
                 id += Global.animation_group("Skills");
@@ -589,11 +579,11 @@ namespace FEXNA
         {
             int spell_anim;
             int anim_offset = Global.animation_group("Spells");
-            if (Global.weapon_types[Battler.actor.weapon.anima_type()].Name == "Fire") //Yeti
+            if (Global.weapon_types[Battler.WeaponAnimaType].Name == "Fire") //@Yeti
                 spell_anim = anim_offset + 1;
-            else if (Global.weapon_types[Battler.actor.weapon.anima_type()].Name == "Thunder")
+            else if (Global.weapon_types[Battler.WeaponAnimaType].Name == "Thunder")
                 spell_anim = anim_offset + 61;
-            else if (Global.weapon_types[Battler.actor.weapon.anima_type()].Name == "Wind")
+            else if (Global.weapon_types[Battler.WeaponAnimaType].Name == "Wind")
                 spell_anim = anim_offset + 121;
             else
                 return;
@@ -617,7 +607,7 @@ namespace FEXNA
 
             List<int> anim;
             anim = FE_Battler_Image_Wrapper.spell_attack_animation_value(
-                Battler.actor.weapon_id, Battler.magic_attack, distance, hit);
+                Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
                 Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false,
@@ -628,7 +618,7 @@ namespace FEXNA
                 Spell_Effect.stereoscopic = Config.BATTLE_PLATFORM_BASE_DEPTH;
             }
             anim = FE_Battler_Image_Wrapper.spell_attack_animation_value_bg1(
-                Battler.actor.weapon_id, Battler.magic_attack, distance, hit);
+                Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
                 Spell_Effect_2 = new Battle_Animation(Name, null, anim, Reverse, false);
@@ -638,7 +628,7 @@ namespace FEXNA
                 Spell_Effect_2.stereoscopic = Config.BATTLE_BATTLERS_DEPTH;
             }
             anim = FE_Battler_Image_Wrapper.spell_attack_animation_value_bg2(
-                Battler.actor.weapon_id, Battler.magic_attack, distance, hit);
+                Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
                 Spell_Effect_3 = new Battle_Animation(Name, null, anim, Reverse, false);
@@ -648,7 +638,7 @@ namespace FEXNA
                 Spell_Effect_3.stereoscopic = Config.BATTLE_PLATFORM_BASE_DEPTH + Config.BATTLE_PLATFORM_TOP_DEPTH_OFFSET;
             }
             anim = FE_Battler_Image_Wrapper.spell_attack_animation_value_fg(
-                Battler.actor.weapon_id, Battler.magic_attack, distance, hit);
+                Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
                 Spell_Effect_4 = new Battle_Animation(Name, null, anim, Reverse, false);
@@ -668,7 +658,7 @@ namespace FEXNA
                 spell_loc += new Vector2(Reverse ? -270 : 270, 0);
 
             List<int> anim = FE_Battler_Image_Wrapper.spell_end_animation_value(
-                Battler.actor.weapon_id, Battler.magic_attack, hit);
+                Battler.WeaponId, Battler.MagicAttack, hit);
             if (anim.Count > 0)
             {
                 Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
@@ -688,7 +678,7 @@ namespace FEXNA
                 spell_loc += new Vector2(Reverse ? -270 : 270, 0);
 
             List<int> anim = FE_Battler_Image_Wrapper.spell_lifedrain_animation_value(
-                Battler.actor.weapon_id, Battler.magic_attack, distance);
+                Battler.WeaponId, Battler.MagicAttack, distance);
             if (anim.Count > 0)
             {
                 Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
@@ -708,7 +698,7 @@ namespace FEXNA
                 spell_loc += new Vector2(Reverse ? -270 : 270, 0);
 
             List<int> anim = FE_Battler_Image_Wrapper.spell_lifedrain_end_animation_value(
-                Battler.actor.weapon_id, Battler.magic_attack);
+                Battler.WeaponId, Battler.MagicAttack);
             if (anim.Count > 0)
             {
                 Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
@@ -727,7 +717,7 @@ namespace FEXNA
             if (distance > 2 && Scene_Reverse ^ Reverse)
                 spell_loc += new Vector2(Reverse ? -270 : 270, 0);
 
-            int ring_id = ring_index > -1 ? Battler.items[ring_index].Id : -1;
+            int ring_id = ring_index > -1 ? Battler.Unit.items[ring_index].Id : -1;
             List<int> anim = FE_Battler_Image_Wrapper.refresh_animation_value(Battler, ring_id);
             if (anim.Count > 0)
             {
@@ -846,7 +836,7 @@ namespace FEXNA
 
         public bool ignore_hud()
         {
-            return battler.ignore_hud();
+            return Battler.Unit.ignore_hud();
         }
 
         #region Audio
@@ -877,10 +867,10 @@ namespace FEXNA
                     Global.Audio.play_se("Battle Sounds", "Hit_NoDamage");
                 else
                 {
-                    if (!On_Hit.SPELL_HIT_SOUNDS.ContainsKey(Battler.actor.weapon_id))
+                    if (!On_Hit.SPELL_HIT_SOUNDS.ContainsKey(Battler.WeaponId))
                         Global.Audio.play_se("Battle Sounds", "Hit3");
                     else
-                        Global.Audio.play_se("Battle Sounds", "Hit" + On_Hit.SPELL_HIT_SOUNDS[Battler.actor.weapon_id].ToString());
+                        Global.Audio.play_se("Battle Sounds", "Hit" + On_Hit.SPELL_HIT_SOUNDS[Battler.WeaponId].ToString());
                 }
 
             }
@@ -891,7 +881,7 @@ namespace FEXNA
             if (!Global.map_exists || Global.game_system.In_Arena)
                 return 0;
             else
-                return Global.game_map.terrain_step_sound_group(Battler.loc);
+                return Global.game_map.terrain_step_sound_group(Battler.Unit.loc);
         }
         #endregion
 
@@ -916,7 +906,7 @@ namespace FEXNA
             if (Global.scene.scene_type != "Scene_Promotion")
             {
                 bool status_active = false;
-                foreach (int state_id in Battler.actor.states)
+                foreach (int state_id in Battler.Unit.actor.states)
                     if (Global.data_statuses[state_id].Battle_Color.A > 0)
                     {
                         status_active = true;
@@ -1032,12 +1022,7 @@ namespace FEXNA
                 }
             }
         }
-
-        protected bool avoids_forward()
-        {
-            return Class_Battler_Frames.avoids_forward(Battler.actor.class_id); //Yeti
-        }
-
+        
         protected void update_animation(ref Battle_Animation anim)
         {
             if (anim != null)

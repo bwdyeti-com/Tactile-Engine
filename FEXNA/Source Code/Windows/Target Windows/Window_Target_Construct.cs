@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA_Library;
+using FEXNAWeaponExtension;
 
 namespace FEXNA.Windows.Target
 {
@@ -10,6 +12,7 @@ namespace FEXNA.Windows.Target
     {
         protected List<Vector2> AssembleTargets;
         public ConstructionModes Mode { get; private set; }
+        private Maybe<int> WeaponId;
 
         #region Accessors
         protected override int window_width
@@ -18,11 +21,12 @@ namespace FEXNA.Windows.Target
         }
         #endregion
 
-        public Window_Target_Construct(int unit_id, ConstructionModes mode, Vector2 loc)
+        public Window_Target_Construct(int unit_id, ConstructionModes mode, Vector2 loc, Maybe<int> weaponId = default(Maybe<int>))
         {
             Mode = mode;
             initialize(loc);
             Unit_Id = unit_id;
+            WeaponId = weaponId;
             List<Vector2> targets;
             switch (Mode)
             {
@@ -53,8 +57,34 @@ namespace FEXNA.Windows.Target
 
         protected override void set_images() { }
 
-        protected override void refresh() { }
+        protected override void refresh()
+        {
+            RefreshSiegeRange();
+        }
 
+        protected override void reset_cursor()
+        {
+            base.reset_cursor();
+
+            RefreshSiegeRange();
+        }
+
+        private void RefreshSiegeRange()
+        {
+            if (Mode == ConstructionModes.Assemble)
+            {
+                var weapon = Global.data_weapons[WeaponId];
+                Global.game_temp.temp_attack_range = Global.game_map.get_unit_range(
+                    new HashSet<Vector2> { Global.player.loc },
+                    weapon.Min_Range,
+                    weapon.Max_Range,
+                    weapon.range_blocked_by_walls());
+                Global.game_map.range_start_timer = 0;
+            }
+            else
+                Global.game_temp.temp_attack_range.Clear();
+        }
+        
         public override void draw(SpriteBatch sprite_batch) { }
     }
 }

@@ -51,7 +51,8 @@ namespace FEXNA
                     MenuManager.Update();
                     break;
                 case Save_Phases.World_Map:
-                    if (!Save_Data_Calling)
+                    // Advance after save complete
+                    if (!this.save_data_calling)
                     {
                         if (Timer > 0)
                             Timer--;
@@ -83,7 +84,8 @@ namespace FEXNA
                     if (Saving_Complete)
                     {
                         Timer = WAIT_TIME;
-                        Save_Data_Calling = true;
+                        // Save file
+                        CallSaveData();
                         Phase = Save_Phases.World_Map;
                     }
                     // Check if data for this file exists already
@@ -138,14 +140,14 @@ namespace FEXNA
         {
             foreach (string progression_id in Global.game_system.Chapter_Save_Progression_Keys)
                 Global.save_file.save_data(Global.game_state.chapter_id,
-                    progression_id, Global.game_system.previous_chapter_id);
+                    progression_id, Global.game_system.rankings);
         }
 
         public override void draw(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
         {
             if (MenuManager != null)
             {
-                MenuManager.Draw(sprite_batch);
+                MenuManager.Draw(sprite_batch, device, render_targets);
             }
             /* //#Debug
             if (Save_Overwrite_Window != null)

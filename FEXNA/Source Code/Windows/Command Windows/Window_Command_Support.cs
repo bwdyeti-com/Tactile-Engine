@@ -1,33 +1,56 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using FEXNA.Graphics.Map;
 using FEXNA.Graphics.Text;
 using FEXNA.Graphics.Windows;
 using FEXNA.Windows.UserInterface.Command;
 
 namespace FEXNA.Windows.Command
 {
-    class Window_Command_Support : Window_Command
+    class Window_Command_Support : Window_Command_Scrollbar
     {
         const int WIDTH = 128;
         const int LINES = 9;
-        //const int HEIGHT = LINES * 16 + 24; //Debug
 
-        private int ActorId;
+        protected int ActorId;
         private Support_Command_Components Header;
 
         #region Accessors
         private Game_Actor actor { get { return Global.game_actors[ActorId]; } }
+        
+        public int TargetId { get { return this.SupportPartners[this.index]; } }
+
+        protected virtual int SupportsRemaining { get { return this.actor.supports_remaining; } }
+
+        protected virtual List<int> SupportPartners { get { return this.actor.support_candidates(); } }
         #endregion
 
         public Window_Command_Support(int actorId, Vector2 loc)
         {
-            ActorId = actorId;
-            List<string> strs = new List<string>();
-            Header = new Support_Command_Components(LINES, this.actor.supports_remaining);
+            Rows = LINES;
 
-            foreach (int actor_id in this.actor.support_candidates())
+            ActorId = actorId;
+            Header = new Support_Command_Components(LINES, this.SupportsRemaining);
+
+            List<string> strs = GetNames();
+
+            initialize(loc, WIDTH, strs);
+            Bar_Offset = new Vector2(0, 0);
+            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
+        }
+
+        protected override void set_default_offsets(int width)
+        {
+            this.text_offset = new Vector2(0, 0);
+            this.glow_width = width - (24 + (int)(Text_Offset.X * 2));
+            Bar_Offset = new Vector2(0, 0);
+            Size_Offset = new Vector2(0, 0);
+        }
+
+        protected virtual List<string> GetNames()
+        {
+            List<string> strs = new List<string>();
+            foreach (int actor_id in this.SupportPartners)
             {
 
                 if (Global.battalion.actors.Contains(actor_id))
@@ -40,50 +63,38 @@ namespace FEXNA.Windows.Command
                     strs.Add("-----");
                 }
             }
-
-            initialize(loc, WIDTH, strs);
-            Bar_Offset = new Vector2(0, 0);
-            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
-            //Window_Img.height = HEIGHT; //Debug
+            return strs;
         }
-
+        
         protected override void initialize_window()
         {
             Window_Img = new Prepartions_Item_Window(true);
         }
-
-        protected Texture2D map_sprite_texture(int actor_id, bool deployed)
-        {
-            return Scene_Map.get_team_map_sprite(
-                    deployed ? Constants.Team.PLAYER_TEAM : 0, Global.game_actors.get_map_sprite_name(actor_id));
-        }
-
-        protected override void add_commands(List<string> strs)
-        {
-            var nodes = new List<CommandUINode>();
-            var supports = this.actor.support_candidates();
-            for (int i = 0; i < supports.Count; i++)
-            {
-                var text_node = item(strs[i], i);
-                nodes.Add(text_node);
-            }
-
-            set_nodes(nodes);
-        }
-
+        
         protected override CommandUINode item(object value, int i)
         {
             var text_node = new SupportUINode(
-                "", ActorId, this.actor.support_candidates()[i],
+                "", ActorId, this.SupportPartners[i],
                 value as string, this.column_width);
             text_node.loc = item_loc(i);
             return text_node;
         }
 
+        protected override void draw_window(SpriteBatch sprite_batch)
+        {
+            base.draw_window(sprite_batch);
+
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            Header.draw(sprite_batch, -(loc + draw_vector()));
+
+            // Draw the top entry of the list, so it overlaps the header
+            DrawFirstVisibleRow(sprite_batch);
+            sprite_batch.End();
+        }
+
         protected override void draw_text(SpriteBatch sprite_batch)
         {
-            Header.draw(sprite_batch, -(loc + draw_vector()));
-            base.draw_text(sprite_batch);
+            DrawRangeText(sprite_batch);
         }
     }
 
@@ -91,6 +102,7 @@ namespace FEXNA.Windows.Command
     {
         const string FILENAME = @"Graphics/Windowskins/Support_Components";
         private int Lines;
+        private int Color_Override = -1;
         private FE_Text Remaining_Label, X_Label, Remaining_Count;
 
         public override float stereoscopic
@@ -104,25 +116,53 @@ namespace FEXNA.Windows.Command
             }
         }
 
-        public Support_Command_Components(int lines, int remaining)
+        public int color_override
+        {
+            set
+            {
+                Color_Override = (int)MathHelper.Clamp(value, -1, Constants.Team.NUM_TEAMS - 1);
+            }
+        }
+        public int window_color
+        {
+            get
+            {
+                return Color_Override != -1 ? Color_Override : Global.game_options.window_color;
+            }
+        }
+
+        public Support_Command_Components(int lines, int remaining, bool noRemainingPositive = false)
         {
             texture = Global.Content.Load<Texture2D>(FILENAME);
             Lines = lines;
+            
+            string labelColor = "White";
+            string valueColor = "Blue";
+            if (remaining == 0)
+            {
+                if (noRemainingPositive)
+                    valueColor = "Green";
+                else
+                {
+                    labelColor = "Grey";
+                    valueColor = "Grey";
+                }
+            }
 
             Remaining_Label = new FE_Text();
             Remaining_Label.loc = new Vector2(24, 0);
             Remaining_Label.Font = "FE7_Text";
-            Remaining_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (remaining == 0 ? "Grey" : "White"));
+            Remaining_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + labelColor);
             Remaining_Label.text = "Remaining";
             X_Label = new FE_Text();
             X_Label.loc = new Vector2(72, 0);
             X_Label.Font = "FE7_Text";
-            X_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (remaining == 0 ? "Grey" : "White"));
+            X_Label.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + labelColor);
             X_Label.text = "x";
             Remaining_Count = new FE_Text_Int();
             Remaining_Count.loc = new Vector2(96, 0);
             Remaining_Count.Font = "FE7_Text";
-            Remaining_Count.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + (remaining == 0 ? "Grey" : "Blue"));
+            Remaining_Count.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + valueColor);
             Remaining_Count.text = remaining.ToString();
         }
 
@@ -133,12 +173,13 @@ namespace FEXNA.Windows.Command
                 {
                     // Header
                     sprite_batch.Draw(texture, (loc + new Vector2(16, -8) + draw_vector()) - draw_offset,
-                        new Rectangle(0, (Global.game_options.window_color + 1) * 16, 104, 16), tint, angle, offset, scale,
+                        new Rectangle(0, (this.window_color + 1) * 16, 104, 16), tint, angle, offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     // Header Label
                     sprite_batch.Draw(texture, (loc + new Vector2(16, -8) + draw_vector()) - draw_offset,
                         new Rectangle(0, 0, 104, 16), tint, angle, offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
+
                     // Footer
                     Vector2 footer_loc = new Vector2(Config.WINDOW_WIDTH - 104, loc.Y - draw_offset.Y + Lines * 16 + 16);
                     sprite_batch.Draw(texture, (footer_loc + draw_vector()),

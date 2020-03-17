@@ -67,7 +67,7 @@ namespace FEXNA.Windows.Map
             Black_Screen.tint = new Color(0, 0, 0, 255);
             // Banner
             Banner = new FE_Text();
-            string str = Global.data_chapters[Global.game_state.chapter_id].ChapterTransitionName;
+            string str = Global.data_chapters[Global.game_state.chapter_id].FullName;
             Banner.loc = new Vector2(Config.WINDOW_WIDTH, 32) / 2 - new Vector2(Font_Data.text_width(str, "FE7_Chapter") / 2, 8);
             Banner.Font = "FE7_Chapter";
             Banner.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Chapter_Data");

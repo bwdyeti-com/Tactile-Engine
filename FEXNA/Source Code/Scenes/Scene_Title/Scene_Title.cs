@@ -42,6 +42,7 @@ namespace FEXNA
 
         protected void initialize()
         {
+            initialize_base();
             Scene_Type = "Scene_Title";
 
             if (SkipIntro)
@@ -100,7 +101,8 @@ namespace FEXNA
             Global.start_game_file_id = fileId;
             Global.start_new_game = true;
 
-            Save_Data_Calling = true;
+            // Save file on creation
+            CallSaveData();
             Loading_Suspend = false;
             Closing = true;
             Timer = 0;
@@ -157,6 +159,43 @@ namespace FEXNA
         }
 #endif
 
+        public void TitleSupportConvo(string supportKey, int level, bool atBase, string background)
+        {
+            if (Global.data_supports.ContainsKey(supportKey))
+            {
+                var supportData = Global.data_supports[supportKey];
+                if (level < supportData.Supports.Count)
+                {
+                    string convoName = supportData.Supports[level].ConvoName(atBase);
+                    if (Global.supports.ContainsKey(convoName))
+                    {
+                        Global.game_temp.message_text += Global.supports[convoName];
+                        // Add a background
+                        if (!Global.game_temp.message_text.StartsWith("\\g["))
+                        {
+                            Global.game_temp.message_text = string.Format("\\g[{0}]{1}",
+                                background, Global.game_temp.message_text);
+                        }
+                        Global.scene.new_message_window();
+                    }
+                }
+            }
+        }
+
+        public void TitleOpenFullCredits()
+        {
+#if !__MOBILE__
+            if (Global.fullscreen)
+            {
+                Global.fullscreen = false;
+                Global.save_config = true;
+            }
+#endif
+            
+            System.Diagnostics.Process.Start(
+                string.Format("http://{0}", Constants.Credits.FULL_CREDITS_LINK));
+        }
+
         public void TitleQuit()
         {
             Quitting = true;
@@ -169,6 +208,8 @@ namespace FEXNA
         #region Update
         public void update(KeyboardState key_state)
         {
+            update_message();
+
             Player.update_anim();
             if (update_soft_reset())
                 return;
@@ -241,8 +282,12 @@ namespace FEXNA
             device.SetRenderTarget(render_targets[1]);
             device.Clear(Color.Transparent);
 
+            // Draw Menus
             if (MenuManager != null)
-                MenuManager.Draw(sprite_batch);
+                MenuManager.Draw(sprite_batch, device, render_targets);
+
+            // Draw Convos
+            draw_message(sprite_batch, device, render_targets);
 
             device.SetRenderTarget(render_targets[0]);
             device.Clear(Color.Transparent);

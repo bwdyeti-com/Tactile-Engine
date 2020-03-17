@@ -49,11 +49,13 @@ namespace FEXNA.Menus
         {
             if (active)
             {
-                bool alreadyAtMidPoint = Fade.AtFadeMidPoint;
+                bool alreadyAtHoldEnd = Fade.AtHoldEnd;
                 bool alreadyFinished = Fade.Finished;
                 Fade.update();
 
-                if (Fade.AtFadeMidPoint && !alreadyAtMidPoint)
+                if ((Fade.AtHoldEnd && !alreadyAtHoldEnd) ||
+                    // Hold End is supposed to happen on frame 0
+                    Fade.FrameOneHoldEnd)
                 {
                     if (ParentMenu != null)
                     {
@@ -70,9 +72,9 @@ namespace FEXNA.Menus
                     if (ParentMenu != null)
                     {
                         if (FadeIn)
-                            ParentMenu.Open();
+                            ParentMenu.FadeOpen();
                         else
-                            ParentMenu.Close();
+                            ParentMenu.FadeClose();
                     }
                 }
             }

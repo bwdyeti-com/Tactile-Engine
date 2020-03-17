@@ -128,6 +128,7 @@ namespace FEXNA.State
 
         private void end_talk()
         {
+            Global.game_state.resume_turn_theme();
             In_Talk = false;
             Talk_Timer = 0;
             Talk_Event_Name = "";

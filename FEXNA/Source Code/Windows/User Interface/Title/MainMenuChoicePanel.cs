@@ -33,7 +33,7 @@ namespace FEXNA.Windows.UserInterface.Title
                 window = new WindowPanel(Global.Content.Load<Texture2D>(
                     "Graphics/Windowskins/MainMenuWindow"),
                     new Vector2(0, 40),
-                    128, 8, 24, 8, 0, 8);
+                    80, 56, 24, 8, 0, 8);
                 window.height = 16;
                 window.offset = new Vector2(16, 16);
             }
@@ -61,6 +61,13 @@ namespace FEXNA.Windows.UserInterface.Title
                         Constants.Difficulty.DIFFICULTY_COLOR_REDIRECT[
                             Global.current_save_info.difficulty];
             }
+        }
+
+        public void RefreshWidth(bool active)
+        {
+            int width = active ? PANEL_WIDTH : PANEL_WIDTH - 32;// 80 + 24;
+
+            Window.width = width;
         }
 
         public void ResetOffset()

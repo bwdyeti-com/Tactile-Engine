@@ -18,7 +18,7 @@ namespace FEXNA
                     { Color_Keys.Main2, new Color(80, 32, 160) },
                     { Color_Keys.Main3, new Color(112, 48, 184) },
                     { Color_Keys.Main4, new Color(160, 72, 248) },
-                    { Color_Keys.Main5, new Color(184, 104, 248) },//208, 144, 224)},
+                    { Color_Keys.Main5, new Color(184, 104, 248) },
                     { Color_Keys.Main6, new Color(208, 152, 248) },
                     { Color_Keys.Main7, new Color(240, 208, 248) },
                     { Color_Keys.Scnd1, new Color(112, 80, 32) }, // Secondary
@@ -3429,6 +3429,16 @@ namespace FEXNA
                                 case 2: return new Color(128, 104, 80);
                                 case 3: return new Color(176, 136, 64); // Armor
                                 case 4: return new Color(224, 208, 88);
+                            }
+                            break;
+                        case "Shen":
+                            switch (color)
+                            {
+                                case 0: return new Color(88, 24, 32);
+                                case 1: return new Color(144, 32, 24);
+                                case 2: return new Color(208, 64, 40);
+                                case 3: return null; // new Color(168, 128, 96);
+                                case 4: return null; // new Color(216, 200, 184);
                             }
                             break;
                         case "Bart":

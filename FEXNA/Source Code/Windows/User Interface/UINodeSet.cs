@@ -75,8 +75,12 @@ namespace FEXNA.Windows.UserInterface
                 Destinations = NodeDestinationMap
                     .construct(enabled_nodes, AngleMultiplier);
 
-            if (ActiveNodeIndex == -1 && Nodes.Any())
-                set_active_node(Nodes[0]);
+            // Jump to the first enabled index
+            if (ActiveNodeIndex == -1 && enabled_nodes.Any())
+            {
+                int index = Nodes.FindIndex(x => x.loc == enabled_nodes.First());
+                set_active_node(Nodes[index]);
+            }
         }
 
         private Vector2 node_location(T node)
@@ -309,8 +313,9 @@ namespace FEXNA.Windows.UserInterface
             Vector2 draw_offset = default(Vector2))
         {
 #if DEBUG
+            const bool PREVIEW_NODES = false;
             // Draw node connections
-            if (false) //Debug
+            if (PREVIEW_NODES) //Debug
             {
                 draw_node_connections(sprite_batch, draw_offset);
             }
@@ -319,7 +324,7 @@ namespace FEXNA.Windows.UserInterface
                 node.Draw(sprite_batch, draw_offset);
 #if DEBUG
             // Draw hitboxes
-            if (false) //Debug
+            if (PREVIEW_NODES) //Debug
             {
                 DrawNodeHitboxes(sprite_batch, draw_offset);
             }

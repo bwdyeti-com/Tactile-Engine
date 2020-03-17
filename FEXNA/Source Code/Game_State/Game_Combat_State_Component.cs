@@ -73,9 +73,8 @@ namespace FEXNA.State
                         break;
                     }
                     Game_Unit unit = Units[id];
-                    if (Global.game_state.dance_active && id == id1 ?
-                        !FE_Battler_Image_Wrapper.test_for_battler(unit, Global.weapon_types[0].AnimName) :
-                        !FE_Battler_Image_Wrapper.test_for_battler(unit))
+                    var battlerData = new BattlerSpriteData(unit);
+                    if (!battlerData.AnimData(Global.game_state.dance_active && id == id1).ValidAnim)
                     {
                         scene_battle = false;
                         break;

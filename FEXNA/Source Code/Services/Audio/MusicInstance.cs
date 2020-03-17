@@ -193,6 +193,11 @@ namespace FEXNA.Services.Audio
 
             if (Music.State != SoundState.Playing)
                 Music.Play();
+
+            // Maybe switch to fading in if fading out, instead? //@Debug
+            if (FadeState == MusicFadeStates.FadingOut ||
+                    FadeState == MusicFadeStates.FadedOut)
+                EndFade();
         }
 
         public void Pause()
@@ -240,6 +245,7 @@ namespace FEXNA.Services.Audio
         {
             FadeRemaining = 0;
             FadeState = MusicFadeStates.None;
+            Volume = this.FadeVolume;
         }
         #endregion
 

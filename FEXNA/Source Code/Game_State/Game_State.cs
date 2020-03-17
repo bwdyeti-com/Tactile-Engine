@@ -321,9 +321,9 @@ namespace FEXNA
             BlockState.blocked_id = Id;
         }
 
-        internal void call_chapter_end(bool showRankings, bool sendMetrics)
+        internal void call_chapter_end(bool showRankings, bool sendMetrics, bool supportPoints)
         {
-            ChapterEndState.end_chapter(showRankings, sendMetrics);
+            ChapterEndState.end_chapter(showRankings, sendMetrics, supportPoints);
         }
 
         internal void call_item(int id, int item_index)
@@ -331,6 +331,16 @@ namespace FEXNA
             ItemState.item_calling = true;
             Global.game_system.Item_User = id;
             Global.game_system.Item_Used = item_index;
+        }
+        internal void call_item(int id, int item_index, Vector2 itemLoc)
+        {
+            call_item(id, item_index);
+            Global.game_system.ItemTargetLoc = itemLoc;
+        }
+        internal void call_item(int id, int item_index, int promotionId)
+        {
+            call_item(id, item_index);
+            Global.game_system.ItemPromotionId = promotionId;
         }
 
         internal void call_talk(string event_name, int initiator_id)

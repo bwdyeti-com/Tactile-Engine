@@ -79,7 +79,7 @@ namespace FEXNA
                 if (visible)
                 {
                     // Window
-                    sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                    sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                     draw_window(sprite_batch, draw_offset);
                     sprite_batch.End();
                 }

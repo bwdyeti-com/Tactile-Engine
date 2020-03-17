@@ -227,9 +227,9 @@ namespace FEXNA
         }
         protected void process_attacks(Game_Unit battler_1, Combat_Map_Object battler_2, int targetId)
         {
-            battler_1.start_attack(-1);
+            battler_1.start_attack(-1, battler_2);
             if (battler_2 is Game_Unit)
-                (battler_2 as Game_Unit).start_attack(-1);
+                (battler_2 as Game_Unit).start_attack(-1, battler_1);
 
             bool ambush = battler_2 != null && battler_2.is_unit() &&
                 Global.game_map.units[targetId].counters_first(Global.game_map.units[Battler_1_Id]);
@@ -343,7 +343,7 @@ namespace FEXNA
 
         protected void add_attack(Game_Unit battler_1, Game_Unit battler_2, int attacker)
         {
-            battler_1.start_attack(Data.Count(x => x.Key.Attacker == attacker));
+            battler_1.start_attack(Data.Count(x => x.Key.Attacker == attacker), battler_2);
             add_data(battler_1, battler_2);
             Data[Data.Count - 1].Key.Attacker = attacker;
             // Checks if this is the first attack of this unit
@@ -373,7 +373,7 @@ namespace FEXNA
         }
         protected void add_attack(Game_Unit battler_1, Combat_Map_Object battler_2, int attacker)
         {
-            battler_1.start_attack(Data.Count(x => x.Key.Attacker == attacker));
+            battler_1.start_attack(Data.Count(x => x.Key.Attacker == attacker), battler_2);
             add_data(battler_1, battler_2);
             Data[Data.Count - 1].Key.Attacker = attacker;
             // Checks if this is the first attack of this unit
@@ -402,7 +402,7 @@ namespace FEXNA
         }
         protected void add_solo_attack(Game_Unit battler_1, int attacker)
         {
-            battler_1.start_attack(Data.Count(x => x.Key.Attacker == attacker));
+            battler_1.start_attack(Data.Count(x => x.Key.Attacker == attacker), null);
             add_data(battler_1);
             Data[Data.Count - 1].Key.Attacker = attacker;
             // Checks if this is the first attack of this unit

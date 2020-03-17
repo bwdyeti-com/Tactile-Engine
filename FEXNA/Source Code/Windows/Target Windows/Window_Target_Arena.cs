@@ -12,12 +12,18 @@ namespace FEXNA.Windows.Target
             initialize(loc);
             Unit_Id = unit_id;
             Targets = new List<int> { target_id };
-            this.index = 0;
+
+            InitialTarget();
+
+            Weapon_Name_Visible = false;
+        }
+
+        protected override void InitialTarget(int index = 0)
+        {
+            this.index = index;
             Temp_Index = this.index;
             initialize_images();
             refresh();
-            index = this.index;
-            Weapon_Name_Visible = false;
         }
 
         protected override bool cursor_not_on_target

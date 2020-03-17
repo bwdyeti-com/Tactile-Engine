@@ -33,7 +33,8 @@ namespace FEXNA
         public Vector2 Staff_Target_Loc;
         public int Rescuer_Id;
         public int Rescuee_Id;
-        public int Item_User, Item_Used, Item_Inventory_Target;
+        public int Item_User, Item_Used, Item_Inventory_Target, ItemPromotionId;
+        public Vector2 ItemTargetLoc;
         public int Visitor_Id;
         public Vector2 Visit_Loc;
         public int Shopper_Id;
@@ -66,6 +67,7 @@ namespace FEXNA
         protected List<string> Previous_Chapters;
         protected string Chapter_Id;
         protected Dictionary<string, string> PreviousChapterIds = new Dictionary<string,string>();
+        protected PastRankings Rankings;
         protected int Total_Play_Time, Chapter_Play_Time;
         protected DateTime Chapter_Start_Time, GameplayStartTime;
         protected int Deployed_Unit_Count, Deployed_Unit_Avg_Level;
@@ -110,6 +112,8 @@ namespace FEXNA
             writer.Write(Item_User);
             writer.Write(Item_Used);
             writer.Write(Item_Inventory_Target);
+            writer.Write(ItemPromotionId);
+            ItemTargetLoc.write(writer);
             writer.Write(Shopper_Id);
             Shop_Loc.write(writer);
             writer.Write(SecretShop);
@@ -135,6 +139,7 @@ namespace FEXNA
             Previous_Chapters.write(writer);
             writer.Write(Chapter_Id);
             PreviousChapterIds.write(writer);
+            Rankings.write(writer);
             writer.Write(Total_Play_Time);
             writer.Write(Chapter_Play_Time);
             writer.Write(Chapter_Start_Time.ToBinary());
@@ -193,6 +198,10 @@ namespace FEXNA
             Item_Used = reader.ReadInt32();
             if (!loadedVersion.older_than(0, 4, 6, 1))
                 Item_Inventory_Target = reader.ReadInt32();
+            if (!loadedVersion.older_than(0, 6, 6, 0))
+                ItemPromotionId = reader.ReadInt32();
+            if (!loadedVersion.older_than(0, 6, 4, 1))
+                ItemTargetLoc = ItemTargetLoc.read(reader);
             Shopper_Id = reader.ReadInt32();
             Shop_Loc = Shop_Loc.read(reader);
             if (!loadedVersion.older_than(0, 5, 0, 5))
@@ -266,6 +275,10 @@ namespace FEXNA
                     }
                 }
             }
+            if (!loadedVersion.older_than(0, 6, 7, 0))
+                Rankings = PastRankings.read(reader, Difficulty_Mode);
+            else
+                Rankings = new PastRankings();
             Total_Play_Time = reader.ReadInt32();
             Chapter_Play_Time = reader.ReadInt32();
             if (!loadedVersion.older_than(0, 4, 6, 3))
@@ -374,6 +387,7 @@ namespace FEXNA
         }
         public string chapter_id { get { return Chapter_Id; } }
         internal Dictionary<string, string> previous_chapter_id { get { return PreviousChapterIds; } }
+        internal PastRankings rankings { get { return Rankings; } }
 
         public int total_play_time { get { return Total_Play_Time; } }
         public int chapter_play_time { get { return Chapter_Play_Time; } }
@@ -477,6 +491,8 @@ namespace FEXNA
             Item_User = -1;
             Item_Used = -1;
             Item_Inventory_Target = -1;
+            ItemPromotionId = -1;
+            ItemTargetLoc = new Vector2(-1, -1);
             Visitor_Id = -1;
             Visit_Loc = new Vector2(-1, -1);
             Shopper_Id = -1;
@@ -508,6 +524,7 @@ namespace FEXNA
             Difficulty_Mode = Difficulty_Modes.Normal;
             Style = Global.save_file == null ? Mode_Styles.Standard : Global.save_file.Style;
             Previous_Chapters = new List<string>();
+            Rankings = new PastRankings();
             Total_Play_Time = 0;
             Chapter_Save_Progression_Keys = new string[0];
             Victory = false;
@@ -646,6 +663,11 @@ namespace FEXNA
             GameplayStartTime = Chapter_Start_Time;
             Deployed_Unit_Count = -1;
             Deployed_Unit_Avg_Level = -1;
+
+            if (Global.save_file == null)
+                Rankings = new PastRankings();
+            else
+                Rankings = Global.save_file.past_rankings(chapter_id, previous_chapter_ids);
         }
 
         public void change_chapter(string id)
@@ -818,7 +840,7 @@ namespace FEXNA
         public bool add_event(int id, bool run_lone_event, bool insert)
         {
             // If the event is already running
-            foreach(Event_Processor processor in Events)
+            foreach (Event_Processor processor in Events)
                 if (processor.key == Global.game_state.event_handler.name + id)
                     return false;
             if (insert)

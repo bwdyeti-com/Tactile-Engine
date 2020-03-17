@@ -7,6 +7,7 @@ namespace FEXNA.Menus.Worldmap
     class WorldmapMenuData
     {
         public bool Classic { get; private set; }
+        public bool AutoSelectChapter { get; private set; }
         public int Index;
         private Dictionary<string, List<string>> CompletedChapters =
             new Dictionary<string, List<string>>();
@@ -50,9 +51,10 @@ namespace FEXNA.Menus.Worldmap
 
         private List<int> GetChapters()
         {
-            // If no chapters have been played at all, then treat the file as classic mode to attempt to automatically select the first chapter
-            if (!Classic && Global.save_file.NoData)
-                Classic = true;
+            AutoSelectChapter = Classic;
+            // If no chapters have been played at all, then attempt to automatically select the first chapter
+            if (!AutoSelectChapter && Global.save_file.NoData)
+                AutoSelectChapter = true;
 
             Index = 0;
             GetCompletedChapters();
@@ -64,18 +66,21 @@ namespace FEXNA.Menus.Worldmap
             else
                 chapters = new List<int>(UnlockedChapters);
 
-            // Selects the chapter in Classic mode
-            if (Classic)
+            // Selects the chapter if autoselecting or classic
+            if (AutoSelectChapter || Classic)
             {
                 // If no chapters have been played and there are multiple choices,
-                // cancel classic because the player needs to select their first chapter
+                // cancel autoselect because the player needs to select their first chapter
                 if (!CompletedChapters.Any() && chapters.Count > 1)
                 {
-                    Classic = false;
+                    AutoSelectChapter = false;
                 }
                 // If save data exists for all chapters, turn off classic
-                else if (!Classic || chapters.All(x => CompletedChapters.ContainsKey(Global.Chapter_List[x])))
+                else if (chapters.All(x => CompletedChapters.ContainsKey(Global.Chapter_List[x])))
+                {
+                    AutoSelectChapter = false;
                     Classic = false;
+                }
                 else
                 {
                     // If there's more than one chapter that can be selected
@@ -103,9 +108,17 @@ namespace FEXNA.Menus.Worldmap
                                     break;
                                 }
                         }
+
                     // If multiple chapters have valid followups, cancel Classic because the player needs to select one
                     if (chapters.Count != 1 && continuable_chapters.Count > 1)
-                        Classic = false;
+                    {
+                        AutoSelectChapter = false;
+                        // If any already completed chapters are selectable, we're not truly in classic mode anymore
+                        if (chapters.Any(x => CompletedChapters.ContainsKey(Global.Chapter_List[x])))
+                        {
+                            Classic = false;
+                        }
+                    }
                     else
                     {
                         if (chapters.Count == 1)
@@ -166,7 +179,7 @@ namespace FEXNA.Menus.Worldmap
                 // If all prior chapters have been completed
                 if (Global.save_file.chapter_available(Global.Chapter_List[i]))
                     // If either it's not classic mode, or it is classic mode but there's no save data for the chapter
-                    if (!(Classic && Global.save_file.ContainsKey(Global.Chapter_List[i])))
+                    if (!(AutoSelectChapter && Global.save_file.ContainsKey(Global.Chapter_List[i])))
                         chapters.Add(i);
             }
 
@@ -188,9 +201,9 @@ namespace FEXNA.Menus.Worldmap
             // If no chapters are valid for classic mode, reload chapters with classic off to try to find anything playable
             if (!chapters.Any())
             {
-                Classic = false;
+                AutoSelectChapter = false;
                 chapters = new List<int>(unlockedChapters);
-                Classic = classic;
+                AutoSelectChapter = classic;
             }
             else
             {
@@ -224,6 +237,27 @@ namespace FEXNA.Menus.Worldmap
                 return followups.Any() && followups.All(x => x.Any(y => Global.save_file.ContainsKey(y)));
             }));
             return skipped_gaidens;
+        }
+
+        public bool IsSkippingGaiden(string selectedChapterId)
+        {
+            // If the player already did this chapter, don't bother them
+            if (Global.save_file.ContainsKey(selectedChapterId))
+                return false;
+
+            // If any of the available chapters that haven't been completed are
+            // prior chapters of the selected chapter
+            List<string> incompleteChapters = IndexRedirects
+                .SelectMany(x => x)
+                .Select(x => Global.Chapter_List[x])
+                .Where(x => !Global.save_file.ContainsKey(x))
+                .ToList();
+            incompleteChapters.Remove(selectedChapterId);
+
+            var previous = Global.data_chapters[selectedChapterId].get_previous_chapters(Global.data_chapters);
+
+            bool overlap = previous.Intersect(incompleteChapters).Any();
+            return overlap;
         }
 
         public void SetChapter(string chapterId)
@@ -304,7 +338,7 @@ namespace FEXNA.Menus.Worldmap
         private void JumpToFirstChapter(List<int> availableChapters)
         {
             // Jumps to the first unplayed chapter
-            if (!Classic)
+            if (!AutoSelectChapter)
             {
                 Maybe<int> index = FirstUnplayedChapter(availableChapters);
                 if (index.IsSomething && IndexRedirects.Any(x => x.Contains(index)))
@@ -378,7 +412,7 @@ namespace FEXNA.Menus.Worldmap
             return previous_chapters;
         }
 
-        public void PickDefaultUnselectedPreviouschapters()
+        public void PickDefaultUnselectedPreviousChapters()
         {
             foreach (string key in PreviousChapterIndices.Keys.ToList())
                 if (PreviousChapterIndices[key] == -1)

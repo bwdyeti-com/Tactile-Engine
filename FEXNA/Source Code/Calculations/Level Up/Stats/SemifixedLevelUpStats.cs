@@ -59,7 +59,7 @@ namespace FEXNA.Calculations.LevelUp.Stats
 
             // Get totals
             float growthTotal = multiplier * stats
-                .Select(x => growthRates[x] / (float)Game_Actor.get_stat_ratio(x))
+                .Select(x => growthRates[x] / (float)Game_Actor.GetStatRatio(x))
                 .Sum();
 
             // Take the roll for each growth rate and get the difference
@@ -83,7 +83,7 @@ namespace FEXNA.Calculations.LevelUp.Stats
             {
                 int stat = rolls[0].Item1;
                 rolls.RemoveAt(0);
-                float value = 1 / (float)Game_Actor.get_stat_ratio(stat);
+                float value = 1 / (float)Game_Actor.GetStatRatio(stat);
                 float statWorth = value * 100;
 
                 // IF the remaining points to gain are worth more than the current stat,

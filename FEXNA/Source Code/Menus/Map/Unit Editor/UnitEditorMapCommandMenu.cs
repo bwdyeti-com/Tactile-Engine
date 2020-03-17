@@ -58,18 +58,18 @@ namespace FEXNA.Menus.Map
                 Config.MAPCOMMAND_WINDOW_DEPTH);
         }
 
-        protected override bool CanceledTriggered
+        protected override bool CanceledTriggered(bool active)
         {
-            get
+            bool cancel = base.CanceledTriggered(active);
+            if (active)
             {
-                bool cancel = base.CanceledTriggered;
                 // If right clicked or tapped on nothing in particular
                 cancel |= Global.Input.mouse_click(MouseButtons.Right) ||
                     Global.Input.gesture_triggered(TouchGestures.Tap);
-                return cancel;
             }
+            return cancel;
         }
-
+        
         private int new_team(int old_team, bool left)
         {
             if (left)
@@ -115,13 +115,11 @@ namespace FEXNA.Menus.Map
                     create_cancel_button();
                 CancelButton.Update(active);
             }
-            bool cancel = this.CanceledTriggered;
+            bool cancel = CanceledTriggered(active);
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {
@@ -131,8 +129,7 @@ namespace FEXNA.Menus.Map
 
                         if (Global.game_map.teams[Window_Unit_Team.TEAM].Count > 0)
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         else
                             Global.game_system.play_se(System_Sounds.Buzzer);
@@ -143,25 +140,22 @@ namespace FEXNA.Menus.Map
                             Global.game_system.play_se(System_Sounds.Buzzer);
                         else
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         break;
                     case Unit_Editor_Options.Reinforcements: // Reinforcements
                     case Unit_Editor_Options.Options: // Options
                     case Unit_Editor_Options.Clear_Units: // Clear Units
                     case Unit_Editor_Options.Mirror_Units: // Mirror Units
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     case Unit_Editor_Options.Playtest: // Playtest map
-                        OnSelected(new EventArgs());
+                        SelectItem();
                         break;
                     case Unit_Editor_Options.Revert: // Revert to last save
                     case Unit_Editor_Options.Save: // Save
                     case Unit_Editor_Options.Quit: // Quit
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                 }
             }

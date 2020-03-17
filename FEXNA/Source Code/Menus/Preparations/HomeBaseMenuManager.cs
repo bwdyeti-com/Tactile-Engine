@@ -49,13 +49,7 @@ namespace FEXNA.Menus.Preparations
                 (HomeBaseManageChoices)manageCommandMenu.Index);
 
             // Training
-            Window_Sparring.reset();
-            var sparringMenu = new Window_Sparring();
-            sparringMenu.black_screen();
-            sparringMenu.Spar += sparringMenu_Spar;
-            sparringMenu.Status += itemsMenu_Status;
-            sparringMenu.Closed += menu_Closed;
-            AddMenu(sparringMenu);
+            AddSparringMenu(true);
         }
 
         public override void ResumeItemUse()
@@ -74,8 +68,6 @@ namespace FEXNA.Menus.Preparations
                 (HomeBaseManageChoices)manageCommandMenu.Index);
 
             AddItemMenu(true);
-            var itemsMenu = Menus.Peek() as Window_Prep_Items;
-            itemsMenu.black_screen();
         }
 
         private CommandMenu GetManageMenu(Vector2 optionLocation,
@@ -221,19 +213,16 @@ namespace FEXNA.Menus.Preparations
                     else
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
-                        Window_Sparring.reset();
-                        var sparringMenu = new Window_Sparring();
-                        sparringMenu.Spar += sparringMenu_Spar;
-                        sparringMenu.Status += itemsMenu_Status;
-                        sparringMenu.Closed += menu_Closed;
-                        AddMenu(sparringMenu);
+                        AddSparringMenu();
                     }
                     break;
                 case HomeBaseManageChoices.Support:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     var supportMenu = new Window_Base_Support();
+                    supportMenu.UnitSelected += SupportMenu_UnitSelected;
                     supportMenu.Support += supportMenu_Support;
-                    supportMenu.Status += itemsMenu_Status;
+                    supportMenu.SupportEnded += SupportMenu_SupportEnded;
+                    supportMenu.Status += preparationsMenu_Status;
                     supportMenu.Closed += menu_Closed;
                     AddMenu(supportMenu);
                     break;
@@ -241,21 +230,137 @@ namespace FEXNA.Menus.Preparations
         }
 
         //Sparring
+        #region Sparring
+        private void AddSparringMenu(bool resuming = false)
+        {
+            Window_Sparring.reset();
+            var sparringMenu = new Window_Sparring();
+            if (resuming)
+                sparringMenu.black_screen();
+            sparringMenu.Spar += sparringMenu_Spar;
+            sparringMenu.BattlersSelected += SparringMenu_BattlersSelected;
+            sparringMenu.Status += preparationsMenu_Status;
+            sparringMenu.Closed += menu_Closed;
+            AddMenu(sparringMenu);
+        }
+
         void sparringMenu_Spar(object sender, EventArgs e)
         {
             var sparringWindow = (sender as Window_Sparring);
+
+            menu_Closed(Menus.Peek(), e); // Screen Fade
+            menu_Closed(Menus.Peek(), e); // Confirmation Menu
 
             MenuHandler.HomeBaseTraining(
                 Window_Sparring.Healer_Id,
                 Window_Sparring.Battler_1_Id,
                 Window_Sparring.Battler_2_Id);
         }
+        
+        private void SparringMenu_BattlersSelected(object sender, EventArgs e)
+        {
+            var sparringWindow = (sender as Window_Sparring);
+
+            var sparringConfirmWindow = sparringWindow.ConfirmWindow();
+            var sparringConfirmMenu = new ConfirmationMenu(sparringConfirmWindow);
+            sparringConfirmMenu.Confirmed += SparringConfirmMenu_Confirmed;
+            sparringConfirmMenu.Canceled += SparringConfirmMenu_Canceled;
+            AddMenu(sparringConfirmMenu);
+        }
+        
+        private void SparringConfirmMenu_Confirmed(object sender, EventArgs e)
+        {
+            var sparringWindow = (Menus.ElementAt(1) as Window_Sparring);
+
+            if (sparringWindow.AcceptBattle())
+            {
+                var sparringSceneFadeIn = sparringWindow.SparringFadeIn();
+                sparringSceneFadeIn.Finished += menu_Closed;
+                AddMenu(sparringSceneFadeIn);
+            }
+        }
+
+        private void SparringConfirmMenu_Canceled(object sender, EventArgs e)
+        {
+            menu_Closed(sender, e);
+            var sparringWindow = (Menus.Peek() as Window_Sparring);
+            sparringWindow.CancelUnitSelecting();
+        }
+        #endregion
+
+        private void SupportMenu_UnitSelected(object sender, EventArgs e)
+        {
+            var supportMenu = (sender as Window_Base_Support);
+            var commandWindow = supportMenu.GetCommandWindow();
+
+            var supportPartnerMenu = new SupportCommandMenu(commandWindow);
+            supportPartnerMenu.Selected += SupportPartnerMenu_Selected;
+            supportPartnerMenu.Canceled += menu_Closed;
+            AddMenu(supportPartnerMenu);
+        }
+
+        private void SupportPartnerMenu_Selected(object sender, EventArgs e)
+        {
+            var supportPartnerMenu = (sender as SupportCommandMenu);
+            var supportMenu = (Menus.ElementAt(1) as Window_Base_Support);
+            int targetId = supportPartnerMenu.TargetId;
+
+            if (supportMenu.TrySelectPartner(targetId))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+
+                var supportConfirmWindow = new Preparations_Confirm_Window();
+                supportConfirmWindow.set_text(string.Format("Speak to {0}?",
+                    Global.game_actors[targetId].name));
+                supportConfirmWindow.add_choice("Yes", new Vector2(16, 12));
+                supportConfirmWindow.add_choice("No", new Vector2(64, 12));
+                supportConfirmWindow.size = new Vector2(112, 40);
+                supportConfirmWindow.loc = new Vector2(32, 24);
+                supportConfirmWindow.index = 1;
+
+                var supportConfirmMenu = new ConfirmationMenu(supportConfirmWindow);
+                supportConfirmMenu.Confirmed += SupportConfirmMenu_Confirmed;
+                supportConfirmMenu.Canceled += menu_Closed;
+                AddMenu(supportConfirmMenu);
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
+        private void SupportConfirmMenu_Confirmed(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var supportConfirmMenu = (sender as ConfirmationMenu);
+            var supportMenu = (Menus.ElementAt(2) as Window_Base_Support);
+
+            supportMenu.AcceptSupport();
+
+            var supportSceneFadeIn = supportMenu.SupportFadeIn();
+            supportSceneFadeIn.Finished += menu_Closed;
+            AddMenu(supportSceneFadeIn);
+        }
 
         void supportMenu_Support(object sender, EventArgs e)
         {
             var supportWindow = (sender as Window_Base_Support);
+            var supportPartnerMenu = (Menus.ElementAt(2) as SupportCommandMenu);
+            int targetId = supportPartnerMenu.TargetId;
+
+            menu_Closed(Menus.Peek(), e); // Screen Fade
+            menu_Closed(Menus.Peek(), e); // Confirmation Menu
+            menu_Closed(Menus.Peek(), e); // Command Menu
+
             MenuHandler.HomeBaseSupport(
-                supportWindow.actor_id, supportWindow.target_actor_id);
+                supportWindow.ActorId, targetId);
+        }
+
+        private void SupportMenu_SupportEnded(object sender, EventArgs e)
+        {
+            var supportMenu = (sender as Window_Base_Support);
+
+            var supportSceneFadeIn = supportMenu.SupportFadeOut();
+            supportSceneFadeIn.Finished += menu_Closed;
+            AddMenu(supportSceneFadeIn);
         }
         #endregion
 

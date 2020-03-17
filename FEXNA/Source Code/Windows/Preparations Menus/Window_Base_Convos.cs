@@ -8,7 +8,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Windows
 {
-    // @Debug: the stars should still be part of the text items instead of drawn on top
+    //@Debug: the stars should still be part of the text items instead of drawn on top
     class Window_Base_Convos : Window_Command
     {
         private List<Sprite> Priority_Stars;

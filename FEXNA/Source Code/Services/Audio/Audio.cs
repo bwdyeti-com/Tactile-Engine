@@ -342,7 +342,7 @@ namespace FEXNA.Services.Audio
             if (forceRestart)
                 BgmManager.Stop("Bgm");
 
-            BgmManager.Restore(cueName, "Bgm", fadeIn);
+            BgmManager.Restore(cueName, "Bgm", fadeIn, forceRestart);
         }
 
         private void play_map_bgm(string cueName, bool fadeIn = false)
@@ -1157,7 +1157,7 @@ namespace FEXNA.Services.Audio
         public IEnumerable<string> PendingBgm { get; private set; }
 
         public AudioDiagnostics(IEnumerable<string> bgm, IEnumerable<string> pendingBgm)
-            :this()
+            : this()
         {
             Bgm = bgm;
             PendingBgm = pendingBgm;

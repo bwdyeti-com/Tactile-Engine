@@ -25,7 +25,7 @@ namespace FEXNA
         private FE_Text[] Labels = new FE_Text[5];
 
         #region Accessors
-        private Game_Unit unit { get { return Global.game_map.units[Unit_Id]; } }
+        public Game_Unit unit { get { return Global.game_map.units[Unit_Id]; } }
 
         private Game_Unit opponent { get { return Opponent_Id == -1 ? null : Global.game_map.units[Opponent_Id]; } }
         #endregion
@@ -128,10 +128,8 @@ namespace FEXNA
             // doot doot 14 RNs; only 13 used so far
             // Get the tier level the unit should be fighting at
             int tier = unit.actor.tier;
-            List<int> tier_keys = new List<int>();
-            tier_keys.AddRange(Config.GLADIATORS.Keys);
             while (!Config.GLADIATORS.ContainsKey(tier))
-                if (tier_keys[0] < tier)
+                if (Config.GLADIATORS.Keys.Max() < tier)
                     tier--;
                 else
                     tier++;
@@ -160,43 +158,51 @@ namespace FEXNA
             opponent.actor.name = "Gladiator";
             opponent.actor.level_down();
             opponent.actor.exp = 0;
+
             // Set opponent's level
-            int exp_gain = 0;
-            if (true) //Global.game_system.has_tier_0s and actor.tier > 0 //Yeti
-                exp_gain += Constants.Actor.TIER0_LVL_CAP * Constants.Actor.EXP_TO_LVL / (unit.actor.tier > 0 ? 1 : 2);
-            for (int i = 1; i < opponent.actor.tier; i++)
-                exp_gain += Constants.Actor.LVL_CAP * Constants.Actor.EXP_TO_LVL;
-            int level = 1;
-            if (opponent.actor.tier == unit.actor.tier)
-                level = unit.actor.level;
-            else if (opponent.actor.tier < unit.actor.tier)
-                level = opponent.actor.level_cap();
-            // Level is from player lvl-3 to lvl+3
+            int level = 0;
+            if (opponent.actor.tier < unit.actor.tier)
+                level += Constants.Actor.RawLevelCap(opponent.actor.tier);
+            else if (opponent.actor.tier == unit.actor.tier)
+                level += unit.actor.level;
+            // Add levels by RN
             for (int i = 0; i < 3; i++)
             {
+                // Level is from player lvl-3 to lvl+3, distributed around +0
                 int rn = Global.game_system.get_rng(); // 3 RNs
                 if (rn < 33)
                     level--;
                 else if (rn > 66)
                     level++;
             }
-            exp_gain += Config.ARENA_LVL_BONUS[Global.game_system.Difficulty_Mode] *
-                Constants.Actor.EXP_TO_LVL;
-            if (level < 1)
+            // Get extra exp for prepromote levels or difficulty
+            int exp_gain = 0;
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
             {
-                exp_gain += (level + 1) * (-Constants.Actor.EXP_TO_LVL);
-                level = 1;
+                exp_gain = Constants.Actor.LevelsBeforeTier(opponent.actor.tier);
             }
-            else if (level > opponent.actor.level_cap())
+            exp_gain += Config.ARENA_LVL_BONUS[Global.game_system.Difficulty_Mode];
+            exp_gain *= Constants.Actor.EXP_TO_LVL;
+            // Ensure level is within bounds
+            int minLevel = Constants.Actor.RESET_LEVEL_ON_PROMOTION ?
+                1 : Constants.Actor.LevelsBeforeTier(opponent.actor.tier);
+            if (level < minLevel)
             {
-                exp_gain += (level - opponent.actor.level_cap()) * Constants.Actor.EXP_TO_LVL;
-                level = opponent.actor.level_cap();
+                exp_gain -= (minLevel - level) * Constants.Actor.EXP_TO_LVL;
+                level = minLevel;
             }
-            exp_gain = Math.Max(0, exp_gain);
+            else if (level > Constants.Actor.LevelCap(opponent.actor.tier))
+            {
+                exp_gain += (level - Constants.Actor.LevelCap(opponent.actor.tier)) *
+                    Constants.Actor.EXP_TO_LVL;
+                level = Constants.Actor.LevelCap(opponent.actor.tier);
+            }
+            
             // 8 RNs, 1 for affinity, one each for 7 stats
             opponent.actor.setup_generic(Config.GLADIATORS[tier][key].Class_Id, level,
                 0, exp_gain / Constants.Actor.EXP_TO_LVL, Generic_Builds.Strong,
                 Config.GLADIATORS[tier][key].Con, true);
+
             float stat_comparison =
                 ((float)(unit.actor.stat_total()) / opponent.actor.stat_total()) *
                 unit.actor.full_level / 3;

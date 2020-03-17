@@ -219,9 +219,18 @@ namespace FEXNA
                 if (Constants.Support.NEW_MAP_COUNTS_AS_SEPARATE_CHAPTER)
                     reset_support_data();
                 Home_Base_Events.Clear();
+
+                // Reset unsaved data
+                Update_Victory_Theme = false;
                 Screen_Tone = new Tone(0, 0, 0, 0);
                 Source_Screen_Tone = new Tone(0, 0, 0, 0);
                 Target_Screen_Tone = new Tone(0, 0, 0, 0);
+                Tone_Timer = 0;
+                Tone_Time_Max = 0;
+                prev_player_loc = null;
+#if !MONOGAME && DEBUG
+                Moving_Editor_Unit = false;
+#endif
             }
         }
 
@@ -639,8 +648,7 @@ namespace FEXNA
                             !Global.game_map.get_shop(Global.player.loc).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
-                            Global.game_temp.call_shop(false);
-                            Global.game_system.Shopper_Id = -1;
+                            Global.game_temp.preview_shop();
                             Global.game_system.Shop_Loc = Global.player.loc;
                         }
                         else
@@ -739,8 +747,7 @@ namespace FEXNA
                             !Global.game_map.get_shop(Global.player.loc).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
-                            Global.game_temp.call_shop(false);
-                            Global.game_system.Shopper_Id = -1;
+                            Global.game_temp.preview_shop();
                             Global.game_system.Shop_Loc = Global.player.loc;
                         }
                         else
@@ -955,6 +962,7 @@ namespace FEXNA
 
         protected void update_main_turn_change()
         {
+            // This needs to not stop on non-player turns on turn 0??? //@Yeti
             if (Changing_Turn)
             {
                 if (No_Input_Timer <= 0)
@@ -971,7 +979,21 @@ namespace FEXNA
                                 break;
                             // Loops through these three, starting and ending turns that no units exist for
                             case 0:
+                                // If units got added to the team so it
+                                // shouldn't be skipped any more
+                                if (!SkipTeamTurn(Skipped_Turns[0]))
+                                {
+                                    Skipped_Turns.Clear();
+                                    break;
+                                }
+
                                 Team_Turn = Skipped_Turns[0];
+                                // This used to be checked in case 2,
+                                // but that would not work
+                                // It never triggered incorrectly because the
+                                // player turn is basically never skipped //@Debug
+                                if (Team_Turn <= Previous_Turn || Previous_Turn == 0)
+                                    next_turn();
                                 Skipped_Turns.RemoveAt(0);
                                 turn_start_events();
                                 Skipped_Turn_Action = 1;
@@ -982,8 +1004,6 @@ namespace FEXNA
                                 break;
                             case 2:
                                 Skipped_Turn_Action = 0;
-                                if (Team_Turn <= Previous_Turn)
-                                    next_turn();
                                 Previous_Turn = Team_Turn;
                                 break;
                         }
@@ -1089,6 +1109,7 @@ namespace FEXNA
                 {
                     if (Talk_Events[i].for_these_units(unit1, unit2))
                     {
+                        // This will pop up after the talk event
                         unit1.talk_support_gain_display(unitId2);
 
                         unit1.actor.talk_support_gain(unit2.actor.id);
@@ -1442,7 +1463,9 @@ namespace FEXNA
         }
         public void resume_turn_theme(bool fade)
         {
-            if (!Global.game_system.preparations && !Global.game_system.is_victory()) //Yeti
+            if (Global.game_system.preparations)
+                Global.Audio.ResumeMapTheme(Constants.Audio.Bgm.PREPARATIONS_THEME);
+            else if (!Global.game_system.is_victory()) //Yeti
                 Global.Audio.ResumeMapTheme(Turn_Theme);
         }
 
@@ -1475,7 +1498,8 @@ namespace FEXNA
 
         public void play_preparations_theme()
         {
-            Global.Audio.PlayBgm(Constants.Audio.Bgm.PREPARATIONS_THEME, forceRestart: true);
+            Global.Audio.PlayMapTheme(Constants.Audio.Bgm.PREPARATIONS_THEME);
+            //Global.Audio.PlayBgm(Constants.Audio.Bgm.PREPARATIONS_THEME, forceRestart: true); //@Debug
         }
         #endregion
 
@@ -1516,6 +1540,7 @@ namespace FEXNA
                         return false;
                     else if (test_only)
                         return Global.game_options.auto_turn_end == 0;
+
                     // If any team has units
                     if (Global.game_map.teams.Any(x => x.Any()))
                     {
@@ -1557,6 +1582,7 @@ namespace FEXNA
             int change_to = determine_next_turn(Previous_Turn);
             if (Skipped_Turns.Count > 0)
                 return false;
+
             if (Turn <= 0)
                 Temp_Player_Loc = Global.player.loc;
             Team_Turn = change_to;
@@ -1573,7 +1599,9 @@ namespace FEXNA
                 Global.Audio.BgmFadeOut(60);
                 play_turn_theme();
             }
-            Previous_Turn = 0;
+            // Is there a reason this resets this to 0
+            // Maybe it should use -1 instead //@Debug
+            Previous_Turn = -1;
             // Autocursor
             if (is_player_turn)
                 Global.player.autocursor(Temp_Player_Loc);
@@ -1614,6 +1642,7 @@ namespace FEXNA
             while (!cont)
             {
                 cont = true;
+                // Team turn is 0 on turn 0
                 if (change_from == Constants.Team.PLAYER_TEAM)
                 {
                     Temp_Player_Loc = Global.player.loc;
@@ -1625,8 +1654,7 @@ namespace FEXNA
                     Global.game_map.units[id].end_turn();
                 }
 
-                if (!Global.game_map.teams[next_turn_value]
-                    .Any(x => !Global.game_map.units[x].is_rescued))
+                if (SkipTeamTurn(next_turn_value))
                 {
                     Skipped_Turns.Add(next_turn_value);
                     cont = false;
@@ -1634,6 +1662,13 @@ namespace FEXNA
                 }
             }
             return next_turn_value;
+        }
+
+        private bool SkipTeamTurn(int team)
+        {
+            // Check if team has any non-rescued units
+            return !Global.game_map.teams[team]
+                .Any(x => !Global.game_map.units[x].is_rescued);
         }
 
         protected void next_turn()

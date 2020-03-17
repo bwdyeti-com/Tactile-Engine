@@ -12,9 +12,11 @@ namespace FEXNA.Windows.UserInterface.Command
             base(helpLabel, text, width)
         {
             MapSprite = new Character_Sprite();
-            MapSprite.draw_offset = new Vector2(-8, 16);
+            MapSprite.draw_offset = new Vector2(8, 16);
             MapSprite.facing_count = 3;
             MapSprite.frame_count = 3;
+
+            Text.draw_offset += new Vector2(16, 0);
         }
 
         public void set_map_sprite(string filename, int team)

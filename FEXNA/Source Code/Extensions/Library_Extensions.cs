@@ -3,18 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FEXNA_Library;
 
-namespace FEXNAClassExtension
-{
-    public static class Extension
-    {
-        public static int level_cap(this Data_Class class_data)
-        {
-            return class_data.Tier == 0 ?
-                FEXNA.Constants.Actor.TIER0_LVL_CAP : FEXNA.Constants.Actor.LVL_CAP;
-        }
-    }
-}
-
 namespace FEXNAWeaponExtension
 {
     public static class Extension

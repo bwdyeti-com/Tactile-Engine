@@ -11,7 +11,6 @@ namespace FEXNA.Windows.Target
         private int Index = 0, _lastTargetIndex;
         protected int Temp_Index = -1;
         protected Vector2 Loc;
-        public bool active = true;
         protected List<T> Targets;
         protected int Left_X = 4;
         protected int Right_X = Config.WINDOW_WIDTH - 76;// 244;
@@ -104,7 +103,7 @@ namespace FEXNA.Windows.Target
 
         protected abstract void set_images();
 
-        public void update()
+        public void update(bool active)
         {
             reset_selected();
 
@@ -304,6 +303,41 @@ namespace FEXNA.Windows.Target
         {
             Global.player.loc = loc;
             get_unit().face(loc);
+        }
+        
+        public bool ChangeIndex(Vector2 loc)
+        {
+            var index = IndexOfLoc(loc);
+            if (index.IsSomething)
+            {
+                _lastTargetIndex = index;
+                move_to(index);
+                    
+                Global.player.instant_move = true;
+                Global.player.force_loc(loc);
+
+                refresh();
+                this.index = Temp_Index;
+                set_images();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        protected Maybe<int> IndexOfLoc(Vector2 loc)
+        {
+            for (int i = 0; i < Targets.Count; i++)
+            {
+                T target = Targets[i];
+                if (target_loc(target) == loc)
+                {
+                    return i;
+                }
+            }
+
+            return Maybe<int>.Nothing;
         }
 
         public Maybe<int> selected_index()

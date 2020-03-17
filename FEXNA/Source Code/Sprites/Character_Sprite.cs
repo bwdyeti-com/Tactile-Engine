@@ -47,7 +47,6 @@ namespace FEXNA.Graphics.Map
         {
             Status_Index = 0;
             List<int> statuses = new List<int>();
-            //Status_Effect = null;
             foreach (int id in states)
                 if (Map_Status_Effect.status_ids.Contains(id))
                     statuses.Add(id);
@@ -71,10 +70,13 @@ namespace FEXNA.Graphics.Map
                 else if (!Hold_Animation)
                     (unit as Game_Unit).update_sprite_frame(this);
             }
-            else if (Animation != null)
-                update_animation(null);
-            //if (Status_Effect != null)
-            //    Status_Effect.update();
+            else
+            {
+                if (Animation != null)
+                    update_animation(null);
+                else if (!Hold_Animation)
+                    Map_Object.UpdateSpriteIdleFrame(this);
+            }
         }
 
         public static void update_status_timer()

@@ -6,7 +6,7 @@ namespace FEXNA.Windows.Command.Items
     {
         public Window_Command_Item_Send(int unit_id, Vector2 loc) : base(unit_id, loc) { }
 
-        protected override string drop_text()
+        public override string drop_text()
         {
             return "Send";
         }

@@ -29,7 +29,7 @@ namespace FEXNA
                 if (value)
                 {
                     Healer_Cursor.visible = true;
-                    Healer_Cursor.loc = cursor_loc() + new Vector2(8, 4 + Scroll * row_size());
+                    Healer_Cursor.loc = cursor_loc() + new Vector2(8, 4 + Scroll * this.RowSize);
                 }
                 else
                     Healer_Cursor.visible = false;
@@ -43,7 +43,7 @@ namespace FEXNA
                 if (value)
                 {
                     Battler_1_Cursor.visible = true;
-                    Battler_1_Cursor.loc = cursor_loc() + new Vector2(8, 4 + Scroll * row_size());
+                    Battler_1_Cursor.loc = cursor_loc() + new Vector2(8, 4 + Scroll * this.RowSize);
                 }
                 else
                     Battler_1_Cursor.visible = false;
@@ -51,17 +51,11 @@ namespace FEXNA
         }
         #endregion
 
-        public Window_Prep_Sparring_Unit() { }
-
-        protected override void initialize()
-        {
-            WIDTH = unit_spacing() * COLUMNS + 32 + 8;
-            HEIGHT = ROWS * ROW_SIZE + 8;
-            loc = new Vector2((Config.WINDOW_WIDTH - WIDTH) / 2, 0);
-            Unit_Scissor_Rect = new Rectangle((int)loc.X, (int)loc.Y + 4, WIDTH, HEIGHT - 8);
-            initialize_sprites();
-            initialize_index();
-        }
+        #region WindowPrepActorList Abstract
+        protected override int Columns { get { return COLUMNS; } }
+        protected override int VisibleRows { get { return ROWS; } }
+        protected override int RowSize { get { return ROW_SIZE; } }
+        #endregion
 
         protected override void initialize_sprites()
         {
@@ -83,7 +77,7 @@ namespace FEXNA
                 points = Global.battalion.sparring_readiness(actorId);
             staff_points = Global.battalion.overseer_uses(actorId);
 
-            var node = new PrepSparringUnitUINode(actorId, points, staff_points);
+            var node = new PrepSparringUnitUINode(Global.game_actors[actorId].name, points, staff_points);
             node.Size = new Vector2(unit_spacing(), ROW_SIZE);
             return node;
         }
@@ -96,7 +90,8 @@ namespace FEXNA
 
         protected override bool map_sprite_ready(int index)
         {
-            if (Global.battalion.actors[index] == Window_Sparring.Healer_Id || Global.battalion.actors[index] == Window_Sparring.Battler_1_Id ||
+            if (Global.battalion.actors[index] == Window_Sparring.Healer_Id ||
+                    Global.battalion.actors[index] == Window_Sparring.Battler_1_Id ||
                     Global.battalion.actors[index] == Window_Sparring.Battler_2_Id)
                 return true;
             // Selecting healer
@@ -158,15 +153,6 @@ namespace FEXNA
                 (UnitNodes[i] as PrepSparringUnitUINode).set_active_pips(pips);
                 (UnitNodes[i] as PrepSparringUnitUINode).set_pip_opacity(pip_opacity);
             }
-        }
-
-        protected override int rows()
-        {
-            return ROWS;
-        }
-        protected override int row_size()
-        {
-            return ROW_SIZE;
         }
 
         protected override void draw_selected_cursor(SpriteBatch sprite_batch)

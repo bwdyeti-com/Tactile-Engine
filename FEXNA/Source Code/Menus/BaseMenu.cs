@@ -6,7 +6,12 @@ namespace FEXNA.Menus
     abstract class BaseMenu : IMenu
     {
         protected bool Visible = true;
-        private bool Active = true;
+        protected bool Active { get; private set; }
+
+        protected BaseMenu()
+        {
+            Active = true;
+        }
 
         protected virtual void Activate() { }
         protected virtual void Deactivate() { }
@@ -25,6 +30,7 @@ namespace FEXNA.Menus
         {
             if (Active != active)
             {
+                // Active needs to be tracked for calling Activate() and Deactivate()
                 if (active)
                     Activate();
                 else
@@ -37,9 +43,17 @@ namespace FEXNA.Menus
         public void Update(bool active)
         {
             UpdateActive(active);
-            UpdateMenu(active);
+
+            UpdateMenu(Active);
         }
         public abstract void Draw(SpriteBatch spriteBatch);
+        public virtual void Draw(
+            SpriteBatch spriteBatch,
+            GraphicsDevice device,
+            RenderTarget2D[] renderTargets)
+        {
+            Draw(spriteBatch);
+        }
         #endregion
     }
 }

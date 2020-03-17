@@ -34,7 +34,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <NuGetPackageImportStamp>917498d6</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -238,7 +238,13 @@
       </Target>
     -->
   <PropertyGroup>
-    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" Eazfuscator.NET.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 3.1</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Release" copy "$(SolutionDir)FEXNA\bin\x86\Release\FEXNA.dll" "$(TargetDir)FEXNA.dll"
+if "$(ConfigurationName)" == "Release" copy "$(SolutionDir)FEXNA\bin\x86\Release\FEXNA_Library.dll" "$(TargetDir)FEXNA_Library.dll"
+if "$(ConfigurationName)" == "Release" copy "$(SolutionDir)FEXNA\bin\x86\Release\MonoGame.Framework.dll" "$(TargetDir)MonoGame.Framework.dll"
+if "$(ConfigurationName)" == "Release" "$(SolutionDir)Confuser\Confuser.CLI.exe" -n -o="$(TargetDir) " "$(TargetPath)" "$(SolutionDir)Confuser\Confuser.crproj"
+if "$(ConfigurationName)" == "Release" del "$(TargetDir)FEXNA.dll"
+if "$(ConfigurationName)" == "Release" del "$(TargetDir)FEXNA_Library.dll"
+if "$(ConfigurationName)" == "Release" del "$(TargetDir)MonoGame.Framework.dll"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="'$(Configuration)' != 'Debug' and Exists('..\..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -70,10 +70,10 @@ namespace FEXNA.Windows.Command
         {
             int width = Window_Img == null ? this.Width : Window_Img.width;
             Rectangle rect = new Rectangle((int)loc.X + 8, (int)loc.Y + 8, width - 16, Rows * 16);
-            rect.X += (int)Text_Offset.X;
-            rect.Y += (int)Text_Offset.Y;
-            rect.Width += (int)(Size_Offset.X - Text_Offset.X);
-            rect.Height += (int)(Size_Offset.Y - Text_Offset.Y);
+            rect.X += 0;
+            rect.Y += 0;
+            rect.Width += (int)(Size_Offset.X - 0);
+            rect.Height += (int)(Size_Offset.Y - 0);
             return Scene_Map.fix_rect_to_screen(rect);
         }
 
@@ -171,10 +171,18 @@ namespace FEXNA.Windows.Command
 
         }
 
-        private FEXNA_Library.IntRange visible_indexes_range()
+        protected FEXNA_Library.IntRange visible_indexes_range()
         {
-            int min = Math.Min(Scroll * Columns, num_items() - 1);
-            int max = Math.Min(min + this.rows * Columns, num_items());
+            int min = Scroll * Columns;
+            if (Scroll * 16 > (int)ScrollOffset.Y)
+                min--;
+            min = Math.Min(min, num_items() - 1);
+
+            int max = min + this.rows * Columns;
+            if (Scroll * 16 != (int)ScrollOffset.Y)
+                max++;
+            max = Math.Min(max, num_items());
+
             return new FEXNA_Library.IntRange(min, max - 1);
         }
 
@@ -258,6 +266,27 @@ namespace FEXNA.Windows.Command
             //Vector2 loc = cursor_loc() + text_draw_vector() + Bar_Offset + new Vector2(8, 8); //Debug
             Vector2 loc = cursor_loc() + base.text_draw_vector() + Bar_Offset + new Vector2(8, 8);
             draw_bar(sprite_batch, loc);
+        }
+
+        protected void DrawFirstVisibleRow(SpriteBatch spriteBatch)
+        {
+            if (Scroll * 16 == (int)(ScrollOffset.Y))
+            {
+                for (int i = 0; i < Columns; i++)
+                {
+                    int index = Scroll * Columns + i;
+                    if (index < this.num_items())
+                        Items[index].Draw(spriteBatch, -(loc + text_draw_vector()));
+                }
+            }
+        }
+
+        protected void DrawRangeText(SpriteBatch spriteBatch)
+        {
+            (Items as UserInterface.PartialRangeVisibleUINodeSet<CommandUINode>).Draw(
+                spriteBatch,
+                visible_indexes_range().Enumerate(),
+                -(loc + text_draw_vector()));
         }
         #endregion
     }

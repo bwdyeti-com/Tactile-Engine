@@ -19,7 +19,7 @@ namespace FEXNA
         protected Sprite Black_Fill, White_Screen;
         protected Battle_Text_Spark Miss_Spark, NoDamage_Spark;
         protected Battle_Hit_Spark Hit_Spark;
-        private HashSet<Battle_Hit_Number> HitNumbers = new HashSet<Battle_Hit_Number>();
+        private List<Battle_Hit_Number> HitNumbers = new List<Battle_Hit_Number>();
         protected int White_Flash_Time, White_Flash_Timer;
         protected int Exp_Gain;
         protected bool Exp_Sound;
@@ -39,7 +39,7 @@ namespace FEXNA
         #region Platform/Background
         protected Game_Unit background_battler { get { return Battler_2 == null ? Battler_1 : (Battler_2.is_opposition ? Battler_2 : Battler_1); } }
 
-        protected virtual Texture2D platform(Game_Unit battler, int distance)
+        protected virtual Texture2D platform(int tag, int distance)
         {
             const string platform_format = @"Graphics/Battlebacks/{0}-{1}";
 
@@ -48,7 +48,6 @@ namespace FEXNA
                 range = "Melee";
             else
                 range = "Ranged";
-            int tag = battler.terrain_id();
 
             string terrain_name;
             Texture2D result;
@@ -189,12 +188,29 @@ namespace FEXNA
             bool right_battler_is_battler_1 = Reverse;
             Platform = new Battle_Platform(Distance > 1);
 
-            Game_Unit right_battler = Reverse ? Battler_1 : (Battler_2 == null ? Battler_1 : Battler_2);
-            Platform.platform_2 = platform(right_battler, Distance);
+            var battler1 = Battler_1;
+            var battler2 = Battler_2;
+            
+            // Skills: Swoop
+            if (battler2 != null && battler1.swoop_activated)
+            {
+                // Use the opponent's platform for swooping attackers
+                battler1 = battler2;
+            }
+
+            Game_Unit right_battler = battler1, left_battler = battler1;
+            if (battler2 != null)
+            {
+                right_battler = Reverse ? battler1 : battler2;
+                left_battler = !Reverse ? battler1 : battler2;
+            }
+            
+            int rightPlatformTerrain = right_battler.terrain_id();
+            Platform.platform_2 = platform(rightPlatformTerrain, Distance);
             Platform.loc_2 = (right_battler_is_battler_1 ? Battler_1_Loc : Battler_2_Loc) + new Vector2(Distance == 1 ? -24 : -37, 94);
 
-            Game_Unit left_battler = !Reverse ? Battler_1 : (Battler_2 == null ? Battler_1 : Battler_2);
-            Platform.platform_1 = platform(left_battler, Distance);
+            int leftPlatformTerrain = left_battler.terrain_id();
+            Platform.platform_1 = platform(leftPlatformTerrain, Distance);
             Platform.loc_1 = Platform.loc_2 + new Vector2(Distance == 1 ? -87 : -(154 + (Distance == 2 ? 0 : 270)), 0);
         }
 
@@ -236,7 +252,7 @@ namespace FEXNA
             }
             foreach (var number in HitNumbers)
                 number.update();
-            HitNumbers.RemoveWhere(x => x.finished);
+            HitNumbers.RemoveAll(x => x.finished);
         }
 
         protected void create_miss_battle_spark(int team, bool reverse)
@@ -317,9 +333,13 @@ namespace FEXNA
 
         protected void initialize_battle_sprites()
         {
-            Battler_1_Sprite = new Battler_Sprite(Battler_1, Reverse, Distance, Reverse);
+            var battler1Data = new BattlerSpriteData(Battler_1);
+            Battler_1_Sprite = new Battler_Sprite(battler1Data, Reverse, Distance, Reverse);
             if (Battler_2 != null)
-                Battler_2_Sprite = new Battler_Sprite(Battler_2, !Reverse, Distance, Reverse);
+            {
+                var battler2Data = new BattlerSpriteData(Battler_2);
+                Battler_2_Sprite = new Battler_Sprite(battler2Data, !Reverse, Distance, Reverse);
+            }
             // Initial battle sprite positions to match map sprites: battler 1
             Battler_1_Sprite.loc = Battler_1_Map_Loc =
                 (Battler_1_Sprite.battler.loc * Constants.Map.TILE_SIZE -

@@ -30,7 +30,7 @@ namespace FE7x
     {
         #region Constants
         public const int FRAME_RATE = 60;
-        readonly static Version OLDEST_ALLOWED_SUSPEND_VERSION = new Version(0, 6, 2, 0);
+        readonly static Version OLDEST_ALLOWED_SUSPEND_VERSION = new Version(0, 6, 7, 0);
         readonly static Version OLDEST_ALLOWED_SAVE_VERSION = new Version(0, 4, 4, 0);
 
         const string SAVESTATE_FILENAME = "savestate1";
@@ -302,7 +302,7 @@ namespace FE7x
             Global.set_update_uri(Update_Checker.GAME_DOWNLOAD);
 
             camera = new Camera(Window_Width, Window_Height, Vector2.Zero);
-            FEXNA.Input.set_defaults();
+            FEXNA.Input.default_controls();
 
             base.Initialize();
 
@@ -357,7 +357,6 @@ namespace FE7x
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            GraphicsDevice device = graphics.GraphicsDevice;
 
             MouseCursorTexture =
                 Content.Load<Texture2D>(@"Graphics/Pictures/MouseCursor");
@@ -1305,6 +1304,8 @@ namespace FE7x
                             if (map_save)
                                 Global.map_save_created();
                     }
+                    // Write progress data
+                    save_progress();
                     Global.scene.reset_suspend_calling();
                     Global.scene.reset_suspend_filename();
                     if (Global.return_to_title)
@@ -1336,7 +1337,7 @@ namespace FE7x
                     // Update and write progress data
                     Global.progress.update_progress(Global.save_file);
                     save_progress();
-                    Global.scene.save_data_calling = false;
+                    Global.scene.EndSaveData();
                 }
             }
         }
@@ -1563,13 +1564,15 @@ namespace FE7x
                     if (new_scene == "Start_Game" || new_scene == "Debug_Start")
                     {
                         if (new_scene == "Debug_Start")
+                        {
                             DEBUG_FILE_ID_TEST = FILE_ID = 1;
+                            Global.current_save_id = FILE_ID;
+                        }
                         new_scene = "Start_Game";
 #else
                     if (new_scene == "Start_Game")
                     {
 #endif
-                        Global.current_save_id = FILE_ID;
                         load_file();
                         Global.game_options.post_read();
                         Global.game_temp = new Game_Temp();
@@ -3373,12 +3376,12 @@ namespace FE7x
                             else
                                 info = FEXNA.IO.Save_Info.get_save_info(file_id, data.File, suspend_exists);
 
+                            // Copy transient file info (last chapter played, last time started)
                             if (old_save_files_info != null &&
                                 old_save_files_info.ContainsKey(file_id))
                             {
                                 var old_info = old_save_files_info[file_id];
-                                if (!string.IsNullOrEmpty(old_info.LastStartedChapter))
-                                    info.SetStartedChapter(old_info.LastStartedChapter);
+                                info.CopyTransientInfo(old_info);
                             }
 
                             // Set the file info into the dictionary
@@ -3590,7 +3593,7 @@ namespace FE7x
             Global.fullscreen = false;
             Global.stereoscopic_level = 0;
             Global.anaglyph = true;
-            FEXNA.Input.default_keys();
+            FEXNA.Input.default_controls();
         }
         #endregion
 

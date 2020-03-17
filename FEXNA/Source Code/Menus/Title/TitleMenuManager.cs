@@ -90,7 +90,7 @@ namespace FEXNA.Menus.Title
 
         void mainMenu_Opened(object sender, EventArgs e)
         {
-            var titleMenu = Menus.ElementAt(1) as TitleScreenMenu;
+            var titleMenu = (Menus.ElementAt(1) as TitleScreenMenu);
             titleMenu.HideStart();
 
             CheckMetrics();
@@ -212,6 +212,20 @@ at any time from the options menu.");
                     AddMenu(testBattleMenu);
                     break;
 #endif
+                case Main_Menu_Selections.Extras:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    mainMenu.HideMenus();
+
+                    Global.game_state.reset();
+                    Global.game_map = new Game_Map();
+                    Global.game_temp = new Game_Temp();
+                    Global.game_battalions = new Game_Battalions();
+                    Global.game_actors = new Game_Actors();
+                    var extrasMenu = new ExtrasMenu();
+                    extrasMenu.Selected += ExtrasMenu_Selected;
+                    extrasMenu.Closed += menu_Closed;
+                    extrasMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
                 case Main_Menu_Selections.Quit:
                     string caption = "Are you sure you\nwant to quit?";
 
@@ -248,6 +262,75 @@ at any time from the options menu.");
             MenuHandler.TitleSaveConfig();
         }
 
+        private void ExtrasMenu_Selected(object sender, EventArgs e)
+        {
+            var extrasMenu = sender as ExtrasMenu;
+
+            switch ((ExtrasSelections)extrasMenu.Index)
+            {
+                case ExtrasSelections.SupportViewer:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    var supportsMenu = new SupportViewerMenu();
+                    supportsMenu.Selected += SupportsMenu_Selected;
+                    supportsMenu.Closed += menu_Closed;
+                    supportsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
+                case ExtrasSelections.Credits:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    var creditsMenu = new CreditsMenu();
+                    creditsMenu.OpenFullCredits += CreditsMenu_OpenFullCredits;
+                    creditsMenu.Closed += menu_Closed;
+                    creditsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
+            }
+        }
+
+        private void SupportsMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var supportsMenu = sender as SupportViewerMenu;
+
+            var supportActorMenu = new SupportViewerActorMenu(supportsMenu.ActorId, supportsMenu);
+            supportActorMenu.SetFieldBase(supportsMenu.IsAtBase);
+            supportActorMenu.Selected += SupportActorMenu_Selected;
+            supportActorMenu.FieldBaseSwitched += SupportActorMenu_FieldBaseSwitched;
+            supportActorMenu.Closed += menu_Closed;
+            supportActorMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+        }
+
+        private void SupportActorMenu_FieldBaseSwitched(object sender, EventArgs e)
+        {
+            var supportActorMenu = sender as SupportViewerActorMenu;
+            var supportsMenu = (Menus.ElementAt(1) as SupportViewerMenu);
+
+            Global.game_system.play_se(System_Sounds.Status_Page_Change);
+            supportsMenu.SwitchAtBase();
+            supportActorMenu.SetFieldBase(supportsMenu.IsAtBase);
+        }
+
+        private void SupportActorMenu_Selected(object sender, EventArgs e)
+        {
+            var supportActorMenu = sender as SupportViewerActorMenu;
+            var supportsMenu = (Menus.ElementAt(1) as SupportViewerMenu);
+
+            string key;
+            int level;
+            if (supportActorMenu.GetSupportConvo(out key, out level))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+                bool atBase = supportsMenu.IsAtBase;
+                string background = supportsMenu.ConvoBackground(atBase);
+                MenuHandler.TitleSupportConvo(key, level, atBase, background);
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+        
+        private void CreditsMenu_OpenFullCredits(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            MenuHandler.TitleOpenFullCredits();
+        }
         void quitMenu_Confirmed(object sender, EventArgs e)
         {
             Global.game_system.play_se(System_Sounds.Confirm);
@@ -309,7 +392,7 @@ at any time from the options menu.");
         void styleSelectionMenu_Selected(object sender, EventArgs e)
         {
             var styleSelectionMenu = sender as StyleSelectionMenu;
-            var startGameMenu = Menus.ElementAt(1) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(1) as Window_Title_Start_Game);
             styleSelectionMenu.HideMenus();
             var difficultySelectionMenu = new DifficultySelectionMenu();
             difficultySelectionMenu.Selected += difficultySelectionMenu_Selected;
@@ -320,8 +403,8 @@ at any time from the options menu.");
         void difficultySelectionMenu_Selected(object sender, EventArgs e)
         {
             var difficultySelectionMenu = sender as DifficultySelectionMenu;
-            var styleSelectionMenu = Menus.ElementAt(1) as StyleSelectionMenu;
-            var startGameMenu = Menus.ElementAt(2) as Window_Title_Start_Game;
+            var styleSelectionMenu = (Menus.ElementAt(1) as StyleSelectionMenu);
+            var startGameMenu = (Menus.ElementAt(2) as Window_Title_Start_Game);
 
             MenuHandler.TitleNewGame(
                 startGameMenu.file_id,
@@ -369,7 +452,7 @@ at any time from the options menu.");
         {
             Global.game_system.play_se(System_Sounds.Confirm);
             var fileCommandMenu = sender as FileSelectedCommandMenu;
-            var startGameMenu = Menus.ElementAt(1) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(1) as Window_Title_Start_Game);
             switch (fileCommandMenu.SelectedOption)
             {
                 case Start_Game_Options.World_Map:
@@ -447,20 +530,20 @@ at any time from the options menu.");
 
         void suspendConfirmMenu_Confirmed(object sender, EventArgs e)
         {
-            var startGameMenu = Menus.ElementAt(2) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(2) as Window_Title_Start_Game);
             MenuHandler.TitleLoadSuspend(startGameMenu.file_id);
         }
 
         void checkpointConfirmMenu_Confirmed(object sender, EventArgs e)
         {
-            var startGameMenu = Menus.ElementAt(2) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(2) as Window_Title_Start_Game);
             MenuHandler.TitleLoadCheckpoint(startGameMenu.file_id);
         }
 
         void suspendConfirmMenu_Canceled(object sender, EventArgs e)
         {
             menu_Closed(sender, e);
-            var startGameMenu = Menus.ElementAt(1) as Window_Title_Start_Game;
+            var startGameMenu = (Menus.ElementAt(1) as Window_Title_Start_Game);
             startGameMenu.close_preview();
         }
 
@@ -492,6 +575,8 @@ at any time from the options menu.");
 #if !MONOGAME && DEBUG
         void TitleTestBattle(int distance);
 #endif
+        void TitleSupportConvo(string supportKey, int level, bool atBase, string background);
+        void TitleOpenFullCredits();
         void TitleQuit();
     }
 }

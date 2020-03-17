@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Help;
+using FEXNA.Graphics.Preparations;
 using FEXNA.Graphics.Text;
 using FEXNA.Menus.Preparations;
 using FEXNA.Windows.Command;
@@ -22,6 +23,7 @@ namespace FEXNA
         protected Window_Command CommandWindow;
         protected Sprite Banner;
         protected FE_Text Goal;
+        private ChapterLabel ChapterLabel;
         protected Sprite InfoWindow;
         private Sprite CommandHelpWindow;
         protected FE_Text HelpText;
@@ -120,6 +122,10 @@ namespace FEXNA
             Goal.Font = "FE7_Text";
             Goal.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_White");
             Goal.stereoscopic = Config.PREPMAIN_BANNER_DEPTH;
+            ChapterLabel = new ChapterLabel();
+            ChapterLabel.loc = new Vector2(Config.WINDOW_WIDTH - 144, 4);
+            ChapterLabel.stereoscopic = Config.PREPMAIN_BANNER_DEPTH;
+            ChapterLabel.SetChapter(Global.data_chapters[Global.game_state.chapter_id]);
             // Background
             Background = new Menu_Background();
             Background.texture = Global.Content.Load<Texture2D>(@"Graphics/Pictures/Preparation_Background");
@@ -218,7 +224,7 @@ namespace FEXNA
             // Objective text
             Goal.text = Global.game_system.Objective_Text;
             Goal.offset = new Vector2(Font_Data.text_width(Goal.text) / 2, 0);
-
+            
             // Info window
             // Rating
             float rating_factor;
@@ -490,6 +496,7 @@ namespace FEXNA
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             Banner.draw(sprite_batch);
             Goal.draw(sprite_batch);
+            ChapterLabel.draw(sprite_batch);
             // Windows
             InfoWindow.draw(sprite_batch);
             CommandHelpWindow.draw(sprite_batch);

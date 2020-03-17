@@ -39,11 +39,13 @@ namespace FEXNA.Graphics.Preparations
             //Hp.text = type == 0 ? "--" : actor.weapon_level_letter(type);// actor.maxhp.ToString();
         }
 
-        protected override void draw_hp(SpriteBatch sprite_batch)
+        protected override void draw_hp(SpriteBatch sprite_batch, Vector2 draw_offset)
         {
-            Weapon_Icon.draw(sprite_batch, -(loc + draw_vector()));
-            //Hp_Label.draw(sprite_batch, -(loc + draw_vector()));
-            //Hp.draw(sprite_batch, -(loc + draw_vector()));
+            Vector2 offset = draw_vector() - draw_offset;
+
+            Weapon_Icon.draw(sprite_batch, -(loc + offset));
+            //Hp_Label.draw(sprite_batch, -(loc + offset));
+            //Hp.draw(sprite_batch, -(loc + offset));
         }
     }
 }

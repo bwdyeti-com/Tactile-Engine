@@ -16,10 +16,6 @@ namespace FEXNA
         internal const int NO_SPEAKER = -2;
         internal const int CENTER_TOP_SPEAKER = -1;
         internal const int CG_VOICEOVER_SPEAKER = -3;
-        const int BASE_X = 20;
-        //const int SPACING = (320 - (BASE_X * 2)) / Math.Max(1, Face_Sprite_Data.FACE_COUNT);
-        //readonly static int SPACING = (Config.WINDOW_WIDTH - (BASE_X * 2)) / (Face_Sprite_Data.FACE_COUNT > -1 ? Face_Sprite_Data.FACE_COUNT - 1 : 1); //Debug
-        readonly static int SPACING = 48;
         public readonly static Dictionary<Constants.Message_Speeds, int> TEXT_SPEED =
             new Dictionary<Constants.Message_Speeds, int> {
                 { Constants.Message_Speeds.Slow,   5 }, // Slow //9
@@ -41,7 +37,6 @@ namespace FEXNA
         private TextSkips _convoSkip;
         protected bool Event_Skip;
         protected bool QuickRender;
-        protected bool Backlog_Active = false;
         protected int Speaker = NO_SPEAKER, Temp_Speaker = NO_SPEAKER;
         protected int Phase, Phase_Timer, Timer;
         protected int Line_Wait, Wait_Timer;
@@ -127,7 +122,7 @@ namespace FEXNA
         internal float backlog_stereoscopic { set { Backlog.stereoscopic = value; } }
 
         internal TextSkips ConvoSkip { set { _convoSkip = value; } }
-        internal bool backlog_active { get { return Backlog_Active; } }
+        internal bool backlog_active { get { return Backlog.Active; } }
         internal bool closing { get { return Closing; } }
 
         internal static Font_Data FontData { get { return Font_Data.Data[FONT]; } }
@@ -776,7 +771,7 @@ function normally. Suggested value is -3.",
             // Don't play text sound or make speaker talk on new line or when quick rendering
             if (!QuickRender && !new List<char> { '\n' }.Contains(current_character))
             {
-                if (!new List<char> { '.', '!', '?' }.Contains(current_character))
+                if (!new List<char> { ' ', '.', '!', '?' }.Contains(current_character))
                 {
                     speaker_talk();
                 }
@@ -906,6 +901,10 @@ function normally. Suggested value is -3.",
                             else
                             {
                                 Names[id] = filename.Split(Constants.Actor.ACTOR_NAME_DELIMITER)[0];
+
+                                // Fix generic class filenames, if they don't exist
+                                filename = FixGenericName(filename);
+
                                 if (Faces.ContainsKey(id))
                                 {
                                     Faces[id].filename = filename;
@@ -1029,7 +1028,7 @@ function normally. Suggested value is -3.",
                         case "Music":
                             Global.Audio.BgmFadeOut();
                             if (test_text != "nil")
-                                Global.Audio.PlayBgm(test_text);
+                                Global.Audio.PlayBgm(test_text, forceRestart: true);
                             return false;
                         #endregion
                         #region Name: Change name
@@ -1365,6 +1364,44 @@ function normally. Suggested value is -3.",
                 recolorCountry = actor.name_full;
         }
 
+        private static string FixGenericName(string baseName)
+        {
+            // Check name as is
+            if (Global.content_exists(@"Graphics/Faces/" + baseName))
+                return baseName;
+
+            // If a generic, try other builds
+            string[] nameAry = baseName.Split(FEXNA.Constants.Actor.BUILD_NAME_DELIMITER);
+            int baseBuild;
+            if (nameAry.Length == 2 && int.TryParse(nameAry[1], out baseBuild))
+            {
+                string className = nameAry[0];
+                // Check down first
+                for (int build = baseBuild; build >= 0; build--)
+                {
+                    string name = string.Format("{0}{1}{2}",
+                        className,
+                        FEXNA.Constants.Actor.BUILD_NAME_DELIMITER,
+                        build);
+                    if (Global.content_exists(@"Graphics/Faces/" + name))
+                        return name;
+                }
+                // Then check up
+                int builds = Enum_Values.GetEnumCount(typeof(FEXNA_Library.Generic_Builds));
+                for (int build = baseBuild + 1; build < builds; build++)
+                {
+                    string name = string.Format("{0}{1}{2}",
+                        className,
+                        FEXNA.Constants.Actor.BUILD_NAME_DELIMITER,
+                        build);
+                    if (Global.content_exists(@"Graphics/Faces/" + name))
+                        return name;
+                }
+            }
+
+            return baseName;
+        }
+
         protected void remove_consumed_text_command()
         {
             if (Phase == 0)
@@ -1476,18 +1513,16 @@ function normally. Suggested value is -3.",
             int x;
             // Offscreen left
             if (id <= 0)
-                //x = BASE_X + ((id - 1) * SPACING); //Debug
                 x = -(int)(Face_Sprite_Data.BATTLE_FACE_SIZE.X) / 2;
             // Offscreen right
             else if (id >= Face_Sprite_Data.FACE_COUNT + 1)
-                //x = BASE_X + ((id - 1) * SPACING); //Debug
                 x = Config.WINDOW_WIDTH + (int)(Face_Sprite_Data.BATTLE_FACE_SIZE.X) / 2;
             // Left half
             else if (id <= Face_Sprite_Data.FACE_COUNT / 2)
-                x = BASE_X + ((id - 1) * SPACING);
+                x = Face_Sprite_Data.BASE_X + ((id - 1) * Face_Sprite_Data.SPACING);
             // Right half
             else
-                x = (Config.WINDOW_WIDTH - BASE_X) - ((Face_Sprite_Data.FACE_COUNT - id) * SPACING);
+                x = (Config.WINDOW_WIDTH - Face_Sprite_Data.BASE_X) - ((Face_Sprite_Data.FACE_COUNT - id) * Face_Sprite_Data.SPACING);
 
             return new Vector2(x, Config.WINDOW_HEIGHT);
         }
@@ -1598,7 +1633,7 @@ function normally. Suggested value is -3.",
                 Backlog.update();
                 if (Backlog.ready)
                 {
-                    if (Backlog_Active)
+                    if (Backlog.Active)
                     {
                         // Close backlog
                         if (Global.Input.triggered(Inputs.A) ||
@@ -1607,12 +1642,10 @@ function normally. Suggested value is -3.",
                             Global.Input.mouse_click(MouseButtons.Right) ||
                             Global.Input.gesture_triggered(TouchGestures.LongPress))
                         {
-                            Backlog_Active = false;
                             Backlog.fade_out();
                         }
                         else if(Global.Input.gesture_triggered(TouchGestures.SwipeLeft))
                         {
-                            Backlog_Active = false;
                             Backlog.fade_out(true);
                         }
                         update_faces();
@@ -1757,7 +1790,6 @@ function normally. Suggested value is -3.",
 
         protected void activate_backlog(bool swipeIn = false)
         {
-            Backlog_Active = true;
             Backlog.fade_in(swipeIn);
             update_faces();
         }
@@ -1834,7 +1866,7 @@ function normally. Suggested value is -3.",
                 Location.draw(sprite_batch);
             sprite_batch.End();
 
-            Backlog.draw(sprite_batch, Backlog_Active);
+            Backlog.draw(sprite_batch);
 
             if (Background != null && background_transition_over_text())
             {

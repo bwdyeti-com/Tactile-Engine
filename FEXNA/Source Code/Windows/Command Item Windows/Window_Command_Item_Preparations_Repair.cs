@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Windows.UserInterface.Command;
 
@@ -6,18 +7,17 @@ namespace FEXNA.Windows.Command.Items
 {
     class Window_Command_Item_Preparations_Repair : Window_Command_Item_Preparations
     {
-        private int Active_Item;
+        private int Active_Item = -1;
         private Hand_Cursor Active_Item_Cursor;
 
         public Window_Command_Item_Preparations_Repair(int actor_id, Vector2 loc, bool facing_right, int active_item)
+            : base(actor_id, loc, facing_right, true)
         {
-            this.text_offset = new Vector2(0, -4);
-            Actor_Id = actor_id;
-            active = false;
-            Using_Item = true;
-
+            // Set items again, after setting the Active_Item
             Active_Item = active_item;
-            initialize(loc, WIDTH);
+            add_commands(new List<string>());
+            refresh_equipped_tag();
+
             this.immediate_index = active_item;
 
             Active_Item_Cursor = new Hand_Cursor();
@@ -28,7 +28,7 @@ namespace FEXNA.Windows.Command.Items
 
         protected override CommandUINode item(string str, int i)
         {
-            var item_data = get_equipment()[i];
+            var item_data = items(i);
             if (!is_valid_item(get_equipment(), i))
                 return null;
 

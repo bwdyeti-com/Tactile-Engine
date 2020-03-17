@@ -192,7 +192,7 @@ namespace FEXNA
             {
                 update_idle_animation();
             }
-            Unit_Sprite.frame = (Facing / 2 - 1) * ((Character_Sprite)Unit_Sprite).frame_count + Frame;
+            Map_Object.UpdateSpriteFrame((Graphics.Map.Character_Sprite)Unit_Sprite, Facing, Frame);
             Unit_Sprite.mirrored = Constants.Team.flipped_map_sprite(Team) &&
                 (!moving || (Facing != 4 && Facing != 6));
         }

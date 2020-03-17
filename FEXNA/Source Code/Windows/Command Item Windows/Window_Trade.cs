@@ -283,47 +283,10 @@ namespace FEXNA.Windows.Command
             // Selecting the first item
             if (Mode == 0)
             {
-                if (this.column == 0)
-                {
-                    if (!can_trade(this.actor1, this.actor2, this.index))
-                    {
-                        Global.game_system.play_se(System_Sounds.Buzzer);
-                        return false;
-                    }
-
-                    Mode = this.column + 1;
-                    Grey_Cursor.force_loc(UICursor.target_loc);
-                    Grey_Cursor.visible = true;
-                    Selected = new int[] { 0, this.index };
-                    refresh(true);
-
-                    if (!Input.IsControllingOnscreenMouse)
-                    {
-                        this.index2 = Items2 < Num ? Items2 : Math.Min(Items2, Selected[1]);
-                    }
-                    Items2 = Math.Min(Num, Items2 + 1);
-                }
+                if (SelectItem(this.column, this.index, false))
+                    Global.game_system.play_se(System_Sounds.Confirm);
                 else
-                {
-                    if (!can_trade(this.actor2, this.actor1, this.index))
-                    {
-                        Global.game_system.play_se(System_Sounds.Buzzer);
-                        return false;
-                    }
-
-                    Mode = this.column + 1;
-                    Grey_Cursor.force_loc(UICursor.target_loc);
-                    Grey_Cursor.visible = true;
-                    Selected = new int[] { 1, this.index };
-                    refresh(true);
-
-                    if (!Input.IsControllingOnscreenMouse)
-                    {
-                        this.index1 = Items1 < Num ? Items1 : Math.Min(Items1, Selected[1]);
-                    }
-                    Items1 = Math.Min(Num, Items1 + 1);
-                }
-                Global.game_system.play_se(System_Sounds.Confirm);
+                    Global.game_system.play_se(System_Sounds.Buzzer);
             }
             // Player selected the same item twice
             else if (this.column == Selected[0] && Selected[1] == this.index)
@@ -367,6 +330,67 @@ namespace FEXNA.Windows.Command
             return false;
         }
 
+        public bool SelectItem(int index)
+        {
+            return SelectItem(0, index, true);
+        }
+        private bool SelectItem(int column, int index, bool immediateMove)
+        {
+            if (immediateMove)
+            {
+                if (column == 0)
+                    this.index1 = index;
+                else
+                    this.index2 = index;
+                UICursor.UpdateTargetLoc();
+            }
+
+            if (column == 0)
+            {
+                if (!can_trade(this.actor1, this.actor2, index))
+                {
+                    return false;
+                }
+
+                Mode = column + 1;
+                Grey_Cursor.force_loc(UICursor.target_loc);
+                Grey_Cursor.visible = true;
+                Selected = new int[] { 0, index };
+                refresh(true);
+
+                if (!Input.IsControllingOnscreenMouse)
+                {
+                    this.index2 = Items2 < Num ? Items2 : Math.Min(Items2, Selected[1]);
+                }
+                Items2 = Math.Min(Num, Items2 + 1);
+            }
+            else
+            {
+                if (!can_trade(this.actor2, this.actor1, index))
+                {
+                    return false;
+                }
+
+                Mode = column + 1;
+                Grey_Cursor.force_loc(UICursor.target_loc);
+                Grey_Cursor.visible = true;
+                Selected = new int[] { 1, index };
+                refresh(true);
+
+                if (!Input.IsControllingOnscreenMouse)
+                {
+                    this.index1 = Items1 < Num ? Items1 : Math.Min(Items1, Selected[1]);
+                }
+                Items1 = Math.Min(Num, Items1 + 1);
+            }
+            if (immediateMove)
+            {
+                UICursor.UpdateTargetLoc();
+                UICursor.move_to_target_loc();
+            }
+            return true;
+        }
+
         public void cancel()
         {
             Grey_Cursor.visible = false;
@@ -391,6 +415,7 @@ namespace FEXNA.Windows.Command
             refresh(true);
             index = Math.Min(index, (this.column == 0 ? Items1 - 1 : Items2 - 1));
             this.index = index;
+            UICursor.UpdateTargetLoc();
         }
 
         public void staff_fix()
@@ -495,6 +520,7 @@ namespace FEXNA.Windows.Command
                 Rectangle target_rect = new Rectangle(
                     (int)loc.X + 8, (int)loc.Y + 8,
                     SPACING * 2 - 16, Constants.Actor.NUM_ITEMS * 16);
+                // Right clicked on nothing
                 if (!Global.Input.mouse_in_rectangle(target_rect))
                     if (Global.Input.mouse_click(MouseButtons.Right))
                         Canceled = true;
