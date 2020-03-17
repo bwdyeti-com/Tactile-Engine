@@ -240,7 +240,10 @@ namespace FEXNA.IO.Serialization
                     case TypeCode.Boolean:
                         return reader.ReadBoolean();
                     case TypeCode.Object:
-                        string methodName = nameof(SerializerData.ReadObject);
+                        //@Debug: Can't get the method name directly when obfuscated
+                        // string methodName = nameof(SerializerData.ReadObject);
+                        string methodName = SymbolExtensions
+                            .GetMethodName<BinaryReader, object>(this.ReadObject<int>);
                         var readObjectMethod = typeof(SerializerData).GetMethod(
                             methodName,
                             BindingFlags.Instance | BindingFlags.NonPublic);
