@@ -5,7 +5,7 @@ using FEXNA.Graphics.Text;
 
 namespace FEXNA.Windows.Map.Info
 {
-    public enum Button_Description_Mode { Normal, Unit_Highlighted, Unit_Selected, Unit_Selected_Blank }
+    enum Button_Description_Mode { Normal, Unit_Highlighted, Unit_Selected, Unit_Selected_Blank }
     class Window_Button_Descriptions : Stereoscopic_Graphic_Object
     {
         protected Button_Description_Mode Mode = Button_Description_Mode.Normal;

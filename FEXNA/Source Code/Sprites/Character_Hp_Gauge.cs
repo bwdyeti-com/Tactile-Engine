@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA.Graphics.Map
 {
-    public class Character_Hp_Gauge : Matrix_Position_Sprite
+    class Character_Hp_Gauge : Matrix_Position_Sprite
     {
         private Texture2D Advanced_Team_Texture;
         private float Hp_Percent = -1;

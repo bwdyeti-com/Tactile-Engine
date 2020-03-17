@@ -13,7 +13,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Services.Audio
 {
-    public class Audio_Engine
+    class Audio_Engine
     {
         public class Audio_Service : IAudioService
         {
@@ -1151,7 +1151,7 @@ namespace FEXNA.Services.Audio
     }
 
 #if DEBUG && WINDOWS
-    public struct AudioDiagnostics
+    struct AudioDiagnostics
     {
         public IEnumerable<string> Bgm { get; private set; }
         public IEnumerable<string> PendingBgm { get; private set; }

@@ -16,7 +16,7 @@ using FEXNAContentExtension;
 
 namespace FEXNA
 {
-    public enum Aid_Types { Infantry, Mounted }
+    enum Aid_Types { Infantry, Mounted }
     internal enum EventedMoveCommands { Move, Highlight, Notice, SetSpeed }
     internal partial class Game_Unit : Combat_Map_Object
     {

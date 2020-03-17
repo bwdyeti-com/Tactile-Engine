@@ -114,6 +114,9 @@ namespace FEXNA
         {
             get
             {
+                if (this.texture == null)
+                    return 0;
+
                 var faceData = Face_Sprite.get_face_data(Filename);
                 int width = Face_Sprite_Data.FaceWidth(faceData, this.texture.Width);
 
@@ -129,6 +132,9 @@ namespace FEXNA
         {
             get
             {
+                if (this.texture == null)
+                    return 0;
+
                 return this.texture.Height - (int)Face_Sprite_Data.MINI_FACE_SIZE.Y;
             }
         }

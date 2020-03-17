@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace FE7x
 {
-    class Update_Checker
+    class Update_Checker : FEXNA.IUpdateService
     {
         //internal readonly static string GAME_DOWNLOAD = "yoursite.herethough/yourgame";
         //readonly static string UPDATE_URL = "http://put.yoursite.herethough/yourgame/check_update.php";
@@ -17,7 +17,9 @@ namespace FE7x
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
         readonly static string UPDATE_REGEX = @"[^\w.,\s\r\n]";
 
-        internal static Tuple<Version, DateTime, string> check_for_update()
+        public string GameDownloadUrl { get { return GAME_DOWNLOAD; } }
+
+        public Tuple<Version, DateTime, string> check_for_update()
         {
 #if DEBUG //FEGame
             // Just some code to ensure I don't accidently distribute FE7x urls, remove after scrubbing
@@ -78,7 +80,7 @@ namespace FE7x
             return Tuple.Create(v, dt, description);
         }
 
-        internal static bool test_connection()
+        public bool test_connection()
         {
             return NetConnection.test_connection_dns(UPDATE_URL);
         }

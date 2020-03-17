@@ -8,7 +8,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA.IO
 {
-    public class Save_Progress
+    class Save_Progress
     {
         private Dictionary<int, HashSet<string>> Completed_Chapters = new Dictionary<int, HashSet<string>>();
         private HashSet<string> Available_Chapters = new HashSet<string>();

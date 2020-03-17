@@ -5,7 +5,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Windows.Target
 {
-    public abstract class Window_Target<T> : ISelectionMenu
+    abstract class Window_Target<T> : ISelectionMenu
     {
         protected int Unit_Id;
         private int Index = 0, _lastTargetIndex;

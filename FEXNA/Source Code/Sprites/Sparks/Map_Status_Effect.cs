@@ -2,7 +2,7 @@
 
 namespace FEXNA.Graphics.Map
 {
-    public class Map_Status_Effect : Map_Effect
+    class Map_Status_Effect : Map_Effect
     {
         protected static List<int> STATUS_IDS;
         public static List<int> status_ids

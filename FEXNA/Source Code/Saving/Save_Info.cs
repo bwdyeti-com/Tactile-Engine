@@ -5,7 +5,7 @@ using System.Text;
 
 namespace FEXNA.IO
 {
-    public class Save_Info
+    class Save_Info
     {
         protected int File_Id;
         protected DateTime Time;

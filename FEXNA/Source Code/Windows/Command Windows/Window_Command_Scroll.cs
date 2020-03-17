@@ -66,7 +66,7 @@ namespace FEXNA.Windows.Command
 
         protected abstract void refresh_scroll_visibility();
 
-        public Rectangle scissor_rect()
+        public virtual Rectangle scissor_rect()
         {
             int width = Window_Img == null ? this.Width : Window_Img.width;
             Rectangle rect = new Rectangle((int)loc.X + 8, (int)loc.Y + 8, width - 16, Rows * 16);

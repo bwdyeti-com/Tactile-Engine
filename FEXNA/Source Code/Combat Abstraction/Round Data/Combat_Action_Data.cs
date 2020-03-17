@@ -2,8 +2,8 @@
 
 namespace FEXNA
 {
-    public enum Combat_Action_Triggers { Attack, Skill, Hit, Return, End }
-    public class Combat_Action_Data
+    enum Combat_Action_Triggers { Attack, Skill, Hit, Return, End }
+    class Combat_Action_Data
     {
         public int Trigger;
         public int? Dmg1, Dmg2, Hit1, Skl1, Hit2, Crt1, Crt2, Skl2;

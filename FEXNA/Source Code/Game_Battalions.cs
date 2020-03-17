@@ -10,7 +10,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public class Game_Battalions
+    class Game_Battalions
     {
         protected int Current_Battalion = -1;
         Dictionary<int, Battalion> Data = new Dictionary<int, Battalion>();
@@ -260,7 +260,7 @@ namespace FEXNA
         }
     }
 
-    public class Battalion
+    class Battalion
     {
         //Sparring
         internal const int SPAR_COUNT = 3;
@@ -738,7 +738,7 @@ namespace FEXNA
     }
 
     // Game_Battalion should be able to get its instance of this, but it no one else should //Yeti
-    public class Game_Convoy
+    class Game_Convoy
     {
         enum InventoryOptimizePasses
         {

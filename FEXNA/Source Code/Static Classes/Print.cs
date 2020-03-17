@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FEXNA
 {
-    public class Print
+    class Print
     {
 
         // Debug MessageBox lol

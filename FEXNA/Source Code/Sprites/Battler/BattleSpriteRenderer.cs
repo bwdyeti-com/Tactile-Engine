@@ -6,7 +6,7 @@ using FEXNARenderTarget2DExtension;
 
 namespace FEXNA
 {
-    public enum BattlerRenderCommands { NormalDraw, DistortionDraw, Finish }
+    enum BattlerRenderCommands { NormalDraw, DistortionDraw, Finish }
 
     class BattleSpriteRenderer
     {

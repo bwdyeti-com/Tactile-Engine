@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA.Graphics.Map
 {
-    public class Map_Effect : Matrix_Position_Sprite
+    class Map_Effect : Matrix_Position_Sprite
     {
         protected Texture2D Texture;
         protected int Type = 0;

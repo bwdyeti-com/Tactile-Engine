@@ -12,7 +12,8 @@ namespace FEXNA
 
         private bool OffsetFlash;
 
-        public int malus_width { protected get; set; }
+        public int malus_width { get; set; }
+        public bool malus_width_has_space { get { return this.bonus_width > 1; } }
 
         public Sparring_Exp_Gauge(bool offsetFlash = false)
             : base()

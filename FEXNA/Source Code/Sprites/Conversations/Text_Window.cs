@@ -11,7 +11,7 @@ namespace FEXNA
 {
     enum SpeakerArrowSide { Bottom, Left, Right }
 
-    public class Text_Window : Text_Box
+    class Text_Window : Text_Box
     {
         const int FADE_TIME = 10;
         const int CG_FADE_TIME = 16;

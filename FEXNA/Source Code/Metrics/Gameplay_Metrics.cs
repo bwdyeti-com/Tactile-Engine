@@ -20,11 +20,7 @@ namespace FEXNA.Metrics
         #region Serialization
         public void write(BinaryWriter writer)
         {
-            Version version = Global.RUNNING_VERSION;
-            writer.Write(version.Major);
-            writer.Write(version.Minor);
-            writer.Write(version.Build);
-            writer.Write(version.Revision);
+            writer.Write(Global.RUNNING_VERSION);
 
             StartingActors.write(writer);
             Combats.write(writer);
@@ -34,7 +30,7 @@ namespace FEXNA.Metrics
 
         public static Gameplay_Metrics read(BinaryReader reader)
         {
-            Version v = new Version(reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32(), reader.ReadInt32());
+            Version v = reader.ReadVersion();
 
             Gameplay_Metrics metrics = new Gameplay_Metrics();
             metrics.StartingActors.read(reader);

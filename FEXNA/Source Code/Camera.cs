@@ -2,7 +2,7 @@
 
 namespace FEXNA
 {
-    public class Camera
+    class Camera
     {
         protected Matrix transformation_matrix;
         protected int width, height;

@@ -805,18 +805,22 @@ namespace FEXNA
             // Kill exp
             if (kill)
             {
+                // Multiplier to hit exp on kill
+                exp_gain *= 2;
+
                 int kill_gain = Constants.Combat.BASE_COMBAT_EXP * 3; // Exp for a kill
                 // 3x diff when above target level
                 if (diff < 0)
                     kill_gain = kill_gain + (diff * 3);
                 // 1.5x diff when below target level
                 else
+                    // ????? //@Debug
                     kill_gain = kill_gain + (diff * 3); //kill_gain + (diff * 3 / 2);
                 kill_gain = Math.Max(exp_gain, kill_gain);
 
                 exp_gain = kill_gain;
             }
-            exp_gain = exp_difficulty_adjustment(exp_gain, kill);
+            exp_gain = exp_difficulty_adjustment(exp_gain, true, kill);
             // Boss bonus
             if (kill)
             {
@@ -825,45 +829,36 @@ namespace FEXNA
             }
             exp_gain = Math.Max(1, exp_gain);
 
-            return Math.Min(Constants.Actor.EXP_TO_LVL, exp_gain);
-
-            /*
-            // Attack exp
-            int exp_gain = Math.Max(1, (21 + diff) / 2);
-            // Kill bonus
-            if (kill)
-            {
-                exp_gain += Math.Max(1, diff + 20);
-                if (boss)
-                    exp_gain += 30;
-            }
-            return Math.Min(Constants.Actor.EXP_TO_LVL, exp_gain);*/
+            return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
 
-        private static int exp_difficulty_adjustment(float exp_gain, bool kill)
+        private static int exp_difficulty_adjustment(float exp_gain, bool combat, bool kill)
         {
-            // Kill adjustment
-            if (kill)
+            if (combat)
             {
-                if (Constants.Combat.KILL_EXP_MULTIPLIER
-                    .ContainsKey(Global.game_system.Difficulty_Mode))
+                // Kill adjustment
+                if (kill)
                 {
-                    float multiplier =
-                        Constants.Combat.KILL_EXP_MULTIPLIER[
-                            Global.game_system.Difficulty_Mode];
-                    exp_gain = exp_gain * multiplier;
+                    if (Constants.Combat.KILL_EXP_MULTIPLIER
+                        .ContainsKey(Global.game_system.Difficulty_Mode))
+                    {
+                        float multiplier =
+                            Constants.Combat.KILL_EXP_MULTIPLIER[
+                                Global.game_system.Difficulty_Mode];
+                        exp_gain = exp_gain * multiplier;
+                    }
                 }
-            }
-            // Non-kill adjustment
-            else
-            {
-                if (Constants.Combat.NON_KILL_EXP_MULTIPLIER
-                    .ContainsKey(Global.game_system.Difficulty_Mode))
+                // Non-kill adjustment
+                else
                 {
-                    float multiplier =
-                        Constants.Combat.NON_KILL_EXP_MULTIPLIER[
-                            Global.game_system.Difficulty_Mode];
-                    exp_gain = exp_gain * multiplier;
+                    if (Constants.Combat.NON_KILL_EXP_MULTIPLIER
+                        .ContainsKey(Global.game_system.Difficulty_Mode))
+                    {
+                        float multiplier =
+                            Constants.Combat.NON_KILL_EXP_MULTIPLIER[
+                                Global.game_system.Difficulty_Mode];
+                        exp_gain = exp_gain * multiplier;
+                    }
                 }
             }
 
@@ -892,6 +887,8 @@ namespace FEXNA
                 exp_gain = (int)(weapon.Staff_Exp * 1.5);
             else
                 exp_gain = (int)(weapon.Staff_Exp / (Math.Pow(2, actor.tier - 1)));
+            exp_gain = exp_difficulty_adjustment(exp_gain, false, false);
+
             return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
 
@@ -903,7 +900,9 @@ namespace FEXNA
         }
         public static int training_exp(Game_Actor actor, int exp)
         {
-            return (int)Math.Round(exp / Math.Pow(2, (actor.full_level - 30) / 20f));
+            const int offset = 30;
+            const float scale = 20f;
+            return (int)Math.Round(exp / Math.Pow(2, (actor.full_level - offset) / scale));
         }
         #endregion
 

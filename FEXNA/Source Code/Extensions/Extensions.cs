@@ -202,7 +202,7 @@ namespace FEXNAArrayExtension
 
 namespace FEXNAVector2Extension
 {
-    public static class Extension
+    static class Extension
     {
         public static void write(this Vector2 vector, BinaryWriter writer)
         {
@@ -223,7 +223,7 @@ namespace FEXNAListExtension
 {
     using FEXNAVector2Extension;
     using RectangleExtension;
-    public static partial class Extension
+    static partial class Extension
     {
         // List<byte>
         public static void write(this List<byte> list, BinaryWriter writer)
@@ -242,7 +242,7 @@ namespace FEXNAListExtension
         }
 
         // List<Game_Actor>
-        internal static void write(this List<FEXNA.Game_Actor> actors, BinaryWriter writer)
+        public static void write(this List<FEXNA.Game_Actor> actors, BinaryWriter writer)
         {
             writer.Write(actors.Count);
             foreach (FEXNA.Game_Actor actor in actors)
@@ -251,7 +251,7 @@ namespace FEXNAListExtension
             }
         }
 
-        internal static void read(this List<FEXNA.Game_Actor> actors, BinaryReader reader)
+        public static void read(this List<FEXNA.Game_Actor> actors, BinaryReader reader)
         {
             actors.Clear();
             int count = reader.ReadInt32();
@@ -386,7 +386,7 @@ namespace FEXNAListExtension
         }
 
         // List<Actor_Metrics>
-        internal static void write(this List<FEXNA.Metrics.Actor_Metrics> actors, BinaryWriter writer)
+        public static void write(this List<FEXNA.Metrics.Actor_Metrics> actors, BinaryWriter writer)
         {
             writer.Write(actors.Count);
             foreach (FEXNA.Metrics.Actor_Metrics processor in actors)
@@ -395,7 +395,7 @@ namespace FEXNAListExtension
             }
         }
 
-        internal static void read(this List<FEXNA.Metrics.Actor_Metrics> actors, BinaryReader reader)
+        public static void read(this List<FEXNA.Metrics.Actor_Metrics> actors, BinaryReader reader)
         {
             actors.Clear();
             int count = reader.ReadInt32();
@@ -406,7 +406,7 @@ namespace FEXNAListExtension
         }
 
         // List<Combat_Metrics>
-        internal static void write(this List<FEXNA.Metrics.Combat_Metrics> combats, BinaryWriter writer)
+        public static void write(this List<FEXNA.Metrics.Combat_Metrics> combats, BinaryWriter writer)
         {
             writer.Write(combats.Count);
             foreach (FEXNA.Metrics.Combat_Metrics processor in combats)
@@ -415,7 +415,7 @@ namespace FEXNAListExtension
             }
         }
 
-        internal static void read(this List<FEXNA.Metrics.Combat_Metrics> combats, BinaryReader reader)
+        public static void read(this List<FEXNA.Metrics.Combat_Metrics> combats, BinaryReader reader)
         {
             combats.Clear();
             int count = reader.ReadInt32();
@@ -426,7 +426,7 @@ namespace FEXNAListExtension
         }
 
         // List<Combatant_Metric>
-        internal static void write(this List<FEXNA.Metrics.Combatant_Metric> combatants, BinaryWriter writer)
+        public static void write(this List<FEXNA.Metrics.Combatant_Metric> combatants, BinaryWriter writer)
         {
             writer.Write(combatants.Count);
             foreach (FEXNA.Metrics.Combatant_Metric processor in combatants)
@@ -435,7 +435,7 @@ namespace FEXNAListExtension
             }
         }
 
-        internal static void read(this List<FEXNA.Metrics.Combatant_Metric> combatants, BinaryReader reader)
+        public static void read(this List<FEXNA.Metrics.Combatant_Metric> combatants, BinaryReader reader)
         {
             combatants.Clear();
             int count = reader.ReadInt32();
@@ -446,7 +446,7 @@ namespace FEXNAListExtension
         }
 
         // List<Item_Metrics>
-        internal static void write(this List<FEXNA.Metrics.Item_Metrics> items, BinaryWriter writer)
+        public static void write(this List<FEXNA.Metrics.Item_Metrics> items, BinaryWriter writer)
         {
             writer.Write(items.Count);
             foreach (FEXNA.Metrics.Item_Metrics processor in items)
@@ -455,7 +455,7 @@ namespace FEXNAListExtension
             }
         }
 
-        internal static void read(this List<FEXNA.Metrics.Item_Metrics> items, BinaryReader reader)
+        public static void read(this List<FEXNA.Metrics.Item_Metrics> items, BinaryReader reader)
         {
             items.Clear();
             int count = reader.ReadInt32();
@@ -466,14 +466,14 @@ namespace FEXNAListExtension
         }
 
         // List<FEXNA.TileOutlineData>
-        internal static void write(this List<FEXNA.TileOutlineData> list, BinaryWriter writer)
+        public static void write(this List<FEXNA.TileOutlineData> list, BinaryWriter writer)
         {
             writer.Write(list.Count);
             foreach (FEXNA.TileOutlineData data in list)
                 data.write(writer);
         }
 
-        internal static void read(this List<FEXNA.TileOutlineData> list, BinaryReader reader)
+        public static void read(this List<FEXNA.TileOutlineData> list, BinaryReader reader)
         {
             list.Clear();
             int count = reader.ReadInt32();
@@ -482,14 +482,14 @@ namespace FEXNAListExtension
         }
 
         // List<FEXNA.Move_Arrow_Data>
-        internal static void write(this List<FEXNA.Move_Arrow_Data> list, BinaryWriter writer)
+        public static void write(this List<FEXNA.Move_Arrow_Data> list, BinaryWriter writer)
         {
             writer.Write(list.Count);
             foreach (FEXNA.Move_Arrow_Data data in list)
                 data.write(writer);
         }
 
-        internal static void read(this List<FEXNA.Move_Arrow_Data> list, BinaryReader reader)
+        public static void read(this List<FEXNA.Move_Arrow_Data> list, BinaryReader reader)
         {
             list.Clear();
             int count = reader.ReadInt32();
@@ -498,14 +498,14 @@ namespace FEXNAListExtension
         }
 
         // List<FEXNA.Map.EscapePoint>
-        internal static void write(this List<FEXNA.Map.EscapePoint> list, BinaryWriter writer)
+        public static void write(this List<FEXNA.Map.EscapePoint> list, BinaryWriter writer)
         {
             writer.Write(list.Count);
             foreach (FEXNA.Map.EscapePoint data in list)
                 data.write(writer);
         }
 
-        internal static void read(this List<FEXNA.Map.EscapePoint> list, BinaryReader reader)
+        public static void read(this List<FEXNA.Map.EscapePoint> list, BinaryReader reader)
         {
             list.Clear();
             int count = reader.ReadInt32();
@@ -564,7 +564,7 @@ namespace FEXNAListExtension
 
 namespace FEXNARectangleExtension
 {
-    public static class Extension
+    static class Extension
     {
         public static Vector4 to_vector4(this Rectangle rect)
         {
@@ -580,7 +580,7 @@ namespace FEXNADictionaryExtension
     using ListExtension;
     using FEXNAListExtension;
     using FEXNAVector2Extension;
-    public static class Extension
+    static class Extension
     {
         // Dictionary<int, bool>
         public static void write(this Dictionary<int, bool> dictionary, BinaryWriter writer)
@@ -700,7 +700,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<int, Game_Unit>
-        internal static void write(this Dictionary<int, FEXNA.Game_Unit> units, BinaryWriter writer)
+        public static void write(this Dictionary<int, FEXNA.Game_Unit> units, BinaryWriter writer)
         {
             writer.Write(units.Count);
             foreach (KeyValuePair<int, FEXNA.Game_Unit> unit in units)
@@ -710,7 +710,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<int, FEXNA.Game_Unit> units, BinaryReader reader)
+        public static void read(this Dictionary<int, FEXNA.Game_Unit> units, BinaryReader reader)
         {
             units.Clear();
             int count = reader.ReadInt32();
@@ -724,7 +724,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<int, Destroyable_Object>
-        internal static void write(this Dictionary<int, FEXNA.Destroyable_Object> map_objects, BinaryWriter writer)
+        public static void write(this Dictionary<int, FEXNA.Destroyable_Object> map_objects, BinaryWriter writer)
         {
             writer.Write(map_objects.Count);
             foreach (KeyValuePair<int, FEXNA.Destroyable_Object> map_unit in map_objects)
@@ -734,7 +734,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<int, FEXNA.Destroyable_Object> map_objects, BinaryReader reader)
+        public static void read(this Dictionary<int, FEXNA.Destroyable_Object> map_objects, BinaryReader reader)
         {
             map_objects.Clear();
             int count = reader.ReadInt32();
@@ -748,7 +748,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<int, Siege_Engine>
-        internal static void write(this Dictionary<int, FEXNA.Siege_Engine> map_objects, BinaryWriter writer)
+        public static void write(this Dictionary<int, FEXNA.Siege_Engine> map_objects, BinaryWriter writer)
         {
             writer.Write(map_objects.Count);
             foreach (KeyValuePair<int, FEXNA.Siege_Engine> map_unit in map_objects)
@@ -758,7 +758,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<int, FEXNA.Siege_Engine> map_objects, BinaryReader reader)
+        public static void read(this Dictionary<int, FEXNA.Siege_Engine> map_objects, BinaryReader reader)
         {
             map_objects.Clear();
             int count = reader.ReadInt32();
@@ -772,7 +772,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<int, LightRune>
-        internal static void write(this Dictionary<int, FEXNA.LightRune> map_objects, BinaryWriter writer)
+        public static void write(this Dictionary<int, FEXNA.LightRune> map_objects, BinaryWriter writer)
         {
             writer.Write(map_objects.Count);
             foreach (KeyValuePair<int, FEXNA.LightRune> map_unit in map_objects)
@@ -782,7 +782,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<int, FEXNA.LightRune> map_objects, BinaryReader reader)
+        public static void read(this Dictionary<int, FEXNA.LightRune> map_objects, BinaryReader reader)
         {
             map_objects.Clear();
             int count = reader.ReadInt32();
@@ -796,7 +796,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<int, Game_Actor>
-        internal static void write(this Dictionary<int, FEXNA.Game_Actor> actors, BinaryWriter writer)
+        public static void write(this Dictionary<int, FEXNA.Game_Actor> actors, BinaryWriter writer)
         {
             writer.Write(actors.Count);
             foreach (KeyValuePair<int, FEXNA.Game_Actor> actor in actors)
@@ -806,7 +806,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<int, FEXNA.Game_Actor> actors, BinaryReader reader)
+        public static void read(this Dictionary<int, FEXNA.Game_Actor> actors, BinaryReader reader)
         {
             actors.Clear();
             int count = reader.ReadInt32();
@@ -1081,7 +1081,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<Vector2, Shop_Data>
-        internal static void write(this Dictionary<Vector2, FEXNA.Map.Shop_Data> dictionary, BinaryWriter writer)
+        public static void write(this Dictionary<Vector2, FEXNA.Map.Shop_Data> dictionary, BinaryWriter writer)
         {
             writer.Write(dictionary.Count);
             foreach (KeyValuePair<Vector2, FEXNA.Map.Shop_Data> pair in dictionary)
@@ -1091,7 +1091,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<Vector2, FEXNA.Map.Shop_Data> dictionary, BinaryReader reader)
+        public static void read(this Dictionary<Vector2, FEXNA.Map.Shop_Data> dictionary, BinaryReader reader)
         {
             dictionary.Clear();
             int count = reader.ReadInt32();
@@ -1104,7 +1104,7 @@ namespace FEXNADictionaryExtension
         }
 
         // Dictionary<Vector2, Visit_Data>
-        internal static void write(this Dictionary<Vector2, FEXNA.Map.Visit_Data> dictionary, BinaryWriter writer)
+        public static void write(this Dictionary<Vector2, FEXNA.Map.Visit_Data> dictionary, BinaryWriter writer)
         {
             writer.Write(dictionary.Count);
             foreach (var pair in dictionary)
@@ -1114,7 +1114,7 @@ namespace FEXNADictionaryExtension
             }
         }
 
-        internal static void read(this Dictionary<Vector2, FEXNA.Map.Visit_Data> dictionary, BinaryReader reader)
+        public static void read(this Dictionary<Vector2, FEXNA.Map.Visit_Data> dictionary, BinaryReader reader)
         {
             dictionary.Clear();
             int count = reader.ReadInt32();
@@ -1158,7 +1158,7 @@ namespace FEXNAListExtension
 {
     using FEXNADictionaryExtension;
 
-    public static partial class Extension
+    static partial class Extension
     {
         // List<Dictionary<int, string>>
         public static void write(this List<Dictionary<int, string>> list, BinaryWriter writer)
@@ -1199,7 +1199,7 @@ namespace FEXNAListExtension
         }
 
         // List<Team_Escape_Data>
-        internal static void write(this List<FEXNA.Map.Team_Escape_Data> escapes, BinaryWriter writer)
+        public static void write(this List<FEXNA.Map.Team_Escape_Data> escapes, BinaryWriter writer)
         {
             writer.Write(escapes.Count);
             foreach (var processor in escapes)
@@ -1208,7 +1208,7 @@ namespace FEXNAListExtension
             }
         }
 
-        internal static void read(this List<FEXNA.Map.Team_Escape_Data> escape_points, BinaryReader reader)
+        public static void read(this List<FEXNA.Map.Team_Escape_Data> escape_points, BinaryReader reader)
         {
             escape_points.Clear();
             int count = reader.ReadInt32();
@@ -1259,7 +1259,7 @@ namespace FEXNATexture2DExtension
 {
     using Microsoft.Xna.Framework.Graphics;
     using ContentManagers;
-    public static class Extension
+    static class Extension
     {
         public static Texture2D flip_horizontal(this Texture2D texture, ThreadSafeContentManager content)
         {
@@ -1350,7 +1350,7 @@ namespace FEXNATexture2DExtension
 
 namespace FEXNAStringExtension
 {
-    public static class Extension
+    static class Extension
     {
         public static string substring(this string str, int index, int length)
         {
@@ -1365,8 +1365,25 @@ namespace FEXNAStringExtension
 
 namespace FEXNAVersionExtension
 {
-    public static class Extension
+    static class Extension
     {
+        public static void Write(this BinaryWriter writer, Version version)
+        {
+            writer.Write(version.Major);
+            writer.Write(version.Minor);
+            writer.Write(version.Build);
+            writer.Write(version.Revision);
+        }
+        public static Version ReadVersion(this BinaryReader reader)
+        {
+            int major = reader.ReadInt32();
+            int minor = reader.ReadInt32();
+            int build = reader.ReadInt32();
+            int revision = reader.ReadInt32();
+
+            return new Version(major, minor, build, revision);
+        }
+
         public static bool older_than(this Version v, Version v2)
         {
             return v.older_than(v2.Major, v2.Minor, v2.Build, v2.Revision);
@@ -1397,7 +1414,7 @@ namespace FEXNAContentExtension
     /// <summary>
     /// Extensions to the Microsoft.Xna.Framework.Content.ContentManager class.
     /// </summary>
-    public static class ContentManagerExtensions
+    static class ContentManagerExtensions
     {
         /// <summary>
         /// Loads the asset asynchronously on another thread.
@@ -1435,7 +1452,7 @@ namespace FEXNARenderTarget2DExtension
     /// <summary>
     /// Extensions to the Microsoft.Xna.Framework.Graphics.RenderTarget2D class.
     /// </summary>
-    public static class RenderTarget2DExtensions
+    static class RenderTarget2DExtensions
     {
         public static void raw_copy_render_target(this RenderTarget2D source_render,
             SpriteBatch sprite_batch,

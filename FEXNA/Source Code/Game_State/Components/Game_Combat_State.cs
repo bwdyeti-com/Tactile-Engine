@@ -8,9 +8,9 @@ using ListExtension;
 
 namespace FEXNA.State
 {
-    public enum Map_Battle_Actions { Prehit_Check, Hit_Check, Move_Toward_Enemy, Wait_For_Move, Wiggle, Attack,
+    enum Map_Battle_Actions { Prehit_Check, Hit_Check, Move_Toward_Enemy, Wait_For_Move, Wiggle, Attack,
         Miss, No_Damage, Move_Back, Wait_For_Attack, Wait_After_Attack, Next_Attack }
-    public enum Cleanup_Actions { Promotion, Level_Up, Skill_Gain, WLvl_Up, Weapon_Break, Item_Gain, Wait }
+    enum Cleanup_Actions { Promotion, Level_Up, Skill_Gain, WLvl_Up, Weapon_Break, Item_Gain, Wait }
     partial class Game_Combat_State : Game_Combat_State_Component
     {
         // Weapons that fire a ballista bolt

@@ -136,6 +136,14 @@ namespace FEXNA.Windows.Command
                 Help_Window.update();
         }
 
+        public override Rectangle scissor_rect()
+        {
+            Rectangle rect = base.scissor_rect();
+            rect.Y += (int)Text_Offset.Y;
+            rect.Height -= (int)Text_Offset.Y;
+            return Scene_Map.fix_rect_to_screen(rect);
+        }
+
         protected void refresh()
         {
             if (is_help_active)

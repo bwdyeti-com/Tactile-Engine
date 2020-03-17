@@ -18,10 +18,7 @@ namespace FEXNA
 
         protected override int exp_gain(Game_Unit battler_1, Game_Unit battler_2, FEXNA_Library.Data_Weapon weapon, bool kill)
         {
-            //return base.exp_gain(battler_1, battler_2, weapon, kill);
-            return Math.Min(Constants.Actor.EXP_TO_LVL,
-                Combat.training_exp(battler_1.actor,
-                base.exp_gain(battler_1, battler_2, weapon, kill)));
+            return Combat.training_exp(battler_1, battler_2, kill);
         }
     }
 }

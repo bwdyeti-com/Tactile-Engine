@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace FEXNA
 {
     enum Blend_Modes { Normal, Additive }
-    public class Sprite : Stereoscopic_Graphic_Object
+    class Sprite : Stereoscopic_Graphic_Object
     {
         public Texture2D Texture;
         public List<Texture2D> textures;
@@ -264,7 +264,7 @@ namespace FEXNA
         }
     }
 
-    public class Matrix_Position_Sprite : Sprite
+    class Matrix_Position_Sprite : Sprite
     {
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {

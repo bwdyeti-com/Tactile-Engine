@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.NetworkInformation;
+using FEXNAVersionExtension;
 
 namespace FEXNA.Metrics
 {
@@ -16,7 +17,7 @@ namespace FEXNA.Metrics
         private Gameplay_Metrics Gameplay;
 
         #region Serialization
-        public void write(BinaryWriter writer)
+        internal void write(BinaryWriter writer)
         {
             writer.Write(Chapter);
             writer.Write(StartTime.ToBinary());
@@ -33,11 +34,7 @@ namespace FEXNA.Metrics
             writer.Write(Battalion);
             writer.Write(BattalionLvl);
 
-            Version version = Global.RUNNING_VERSION;
-            writer.Write(version.Major);
-            writer.Write(version.Minor);
-            writer.Write(version.Build);
-            writer.Write(version.Revision);
+            writer.Write(Global.RUNNING_VERSION);
 
             writer.Write(GameplayStartTime.ToBinary());
 
@@ -71,7 +68,7 @@ namespace FEXNA.Metrics
             Gameplay = gameplay;
         }
 
-        public string query_string()
+        internal string query_string()
         {
             int start_time = (int)(StartTime - new DateTime(1970, 1, 1)).TotalSeconds;
             int gameplay_start_time = (int)(GameplayStartTime - new DateTime(1970, 1, 1)).TotalSeconds;
@@ -86,7 +83,7 @@ namespace FEXNA.Metrics
             return result;
         }
 
-        public string gameplay_string()
+        internal string gameplay_string()
         {
             return Gameplay.query_string();
         }
