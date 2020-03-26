@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FEXNA")]
-[assembly: AssemblyProduct("FEXNA")]
+[assembly: AssemblyTitle("FEXNA_Library")]
+[assembly: AssemblyProduct("FEXNA_Library")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
 [assembly: AssemblyCopyright("Copyright © bwdyeti.com 2020")]
@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 // On Windows, the following GUID is for the ID of the typelib if this
 // project is exposed to COM. On other platforms, it unique identifies the
 // title storage container when deploying this assembly to the device.
-[assembly: Guid("2ffa7838-e67a-424e-b43c-d4cc5f57490a")]
+[assembly: Guid("aa69eb6d-ae95-49cd-bd1a-0d4913c43c33")]
 
 // Version information for an assembly consists of the following four values:
 //

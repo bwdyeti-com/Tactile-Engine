@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</ProjectGuid>
+    <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FEXNA_Library</RootNamespace>
+    <AssemblyName>FEXNA_Library</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
+    <XnaPlatform>Windows</XnaPlatform>
+    <XnaProfile>HiDef</XnaProfile>
+    <XnaCrossPlatformGroupID>1a2f2662-a5f1-40d0-bf71-ada7a68a162c</XnaCrossPlatformGroupID>
+    <XnaOutputType>Library</XnaOutputType>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <XnaCompressContent>false</XnaCompressContent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x86\Release</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <XnaCompressContent>true</XnaCompressContent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.GamerServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Xact, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Video, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Avatar, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Net, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Microsoft.Xna.Framework.Storage, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="mscorlib">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Net">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Color_Util.cs" />
+    <Compile Include="Content Readers\FEXNADataReader.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Frame_Image_Data.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Association_Data.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Association_Set.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Attack_Set.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Attack_Type.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Variable_Set.cs" />
+    <Compile Include="Data Classes\Chapters\Character_Data.cs" />
+    <Compile Include="Data Classes\Chapters\DataRanking.cs" />
+    <Compile Include="Data Classes\Face_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Map_Event_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Map_Unit_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Data_Chapter.cs" />
+    <Compile Include="CharacterEventArgs.cs" />
+    <Compile Include="Data Classes\Data_Generic_Actor.cs" />
+    <Compile Include="Data Classes\Data_Skill.cs" />
+    <Compile Include="Data Classes\Data_Status.cs" />
+    <Compile Include="Data Classes\Data_Support.cs" />
+    <Compile Include="Data Classes\Frame_Data.cs" />
+    <Compile Include="Data Classes\Data_Class.cs" />
+    <Compile Include="Data Classes\Data_Equipment.cs" />
+    <Compile Include="Data Classes\Data_Item.cs" />
+    <Compile Include="Data Classes\Data_Tileset.cs" />
+    <Compile Include="Data Classes\Item_Data.cs" />
+    <Compile Include="Content Readers\AnimationReader.cs" />
+    <Compile Include="Content Readers\AnimDataReader.cs" />
+    <Compile Include="Content Readers\ClassReader.cs" />
+    <Compile Include="Content Readers\SupportReader.cs" />
+    <Compile Include="Content Readers\EventReader.cs" />
+    <Compile Include="Content Readers\ItemReader.cs" />
+    <Compile Include="Content Readers\MapRecolorReader.cs" />
+    <Compile Include="Content Readers\MapReader.cs" />
+    <Compile Include="Data Classes\Chapters\Data_Map.cs" />
+    <Compile Include="Data Classes\MapSpriteRecolorData.cs" />
+    <Compile Include="Data Classes\Data_Actor.cs" />
+    <Compile Include="Content Readers\ActorReader.cs" />
+    <Compile Include="Data Classes\Data_Terrain.cs" />
+    <Compile Include="Data Classes\Data_Weapon.cs" />
+    <Compile Include="Content Readers\UnitReader.cs" />
+    <Compile Include="Data Classes\ShopItemData.cs" />
+    <Compile Include="Data Classes\WeaponType.cs" />
+    <Compile Include="Encryption\StreamEncryption.cs" />
+    <Compile Include="EnumSerializer.cs" />
+    <Compile Include="EventInput.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IFEXNADataContent.cs" />
+    <Compile Include="BoolEventArgs.cs" />
+    <Compile Include="IntEventArgs.cs" />
+    <Compile Include="IntRange.cs" />
+    <Compile Include="Maybe.cs" />
+    <Compile Include="NodeDestinationMap.cs" />
+    <Compile Include="Noise.cs" />
+    <Compile Include="Pathfinding\ClosedList.cs" />
+    <Compile Include="Pathfinding\ClosedListRoute.cs" />
+    <Compile Include="Pathfinding\IMovementMap.cs" />
+    <Compile Include="Pathfinding\Old\ClosedList.cs" />
+    <Compile Include="Pathfinding\Old\ClosedListRoute.cs" />
+    <Compile Include="Pathfinding\Old\IDistanceMeasurable.cs" />
+    <Compile Include="Pathfinding\Old\OpenList.cs" />
+    <Compile Include="Pathfinding\Old\OpenItem.cs" />
+    <Compile Include="Pathfinding\Old\Pathfinding.cs" />
+    <Compile Include="Pathfinding\Old\PathfindingGridPoint.cs" />
+    <Compile Include="Pathfinding\Old\PathfindingNode.cs" />
+    <Compile Include="Pathfinding\OpenItem.cs" />
+    <Compile Include="Pathfinding\OpenList.cs" />
+    <Compile Include="Pathfinding\PassabilityMap3D.cs" />
+    <Compile Include="Pathfinding\Pathfinder.cs" />
+    <Compile Include="Perlin_Noise.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Range.cs" />
+    <Compile Include="RectangleExclusion.cs" />
+    <Compile Include="SquirrelNoise.cs" />
+    <Compile Include="TextCommand.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
+  <!--
+      To modify your build process, add your task inside one of the targets below and uncomment it. 
+      Other similar extension points exist, see Microsoft.Common.targets.
+      <Target Name="BeforeBuild">
+      </Target>
+      <Target Name="AfterBuild">
+      </Target>
+    -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
