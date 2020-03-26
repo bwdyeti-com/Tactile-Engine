@@ -84,11 +84,7 @@ namespace FEXNA.Menus.Map.Unit.Item
             Platform.loc_2 = new Vector2((BATTLER_X - 123) + 127, 88);
 
             int terrainTag = this.Unit.terrain_id();
-            string terrainName;
-            if (Global.data_terrains[terrainTag].Platform_Rename.Length > 0)
-                terrainName = Global.data_terrains[terrainTag].Platform_Rename;
-            else
-                terrainName = Global.data_terrains[terrainTag].Name;
+            string terrainName = Global.data_terrains[terrainTag].PlatformName;
 
             string platformName;
             if (Global.game_system.preparations)
