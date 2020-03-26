@@ -35,7 +35,7 @@ namespace FEGame
 		protected override void OnCreate(Bundle bundle)
 		{
             base.OnCreate(bundle);
-			// FEGame.Game1.Activity = this; //Debug
+			// Game1.Activity = this; //Debug
             FEXNA.Rendering.GameRenderer.SetStatusBarHeight(getStatusBarHeight());
             g = new Game1(new string[0]); //Debug
 
