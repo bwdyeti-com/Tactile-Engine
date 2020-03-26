@@ -7,13 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEGame", "FEGame\FEGame\FEG
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEGameContent", "FEGame\FEGameContent\FEGameContent.contentproj", "{3B113AA2-92B6-42D4-AD75-C78052A6163F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEXNA_Library", "..\FEXNA LIBRARIES\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj", "{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEXNA_Library", "FEXNA_Library\FEXNA_Library.csproj", "{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEXNA", "FEXNA\FEXNA.csproj", "{8B5FEEE2-ABF5-44F0-9431-000A1F61C8A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FEXNA_Config", "FEXNA_Config\FEXNA_Config.csproj", "{35A635FD-7621-4DB8-AEF1-DCAB317198C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LevelContentPipelineExtension", "..\FEXNA LIBRARIES\LevelContentPipelineExtension\LevelContentPipelineExtension.csproj", "{76460235-460A-4EFC-A92E-D074CB280804}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentWriterExtension", "ContentWriterExtension\ContentWriterExtension.csproj", "{76460235-460A-4EFC-A92E-D074CB280804}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Windows.Audio", "..\FEXNA LIBRARIES\MonoGame-audio\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj", "{7DE47032-A904-4C29-BD22-2D235E8D91BA}"
 EndProject
