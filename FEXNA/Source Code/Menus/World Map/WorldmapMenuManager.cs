@@ -73,10 +73,36 @@ loaded in normal mode. Sorry!");
                 }
             }
 
-            Global.game_system.play_se(System_Sounds.Confirm);
+            if (MenuData.IsSkippingGaiden(MenuData.ChapterId))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
 
+                var gaidenSkippedWindow = new Parchment_Info_Window();
+                gaidenSkippedWindow.set_text(@"Proceeding with this chapter
+will skip available sidequests
+or alternate routes.");
+                gaidenSkippedWindow.size = new Vector2(152, 64);
+                gaidenSkippedWindow.loc =
+                    new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2 -
+                    gaidenSkippedWindow.size / 2;
+
+                var gaidenSkippedMenu = new ConfirmationMenu(gaidenSkippedWindow);
+                gaidenSkippedMenu.Confirmed += gaidenSkippedMenu_Close;
+                AddMenu(gaidenSkippedMenu);
+
+                return;
+            }
+
+            Global.game_system.play_se(System_Sounds.Confirm);
+            SelectChapter(worldmapMenu);
+        }
+
+        private void SelectChapter(WorldmapMenu worldmapMenu)
+        {
             if (worldmapMenu.PreviousChapterSelectionIncomplete())
             {
+                // A lone prior requirement of a chapter from
+                // another battalion can make this crash //@Yeti
                 AddPreviousChapterSelectionMenu(worldmapMenu);
             }
             else
@@ -89,12 +115,14 @@ loaded in normal mode. Sorry!");
         private void AddPreviousChapterSelectionMenu(WorldmapMenu worldmapMenu)
         {
             worldmapMenu.StorePreviousChapters();
+
             // Open previous chapter selection
             var previousChapterSelectionWindow =
                 new PreviousChapterSelectionMenu(
                     new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2,
                     MenuData.ChapterId,
-                    MenuData);
+                    MenuData,
+                    worldmapMenu);
             previousChapterSelectionWindow.activate(worldmapMenu.CursorLoc);
             previousChapterSelectionWindow.Selected += previousChapterSelectionWindow_Selected;
             previousChapterSelectionWindow.PreviousChapterChanged += previousChapterSelectionWindow_PreviousChapterChanged;
@@ -141,6 +169,15 @@ loaded in normal mode. Sorry!");
             RemoveTopMenu();
 
             Global.game_system.play_se(System_Sounds.Confirm);
+        }
+
+        void gaidenSkippedMenu_Close(object sender, EventArgs e)
+        {
+            RemoveTopMenu();
+
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var worldmapMenu = (Menus.Peek() as WorldmapMenu);
+            SelectChapter(worldmapMenu);
         }
 
         void worldmapMenu_Canceled(object sender, EventArgs e)
@@ -284,11 +321,12 @@ loaded in normal mode. Sorry!");
         private void AddItemManageMenu()
         {
             var itemManageMenu = new Window_Manage_Items();
-            itemManageMenu.Status += itemsMenu_Status;
+            itemManageMenu.UnitSelected += ItemsMenu_UnitSelected;
+            itemManageMenu.Status += preparationsMenu_Status;
+            itemManageMenu.TradeSelected += ItemsMenu_TradeSelected;
             itemManageMenu.Trade += itemsMenu_Trade;
             itemManageMenu.Convoy += itemsMenu_Convoy;
             itemManageMenu.List += itemsMenu_List;
-            itemManageMenu.Shop += itemsMenu_Shop;
             itemManageMenu.Closed += itemManageMenu_Closed;
             AddMenu(itemManageMenu);
         }

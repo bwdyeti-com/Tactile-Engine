@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -10,7 +9,7 @@ using System.Diagnostics;
 [assembly: AssemblyProduct("FEXNA")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
-[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2017")]
+[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,4 +31,4 @@ using System.Diagnostics;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.6.4.0")]
+[assembly: AssemblyVersion("0.6.10.0")]

@@ -10,7 +10,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public class Game_Battalions
+    class Game_Battalions
     {
         protected int Current_Battalion = -1;
         Dictionary<int, Battalion> Data = new Dictionary<int, Battalion>();
@@ -94,6 +94,9 @@ namespace FEXNA
 
         public List<Item_Data> active_convoy_data { get { return Convoys[battalion.convoy_id].Data; } }
         internal Shop_Data active_convoy_shop { get { return contains_convoy(battalion.convoy_id) ? Convoys[battalion.convoy_id].Shop : null; } }
+
+        public int active_convoy_size { get { return Convoys[battalion.convoy_id].convoy_size; } }
+        public bool active_convoy_is_full { get { return Convoys[battalion.convoy_id].is_full; } }
 
         public List<int> individual_animations { get { return Individual_Animations; } }
 
@@ -179,11 +182,11 @@ namespace FEXNA
             return Convoys.ContainsKey(id);
         }
 
-        public void add_item_to_convoy(Item_Data item, int id = -1)
+        public void add_item_to_convoy(Item_Data item, bool force = false, int id = -1)
         {
             if (id == -1)
                 id = Global.battalion.convoy_id;
-            if (Convoys[id].Data.Count < Constants.Gameplay.CONVOY_SIZE)
+            if (force || !Convoys[id].is_full)
                 Convoys[id].Data.Add(item);
         }
 
@@ -257,7 +260,7 @@ namespace FEXNA
         }
     }
 
-    public class Battalion
+    class Battalion
     {
         private List<int> Actors = new List<int>(), Deployed_Actors = new List<int>();
         private int Convoy_Id = -1;
@@ -297,13 +300,12 @@ namespace FEXNA
                     .ToList();
             }
         }
-        public List<int> deployed_actor_units
+        public List<int> actor_units
         {
             get
             {
-                return Deployed_Actors
-                    .Where(x => Actors.Contains(x) &&
-                        Global.game_map.get_unit_id_from_actor(x) != -1)
+                return Actors
+                    .Where(x => Global.game_map.get_unit_id_from_actor(x) != -1)
                     .Select(x => Global.game_map.get_unit_id_from_actor(x))
                     .ToList();
             }
@@ -353,7 +355,7 @@ namespace FEXNA
         {
             get
             {
-                return this.deployed_actor_units
+                return this.actor_units
                     .Any(id => Global.game_map.units[id].is_convoy());
             }
         }
@@ -472,6 +474,12 @@ namespace FEXNA
             Gold = source.Gold;
         }
 
+        public override string ToString()
+        {
+            return string.Format("Battalion: {0} Actors, Convoy {1}",
+                Actors.Count, Convoy_Id);
+        }
+
         public void add_actor(int id)
         {
             if (!Actors.Contains(id))
@@ -564,11 +572,22 @@ namespace FEXNA
                 for (int i = 0; i < Global.game_battalions.convoy(Convoy_Id).Count; i++)
                     if (item_data.same_item(Global.game_battalions.convoy(Convoy_Id)[i]))
                         count++;
-            foreach(int actor_id in Actors)
-                foreach(Item_Data actor_item in Global.game_actors[actor_id].items)
+            foreach (int actor_id in Actors)
+                foreach (Item_Data actor_item in Global.game_actors[actor_id].items)
                     if (item_data.same_item(actor_item))
                         count++;
             return count;
+        }
+
+        public bool ItemOwned(Item_Data itemData)
+        {
+            if (convoy_has_item(itemData))
+                return true;
+            foreach (int actorId in Actors)
+                foreach (Item_Data actorItem in Global.game_actors[actorId].items)
+                    if (itemData.same_item(actorItem))
+                        return true;
+            return false;
         }
 
         public bool convoy_has_item(Item_Data item_data)
@@ -591,6 +610,8 @@ namespace FEXNA
             Global.game_battalions.optimize_inventory(Convoy_Id, actor);
         }
 
+        //@Yeti: this might need to include predeployed maps and units that join
+        // the player team mid-map
         public void refresh_deployed()
         {
             Deployed_Actors.Clear();
@@ -648,7 +669,7 @@ namespace FEXNA
     }
 
     // Game_Battalion should be able to get its instance of this, but it no one else should //Yeti
-    public class Game_Convoy
+    class Game_Convoy
     {
         enum InventoryOptimizePasses
         {

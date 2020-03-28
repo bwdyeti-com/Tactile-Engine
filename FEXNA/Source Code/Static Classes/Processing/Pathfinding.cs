@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using FEXNA.Map;
 using FEXNA.Pathfinding;
 using FEXNA_Library;
+using FEXNA_Library.Pathfinding;
 #if DEBUG
 using System.Diagnostics;
 #endif
@@ -59,7 +60,9 @@ namespace FEXNA
 #if DEBUG
                     if (!Global.game_system.is_interpreter_running)
                         // if the location is already occupied, problems
-                        Debug.Assert(!Unit_Locs.ContainsKey(loc), "Two units share a location when trying to start pathfinding");
+                        Debug.Assert(!Unit_Locs.ContainsKey(loc), string.Format(
+                            "Two units share a location when trying to start pathfinding\n\n{0}\n{1}",
+                            unit, test_unit));
                     Unit_Locs[loc] = tile_unit_passability(unit, loc, test_unit);
 #else
                     if (!Unit_Locs.ContainsKey(loc))
@@ -92,7 +95,7 @@ namespace FEXNA
             else
             {
                 if (unit.is_evented_move)
-                    return Unit_Passable.PassableEventedEnemy;
+                    return Unit_Passable.PassableFullMoveEnemy;
                 else if (unit.can_pass_enemies())
                     return Unit_Passable.PassableAlly;
                 if (Ignore_Units)
@@ -107,7 +110,7 @@ namespace FEXNA
             else
             {
                 if (unit.is_evented_move)
-                    return Unit_Passable.PassableEventedEnemy;
+                    return Unit_Passable.PassableFullMoveEnemy;
                 else if (unit.can_pass_enemies())
                     return Unit_Passable.PassableAlly;
                 if (Ignore_Units)
@@ -459,8 +462,10 @@ namespace FEXNA
         protected static int terrain_cost(Game_Unit unit, Vector2 loc)
         {
             int terr_cost = unit.move_cost(loc);
-            // If this is an event move and a unit is blocking but they can be passed through, prefer to move around them if possible
-            if (Unit_Locs.ContainsKey(loc) && Unit_Locs[loc] == Unit_Passable.PassableEventedEnemy)
+            // If this is an event move and a unit is blocking
+            // but they can be passed through,
+            // prefer to move around them if possible
+            if (Unit_Locs.ContainsKey(loc) && Unit_Locs[loc] == Unit_Passable.PassableFullMoveEnemy)
                 terr_cost += Math.Max(1, unit.mov);
             return terr_cost * 10 * (Global.game_map.is_off_map(loc) ? OFF_MAP_PENALTY_MULT : 1);
         }

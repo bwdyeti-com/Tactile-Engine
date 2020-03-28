@@ -9,7 +9,7 @@ using FEXNA_Library.Chapters;
 
 namespace FEXNA
 {
-    public class Game_Ranking
+    class Game_Ranking
     {
         internal string ChapterId { get; private set; }
         internal Difficulty_Modes Difficulty { get; private set; }
@@ -121,6 +121,12 @@ namespace FEXNA
 
             Data = ranking;
             Data.set_par(this.chapter_data);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Game_Ranking: {0}, {1} - {2} Rank",
+                ChapterId, this.score, this.rank);
         }
     }
 }

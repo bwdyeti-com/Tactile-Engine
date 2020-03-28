@@ -67,18 +67,18 @@ namespace FEXNA.Menus.Map
                 Config.MAPCOMMAND_WINDOW_DEPTH);
         }
 
-        protected override bool CanceledTriggered
+        protected override bool CanceledTriggered(bool active)
         {
-            get
+            bool cancel = base.CanceledTriggered(active);
+            if (active)
             {
-                bool cancel = base.CanceledTriggered;
                 // If right clicked or tapped on nothing in particular
                 cancel |= Global.Input.mouse_click(MouseButtons.Right) ||
                     Global.Input.gesture_triggered(TouchGestures.Tap);
-                return cancel;
             }
+            return cancel;
         }
-
+        
         private bool data_option_blocked
         {
             get
@@ -123,58 +123,58 @@ namespace FEXNA.Menus.Map
                 ReadyUnitsWindow.update();
 
             if (CancelButton != null)
-            {
-                if (Input.ControlSchemeSwitched)
-                    create_cancel_button();
                 CancelButton.Update(active);
-            }
-            bool cancel = this.CanceledTriggered;
+            bool cancel = CanceledTriggered(active);
 
             if (cancel)
             {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                OnCanceled(new EventArgs());
-                return;
+                Cancel();
             }
             else if (Window.is_selected())
             {
                 switch ((Map_Menu_Options)Window.selected_index().ValueOrDefault)
                 {
                     case Map_Menu_Options.Unit:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     case Map_Menu_Options.Data:
                         if (this.data_option_blocked)
                             Global.game_system.play_se(System_Sounds.Buzzer);
                         else
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         break;
                     case Map_Menu_Options.Options:
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        OnSelected(new EventArgs());
+                        SelectItem(true);
                         break;
                     case Map_Menu_Options.Suspend:
                         Global.Audio.play_se("System Sounds", "Confirm");
                         //Global.game_system.play_se(System_Sounds.Confirm); //Yeti
 
-                        OnSelected(new EventArgs());
+                        SelectItem();
                         break;
                     case Map_Menu_Options.End:
                         if (this.end_option_blocked)
                             Global.game_system.play_se(System_Sounds.Buzzer);
                         else
                         {
-                            Global.game_system.play_se(System_Sounds.Confirm);
-                            OnSelected(new EventArgs());
+                            SelectItem(true);
                         }
                         break;
                 }
             }
         }
+
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    create_cancel_button();
+            }
+        }
+
         public override void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);

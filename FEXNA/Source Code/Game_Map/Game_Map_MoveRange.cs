@@ -63,7 +63,7 @@ namespace FEXNA
                 //Talk_Range = Talk_Range.Distinct().ToList(); //ListOrEquals //HashSet
             }
 
-            Selected_Move_Total = 0;
+            ValidateMoveArrow();
             range_start_timer = 0;
         }
 
@@ -88,7 +88,9 @@ namespace FEXNA
                 Staff_Range.ExceptWith(Talk_Range);
                 Staff_Range.ExceptWith(Move_Range);
                 Staff_Range.ExceptWith(Attack_Range);
-                Selected_Move_Total = 0;
+
+                //@Debug: why
+                //Selected_Move_Total = 0;
             }
         }
 
@@ -243,8 +245,9 @@ namespace FEXNA
             }
             Game_Unit unit = get_unit(loc);
             // Falsely returns that no unit is at this tile if the unit can't see it
-            if (unit != null && fow && !unit.visible_by(this.units[id].team))
-                unit = null;
+            if (unit != null)
+                if (fow && !unit.visible_by(this.units[id].team))
+                    unit = null;
             // If there is a unit here and it's not the tested one
             if (unit != null && unit.id != id)
                 return true;
@@ -595,8 +598,8 @@ namespace FEXNA
             var move_arrow = new List<Move_Arrow_Data>(Move_Arrow);
 #endif
             Move_Arrow.Clear();
-            var map = new Pathfinding.UnitMovementMap(
-                Global.game_system.Selected_Unit_Id);
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .Build(Global.game_system.Selected_Unit_Id);
             List<Vector2> route2 = map.convert_to_motions(
                 map.get_route(target_loc, range));
             List<Vector2> route = map.convert_to_motions(
@@ -757,7 +760,33 @@ namespace FEXNA
             return dir2;
         }
 
-        public void clear_move_range()
+        private bool ValidateMoveArrow()
+        {
+            Game_Unit selected_unit = get_selected_unit();
+            if (Move_Arrow.Any() && selected_unit != null)
+            {
+                int moveCost = 0;
+                for (int i = 1; i < Move_Arrow.Count; i++)
+                {
+                    Move_Arrow_Data loc = Move_Arrow[i];
+                    moveCost += selected_unit.move_cost(new Vector2(loc.X, loc.Y));
+                }
+
+                // If the arrow has exceeded the move score
+                if (moveCost > selected_unit.canto_mov)
+                {
+                    Move_Arrow.Clear();
+                    Selected_Move_Total = 0;
+                    return false;
+                }
+                else
+                    Selected_Move_Total = moveCost;
+            }
+
+            return true;
+        }
+
+        public void clear_move_range(bool resetMoveArrow = true)
         {
             lock (Move_Range_Lock)
             {
@@ -765,8 +794,12 @@ namespace FEXNA
                 Attack_Range.Clear();
                 Staff_Range.Clear();
                 Talk_Range.Clear();
-                Move_Arrow.Clear();
-                Selected_Move_Total = 0;
+
+                if (resetMoveArrow)
+                {
+                    Move_Arrow.Clear();
+                    Selected_Move_Total = 0;
+                }
             }
         }
 
@@ -806,7 +839,7 @@ namespace FEXNA
         public int Y;
         public int Frame;
 
-        #region Accessors
+        #region Serialization
         public void write(BinaryWriter writer)
         {
             writer.Write(X);
@@ -826,5 +859,12 @@ namespace FEXNA
             Y = y;
             Frame = frame;
         }
+
+        public override string ToString()
+        {
+            return string.Format("Move_Arrow_Data: {0}", this.Loc);
+        }
+
+        public Vector2 Loc { get { return new Vector2(X, Y); } }
     }
 }

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using ArrayExtension;
 using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public class Game_Options
+    class Game_Options
     {
-        const int DATA_COUNT = 18;
+        const int DATA_COUNT = 16;
         public byte[] Data = new byte[DATA_COUNT];
 
         #region Serialization
@@ -22,11 +23,19 @@ namespace FEXNA
             Game_Options result = new Game_Options();
             byte[] data = result.Data.read(reader);
 
-            if (Global.LOADED_VERSION.older_than(0, 5, 0, 9))
+            if (Global.LOADED_VERSION.older_than(0, 6, 10, 0))
             {
-                data[(int)Constants.Options.Grid] = (byte)(data[(int)Constants.Options.Grid] == 0 ? 8 : 0);
-                data[(int)Constants.Options.Music_Volume] = (byte)(data[(int)Constants.Options.Music_Volume] == 0 ? 100 : 0);
-                data[(int)Constants.Options.Sound_Volume] = (byte)(data[(int)Constants.Options.Sound_Volume] == 0 ? 100 : 0);
+                if (Global.LOADED_VERSION.older_than(0, 5, 0, 9))
+                {
+                    data[(int)Constants.Options.Grid] = (byte)(data[(int)Constants.Options.Grid] == 0 ? 8 : 0);
+                }
+
+                // Volume removed in 0.6.10.0
+                var volumeRemoved = data
+                    .Take((int)Constants.Options.Auto_Turn_End + 1)
+                    .Concat(data.Skip((int)Constants.Options.Auto_Turn_End + 3))
+                    .ToArray();
+                data = volumeRemoved;
             }
 
             if (Global.ignore_options_load)
@@ -44,8 +53,6 @@ namespace FEXNA
 
         public void post_read()
         {
-            update_music_volum();
-            update_sound_volume();
         }
         #endregion
 
@@ -53,7 +60,6 @@ namespace FEXNA
         public byte animation_mode { get { return Data[(int)Constants.Options.Animation_Mode]; } set { Data[(int)Constants.Options.Animation_Mode] = value; } }
         public byte game_speed { get { return Data[(int)Constants.Options.Game_Speed]; } set { Data[(int)Constants.Options.Game_Speed] = value; } }
         public byte text_speed { get { return Data[(int)Constants.Options.Text_Speed]; } set { Data[(int)Constants.Options.Text_Speed] = value; } }
-        // Unused //Yeti
         public byte combat_window { get { return Data[(int)Constants.Options.Combat_Window]; } set { Data[(int)Constants.Options.Combat_Window] = value; } }
         public byte unit_window { get { return Data[(int)Constants.Options.Unit_Window]; } set { Data[(int)Constants.Options.Unit_Window] = value; } }
         public byte enemy_window { get { return Data[(int)Constants.Options.Enemy_Window]; } set { Data[(int)Constants.Options.Enemy_Window] = value; } }
@@ -67,24 +73,6 @@ namespace FEXNA
         public byte subtitle_help { get { return Data[(int)Constants.Options.Subtitle_Help]; } set { Data[(int)Constants.Options.Subtitle_Help] = value; } }
         public byte autocursor { get { return Data[(int)Constants.Options.Autocursor]; } set { Data[(int)Constants.Options.Autocursor] = value; } }
         public byte auto_turn_end { get { return Data[(int)Constants.Options.Auto_Turn_End]; } set { Data[(int)Constants.Options.Auto_Turn_End] = value; } }
-        public byte music_volume
-        {
-            get { return Data[(int)Constants.Options.Music_Volume]; }
-            set
-            {
-                Data[(int)Constants.Options.Music_Volume] = value;
-                update_music_volum();
-            }
-        }
-        public byte sound_volume
-        {
-            get { return Data[(int)Constants.Options.Sound_Volume]; }
-            set
-            {
-                Data[(int)Constants.Options.Sound_Volume] = value;
-                update_sound_volume();
-            }
-        }
         public byte window_color { get { return Data[(int)Constants.Options.Window_Color]; } set { Data[(int)Constants.Options.Window_Color] = value; } }
         #endregion
 
@@ -111,21 +99,9 @@ namespace FEXNA
             subtitle_help = 1;
             autocursor = 0;
             auto_turn_end = 2;
-            Data[(int)Constants.Options.Music_Volume] = 100;
-            Data[(int)Constants.Options.Sound_Volume] = 100;
             //music_on = 0; //Yeti
             //sound_on = 0;
             window_color = 0;
-        }
-
-        public void update_music_volum()
-        {
-        }
-
-        public void update_sound_volume()
-        {
-            Global.Audio.set_bgs_volume(sound_volume / 100f);
-            Global.Audio.set_sfx_volume(sound_volume / 100f);
         }
     }
 }

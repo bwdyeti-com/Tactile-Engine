@@ -66,6 +66,12 @@ namespace FEXNA
         public override int team { get { return Team; } }
         #endregion
 
+        public override string ToString()
+        {
+                return String.Format("LightRune, Loc: {4} {5}",
+                    (int)Loc.X, (int)Loc.Y);
+        }
+
         public LightRune() { }
         public LightRune(int id, Vector2 loc, int team, bool degrades = true)
         {
@@ -137,7 +143,7 @@ namespace FEXNA
         {
             base.update_sprite(sprite);
             sprite.update();
-            sprite.frame = (Facing / 2 - 1) * ((Graphics.Map.Character_Sprite)sprite).frame_count + Frame;
+            UpdateSpriteFrame((Graphics.Map.Character_Sprite)sprite, Facing, Frame);
             sprite.draw_offset = new Vector2(TILE_SIZE / 2, TILE_SIZE);
             //int a = ((int)Global.player.loc.X - 17) * 16 + 240; @Debug
             //int b = ((int)Global.player.loc.Y - 7) * 16 + 160;

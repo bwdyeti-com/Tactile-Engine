@@ -16,7 +16,7 @@ namespace FEXNA.Windows.Command
         private int BuyPriceMod;
         private List<Item_Data> ShopItems;
         private List<FE_Text> Headers = new List<FE_Text>();
-        private Shop_Window_Divider Window_Divider;
+        private StatusWindowDivider Window_Divider;
 
         protected Game_Actor actor
         {
@@ -75,8 +75,8 @@ namespace FEXNA.Windows.Command
             Headers[3].text = "Stock";
             Headers[4].text = "Owned";
 
-            Window_Divider = new Shop_Window_Divider();
-            Window_Divider.width = width - 32;
+            Window_Divider = new StatusWindowDivider();
+            Window_Divider.SetWidth(width - 32);
             Window_Divider.loc = new Vector2(16, 20);
 
             base.initialize(loc, width, strs);
@@ -134,6 +134,14 @@ namespace FEXNA.Windows.Command
             base.update_commands(input);
             if (is_help_active)
                 Help_Window.update();
+        }
+
+        public override Rectangle scissor_rect()
+        {
+            Rectangle rect = base.scissor_rect();
+            rect.Y += (int)Text_Offset.Y;
+            rect.Height -= (int)Text_Offset.Y;
+            return Scene_Map.fix_rect_to_screen(rect);
         }
 
         protected void refresh()

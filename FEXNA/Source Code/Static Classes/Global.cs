@@ -18,7 +18,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public enum Metrics_Settings { Not_Set, On, Off }
+    enum Metrics_Settings { Not_Set, On, Off }
     public static partial class Global
     {
         private static System.Reflection.Assembly _GAME_ASSEMBLY;
@@ -80,6 +80,7 @@ namespace FEXNA
         {
             FEXNA.Input.update(gameActive, gameTime, key_state, controller_state);
             Input.UpdateKeyboardStart(key_state);
+            Input.UpdateGamepadState(controller_state);
             FEXNA.Input.update_input_state(Input);
         }
 
@@ -266,7 +267,7 @@ namespace FEXNA
         }
 
         // Services
-        public static IAudioService Audio
+        internal static IAudioService Audio
         {
             get
             {
@@ -288,7 +289,7 @@ namespace FEXNA
                         typeof(FEXNA.Services.Rumble.BaseRumbleService)));
             }
         }
-        public static FEXNA.Services.Input.IInputService Input
+        internal static FEXNA.Services.Input.IInputService Input
         {
             get
             {
@@ -385,8 +386,10 @@ namespace FEXNA
             set { Return_To_Title = value; }
         }
 
+        // Progress meta data completed on any file, such as what chapters
+        // the player has seen, what supports have been acquired, etc
         static Save_Progress Progress = new Save_Progress();
-        public static Save_Progress progress { get { return Progress; } }
+        internal static Save_Progress progress { get { return Progress; } }
 
         static bool Load_Save_Info = false;
         public static bool load_save_info
@@ -395,7 +398,7 @@ namespace FEXNA
             set { Load_Save_Info = value; }
         }
         static Suspend_Info Suspend_File_Info;
-        public static Suspend_Info suspend_file_info
+        internal static Suspend_Info suspend_file_info
         {
             get { return Suspend_File_Info; }
             set { Suspend_File_Info = value; }
@@ -403,19 +406,19 @@ namespace FEXNA
 
 
         static Dictionary<int, Save_Info> Save_Files_Info;
-        public static Dictionary<int, Save_Info> save_files_info
+        internal static Dictionary<int, Save_Info> save_files_info
         {
             get { return Save_Files_Info; }
             set { Save_Files_Info = value; }
         }
         static Dictionary<int, Suspend_Info> Suspend_Files_Info;
-        public static Dictionary<int, Suspend_Info> suspend_files_info
+        internal static Dictionary<int, Suspend_Info> suspend_files_info
         {
             get { return Suspend_Files_Info; }
             set { Suspend_Files_Info = value; }
         }
         static Dictionary<int, Suspend_Info> Checkpoint_Files_Info;
-        public static Dictionary<int, Suspend_Info> checkpoint_files_info
+        internal static Dictionary<int, Suspend_Info> checkpoint_files_info
         {
             get { return Checkpoint_Files_Info; }
             set { Checkpoint_Files_Info = value; }
@@ -443,7 +446,14 @@ namespace FEXNA
         static int Current_Save_Id;
         public static int current_save_id
         {
-            set { Current_Save_Id = value; }
+            set
+            {
+                Current_Save_Id = value;
+                if (Global.current_save_info != null)
+                {
+                    Global.current_save_info.SetStartTime();
+                }
+            }
             get { return Current_Save_Id; }
         }
         #endregion
@@ -461,26 +471,6 @@ namespace FEXNA
         {
             get { return Load_Config; }
             set { Load_Config = value; }
-        }
-
-        // Zoom
-        static int Zoom = 0;
-        static int? Zoom_Max = null, Zoom_Min = null;
-        public static void set_zoom_limits(int min, int max)
-        {
-            if (Zoom_Min == null && Zoom_Max == null)
-            {
-                Zoom_Min = min;
-                Zoom_Max = max;
-            }
-        }
-
-        public static int zoom_min { get { return (int)Zoom_Min; } }
-        public static int zoom_max { get { return (int)Zoom_Max; } }
-        public static int zoom
-        {
-            get { return Zoom; }
-            set { Zoom = (int)MathHelper.Clamp(value, (int)Zoom_Min, (int)Zoom_Max); }
         }
 
         // Shader
@@ -501,44 +491,7 @@ namespace FEXNA
             return shader;
         }
 
-        // Fullscreen
-        static bool Fullscreen = false;
-        public static bool fullscreen
-        {
-            get { return Fullscreen; }
-            set { Fullscreen = value; }
-        }
-
-        // 3D Mode
-        public const int MAX_STEREOSCOPIC_LEVEL = 10;
-        static int Stereoscopic_Level = 0;
-        public static int stereoscopic_level
-        {
-            get { return Stereoscopic_Level; }
-            set { Stereoscopic_Level = value; }
-        }
-        public static bool stereoscopic
-        {
-            get { return Stereoscopic_Level > 0; }
-        }
-
-        // Anaglyph
-        static bool Anaglyph = false;
-        public static bool anaglyph
-        {
-            get { return Anaglyph; }
-            set { Anaglyph = value; }
-        }
-        public static bool anaglyph_mode { get { return stereoscopic && (!Fullscreen || Anaglyph); } }
-
         // Metrics
-        static Metrics_Settings Metrics = Metrics_Settings.Not_Set;
-        public static Metrics_Settings metrics
-        {
-            get { return Metrics; }
-            set { Metrics = value; }
-        }
-
         public static bool metrics_allowed = false;
 
         private static Metrics_Data Metrics_Data;
@@ -549,7 +502,7 @@ namespace FEXNA
         public static bool sending_metrics { get { return Sending_Metrics; } }
         public static void send_metrics()
         {
-            if (Metrics == Metrics_Settings.On)
+            if (Global.gameSettings.General.Metrics == Metrics_Settings.On)
             {
                 Gameplay_Metrics metrics = new Gameplay_Metrics(Global.game_state.metrics);
                 metrics.set_pc_ending_stats();
@@ -566,12 +519,7 @@ namespace FEXNA
         public static event EventHandler send_metrics_to_server;
 
         // Check for update
-        static bool UpdatesActive = false;
-        public static bool updates_active
-        {
-            get { return UpdatesActive; }
-            set { UpdatesActive = value; }
-        }
+        public static bool update_check_allowed = false;
 
         internal static string UpdateUri { get; private set; }
         public static void set_update_uri(string uri)
@@ -631,14 +579,6 @@ namespace FEXNA
             }
         }
 #endif
-
-        // Rumble
-        static bool RumbleActive = true;
-        public static bool rumble
-        {
-            get { return RumbleActive; }
-            set { RumbleActive = value; }
-        }
         #endregion
 
         // Exiting
@@ -652,7 +592,7 @@ namespace FEXNA
         #region Scene
         static Scene_Base Scene;
 
-        public static Scene_Base scene
+        internal static Scene_Base scene
         {
             get { return Scene; }
             set
@@ -746,10 +686,6 @@ namespace FEXNA
         {
             if (Scene.scene_type == "Scene_Title")
                 ((Scene_Title)Scene).update(key_state);
-#if !MONOGAME && DEBUG
-            else if (Scene.scene_type == "Scene_Map_Unit_Editor")
-                ((Scene_Map_Unit_Editor)Scene).update(key_state);
-#endif
             else
                 Scene.update();
         }
@@ -1028,14 +964,14 @@ namespace FEXNA
 
         // Test Battlers
         static Test_Battle_Character_Data Test_Battler_1;
-        public static Test_Battle_Character_Data test_battler_1
+        internal static Test_Battle_Character_Data test_battler_1
         {
             get { return Test_Battler_1; }
             set { Test_Battler_1 = value; }
         }
         
         static Test_Battle_Character_Data Test_Battler_2;
-        public static Test_Battle_Character_Data test_battler_2
+        internal static Test_Battle_Character_Data test_battler_2
         {
             get { return Test_Battler_2; }
             set { Test_Battler_2 = value; }
@@ -1046,7 +982,7 @@ namespace FEXNA
         // Save File
         static Save_File @Save_File;
 
-        public static Save_File save_file
+        internal static Save_File save_file
         {
             get { return @Save_File; }
             set { @Save_File = value; }
@@ -1064,12 +1000,12 @@ namespace FEXNA
         // Game Battalions
         static Game_Battalions @Game_Battalions;
 
-        public static Game_Battalions game_battalions
+        internal static Game_Battalions game_battalions
         {
             get { return @Game_Battalions; }
             set { @Game_Battalions = value; }
         }
-        public static Battalion battalion
+        internal static Battalion battalion
         {
             get
             {
@@ -1077,6 +1013,15 @@ namespace FEXNA
                     return null;
                 return @Game_Battalions.battalion;
             }
+        }
+
+        // Game Config
+        static Options.Settings GameSettings;
+
+        internal static Options.Settings gameSettings
+        {
+            get { return GameSettings; }
+            set { GameSettings = value; }
         }
 
         // Game Map
@@ -1091,7 +1036,7 @@ namespace FEXNA
         // Game Options
         static Game_Options @Game_Options;
 
-        public static Game_Options game_options
+        internal static Game_Options game_options
         {
             get { return @Game_Options; }
             set { @Game_Options = value; }
@@ -1140,7 +1085,7 @@ namespace FEXNA
         {
             Game_System.clear_events();
         }
-        public static void play_se(System_Sounds sound)
+        internal static void play_se(System_Sounds sound)
         {
             Game_System.play_se(sound);
         }
@@ -1156,7 +1101,7 @@ namespace FEXNA
         // Game Temp
         static Game_Temp @Game_Temp;
 
-        public static Game_Temp game_temp
+        internal static Game_Temp game_temp
         {
             get { return @Game_Temp; }
             set { @Game_Temp = value; }
@@ -1356,7 +1301,7 @@ namespace FEXNA
         #endregion
 
         static Palette_Handler Palette_Pool;
-        public static Palette_Handler palette_pool
+        internal static Palette_Handler palette_pool
         {
             get { return Palette_Pool; }
         }

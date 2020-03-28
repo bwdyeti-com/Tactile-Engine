@@ -8,9 +8,9 @@ using ListExtension;
 
 namespace FEXNA.State
 {
-    public enum Map_Battle_Actions { Prehit_Check, Hit_Check, Move_Toward_Enemy, Wait_For_Move, Wiggle, Attack,
+    enum Map_Battle_Actions { Prehit_Check, Hit_Check, Move_Toward_Enemy, Wait_For_Move, Wiggle, Attack,
         Miss, No_Damage, Move_Back, Wait_For_Attack, Wait_After_Attack, Next_Attack }
-    public enum Cleanup_Actions { Promotion, Level_Up, Skill_Gain, WLvl_Up, Weapon_Break, Item_Gain, Wait }
+    enum Cleanup_Actions { Promotion, Level_Up, Skill_Gain, WLvl_Up, Weapon_Break, Item_Gain, Wait }
     partial class Game_Combat_State : Game_Combat_State_Component
     {
         // Weapons that fire a ballista bolt
@@ -760,6 +760,7 @@ namespace FEXNA.State
                                             Global.player.loc = Battler_1.loc;
                                             Global.player.instant_move = true;
                                             Global.game_system.Selected_Unit_Id = Battler_1_Id;
+                                            Battler_1.update_move_range();
                                             Battler_1.open_move_range();
                                         }
                                     }
@@ -814,6 +815,7 @@ namespace FEXNA.State
 
         protected bool update_cleanup_actions(Game_Unit Battler_1, Game_Unit Battler_2)
         {
+            int unitId = Cleanup_Action[0][1] == 1 ? Battler_1_Id : Battler_2_Id;
             switch (Cleanup_Action[0][0])
             {
                 case (int)Cleanup_Actions.Promotion:
@@ -822,7 +824,7 @@ namespace FEXNA.State
                         case 0:
                             Global.Audio.play_se("System Sounds", "Level_Up_Fanfare", duckBgm: true);
                             get_scene_map().create_promotion_spark(
-                                Global.game_map.units[Cleanup_Action[0][1] == 1 ? Battler_1_Id : Battler_2_Id].pixel_loc);
+                                Global.game_map.units[unitId].pixel_loc);
                             Combat_Timer++;
                             break;
                         case 1:
@@ -830,15 +832,23 @@ namespace FEXNA.State
                                 Combat_Timer++;
                             break;
                         case 2:
-                            Global.game_system.Class_Changer = Cleanup_Action[0][1] == 1 ? Battler_1_Id : Battler_2_Id;
-                            Global.game_system.Class_Change_To = (int)(Cleanup_Action[0][1] == 1 ? Battler_1 : Battler_2).actor.promotes_to();
+                            if (Global.game_map.units[unitId].actor.NeedsPromotionMenu)
+                            {
+                                Global.game_temp.CallPromotionChoiceMenu(unitId);
+                            }
+                            else
+                            {
+                                Global.game_system.Class_Changer = unitId;
+                                Global.game_system.Class_Change_To = (int)(Cleanup_Action[0][1] == 1 ? Battler_1 : Battler_2).actor.promotes_to();
+                            }
                             //Item_Used = -1; // shouldn't do anything, but... //Debug
                             Transition_To_Battle = true;
                             Battle_Transition_Timer = Constants.BattleScene.BATTLE_TRANSITION_TIME;
                             Combat_Timer++;
                             break;
                         case 3:
-                            Battle_Transition_Timer--;
+                            if (!Global.game_temp.PromotionChoiceMenuCall && !Global.game_temp.menuing)
+                                Battle_Transition_Timer--;
                             if (Battle_Transition_Timer == 0)
                             {
                                 Combat_Timer++;
@@ -877,7 +887,7 @@ namespace FEXNA.State
                     switch (Combat_Timer)
                     {
                         case 0:
-                            int battler_id = Cleanup_Action[0][1] == 1 ? Battler_1_Id : Battler_2_Id;
+                            int battler_id = unitId;
                             get_scene_map().level_up(battler_id);
                             if (Units[battler_id].actor.skills_gained_on_level().Any())
                             {
@@ -920,7 +930,7 @@ namespace FEXNA.State
                     switch (Combat_Timer)
                     {
                         case 0:
-                            get_scene_map().wlvl_up(Cleanup_Action[0][1] == 1 ? Battler_1_Id : Battler_2_Id);
+                            get_scene_map().wlvl_up(unitId);
                             Combat_Timer++;
                             break;
                         case 1:
@@ -1677,6 +1687,7 @@ namespace FEXNA.State
                                                     Global.player.loc = Battler_1.loc;
                                                     Global.player.instant_move = true;
                                                     Global.game_system.Selected_Unit_Id = Battler_1_Id;
+                                                    Battler_1.update_move_range();
                                                     Battler_1.open_move_range();
                                                 }
                                             }
@@ -1983,6 +1994,7 @@ namespace FEXNA.State
                                                     Global.player.loc = Battler_1.loc;
                                                     Global.player.instant_move = true;
                                                     Global.game_system.Selected_Unit_Id = Battler_1_Id;
+                                                    Battler_1.update_move_range();
                                                     Battler_1.open_move_range();
                                                 }
                                             }

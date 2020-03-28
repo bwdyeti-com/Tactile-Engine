@@ -211,7 +211,7 @@ namespace FEXNA
         #endregion
     }
 
-    public class Talk_Event
+    class Talk_Event
     {
         public int ActorId1;
         public int ActorId2;
@@ -274,7 +274,7 @@ namespace FEXNA
         }
     }
 
-    public class Event_Data_Handler
+    class Event_Data_Handler
     {
         const string EVENTS_PATH = @"Data/Map Data/Event Data/";
         const string GLOBAL_EVENT = "Global";
@@ -408,7 +408,7 @@ namespace FEXNA
         }
     }
 
-    public class Home_Base_Event_Data
+    class Home_Base_Event_Data
     {
         public string Name;
         public int Priority;

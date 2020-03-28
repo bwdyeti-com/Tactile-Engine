@@ -138,6 +138,10 @@ namespace FEXNA.Windows
         {
             Trade_Window.update(active && ready);
             base.UpdateMenu(active);
+        }
+
+        protected override void UpdateAncillary()
+        {
             if (Input.ControlSchemeSwitched)
                 refresh_input_help();
         }

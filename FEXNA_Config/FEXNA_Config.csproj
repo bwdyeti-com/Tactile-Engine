@@ -64,13 +64,13 @@
     <Compile Include="Source Code\ClassTypeSet.cs" />
     <Compile Include="Source Code\FaceCountryRecolor.cs" />
     <Compile Include="Source Code\FaceToGeneric.cs" />
-    <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Class_Battler_Frames.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Face_Recolor.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\FE_Battler_Image.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Recolor.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Class_Reel_Data.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Config.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Constants\BgmConfig.cs" />
+    <Compile Include="Source Code\Static Classes\Config Data\Constants\CreditsConfig.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Constants\GameplayConfig.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Constants\DifficultyConfig.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Constants\OptionsConfig.cs" />
@@ -93,7 +93,7 @@
     <Compile Include="Source Code\World_Map_Chapter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FEXNA LIBRARIES\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+    <ProjectReference Include="..\FEXNA_Library\FEXNA_Library.csproj">
       <Project>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</Project>
       <Name>FEXNA_Library</Name>
     </ProjectReference>

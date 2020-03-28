@@ -7,7 +7,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Graphics.Text
 {
-    public class FE_Text : Sprite
+    class FE_Text : Sprite
     {
         protected readonly static FEXNA_Library.Noise NoiseGen = new FEXNA_Library.Noise(12345);
 
@@ -133,7 +133,8 @@ namespace FEXNA.Graphics.Text
                     if (font_data.IsNothing)
                         return;
                     Font_Data data = font_data;
-                    for(int i = 0; i < Character_Count; i++)
+
+                    for (int i = 0; i < Character_Count; i++)
                     {
                         char letter = Text[i];
                         if (letter == '\n')
@@ -175,6 +176,7 @@ namespace FEXNA.Graphics.Text
                 if (font_data.IsNothing)
                     return;
                 Font_Data data = font_data;
+
                 for(; i < Character_Count; i++)
                 {
                     if (TextColors.ContainsKey(i))
@@ -191,7 +193,6 @@ namespace FEXNA.Graphics.Text
                         // If there's not data for this letter
                         if (!data.CharacterData.ContainsKey(letter))
                             continue;
-                        int[] char_data = data.CharacterData[letter];
                         // If the character isn't a space, render the character and also do some other things
                         if (letter != ' ')
                         {
@@ -208,19 +209,6 @@ namespace FEXNA.Graphics.Text
 
         protected void draw_letter(SpriteBatch sprite_batch, Texture2D texture, int index, Vector2 draw_offset, Vector2 temp_loc, Font_Data data)
         {
-            char letter = Text[index];
-
-            int[] char_data = data.CharacterData[letter];
-            Vector2 offset = this.offset;
-            Rectangle src_rect;
-            if (char_data.Length == 3)
-                src_rect = new Rectangle(char_data[0] * data.CharWidth, char_data[1] * data.CharHeight, data.CharWidth, data.CharHeight);
-            else
-                src_rect = new Rectangle(char_data[0], char_data[1], char_data[2], char_data[3]);
-
-            if (mirrored)
-                offset.X = src_rect.Width - offset.X;
-
             Vector2 loc = (this.loc + draw_vector()) - draw_offset;
             // Sine wave
             if (false)
@@ -244,15 +232,20 @@ namespace FEXNA.Graphics.Text
                     magnitude * data.CharHeight);
                 loc += new Vector2((int)shake_offset.X, (int)shake_offset.Y);
             }
+            
+            Rectangle src_rect = data.CharacterSrcRect(Text[index]);
 
+            Vector2 offset = this.offset;
+            if (mirrored)
+                offset.X = src_rect.Width - offset.X;
+            
             sprite_batch.Draw(texture, loc, src_rect, tint, angle, offset - temp_loc, scale,
                     mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
         }
 
         protected virtual void advance_character(char letter, ref Vector2 temp_loc, Font_Data data)
         {
-            int[] char_data = data.CharacterData[letter];
-            temp_loc.X += (char_data.Length == 3 ? char_data[2] : char_data[4]);
+            temp_loc.X += data.CharacterWidth(letter);
         }
     }
 }

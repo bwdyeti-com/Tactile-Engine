@@ -5,7 +5,7 @@ using FEXNA.Graphics.Text;
 
 namespace FEXNA
 {
-    public class Exp_Gauge : Sprite
+    class Exp_Gauge : Sprite
     {
         int Timer = 0;
         const int TIMER_MAX = 8;

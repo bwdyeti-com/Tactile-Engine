@@ -138,7 +138,7 @@ namespace FEXNA.Graphics.Preparations
             // Stats Window
             Stats_Window.update();
             foreach (var stat in Stats)
-                stat.Update(false);
+                stat.Update();
         }
 
         public void gain_stats(Dictionary<FEXNA_Library.Boosts, int> boosts)

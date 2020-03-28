@@ -12,8 +12,8 @@ namespace FEXNA.Windows.UserInterface
         internal UICursor(UINodeSet<T> nodes)
         {
             NodeSet = nodes;
-            if (NodeSet.Any())
-            force_loc(NodeSet.ActiveNode.loc);
+            if (NodeSet.Any() && NodeSet.ActiveNode != null)
+                force_loc(NodeSet.ActiveNode.loc);
         }
 
         internal void hide_when_using_mouse(bool hide)
@@ -27,7 +27,14 @@ namespace FEXNA.Windows.UserInterface
         }
         public void update(Vector2 scrollOffset)
         {
-            if (NodeSet.Any())
+            UpdateTargetLoc(scrollOffset);
+
+            base.update();
+        }
+
+        public void UpdateTargetLoc(Vector2 scrollOffset = default(Vector2))
+        {
+            if (NodeSet.Any() && NodeSet.ActiveNode != null)
             {
                 Vector2 loc = NodeSet.ActiveNode.loc - scrollOffset;
                 if (this.target_loc != loc)
@@ -38,8 +45,6 @@ namespace FEXNA.Windows.UserInterface
             {
                 move_to_target_loc();
             }
-
-            base.update();
         }
 
         /// <summary>

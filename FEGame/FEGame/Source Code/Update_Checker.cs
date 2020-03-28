@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace FEGame
 {
-    class Update_Checker
+    class Update_Checker : FEXNA.IUpdateService
     {
         internal readonly static string GAME_DOWNLOAD = "yoursite.herethough/yourgame";
         readonly static string UPDATE_URL = "http://put.yoursite.herethough/yourgame/check_update.php";
@@ -15,7 +15,9 @@ namespace FEGame
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
         readonly static string UPDATE_REGEX = @"[^\w.,\s\r\n]";
 
-        internal static Tuple<Version, DateTime, string> check_for_update()
+        public string GameDownloadUrl { get { return GAME_DOWNLOAD; } }
+
+        public Tuple<Version, DateTime, string> check_for_update()
         {
             string update_data = NetConnection.webPost(UPDATE_URL,
                 timeout: new TimeSpan(0, 0, UPDATE_CHECK_TIMEOUT_SECONDS),
@@ -70,7 +72,7 @@ namespace FEGame
             return Tuple.Create(v, dt, description);
         }
 
-        internal static bool test_connection()
+        public bool test_connection()
         {
             return NetConnection.test_connection_dns(UPDATE_URL);
         }

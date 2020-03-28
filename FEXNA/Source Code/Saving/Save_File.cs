@@ -6,10 +6,11 @@ using System.Linq;
 using System.Diagnostics;
 #endif
 using FEXNAVersionExtension;
+using FEXNA_Library;
 
 namespace FEXNA.IO
 {
-    public class Save_File
+    class Save_File
     {
         public Mode_Styles Style = Mode_Styles.Standard;
         public Difficulty_Modes Difficulty = Difficulty_Modes.Normal;
@@ -161,22 +162,9 @@ namespace FEXNA.IO
             get
             {
                 Dictionary<string, int> result = new Dictionary<string, int>();
-                foreach (Save_Data save in Data
-                    .SelectMany(p => p.Value)
-                    .Select(p => p.Value))
+                var saves = this.ProgressionDataChapters.ToList();
+                foreach (Save_Data save in saves)
                 {
-                    if (!Global.data_chapters.ContainsKey(save.chapter_id))
-                        continue;
-                    // If the chapter is standalone, there needs to be at least one chapter following from it or it's a trial map/etc and shouldn't be counted
-                    if (Global.data_chapters[save.chapter_id].Standalone)
-                    {
-                        // Compare the prior chapter list for each chapter against the progression ids for the current chapter
-                        if (!Global.data_chapters
-                                // If this other chapter is standalone it can't follow from this chapter
-                                .Any(x => !x.Value.Standalone && x.Value.Prior_Chapters
-                                    .Intersect(Global.data_chapters[save.chapter_id].Progression_Ids).Any()))
-                            continue;
-                    }
                     Dictionary<string, int> supports = save.acquired_supports;
                     foreach (var pair in supports)
                     {
@@ -188,6 +176,36 @@ namespace FEXNA.IO
                 return result;
             }
         }
+
+        internal HashSet<int> RecruitedActors
+        {
+            get
+            {
+                HashSet<int> result = new HashSet<int>();
+                var saves = this.ProgressionDataChapters.ToList();
+                foreach (Save_Data save in saves)
+                {
+                    result.UnionWith(save.RecruitedActors);
+                }
+                return result;
+            }
+        }
+
+        private IEnumerable<Save_Data> ProgressionDataChapters
+        {
+            get
+            {
+                HashSet<string> progressionIds = new HashSet<string>(Save_Progress.ProgressionDataChapterIds);
+
+                foreach (Save_Data save in Data
+                    .SelectMany(p => p.Value)
+                    .Select(p => p.Value))
+                {
+                    if (progressionIds.Contains(save.chapter_id))
+                        yield return save;
+                }
+            }
+        }
         #endregion
 
         public Save_File()
@@ -195,15 +213,13 @@ namespace FEXNA.IO
             Description = "";
         }
 
-        public void save_data(string chapter_id, string progression_id,
-            Dictionary<string, string> previousChapterIds)
+        internal void save_data(string chapter_id, string progression_id, PastRankings rankings)
         {
             if (!Data.ContainsKey(chapter_id))
                 Data[chapter_id] = new Dictionary<string, Save_Data>();
 
             Data[chapter_id][progression_id] = new Save_Data();
-            Data[chapter_id][progression_id].save_data(chapter_id, progression_id,
-                past_rankings(chapter_id, previousChapterIds));
+            Data[chapter_id][progression_id].save_data(chapter_id, progression_id, rankings);
         }
 
         public Dictionary<string, Game_Ranking> all_rankings(
@@ -219,10 +235,10 @@ namespace FEXNA.IO
             var rankings = Save_Data.process_past_ranking(
                 new List<Save_Data> { save });
 
-            return rankings;
+            return rankings.GetData();
         }
 
-        public Dictionary<string, Game_Ranking> past_rankings(
+        internal PastRankings past_rankings(
             string chapter_id, Dictionary<string, string> previousChapterIds)
         {
             List<Save_Data> previous_chapters = new List<Save_Data>();
@@ -371,14 +387,28 @@ namespace FEXNA.IO
 
         public string displayed_rank(string chapter_id)
         {
+            if (Global.data_chapters[chapter_id].Unranked)
+                return "+";
+
+            var rank = ranking(chapter_id);
+            if (rank == null)
+                return "";
+
+            return rank.rank;
+        }
+        public Game_Ranking ranking(string chapter_id)
+        {
             var recent_chapter = recent_save(chapter_id, "");
             if (recent_chapter == null)
-                return "";
-            return recent_chapter.ranking.rank;
+                return null;
+            return recent_chapter.ranking;
         }
 
-        public Difficulty_Modes displayed_difficulty(string chapter_id)
+        public Maybe<Difficulty_Modes> displayed_difficulty(string chapter_id)
         {
+            if (Global.data_chapters[chapter_id].Unranked)
+                return Maybe<Difficulty_Modes>.Nothing;
+
             var recent_chapter = recent_save(chapter_id, "");
             if (recent_chapter == null)
                 return Difficulty_Modes.Normal;
@@ -399,27 +429,43 @@ namespace FEXNA.IO
         /// <param name="chapter_id">The key of the chapter to check</param>
         public bool chapter_available(string chapter_id)
         {
-            if (Global.data_chapters[chapter_id].Prior_Chapters.Count > 0)
+            var chapter = Global.data_chapters[chapter_id];
+            if (chapter.Prior_Chapters.Count > 0)
                 // If the chapter has prior chapters, to be viable it has to have save data to load from those chapters
-                for (int i = 0; i < Global.data_chapters[chapter_id].Prior_Chapters.Count; i++)
+                for (int i = 0; i < chapter.Prior_Chapters.Count; i++)
                 {
-                    // The first entry must have the same battalion
-                    if (i == 0)
+                    if (!has_progression_key(chapter.Prior_Chapters[i]))
+                        return false;
+
+                    // Followup chapters must have the same battalion
+                    // in their first prior chapter
+                    if (!chapter.Standalone && i == 0)
                     {
-                        if (!has_progression_key(Global.data_chapters[chapter_id].Prior_Chapters[i],
-                                //Global.data_chapters.Values.Single(x => x.Id == chapter_id).Battalion)) //Debug
-                                Global.data_chapters[chapter_id].Battalion))
+                        bool sameBattalion = has_progression_key(chapter.Prior_Chapters[i],
+                            //Global.data_chapters.Values.Single(x => x.Id == chapter_id).Battalion)) //Debug
+                            chapter.Battalion);
+#if DEBUG
+                        Debug.Assert(sameBattalion, string.Format(
+@"Invalid prior chapter for ""{0}"".
+
+As a follow-up chapter, the first prior
+chapter must use the same battalion.
+
+No completed chapter with the
+progression id ""{1}"" uses battalion {2}.",
+                            chapter.ShortName,
+                            chapter.Prior_Chapters[0],
+                            chapter.Battalion));
+#endif
+                        if (!sameBattalion)
                             return false;
                     }
-                    else
-                        if (!has_progression_key(Global.data_chapters[chapter_id].Prior_Chapters[i]))
-                            return false;
                 }
 
             // Completed chapters require only that the chapter has been beaten
-            for (int i = 0; i < Global.data_chapters[chapter_id].Completed_Chapters.Count; i++)
+            for (int i = 0; i < chapter.Completed_Chapters.Count; i++)
             {
-                if (!has_progression_key(Global.data_chapters[chapter_id].Completed_Chapters[i]))
+                if (!has_progression_key(chapter.Completed_Chapters[i]))
                     return false;
             }
 
@@ -519,27 +565,30 @@ namespace FEXNA.IO
         }
         public Dictionary<string, List<string>> valid_previous_chapters(string chapter_id)
         {
+            var chapter = Global.data_chapters[chapter_id];
             Dictionary<string, List<string>> previous_chapters = new Dictionary<string, List<string>>();
             // Prior Chapters
-            for (int i = 0; i < Global.data_chapters[chapter_id].Prior_Chapters.Count; i++)
+            for (int i = 0; i < chapter.Prior_Chapters.Count; i++)
             {
-                string progression_id = Global.data_chapters[chapter_id].Prior_Chapters[i];
+                string progression_id = chapter.Prior_Chapters[i];
+                // Duplicate; already added the set of chapters for this id
                 if (previous_chapters.ContainsKey(progression_id))
                     continue;
-                int battalion = i > 0 ? -1 :
-                    battalion = Global.data_chapters[chapter_id].Battalion;
+                int battalion = -1;
+                if (!chapter.Standalone && i == 0)
+                    battalion = chapter.Battalion;
                 List<string> result = get_previous_chapters(
                     chapter_id, progression_id, battalion);
                 previous_chapters.Add(progression_id, result);
             }
             // If no prior chapters, don't have the player select completed chapters
-            // If there's something important to load 
+            // If there's nothing important to load 
             if (previous_chapters.Count == 0)
                 return previous_chapters;
             // Completed Chapters
-            for(int i = 0; i < Global.data_chapters[chapter_id].Completed_Chapters.Count; i++)
+            for (int i = 0; i < chapter.Completed_Chapters.Count; i++)
             {
-                string progression_id = Global.data_chapters[chapter_id].Completed_Chapters[i];
+                string progression_id = chapter.Completed_Chapters[i];
                 if (previous_chapters.ContainsKey(progression_id))
                     continue;
                 int battalion = -1;

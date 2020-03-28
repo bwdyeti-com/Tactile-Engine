@@ -13,7 +13,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Services.Audio
 {
-    public class AudioNull
+    class AudioNull
     {
         public class AudioNullService : IAudioService
         {
@@ -24,7 +24,7 @@ namespace FEXNA.Services.Audio
                 _audio = new AudioNull();
             }
             
-            public void update() { }
+            public void update(bool gameInactive) { }
 
             public void post_update() { }
 
@@ -55,16 +55,12 @@ namespace FEXNA.Services.Audio
             #endregion
 
             #region BGS
-            public void set_bgs_volume(float volume) { }
-
             public void play_bgs(string cue_name) { }
 
             public void stop_bgs() { }
             #endregion
 
             #region SFX
-            public void set_sfx_volume(float volume) { }
-
             public void play_se(string bank, string cue_name,
                 Maybe<float> pitch,
                 Maybe<int> channel,

@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using FEXNA.Menus.Map.Unit;
 
 namespace FEXNA
 {
@@ -12,16 +13,17 @@ namespace FEXNA
         protected int OldClass, OldLevel;
         protected bool Combat_Scene_Fade_In = false, Preparations_Fade_In = false;
         protected bool Arena_Background = false, Arena_Scene = false, Preparations_Scene = false;
+        private bool WaitingOnPromotionChoice = false;
 
         public Scene_Promotion() { }
 
         #region Platform/Background
-        protected override Texture2D platform(Game_Unit battler, int distance)
+        protected override Texture2D platform(int tag, int distance)
         {
             if (Global.game_system.preparations)
-                return battle_content.Load<Texture2D>(@"Graphics/Battlebacks/" + "Floor" + "-Melee"); //Debug
+                return battle_content.Load<Texture2D>(@"Graphics/Battlebacks/" + "Floor" + "-Melee"); //@Debug
             else
-                return base.platform(battler, distance);
+                return base.platform(tag, distance);
         }
 
         protected override Texture2D background(Game_Unit battler)
@@ -67,12 +69,22 @@ namespace FEXNA
             Phase = 0;
             Segment = 0;
             Timer = 0;
+
             if (Unit_Ids != null)
                 Battler_1 = Global.game_map.units[Unit_Ids[0]];
             else
                 Battler_1 = Global.game_map.units[Global.game_system.Class_Changer];
+
             if (Global.game_system.Class_Change_To == -1)
-                Global.game_system.Class_Change_To = (int)Battler_1.actor.promotes_to();
+            {
+                if (Battler_1.actor.NeedsPromotionMenu)
+                {
+                    WaitingOnPromotionChoice = true;
+                    Global.game_temp.CallPromotionChoiceMenu(Battler_1.id);
+                }
+                else
+                    Global.game_system.Class_Change_To = (int)Battler_1.actor.promotes_to();
+            }
             Reverse = true;
             Real_Distance = Distance = 1;
             Can_Skip = false;
@@ -93,6 +105,28 @@ namespace FEXNA
             return Level_Up_Action >= 3;
         }
 
+        protected override bool update_menu_unit()
+        {
+            if (UnitMenu != null)
+            {
+                UnitMenu.Update(!Combat_Scene_Fade_In && !Preparations_Fade_In);
+                if (UnitMenu != null && UnitMenu.Finished)
+                    UnitMenu = null;
+                return true;
+            }
+
+            return false;
+        }
+
+        protected override void call_promotion_choice_menu()
+        {
+            UnitMenu = UnitMenuManager.PromotionChoice(
+                this, Global.game_system.Class_Changer, true, true);
+            //Global.game_system.play_se(System_Sounds.Open); //@Debug
+        }
+
+        private int OffscreenOffset { get { return -(Config.WINDOW_WIDTH / 2 + 88); } }
+        
         #region Phase Updates
         protected override void update_phase_0()
         {
@@ -114,7 +148,10 @@ namespace FEXNA
                             case 34:
                                 Skip_Fill = null;
                                 Preparations_Fade_In = false;
-                                Timer = 36;
+                                if (WaitingOnPromotionChoice)
+                                    Timer = 0;
+                                else
+                                    Timer = 36;
                                 break;
                             default:
                                 if (Timer > 18)
@@ -136,7 +173,10 @@ namespace FEXNA
                             case 40:
                                 Skip_Fill = null;
                                 Combat_Scene_Fade_In = false;
-                                Timer = 36;
+                                if (WaitingOnPromotionChoice)
+                                    Timer = 0;
+                                else
+                                    Timer = 36;
                                 break;
                             default:
                                 if (Timer > 8)
@@ -149,8 +189,46 @@ namespace FEXNA
                         }
                 }
             }
+            else if (WaitingOnPromotionChoice)
+            {
+                if (!Music_Started)
+                {
+                    play_battle_theme();
+                    Music_Started = true;
+                }
+
+                bool cont = true;
+                if (!Global.game_temp.PromotionChoiceMenuCall && !Global.game_temp.menuing)
+                    cont = false;
+                while (!cont)
+                {
+                    cont = true;
+                    switch (Timer)
+                    {
+                        case 8:
+                            Pan_Vector.X = Additional_Math.int_closer(
+                                (int)Pan_Vector.X, 0, 16);
+                            if (HUD == null && Pan_Vector.X >= this.OffscreenOffset / 2)
+                                setup_hud();
+
+                            if (HUD != null && Pan_Vector.X == 0)
+                                Timer++;
+                            break;
+                        case 9:
+                            WaitingOnPromotionChoice = false;
+                            Timer = 36;
+                            break;
+                        default:
+                            Timer++;
+                            break;
+                    }
+                }
+            }
             else
-                base.update_phase_0();
+            {
+                if (!Global.game_temp.PromotionChoiceMenuCall && !Global.game_temp.menuing)
+                    base.update_phase_0();
+            }
         }
 
         protected override void update_phase_1()
@@ -169,7 +247,8 @@ namespace FEXNA
                         OldClass = Battler_1.actor.class_id;
                         OldLevel = Battler_1.actor.level;
                         Battler_1.actor.promotion_class_id = Global.game_system.Class_Change_To;
-                        Battler_1_Sprite = new Battler_Sprite(Battler_1, !Reverse, Distance, Reverse);
+                        var battler1Data = new BattlerSpriteData(Battler_1);
+                        Battler_1_Sprite = new Battler_Sprite(battler1Data, !Reverse, Distance, Reverse);
                         Battler_1_Sprite.start_battle();
                         Battler_1_Sprite.loc = Battler_1_Loc = new Vector2((!Reverse ? 184 + (Distance == 1 ? 0 : 56) :
                             136 - (Distance == 1 ? 0 : 56)) +
@@ -410,9 +489,13 @@ namespace FEXNA
             Battler_1_Sprite.update_animation_position();
             Battler_1_Sprite.visible = true;
 
-            // HUD
-            setup_hud();
-            HUD.complete_move();
+            HUD = null;
+            if (!WaitingOnPromotionChoice)
+            {
+                // HUD
+                setup_hud();
+                HUD.complete_move();
+            }
             // Create platforms
             create_platforms();
             Platform.add_y(-110);
@@ -420,6 +503,10 @@ namespace FEXNA
             White_Screen = new Sprite(battle_content.Load<Texture2D>(@"Graphics/White_Square"));
             White_Screen.dest_rect = new Rectangle(0, 0, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);
             White_Screen.visible = false;
+
+            // Start offscreen on the right if the promotion choice menu
+            if (WaitingOnPromotionChoice)
+                Pan_Vector = new Vector2(this.OffscreenOffset, 0);
 
             Black_Fill = new Sprite(battle_content.Load<Texture2D>(@"Graphics/White_Square"));
             Black_Fill.dest_rect = new Rectangle(0, 0, Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT);

@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Menus.Map;
+using FEXNA.Menus.Options;
 using FEXNA.Windows.Command;
 using FEXNA.Windows.Map;
 using FEXNA.Windows.UserInterface.Command;
@@ -65,9 +66,10 @@ namespace FEXNA.Menus.Map
                 case Unit_Editor_Options.Options:
                     RemoveTopMenu();
 
-                    var optionsMenu = new Window_Options(false);
-                    optionsMenu.Closed += menu_ClosedCanceled;
-                    AddMenu(optionsMenu);
+                    var settingsTopMenu = new GameplaySettingsTopMenu(false);
+                    settingsTopMenu.Selected += SettingsTopMenu_Selected;
+                    settingsTopMenu.Closed += menu_ClosedCanceled;
+                    settingsTopMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
                     break;
                 case Unit_Editor_Options.Clear_Units: // Clear Units
                     Vector2 optionLocation = mapMenu.SelectedOptionLocation;
@@ -274,6 +276,58 @@ namespace FEXNA.Menus.Map
             reinforcementsMenu.Enable();
         }
 
+        private void SettingsTopMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var settingsTopMenu = (sender as GameplaySettingsTopMenu);
+
+            int index = settingsTopMenu.Index;
+            switch (index)
+            {
+                case 0:
+                    var optionsMenu = new Window_Options(settingsTopMenu.SoloAnimAllowed);
+                    optionsMenu.Closed += menu_Closed;
+                    AddMenu(optionsMenu);
+                    break;
+                case 1:
+                    OpenSettingsMenu(Global.gameSettings.General, settingsTopMenu);
+                    break;
+                case 2:
+                    OpenSettingsMenu(Global.gameSettings.Graphics, settingsTopMenu);
+                    break;
+                case 3:
+                    OpenSettingsMenu(Global.gameSettings.Audio, settingsTopMenu);
+                    break;
+                case 4:
+                    OpenSettingsMenu(Global.gameSettings.Controls, settingsTopMenu);
+                    break;
+            }
+        }
+
+        private void OpenSettingsMenu(FEXNA.Options.ISettings settings, IHasCancelButton parent)
+        {
+            SettingsMenu settingsMenu;
+            settingsMenu = new SettingsMenu(settings, parent);
+            settingsMenu.OpenSubMenu += SettingsMenu_OpenSubMenu;
+            settingsMenu.Canceled += settingsMenu_Canceled;
+            AddMenu(settingsMenu);
+        }
+
+        private void SettingsMenu_OpenSubMenu(object sender, EventArgs e)
+        {
+            var parentMenu = (sender as SettingsMenu);
+            var settings = parentMenu.GetSubSettings();
+            OpenSettingsMenu(settings, parentMenu);
+        }
+
+        void settingsMenu_Canceled(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Cancel);
+            MenuHandler.UnitEditorMapMenuSaveConfig();
+
+            menu_Closed(sender, e);
+        }
+
         // Selected a choice in the clear units window
         void clearUnitsCommandMenu_Selected(object sender, EventArgs e)
         {
@@ -323,6 +377,11 @@ namespace FEXNA.Menus.Map
             Global.game_temp.menuing = false;
             Global.game_map.highlight_test();
         }
+
+        protected void menu_Closed(object sender, EventArgs e)
+        {
+            RemoveTopMenu();
+        }
     }
 
     interface IUnitEditorMapMenuHandler : IMenuHandler
@@ -335,6 +394,7 @@ namespace FEXNA.Menus.Map
         void UnitEditorMapMenuPasteReinforcement(int index);
         void UnitEditorMapMenuDeleteReinforcement(int index);
 
+        void UnitEditorMapMenuSaveConfig();
         void UnitEditorMapMenuClearUnits();
         void UnitEditorMapMenuMirrorUnits();
         void UnitEditorMapMenuPlaytest();

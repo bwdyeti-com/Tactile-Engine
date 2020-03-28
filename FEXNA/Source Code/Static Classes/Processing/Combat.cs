@@ -805,18 +805,22 @@ namespace FEXNA
             // Kill exp
             if (kill)
             {
+                // Multiplier to hit exp on kill
+                exp_gain *= 2;
+
                 int kill_gain = Constants.Combat.BASE_COMBAT_EXP * 3; // Exp for a kill
                 // 3x diff when above target level
                 if (diff < 0)
                     kill_gain = kill_gain + (diff * 3);
                 // 1.5x diff when below target level
                 else
+                    // ????? //@Debug
                     kill_gain = kill_gain + (diff * 3); //kill_gain + (diff * 3 / 2);
                 kill_gain = Math.Max(exp_gain, kill_gain);
 
                 exp_gain = kill_gain;
             }
-            exp_gain = exp_difficulty_adjustment(exp_gain, kill);
+            exp_gain = exp_difficulty_adjustment(exp_gain, true, kill);
             // Boss bonus
             if (kill)
             {
@@ -825,45 +829,36 @@ namespace FEXNA
             }
             exp_gain = Math.Max(1, exp_gain);
 
-            return Math.Min(Constants.Actor.EXP_TO_LVL, exp_gain);
-
-            /*
-            // Attack exp
-            int exp_gain = Math.Max(1, (21 + diff) / 2);
-            // Kill bonus
-            if (kill)
-            {
-                exp_gain += Math.Max(1, diff + 20);
-                if (boss)
-                    exp_gain += 30;
-            }
-            return Math.Min(Constants.Actor.EXP_TO_LVL, exp_gain);*/
+            return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
 
-        private static int exp_difficulty_adjustment(float exp_gain, bool kill)
+        private static int exp_difficulty_adjustment(float exp_gain, bool combat, bool kill)
         {
-            // Kill adjustment
-            if (kill)
+            if (combat)
             {
-                if (Constants.Combat.KILL_EXP_MULTIPLIER
-                    .ContainsKey(Global.game_system.Difficulty_Mode))
+                // Kill adjustment
+                if (kill)
                 {
-                    float multiplier =
-                        Constants.Combat.KILL_EXP_MULTIPLIER[
-                            Global.game_system.Difficulty_Mode];
-                    exp_gain = exp_gain * multiplier;
+                    if (Constants.Combat.KILL_EXP_MULTIPLIER
+                        .ContainsKey(Global.game_system.Difficulty_Mode))
+                    {
+                        float multiplier =
+                            Constants.Combat.KILL_EXP_MULTIPLIER[
+                                Global.game_system.Difficulty_Mode];
+                        exp_gain = exp_gain * multiplier;
+                    }
                 }
-            }
-            // Non-kill adjustment
-            else
-            {
-                if (Constants.Combat.NON_KILL_EXP_MULTIPLIER
-                    .ContainsKey(Global.game_system.Difficulty_Mode))
+                // Non-kill adjustment
+                else
                 {
-                    float multiplier =
-                        Constants.Combat.NON_KILL_EXP_MULTIPLIER[
-                            Global.game_system.Difficulty_Mode];
-                    exp_gain = exp_gain * multiplier;
+                    if (Constants.Combat.NON_KILL_EXP_MULTIPLIER
+                        .ContainsKey(Global.game_system.Difficulty_Mode))
+                    {
+                        float multiplier =
+                            Constants.Combat.NON_KILL_EXP_MULTIPLIER[
+                                Global.game_system.Difficulty_Mode];
+                        exp_gain = exp_gain * multiplier;
+                    }
                 }
             }
 
@@ -882,21 +877,7 @@ namespace FEXNA
 
         private static int level_difference(Game_Unit battler_1, Game_Unit battler_2)
         {
-            // Get levels of both battlers
-            bool tier_0s = true; //Global.game_system.has_tier_0s //Yeti
-            int level_1 = battler_1.actor.level;
-            int level_2 = battler_2.actor.level;
-            if (tier_0s)
-            {
-                if (battler_1.actor.tier > 0)
-                    level_1 += Constants.Actor.TIER0_LVL_CAP;
-                if (battler_2.actor.tier > 0)
-                    level_2 += Constants.Actor.TIER0_LVL_CAP;
-            }
-            level_1 += Constants.Actor.LVL_CAP * Math.Max(0, battler_1.actor.tier - 1);
-            level_2 += Constants.Actor.LVL_CAP * Math.Max(0, battler_2.actor.tier - 1);
-
-            return level_2 - level_1;
+            return battler_2.actor.full_level - battler_1.actor.full_level;
         }
 
         public static int staff_exp(Game_Actor actor, Data_Weapon weapon)
@@ -906,6 +887,8 @@ namespace FEXNA
                 exp_gain = (int)(weapon.Staff_Exp * 1.5);
             else
                 exp_gain = (int)(weapon.Staff_Exp / (Math.Pow(2, actor.tier - 1)));
+            exp_gain = exp_difficulty_adjustment(exp_gain, false, false);
+
             return Math.Min(exp_gain, Constants.Actor.EXP_TO_LVL);
         }
         #endregion
@@ -914,25 +897,27 @@ namespace FEXNA
             Game_Unit battler_1, Game_Unit battler_2,
             Data_Weapon weapon_1, Data_Weapon weapon_2, int distance)
         {
-            // 0 = no advantage, 1 = advantage battler_1, 2 = advantage battler_2
             // Before anything else if unarmed (and can use weapons), WTD
+            bool targetUnarmed = weapon_2 == null;
+            bool targetCanArm = battler_2.actor.weapon_types().Count > 0;
             if (Weapon_Triangle.IN_EFFECT && Weapon_Triangle.UNARMED_DISADVANTAGE)
-                if (weapon_2 == null && battler_2.actor.weapon_types().Count > 0)
+                if (targetUnarmed && targetCanArm)
                     return WeaponTriangle.Advantage;
+
             // Check for override
             var tri_override = battler_1.weapon_triangle_override(
                 battler_2, weapon_1, weapon_2, distance);
             if (tri_override.IsSomething)
                 return tri_override;
-
-            if (weapon_2 == null)
-                return WeaponTriangle.Nothing;
+            
             // Return if weapon triangle disabled
             if (!Weapon_Triangle.IN_EFFECT)
                 return WeaponTriangle.Nothing;
+
             int advantage1 = 0;
             int advantage2 = 0;
 
+            // Get all weapon types
             HashSet<WeaponType> weapon_1_types, weapon_2_types;
             weapon_1_types = weapon_1.main_type().type_and_parents(Global.weapon_types);
             weapon_1_types.UnionWith(weapon_1.scnd_type().type_and_parents(Global.weapon_types));
@@ -945,26 +930,31 @@ namespace FEXNA
             else
                 weapon_2_types = new HashSet<WeaponType>();
 
-            // Determines what each weapon can beat
-            HashSet<int> wpn_1_advs, wpn_2_advs;
-            // If reaver
-            if (weapon_1.Reaver() ^ weapon_2.Reaver())
+            // Compares weapon types, if target is armed
+            if (!targetUnarmed)
             {
-                wpn_1_advs = new HashSet<int>(weapon_1_types.SelectMany(x => x.WtaReaverTypes));
-                wpn_2_advs = new HashSet<int>(weapon_2_types.SelectMany(x => x.WtaReaverTypes));
+                // Determines what each weapon can beat
+                HashSet<int> wpn_1_advs, wpn_2_advs;
+                // If reaver
+                if (weapon_1.Reaver() ^ weapon_2.Reaver())
+                {
+                    wpn_1_advs = new HashSet<int>(weapon_1_types.SelectMany(x => x.WtaReaverTypes));
+                    wpn_2_advs = new HashSet<int>(weapon_2_types.SelectMany(x => x.WtaReaverTypes));
+                }
+                else
+                {
+                    wpn_1_advs = new HashSet<int>(weapon_1_types.SelectMany(x => x.WtaTypes));
+                    wpn_2_advs = new HashSet<int>(weapon_2_types.SelectMany(x => x.WtaTypes));
+                }
+                // Determines net weapon advantage
+                foreach (int type in wpn_1_advs)
+                    if (weapon_2_types.Contains(Global.weapon_types[type]))
+                        advantage1++;
+                foreach (int type in wpn_2_advs)
+                    if (weapon_1_types.Contains(Global.weapon_types[type]))
+                        advantage2++;
             }
-            else
-            {
-                wpn_1_advs = new HashSet<int>(weapon_1_types.SelectMany(x => x.WtaTypes));
-                wpn_2_advs = new HashSet<int>(weapon_2_types.SelectMany(x => x.WtaTypes));
-            }
-            // Determines net weapon advantage
-            foreach (int type in wpn_1_advs)
-                if (weapon_2_types.Contains(Global.weapon_types[type]))
-                    advantage1++;
-            foreach (int type in wpn_2_advs)
-                if (weapon_1_types.Contains(Global.weapon_types[type]))
-                    advantage2++;
+
             // Modifies advantage based on range
             if (!(Global.game_system.In_Arena || Global.game_system.home_base) || Global.scene.is_test_battle)
             {
@@ -978,6 +968,7 @@ namespace FEXNA
                 if (weapon_2_types.Any(x => x.WtdRanges.Contains(distance)))
                     advantage1++;
             }
+
             // Calculates result
             if (advantage1 > advantage2)
                 return WeaponTriangle.Advantage;
@@ -1056,8 +1047,16 @@ namespace FEXNA
                 if (Global.game_map.fow && !Global.game_system.preparations)
                     if (unit == null || !unit.vision_penalized())
                         return true;
+            if (item.is_placeable())
+            {
+                if (unit != null)
+                {
+                    if (unit.placeable_targets().Any())
+                        return true;
+                }
+            }
             // Promotion Items
-            if (item.Promotes.Contains(actor.class_id) && actor.promotes_to() != null)
+            if (actor.PromotedBy(item))
                 return true;
             // Healing Items
             if (item.can_heal_hp() && !actor.is_full_hp())

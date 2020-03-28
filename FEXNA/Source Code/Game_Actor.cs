@@ -6,14 +6,13 @@ using Microsoft.Xna.Framework;
 using FEXNA.Calculations.LevelUp;
 using FEXNA_Library;
 using ListExtension;
-using FEXNAClassExtension;
 using FEXNADictionaryExtension;
 using FEXNAWeaponExtension;
 using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public enum Power_Types { Strength, Magic, Power }
+    enum Power_Types { Strength, Magic, Power }
     enum Equippability { CanEquip, CannotEquip, CannotEquipPrf, CanEquipSiege, Silenced }
     internal partial class Game_Actor
     {
@@ -115,30 +114,30 @@ namespace FEXNA
                 int loaded_class = reader.ReadInt32();
                 if (is_generic_actor)
                     Data.ClassId = loaded_class;
-                if (loaded_class != class_id)
+                if (loaded_class != this.class_id)
                 {
                     if (!Global.data_classes.ContainsKey(loaded_class))
                         throw new IndexOutOfRangeException("Invalid class id: " + loaded_class);
-                    int tier = Global.data_classes[loaded_class].Tier;
-                    if (tier > actor_class.Tier)
+
+                    //@Debug: no reason to care if promotions are higher tier than base classes, I guess
+                    //int tier = Global.data_classes[loaded_class].Tier;
+                    //if (tier > actor_class.Tier)
+                    bool failed;
+                    while (loaded_class != this.class_id)
                     {
-                        bool failed;
-                        while (loaded_class != class_id)
+                        failed = true;
+                        List<int> promotions = Global.data_classes[this.class_id].promotion_keys.ToList();
+                        for (byte i = 0; i < promotions.Count; i++)
                         {
-                            failed = true;
-                            List<int> promotions = Global.data_classes[class_id].promotion_keys.ToList();
-                            for (byte i = 0; i < promotions.Count; i++)
+                            if (promotes_to(promotions, loaded_class, 0))
                             {
-                                if (promotes_to(promotions, loaded_class, 0))
-                                {
-                                    Promotion_Choices.Add(i);
-                                    failed = false;
-                                    break;
-                                }
-                            }
-                            if (failed)
+                                Promotion_Choices.Add(i);
+                                failed = false;
                                 break;
+                            }
                         }
+                        if (failed)
+                            break;
                     }
                 }
             }
@@ -251,21 +250,48 @@ namespace FEXNA
         {
             get
             {
+                // If renamed
                 if (Face_Sprite_Data.FACE_RENAME.ContainsKey(this.name_full))
                     return Face_Sprite_Data.FACE_RENAME[this.name_full];
-
+                // Simply return the name if not generic
                 if (!generic_face)
                     return this.name_full;
 
+                // Generic face for this non-generic actor
                 if (Face_Sprite_Data.FACE_TO_GENERIC_RENAME.ContainsKey(this.name_full))
                     return Face_Sprite_Data.FACE_TO_GENERIC_RENAME[this.name_full].GraphicName;
 
+                // Generate generic name
                 string name = class_name_full;
                 if (Face_Sprite_Data.CLASS_RENAME.ContainsKey(name))
                     name = Face_Sprite_Data.CLASS_RENAME[name];
-                return name + (gender % 2 == 0 ? "M" : "F") +
-                    Constants.Actor.BUILD_NAME_DELIMITER + Build.ToString();
+                // If this generic face doesn't exist, check other builds
+                // Check down first
+                for (int build = Build; build >= 0; build--)
+                {
+                    string generic = ConstructGenericFaceName(name, gender, build);
+                    if (Global.content_exists(@"Graphics/Faces/" + generic))
+                            return generic;
+                }
+                // Then check up
+                int builds = Enum_Values.GetEnumCount(typeof(FEXNA_Library.Generic_Builds));
+                for (int build = Build + 1; build < builds; build++)
+                {
+                    string generic = ConstructGenericFaceName(name, gender, build);
+                    if (Global.content_exists(@"Graphics/Faces/" + generic))
+                        return generic;
+                }
+                // Just return whatever
+                return ConstructGenericFaceName(name, gender, Build);
             }
+        }
+        internal static string ConstructGenericFaceName(string name, int gender, int build)
+        {
+            return string.Format("{0}{1}{2}{3}",
+                name,
+                (gender % 2 == 0 ? "M" : "F"),
+                Constants.Actor.BUILD_NAME_DELIMITER,
+                build);
         }
 
         public string flag_name
@@ -421,12 +447,7 @@ namespace FEXNA
         {
             get
             {
-                int result = Level;
-                //for (int i = Global.game_system.has_tier_0s ? 0 : 1; i < tier; i++) //Yeti
-                for (int i = 0; i < tier; i++)
-                    result += level_cap_at_tier(i);
-                //result += Math.Max(0, tier - 1) * Constants.Actor.LVL_CAP; //Debug
-                return result;
+                return Constants.Actor.ActualLevel(this.tier, Level);
             }
         }
 
@@ -488,16 +509,6 @@ namespace FEXNA
             {
                 if (is_generic_actor)
                     Data.Gender = value;
-            }
-        }
-        public int battle_gender
-        {
-            get
-            {
-                int gender = this.gender;
-                if (FE_Battler_Image.Single_Gender_Battle_Sprite.Contains(class_id))
-                    gender = (gender / 2) * 2;
-                return gender;
             }
         }
 
@@ -827,13 +838,13 @@ namespace FEXNA
                     {
                         Data.Growths[(int)stat] +=
                             Constants.Support.AFFINITY_GROWTH_MOD *
-                            get_stat_ratio((int)stat);
+                            GetStatRatio((int)stat);
                     }
                     foreach (Stat_Labels stat in Constants.Support.AFFINITY_GROWTHS[affin][1])
                     {
                         Data.Growths[(int)stat] -=
                             Constants.Support.AFFINITY_GROWTH_MOD *
-                            get_stat_ratio((int)stat);
+                            GetStatRatio((int)stat);
                     }
                 }
             }
@@ -867,8 +878,7 @@ namespace FEXNA
 #endif
 
             var adjusted_growths = Enumerable.Range(0, (int)Stat_Labels.Con)
-                .Select(x => Data.Growths[x] *
-                    (x == (int)Stat_Labels.Hp ? Constants.Actor.HP_VALUE : 1));
+                .Select(x => Data.Growths[x] * GetStatValue(x));
 #if DEBUG
             int total_growth_bonus = (int)(adjusted_growths.Sum() * difficulty_bonus);
             int total_difficulty_stat_bonus =
@@ -889,11 +899,7 @@ namespace FEXNA
                 foreach (int i in Enumerable.Range(0, (int)Stat_Labels.Con))
                     if (remaining_bonus != 0)
                     {
-                        if (i == (int)Stat_Labels.Hp)
-                            Data.Growths[i] +=
-                                (int)(1 / Constants.Actor.HP_VALUE);
-                        else
-                            Data.Growths[i] += 1;
+                        Data.Growths[i] += GetStatRatio(i);
 
                         if (remaining_bonus > 0)
                             remaining_bonus--;
@@ -941,8 +947,10 @@ namespace FEXNA
 
         private int generic_exp(int level, int prepromote_levels)
         {
-            int result = ((prepromote_levels - this.tier) + (level - 1)) *
-                Constants.Actor.EXP_TO_LVL;
+            int levels = prepromote_levels + (level - 1);
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                levels -= (this.tier - Constants.Actor.LOWEST_TIER);
+            int result = levels * Constants.Actor.EXP_TO_LVL;
             return result;
         }
 
@@ -989,9 +997,9 @@ namespace FEXNA
 
         public int stat_total()
         {
-            int total = (int)(stat(Stat_Labels.Hp) * Constants.Actor.HP_VALUE);
-            for (int i = (int)Stat_Labels.Hp + 1; i < LEVEL_UP_VIABLE_STATS; i++)
-                total += stat(i);
+            int total = 0;
+            for (int i = (int)Stat_Labels.Hp; i < LEVEL_UP_VIABLE_STATS; i++)
+                total += (int)(stat(i) * GetStatValue(i));
             return total;
         }
 
@@ -1006,25 +1014,71 @@ namespace FEXNA
 
         internal int gained_levels()
         {
-            int gained_levels;
-            if (is_generic_actor)
-            {
-                gained_levels = Level - Data.Level;
-                for (int tier = this.tier - 1; tier >= 0; tier--)
-                    gained_levels += (level_cap_at_tier(tier)) - 1;
-            }
-            else
-            {
-                if (this.tier == Global.data_classes[Data.ClassId].Tier)
-                    gained_levels = Level - Data.Level;
-                else
-                    gained_levels = (Level - 1) +
-                        (Global.data_classes[Data.ClassId].level_cap() - Data.Level);
+            int baseLevel = this.full_base_level;
+            int currentLevel = this.full_level;
 
-                for (int tier = this.tier - 1; tier > Global.data_classes[Data.ClassId].Tier; tier--)
-                    gained_levels += (level_cap_at_tier(tier)) - 1;
+            int gainedLevels = currentLevel - baseLevel;
+
+            // If resetting to level 1 on promotion
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+            {
+                int gainedTiers;
+                if (this.is_generic_actor)
+                    gainedTiers = this.tier - Constants.Actor.LOWEST_TIER;
+                else
+                {
+                    //gainedTiers = Promotion_Choices.Count; //@Debug: ???
+                    var baseClass = Global.data_classes[Data.ClassId];
+                    gainedTiers = this.tier - baseClass.Tier;
+                }
+
+                gainedLevels -= gainedTiers;
             }
-            return gained_levels;
+
+            return gainedLevels;
+        }
+
+        internal int full_base_level
+        {
+            get
+            {
+                if (is_generic_actor)
+                {
+                    return 1;
+                }
+                else
+                {
+                    var baseClass = Global.data_classes[Data.ClassId];
+                    return Constants.Actor.LevelsBeforeTier(baseClass.Tier) + Data.Level;
+                }
+            }
+        }
+
+        private int GainedLevelsForAverages()
+        {
+            int gained = gained_levels();
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION && !this.is_generic_actor)
+            {
+                var baseClass = Global.data_classes[Data.ClassId];
+                for (int i = baseClass.Tier; i < this.tier; i++)
+                {
+                    int avgPromotionLevel = Constants.Actor.PromotionLevel(i);
+                    // If this tier has an assumed promotion level
+                    if (Constants.Actor.AVERAGE_PROMOTION_LEVELS.ContainsKey(i))
+                        avgPromotionLevel = Math.Max(Constants.Actor.AVERAGE_PROMOTION_LEVELS[i], avgPromotionLevel);
+                    // Use the starting level for the base tier,
+                    // if can promote at base
+                    if (i == baseClass.Tier)
+                        avgPromotionLevel = Math.Max(Data.Level, avgPromotionLevel);
+
+                    int levelCap = Constants.Actor.LevelCap(i);
+                    avgPromotionLevel = Math.Min(levelCap, avgPromotionLevel);
+
+                    // Subtract out the assumed promotion level from the cap
+                    gained -= levelCap - avgPromotionLevel;
+                }
+            }
+            return gained;
         }
 
         internal float stat_avg_comparison(int index, int level_offset = 0)
@@ -1046,7 +1100,8 @@ namespace FEXNA
                         growth += Constants.Support.AFFINITY_GROWTH_MOD;
                 }
             }
-            float average_stat = (growth * (gained_levels() + level_offset)) / 100f;
+            int gainedLevels = GainedLevelsForAverages();
+            float average_stat = (growth * (gainedLevels + level_offset)) / 100f;
             return Stats[(int)stat] - average_stat;
         }
         
@@ -1071,27 +1126,37 @@ namespace FEXNA
 
         internal Color stat_color(Stat_Labels stat_label)
         {
-            switch (Constants.Actor.COLORING_METHOD)
+            return stat_color(stat_label, Constants.Actor.STAT_LABEL_COLORING);
+        }
+        internal Color stat_color(
+            Stat_Labels stat_label,
+            Constants.StatLabelColoring labelColoring,
+            int levels = 0,
+            float multiplier = 1f)
+        {
+            switch (labelColoring)
             {
-                case 1:
-                    //Yeti's averages color display
-                    float stat_quality = this.stat_quality(stat_label);
+                case Constants.StatLabelColoring.Averages:
+                    // Stat labels are colored based on how far from the average the stat value is
+                    float stat_quality = this.stat_quality(stat_label, levels) * multiplier;
+                    // If capped, don't go below yellow
                     if (this.get_capped(stat_label))
                         stat_quality = Math.Max(0, stat_quality);
                     int r = 255 - (int)MathHelper.Clamp((stat_quality * 1.25f * 255), 0, 255);
                     int g = (int)MathHelper.Clamp(255 + (stat_quality * 255), 0, 255);
                     return new Color(r, g, 255);
-                case 2:
-                    //Smilies' growths color display
+                case Constants.StatLabelColoring.Growths:
+                    // Stat labels are colored based on the unit's growth in that stat
                     if ((int)stat_label < this.Data.Growths.Count)
                     {
-                        int growth = this.Data.Growths[(int)stat_label];
-                        if(stat_label == Stat_Labels.Hp)
-                        {
-                            growth = (int)(growth * Constants.Actor.HP_VALUE);
-                        }
-                        growth = (int)MathHelper.Clamp(growth
-                        , Constants.Actor.GROWTH_AVERAGE_COLOR_MIN, Constants.Actor.GROWTH_AVERAGE_COLOR_MAX);
+                        //@Debug: get_growths() includes bonuses from skills, permanent growth boosts, etc
+                        //int growth = this.Data.Growths[(int)stat_label]; 
+                        int growth = get_growths((int)stat_label);
+                        growth = (int)(growth * GetStatValue((int)stat_label));
+                        growth = (int)MathHelper.Clamp(
+                            growth,
+                            Constants.Actor.GROWTH_AVERAGE_COLOR_MIN,
+                            Constants.Actor.GROWTH_AVERAGE_COLOR_MAX);
                         //Sets the function to be within the range provided.
                         if (growth == Constants.Actor.GROWTH_AVERAGE_COLOR_MED)
                         {
@@ -1100,28 +1165,26 @@ namespace FEXNA
                         {
                             growth -= Constants.Actor.GROWTH_AVERAGE_COLOR_MIN;
                             int mid = Constants.Actor.GROWTH_AVERAGE_COLOR_MED - Constants.Actor.GROWTH_AVERAGE_COLOR_MIN;
-                            int green = (int)MathHelper.Clamp(63 +
-                                192 * growth / mid, 0, 255);
+                            float value = (growth * multiplier) / mid;
+                            int green = (int)MathHelper.Clamp(
+                                63 + 192 * value, 0, 255);
                             return new Color(255, green, 255);
                         } else
                         {
                             growth -= Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
-                            int max = Constants.Actor.GROWTH_AVERAGE_COLOR_MAX-Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
-                            int red = (int)MathHelper.Clamp(255 -
-                                192 * growth / max, 0, 255);
+                            int max = Constants.Actor.GROWTH_AVERAGE_COLOR_MAX - Constants.Actor.GROWTH_AVERAGE_COLOR_MED;
+                            float value = (growth * multiplier) / max;
+                            int red = (int)MathHelper.Clamp(
+                                255 - 192 * value, 0, 255);
                             return new Color(red, 255, 255);
                         }
                     }
                     return Color.White;
+                case Constants.StatLabelColoring.None:
                 default:
-                    //This should never be reached. Turn off stat coloring if you aren't using a method for it.
-                    return new Color(0,0,255);
+                    // Default color if no method is active
+                    return Color.White;
             }
-
-            /*//Yeti
-            int avg = (int)Math.Round(this.stat_avg_comparison(stat_label));
-            Text.text += (avg >= 0 ? "+" : "-") + Math.Abs(avg);
-            Text.draw_offset = new Vector2(16, 0);*/
         }
 
         #region Class/Tier/Level
@@ -1157,7 +1220,15 @@ namespace FEXNA
 
         public bool promotion_level()
         {
-            return Level >= Config.PROMOTION_LVL;
+            int level;
+
+            if (Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                level = Level;
+            else
+                level = this.full_level -
+                    Constants.Actor.LevelsBeforeTier(this.tier);
+
+            return level >= Constants.Actor.PromotionLevel(this.tier);
         }
 
         public int? promotes_to(bool confirm_possible = true)
@@ -1224,25 +1295,9 @@ namespace FEXNA
 
         internal int level_cap()
         {
-            //return level_cap(0); //Debug
-            return level_cap_at_tier(this.tier);
+            return Constants.Actor.LevelCap(this.tier);
         }
-        /*public int level_cap(int tier_mod) //Debug
-        {
-            if (tier + tier_mod == 0)
-                return Constants.Actor.TIER0_LVL_CAP;
-            else
-                return Constants.Actor.LVL_CAP;
-        }*/
         
-        internal static int level_cap_at_tier(int tier)
-        {
-            if (tier == 0)
-                return Constants.Actor.TIER0_LVL_CAP;
-            else
-                return Constants.Actor.LVL_CAP;
-        }
-
         public int exp_loss_possible()
         {
             return (Level - 1) * Constants.Actor.EXP_TO_LVL + exp;
@@ -1251,19 +1306,11 @@ namespace FEXNA
         public int exp_gain_possible()
         {
             int levels = level_cap() - Level;
-            // This code won't work properly if multiple tiers can promote through level up, the new version should though //Debug
-            //if (Config.LEVEL_UP_PROMOTION.Contains(tier))
-            //    levels += level_cap(1);
 
             // Check for level up promotion
-            int tier_mod = 0;
             if (Config.LEVEL_UP_PROMOTION.Contains(tier))
                 levels += 1;
-            //while (Config.LEVEL_UP_PROMOTION.Contains(tier + tier_mod))
-            //{
-            //    levels += level_cap(tier_mod + 1);
-            //    tier_mod++;
-            //}
+
             return levels * Constants.Actor.EXP_TO_LVL - exp;
         }
 
@@ -1294,6 +1341,15 @@ namespace FEXNA
             this.level = 1;
             Needed_Levels = 0;
             Exp = 0;
+        }
+
+        public void promotion_reset_level()
+        {
+            int level = this.level;
+            level_down();
+
+            if (!Constants.Actor.RESET_LEVEL_ON_PROMOTION)
+                this.level = level;
         }
 
         public LevelUpProcessor full_level_up()
@@ -1417,14 +1473,19 @@ namespace FEXNA
             return (get_stat(i) + added) >= get_cap(i);
         }
 
-        internal static int get_stat_ratio(int i)
+        internal static int GetStatRatio(int i)
         {
-            switch(i)
+            float result = (1 / GetStatValue(i));
+            return (int)result;
+        }
+        internal static float GetStatValue(int i)
+        {
+            switch (i)
             {
                 case (int)Stat_Labels.Hp:
-                    return 2;
+                    return Constants.Actor.HP_VALUE;
                 default:
-                    return 1;
+                    return 1.0f;
             }
         }
 
@@ -1492,7 +1553,7 @@ namespace FEXNA
                 {
                     List<int> promotions = actor_class.promotion_keys.ToList();
 
-                    level_down();
+                    promotion_reset_level();
                     int old_class = class_id;
                     int old_hp = this.maxhp;
                     //class_id = new_class;
@@ -2257,6 +2318,25 @@ namespace FEXNA
             target.staff_fix();
         }
 
+        public bool HasItem(Item_Data itemData)
+        {
+            Maybe<int> index;
+            return HasItem(itemData, out index);
+        }
+        private bool HasItem(Item_Data itemData, out Maybe<int> index)
+        {
+            index = Maybe<int>.Nothing;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (itemData.same_item(Items[i]) && !Items[i].out_of_uses)
+                {
+                    index = i;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Removes an item from the inventory
         /// </summary>
@@ -2311,6 +2391,34 @@ namespace FEXNA
         }
 
         /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Index of the item to test</param>
+        public bool CanDiscard(int index)
+        {
+            return CanDiscard(Items[index]);
+        }
+        /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Item data to test</param>
+        public bool CanDiscard(Item_Data itemData)
+        {
+            if (itemData.non_equipment)
+                return false;
+
+            return CanDiscard(itemData.to_equipment);
+        }
+        /// <summary>
+        /// Returns whether an item can be discarded
+        /// </summary>
+        /// <param name="index">Data_Equipment to test</param>
+        public bool CanDiscard(Data_Equipment item)
+        {
+            return item.Can_Sell;
+        }
+
+        /// <summary>
         /// Repairs all items in the inventory with uses from items in the convoy
         /// </summary>
         public bool restock()
@@ -2326,46 +2434,75 @@ namespace FEXNA
         /// <param name="index">Index of item to restock</param>
         public bool restock(int index)
         {
-            // If there is no item at this index, return
-            if (Items[index].Id <= 0)
+            if (!CanRestock(index))
                 return false;
-            int max_uses = Items[index].max_uses;
-            // If the item is already fully repaired, return
-            if (Items[index].Uses == max_uses)
-                return false;
-            else
+
+            int maxUses = Items[index].max_uses;
+            int convoyIndex = GetItemConvoyIndex(index);
+
+            // Restock item
+            while (Items[index].Uses < maxUses && convoyIndex >= 0 && Global.game_battalions.active_convoy_data.Count > 0 &&
+                Items[index].same_item(Global.game_battalions.active_convoy_data[convoyIndex]))
             {
-                int convoy_index = -1;
-                for (int i = 0; i < Global.game_battalions.active_convoy_data.Count; i++)
-                    if (Items[index].same_item(Global.game_battalions.active_convoy_data[i]))
-                    {
-                        convoy_index = i;
-                    }
-                // No matching items in convoy
-                if (convoy_index == -1)
-                    return false;
-                // Restock item
+                // If combining items breaks convoy item
+                if (Global.game_battalions.active_convoy_data[convoyIndex].Uses + Items[index].Uses <= maxUses)
+                {
+                    Items[index].add_uses(Global.game_battalions.active_convoy_data[convoyIndex].Uses);
+                    Global.game_battalions.remove_item_from_convoy(Global.battalion.convoy_id, convoyIndex);
+                }
                 else
                 {
-                    while (Items[index].Uses < max_uses && convoy_index >= 0 && Global.game_battalions.active_convoy_data.Count > 0 &&
-                        Items[index].same_item(Global.game_battalions.active_convoy_data[convoy_index]))
-                    {
-                        // If combining items breaks convoy item
-                        if (Global.game_battalions.active_convoy_data[convoy_index].Uses + Items[index].Uses <= max_uses)
-                        {
-                            Items[index].add_uses(Global.game_battalions.active_convoy_data[convoy_index].Uses);
-                            Global.game_battalions.remove_item_from_convoy(Global.battalion.convoy_id, convoy_index);
-                        }
-                        else
-                        {
-                            Global.game_battalions.adjust_convoy_item_uses(Global.battalion.convoy_id, convoy_index, Items[index].Uses - max_uses);
-                            Items[index].repair_fully();
-                        }
-                        convoy_index--;
-                    }
+                    Global.game_battalions.adjust_convoy_item_uses(Global.battalion.convoy_id, convoyIndex, Items[index].Uses - maxUses);
+                    Items[index].repair_fully();
                 }
+                convoyIndex--;
             }
+
             return true;
+        }
+
+        /// <summary>
+        /// Returns true if any item in the actor's inventory can be restocked
+        /// </summary>
+        public bool CanRestock()
+        {
+            bool result = false;
+            for (int i = 0; i < Constants.Actor.NUM_ITEMS; i++)
+                result |= CanRestock(i);
+            return result;
+        }
+        /// <summary>
+        /// Returns true if the item at the given index can be restocked
+        /// </summary>
+        /// <param name="index">Index of the item to test</param>
+        public bool CanRestock(int index)
+        {
+            // If there is no item at this index, return
+            if (Items[index].non_equipment)
+                return false;
+
+            int maxUses = Items[index].max_uses;
+            // If the item is already fully repaired, return
+            if (Items[index].Uses == maxUses)
+                return false;
+
+            var convoyIndex = GetItemConvoyIndex(index);
+            // No matching items in convoy
+            if (convoyIndex.IsNothing)
+                return false;
+
+            return true;
+        }
+
+        private Maybe<int> GetItemConvoyIndex(int index)
+        {
+            var convoyIndex = Maybe<int>.Nothing;
+            for (int i = 0; i < Global.game_battalions.active_convoy_data.Count; i++)
+                if (Items[index].same_item(Global.game_battalions.active_convoy_data[i]))
+                {
+                    convoyIndex = i;
+                }
+            return convoyIndex;
         }
 
         /// <summary>
@@ -2553,9 +2690,19 @@ namespace FEXNA
             // Repair
             if (item.can_repair && target_index >= 0)
                 if (!Items[target_index].infinite_uses)
+                {
+                    // Repair a percent of the total uses
+                    int repairPercent = (int)(Items[target_index].max_uses * item.Repair_Percent);
+                    // Repair a gold value worth of uses
+                    int repairValue = 0;
+                    if (Items[target_index].cost != 0)
+                        repairValue = item.Repair_Val / Items[target_index].cost;
+
+                    int repairUses = repairPercent + repairValue;
+
                     Items[target_index].set_uses(
-                        Items[target_index].Uses + Math.Max(1, (int)(Items[target_index].max_uses * item.Repair_Percent) +
-                        (Items[target_index].cost == 0 ? 0 : item.Repair_Val / Items[target_index].cost)));
+                        Items[target_index].Uses + Math.Max(1, repairUses));
+                }
         }
 
         /// <summary>
@@ -2770,10 +2917,35 @@ namespace FEXNA
         {
             if (!prf_check(item))
                 return false;
-            if (item.Promotes.Count > 0)
-                if (!item.Promotes.Contains(class_id))
+            if (item.Promotes.Any())
+                if (!PromotedBy(item))
                     return false;
             return true;
+        }
+
+        /// <summary>
+        /// Returns true this item can be used for promotion,
+        /// and for this actor's class, and this class can promote
+        /// </summary>
+        /// <param name="weapon">Item to check</param>
+        public bool PromotedBy(Data_Item item)
+        {
+            return item.Promotes.Any() &&
+                item.Promotes.Contains(this.class_id) &&
+                promotes_to() != null;
+        }
+
+        /// <summary>
+        /// Returns true if this actors next promotion needs a menu to select
+        /// what class to promote into
+        /// </summary>
+        public bool NeedsPromotionMenu
+        {
+            get
+            {
+                return Constants.Actor.PROMOTION_SELECTION_MENU &&
+                    this.actor_class.Promotion.Count > 1;
+            }
         }
 
         /// <summary>
@@ -3322,6 +3494,18 @@ namespace FEXNA
             return false;
         }
 
+        public bool CanGiveAny
+        {
+            get
+            {
+                if (Global.battalion.is_convoy_full)
+                    return false;
+                // Any items can be given
+                return this.whole_inventory
+                    .Any(x => !x.blank_item && can_give(x));
+            }
+        }
+
         /// <summary>
         /// Returns true if health is below critical level
         /// </summary>
@@ -3486,15 +3670,30 @@ namespace FEXNA
         }
 
         /// <summary>
-        /// Returns the support string data for this and another actor. Returns null if they cannot support or have no data.
+        /// Returns the support data's key for this and another actor.
+        /// Returns null if they cannot support or have no data.
+        /// </summary>
+        /// <param name="actorId">Id of the other actor</param>
+        /// <returns></returns>
+        public string GetSupportKey(int actorId)
+        {
+            foreach (string support_name in Data.Supports)
+                if (Global.data_supports[support_name].Id1 == actorId || Global.data_supports[support_name].Id2 == actorId)
+                    return support_name;
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the support string data for this and another actor.
+        /// Returns null if they cannot support or have no data.
         /// </summary>
         /// <param name="actorId">Id of the other actor</param>
         /// <returns></returns>
         private List<Support_Entry> support_data(int actorId)
         {
-            foreach (string support_name in Data.Supports)
-                if (Global.data_supports[support_name].Id1 == actorId || Global.data_supports[support_name].Id2 == actorId)
-                    return Global.data_supports[support_name].Supports;
+            string key = GetSupportKey(actorId);
+            if (Global.data_supports.ContainsKey(key))
+                return Global.data_supports[key].Supports;
             return null;
         }
 
@@ -3508,8 +3707,10 @@ namespace FEXNA
         {
             if (can_support(actorId))
                 if (!is_support_level_maxed(actorId))
-                    return at_base ? support_data(actorId)[get_support_level(actorId)].Base_Convo :
-                        support_data(actorId)[get_support_level(actorId)].Field_Convo;
+                {
+                    int supportLevel = get_support_level(actorId);
+                    return support_data(actorId)[supportLevel].ConvoName(at_base);
+                }
             return "";
         }
 
@@ -3592,33 +3793,38 @@ namespace FEXNA
 
         public float get_support_bonus(int actorId, Combat_Stat_Labels stat)
         {
-            return get_support_bonus(actorId, (int)stat);
-        }
-        private float get_support_bonus(int actorId, int type)
-        {
             float n = 0;
             // Support
             if (Global.game_actors.ContainsKey(actorId) && Supports.ContainsKey(actorId))
-                n += (support_bonuses(type) + Global.game_actors[actorId].support_bonuses(type)) * Supports[actorId];
+                n += support_bonus(actorId, stat, Supports[actorId]);
             // Bond
             if (Global.game_actors.ContainsKey(actorId) && Bond == actorId)
-                n += Constants.Support.BOND_BOOSTS[type];
+                n += Constants.Support.BOND_BOOSTS[(int)stat];
             return n;
         }
 
         public int support_bonus_from_next_level(int actorId, Combat_Stat_Labels stat)
         {
+            float totalBonus = total_support_float(stat);
+
             int support_level = Supports.ContainsKey(actorId) ? Supports[actorId] : 0;
-            float bonus = (support_bonuses((int)stat) +
-                Global.game_actors[actorId].support_bonuses((int)stat)) *
-                support_level;
-            float next_bonus = (support_bonuses((int)stat) +
-                Global.game_actors[actorId].support_bonuses((int)stat)) *
-                (support_level + 1);
+            float bonus = support_bonus(actorId, stat, support_level);
+            float next_bonus = support_bonus(actorId, stat, support_level + 1);
+
+            float baseBonus = totalBonus - bonus;
+
+            bonus = (int)Math.Floor(baseBonus + bonus);
+            next_bonus = (int)Math.Floor(baseBonus + next_bonus);
+
             return (int)(next_bonus - bonus);
         }
 
         public int total_support_bonus(Combat_Stat_Labels stat)
+        {
+            float n = total_support_float(stat);
+            return (int)Math.Floor(n);
+        }
+        private float total_support_float(Combat_Stat_Labels stat)
         {
             IEnumerable<int> support_partners;
             if (Global.game_system.home_base)
@@ -3629,19 +3835,33 @@ namespace FEXNA
             float n = 0;
             foreach (int actor_id in support_partners)
                 n += get_support_bonus(actor_id, stat);
-            return (int)Math.Floor(n);
+            return n;
         }
 
-        public float support_bonuses(int type)
+        private float support_bonus(int actorId, Combat_Stat_Labels stat, int supportLvl)
         {
-            return Constants.Support.AFFINITY_BOOSTS[affin][type];
+            return support_bonus(
+                this.affin,
+                Global.game_actors[actorId].affin,
+                stat,
+                supportLvl);
         }
-
+        private static float support_bonus(Affinities affin, Combat_Stat_Labels stat)
+        {
+            return Constants.Support.AFFINITY_BOOSTS[affin][(int)stat];
+        }
+        private static float support_bonus(Affinities affin1, Affinities affin2, Combat_Stat_Labels stat, int supportLvl)
+        {
+            float baseBonus = support_bonus(affin1, stat) + support_bonus(affin2, stat);
+            return baseBonus * supportLvl;
+        }
+        
         public void increase_support_level(int actorId)
         {
             // Already over limit?
             if (is_support_maxed())
                 return;
+
             // Add an entry for this support if there isn't one already
             if (!Supports.ContainsKey(actorId))
                 Supports.Add(actorId, 0);

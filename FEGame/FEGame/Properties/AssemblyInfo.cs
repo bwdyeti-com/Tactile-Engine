@@ -12,7 +12,7 @@ using Android.App;
 [assembly: AssemblyProduct("FEGame")]
 [assembly: AssemblyDescription("FEXNA Default Game")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
-[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2017")]
+[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,7 +34,7 @@ using Android.App;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.6.4.0")]
+[assembly: AssemblyVersion("0.6.10.0")]
 
 // Add some common permissions, these can be removed if not needed
 #if __ANDROID__

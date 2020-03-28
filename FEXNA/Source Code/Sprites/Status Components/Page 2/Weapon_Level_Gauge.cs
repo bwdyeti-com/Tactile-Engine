@@ -64,10 +64,9 @@ namespace FEXNA
 
         public void set_data(float percent, string color, string letter)
         {
-            int fill = (int)Math.Round(percent * WLVL_BAR_WIDTH);
-            if (fill == 0 && percent > 0)
-                fill = 1;
-            WLvl_Bar.fill_width = fill;
+            WLvl_Bar.SetFillWidth(WLVL_BAR_WIDTH,
+                (int)Math.Round(percent * 20000),
+                0, 20000);
             WLvl_Letter.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + color);
             WLvl_Letter.text = letter;
         }

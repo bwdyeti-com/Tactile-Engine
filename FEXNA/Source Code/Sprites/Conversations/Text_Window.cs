@@ -9,7 +9,9 @@ using FEXNAListExtension;
 
 namespace FEXNA
 {
-    public class Text_Window : Text_Box
+    enum SpeakerArrowSide { Bottom, Left, Right }
+
+    class Text_Window : Text_Box
     {
         const int FADE_TIME = 10;
         const int CG_FADE_TIME = 16;
@@ -24,7 +26,8 @@ namespace FEXNA
         private int Base_Y;
         private List<int> Move = new List<int>();
         private int Speaker = Window_Message.CENTER_TOP_SPEAKER;
-        private int? Speaker_Arrow_X;
+        private int? SpeakerArrowPos;
+        private SpeakerArrowSide ArrowSide = SpeakerArrowSide.Bottom;
         private int FadeTimer;
         private int Scroll_Dist = 0, Temp_Scroll_Dist = 0;
         private FE_Text SpeakerName;
@@ -98,8 +101,9 @@ namespace FEXNA
         {
             texture = Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Message_Window");
             Height = height;
-            Base_Y = (int)loc.Y;
             Text_Rect = new Rectangle(0, 0, 0, Height - 16);
+            this.loc = loc;
+            Base_Y = (int)loc.Y;
             this.width = width;
 
             SpeakerName = new FE_Text();
@@ -241,9 +245,10 @@ namespace FEXNA
             Text_Rect.X = window_x + 8;
             //x -= window_x; //Debug
             if (Speaker >= 0 && Speaker <= Face_Sprite_Data.FACE_COUNT + 1)
-                Speaker_Arrow_X = speaker_x / 8 * 8;
+                SpeakerArrowPos = speaker_x / 8 * 8;
             else
-                Speaker_Arrow_X = null;
+                SpeakerArrowPos = null;
+            ArrowSide = SpeakerArrowSide.Bottom;
 
             opacity = 0;
             set_speaker_name(name);
@@ -254,6 +259,15 @@ namespace FEXNA
             SpeakerName.text = name;
             SpeakerName.offset.X = SpeakerName.text_width / 2;
             NextSpeakerName = null;
+        }
+
+        internal void SetSpeakerArrow(int? x = null, SpeakerArrowSide side = SpeakerArrowSide.Bottom)
+        {
+            if (x != null)
+                SpeakerArrowPos = (x / 8) * 8;
+            else
+                SpeakerArrowPos = x;
+            ArrowSide = side;
         }
 
         public void text_set(string text)
@@ -379,9 +393,26 @@ namespace FEXNA
                                 temp_width, temp_height);
                             if (mirrored)
                                 offset.X = src_rect.Width - offset.X;
-                            sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
-                                src_rect, tint, angle, offset - new Vector2(x, y), scale,
-                                mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
+                            // Little arrow to the speaker
+                            if (SpeakerArrowPos != null && ArrowSide == SpeakerArrowSide.Left &&
+                                (y == SpeakerArrowPos || y - 8 == SpeakerArrowPos))
+                            {
+                                if (y == SpeakerArrowPos)
+                                {
+                                    sprite_batch.Draw(texture, (loc + new Vector2(x, y) + draw_vector()) - draw_offset,
+                                        new Rectangle(24, 0, 12, 16), tint, MathHelper.PiOver2,
+                                        offset + new Vector2(0, 8), scale,
+                                        SpriteEffects.FlipHorizontally, Z);
+                                    sprite_batch.Draw(texture, (loc + new Vector2(x, y + 12) + draw_vector()) - draw_offset,
+                                        new Rectangle(24 + 12, 0, 4, 16), tint, MathHelper.PiOver2,
+                                        offset + new Vector2(0, 8), scale,
+                                        SpriteEffects.FlipHorizontally, Z);
+                                }
+                            }
+                            else
+                                sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
+                                    src_rect, tint, angle, offset - new Vector2(x, y), scale,
+                                    mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                         }
                         // Right side
                         else if (Width - x <= 8)
@@ -390,7 +421,24 @@ namespace FEXNA
                                 temp_width, temp_height);
                             if (mirrored)
                                 offset.X = src_rect.Width - offset.X;
-                            sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
+                            // Little arrow to the speaker
+                            if (SpeakerArrowPos != null && ArrowSide == SpeakerArrowSide.Right &&
+                                (y == SpeakerArrowPos || y - 8 == SpeakerArrowPos))
+                            {
+                                if (y == SpeakerArrowPos)
+                                {
+                                    sprite_batch.Draw(texture, (loc + new Vector2(x, y) + draw_vector()) - draw_offset,
+                                        new Rectangle(24, 0, 12, 16), tint, -MathHelper.PiOver2,
+                                        offset + new Vector2(12, 0), scale,
+                                        SpriteEffects.None, Z);
+                                    sprite_batch.Draw(texture, (loc + new Vector2(x, y + 12) + draw_vector()) - draw_offset,
+                                        new Rectangle(24 + 12, 0, 4, 16), tint, -MathHelper.PiOver2,
+                                        offset + new Vector2(4, 0), scale,
+                                        SpriteEffects.None, Z);
+                                }
+                            }
+                            else
+                                sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
                                 src_rect, tint, angle, offset - new Vector2(x, y), scale,
                                 mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                         }
@@ -402,13 +450,10 @@ namespace FEXNA
                             if (mirrored)
                                 offset.X = src_rect.Width - offset.X;
                             // Little arrow to the speaker
-                            if (Speaker_Arrow_X != null && (x == Speaker_Arrow_X || x - 8 == Speaker_Arrow_X) && Height - y <= 8)
+                            if (SpeakerArrowPos != null && ArrowSide == SpeakerArrowSide.Bottom &&
+                                (x == SpeakerArrowPos || x - 8 == SpeakerArrowPos) && Height - y <= 8)
                             {
-                                /*src_rect = new Rectangle(src_rect.X, src_rect.Y, src_rect.Width, src_rect.Height - 2); //Debug
-                                sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
-                                    src_rect, tint, angle, offset - new Vector2(x, y), scale,
-                                    mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);*/
-                                if (x == Speaker_Arrow_X)
+                                if (x == SpeakerArrowPos)
                                 {
                                     sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
                                         new Rectangle(24, 0, 16, 16), tint, angle,

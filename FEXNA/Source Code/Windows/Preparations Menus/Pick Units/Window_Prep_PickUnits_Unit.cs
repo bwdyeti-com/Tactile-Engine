@@ -16,6 +16,7 @@ namespace FEXNA
         const int COLUMNS = 2;
         const int ROW_SIZE = 16;
         const int ROWS = (Config.WINDOW_HEIGHT - 64) / ROW_SIZE;
+
         private FE_Text Pick_Label, More_Units_Label, Slash_Label;
         private FE_Text_Int Units_Left, Units_Selected, Units_Total;
         private Pick_Units_Header Unit_Header;
@@ -34,44 +35,56 @@ namespace FEXNA
 
         public Window_Prep_PickUnits_Unit(int total_units, int unit_count, int other_units)
         {
+            this.loc = new Vector2((Config.WINDOW_WIDTH - this.Width), 20);
+
             Total_Units = total_units;
             Unit_Count = unit_count;
             Other_Units = other_units;
             refresh_unit_counts();
         }
 
-        protected override void initialize()
+        #region WindowPrepActorList Abstract
+        protected override int Columns { get { return COLUMNS; } }
+        protected override int VisibleRows { get { return ROWS; } }
+        protected override int RowSize { get { return ROW_SIZE; } }
+        #endregion
+
+        protected override int Width { get { return unit_spacing() * this.Columns + 8 + 16; } }
+
+        protected override Rectangle Unit_Scissor_Rect
         {
-            WIDTH = unit_spacing() * columns() + 8 + 16;
-            HEIGHT = rows() * ROW_SIZE + 8;
-            loc = new Vector2((Config.WINDOW_WIDTH - WIDTH), 20);
-            Unit_Scissor_Rect = new Rectangle((int)loc.X, (int)loc.Y + 4, WIDTH, HEIGHT - 4);
-            initialize_sprites();
-            initialize_index();
+            get
+            {
+                Vector2 loc = this.loc + ScissorRectOffset;
+                return new Rectangle((int)loc.X, (int)loc.Y, this.Width, this.Height - 4);
+            }
         }
+        protected override Vector2 ScissorRectOffset { get { return new Vector2(0, 4); } }
+
+        protected override Vector2 ScrollbarLoc { get { return new Vector2(this.Width + 2 - 16, 12); } }
 
         protected override void initialize_sprites()
         {
             // Window
             Window_Img = new System_Color_Window();
-            Window_Img.width = WIDTH;
-            Window_Img.height = HEIGHT + 12;
+            Window_Img.width = this.Width;
+            Window_Img.height = this.Height + 12;
             Window_Img.offset = new Vector2(0, 8);
             // UI Nodes
             refresh_nodes();
 
-            Rows = (int)Math.Ceiling(Global.battalion.actors.Count / (float)columns());
+            Rows = (int)Math.Ceiling(Global.battalion.actors.Count / (float)this.Columns);
             // Scrollbar
-            if (Rows > rows())
+            if (Rows > this.VisibleRows)
             {
-                Scrollbar = new Scroll_Bar(rows() * row_size() - 16, Rows, rows(), 0);
-                Scrollbar.loc = loc + new Vector2(WIDTH + 2 - 16, 12);
+                Scrollbar = new Scroll_Bar(this.VisibleRows * this.RowSize - 16, Rows, this.VisibleRows, 0);
+                Scrollbar.loc = this.ScrollbarLoc;
 
                 Scrollbar.UpArrowClicked += Scrollbar_UpArrowClicked;
                 Scrollbar.DownArrowClicked += Scrollbar_DownArrowClicked;
             }
             // Unit Header
-            Unit_Header = new Pick_Units_Header(width + 8);
+            Unit_Header = new Pick_Units_Header(this.Width + 8);
             Unit_Header.loc = new Vector2(-8, -20);
             // Labels
             Pick_Label = new FE_Text();
@@ -107,7 +120,7 @@ namespace FEXNA
         public void refresh_unit(bool deployed)
         {
             int id = Global.battalion.actors[this.index];
-            map_sprite_texture(UnitNodes.ActiveNode, deployed);
+            map_sprite_texture(UnitNodes.ActiveNodeIndex, deployed);
             refresh_font(this.index, id, deployed);
         }
 
@@ -119,15 +132,17 @@ namespace FEXNA
         }
         private void refresh_font(int i, int actor_id, bool deployed)
         {
+            // If forced by events
             bool forced = Global.game_map.forced_deployment.Contains(actor_id);
             if (!forced)
             {
                 int unit_id = Global.game_map.get_unit_id_from_actor(actor_id);
                 if (unit_id != -1)
+                    // If predeployed
                     forced = !Global.game_map.deployment_points.Contains(Global.game_map.units[unit_id].loc);
             }
-            UnitNodes[i].set_name_texture(
-                forced ? "Green" : (deployed ? "White" : "Grey"));
+
+            refresh_font(i, forced, deployed);
         }
 
         private void refresh_unit_counts()
@@ -141,21 +156,7 @@ namespace FEXNA
             Units_Selected.texture = Units_Total.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" +
                 (maxed ? "Green" : "Blue"));
         }
-
-        protected override int columns()
-        {
-            return COLUMNS;
-        }
-
-        protected override int rows()
-        {
-            return ROWS;
-        }
-        protected override int row_size()
-        {
-            return ROW_SIZE;
-        }
-
+        
         protected override Vector2 unit_offset()
         {
             return new Vector2(-12, 0);
@@ -169,17 +170,18 @@ namespace FEXNA
         #region Draw
         protected override void draw_window(SpriteBatch sprite_batch)
         {
-            Vector2 loc = this.loc + draw_vector();
+            Vector2 offset = this.loc + draw_vector();
+
             base.draw_window(sprite_batch);
-            Unit_Header.draw(sprite_batch, -loc);
+            Unit_Header.draw(sprite_batch, -offset);
             // Labels
-            Pick_Label.draw(sprite_batch, -loc);
-            More_Units_Label.draw(sprite_batch, -loc);
-            Slash_Label.draw(sprite_batch, -loc);
+            Pick_Label.draw(sprite_batch, -offset);
+            More_Units_Label.draw(sprite_batch, -offset);
+            Slash_Label.draw(sprite_batch, -offset);
             // Data
-            Units_Left.draw(sprite_batch, -loc);
-            Units_Selected.draw(sprite_batch, -loc);
-            Units_Total.draw(sprite_batch, -loc);
+            Units_Left.draw(sprite_batch, -offset);
+            Units_Selected.draw(sprite_batch, -offset);
+            Units_Total.draw(sprite_batch, -offset);
         }
         #endregion
     }

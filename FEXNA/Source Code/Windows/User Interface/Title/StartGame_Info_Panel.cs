@@ -141,13 +141,8 @@ namespace FEXNA.Windows.UserInterface.Title
 
                     if (Global.data_chapters.ContainsKey(info.chapter_id))
                     {
-                        Chapter.text = Global.data_chapters[info.chapter_id].TitleName;
-                        if (false && Chapter.text.Length >= 7 && Chapter.text.Substring(0, 7) == "Chapter") //Yeti
-                        {
-                            Regex r = new Regex("Chapter");
-                            Chapter.text = r.Replace(Chapter.text, "Ch.", 1);
-                        }
-                        Short_Chapter.text = Global.data_chapters[info.chapter_id].World_Map_Name;
+                        Chapter.text = Global.data_chapters[info.chapter_id].FileSelectName;
+                        Short_Chapter.text = Global.data_chapters[info.chapter_id].ShortName;
                     }
                     else
                     {

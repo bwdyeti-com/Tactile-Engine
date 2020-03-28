@@ -67,7 +67,7 @@ namespace FEXNA.Windows.Map
             Black_Screen.tint = new Color(0, 0, 0, 255);
             // Banner
             Banner = new FE_Text();
-            string str = Global.data_chapters[Global.game_state.chapter_id].ChapterTransitionName;
+            string str = Global.data_chapters[Global.game_state.chapter_id].FullName;
             Banner.loc = new Vector2(Config.WINDOW_WIDTH, 32) / 2 - new Vector2(Font_Data.text_width(str, "FE7_Chapter") / 2, 8);
             Banner.Font = "FE7_Chapter";
             Banner.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Chapter_Data");
@@ -429,15 +429,17 @@ namespace FEXNA.Windows.Map
         private void refresh_ranking_bar(Stat_Bar bar, int score)
         {
             int bar_length = score * RANKING_BAR_LENGTH / 150;
+            // 100% yellow bar with green bonus
             if (bar_length > RANKING_BAR_LENGTH * 2 / 3)
             {
-                bar.fill_width = RANKING_BAR_LENGTH * 2 / 3;
-                bar.bonus_width = bar_length - RANKING_BAR_LENGTH * 2 / 3;
+                bar.SetFillWidth(RANKING_BAR_LENGTH * 2 / 3);
+                bar.bonus_width = bar_length - bar.fill_width;
             }
+            // Short yellow bar with red penalty
             else
             {
-                bar.fill_width = bar_length;
-                bar.bonus_width = bar_length - RANKING_BAR_LENGTH * 2 / 3;
+                bar.SetFillWidth(bar_length);
+                bar.bonus_width = bar.fill_width - RANKING_BAR_LENGTH * 2 / 3;
             }
         }
 

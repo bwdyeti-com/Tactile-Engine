@@ -157,6 +157,15 @@ namespace FEXNA
             Vector2 pixel_loc = this.pixel_loc;
             sprite.loc = new Vector2((int)pixel_loc.X, (int)pixel_loc.Y);
         }
+
+        internal static void UpdateSpriteIdleFrame(Graphics.Map.Character_Sprite sprite)
+        {
+            UpdateSpriteFrame(sprite, 2, Global.game_system.unit_anim_idle_frame);
+        }
+        internal static void UpdateSpriteFrame(Graphics.Map.Character_Sprite sprite, int facing, int frame)
+        {
+            sprite.frame = (facing / 2 - 1) * sprite.frame_count + frame;
+        }
         #endregion
     }
 

@@ -6,7 +6,7 @@ using FEXNAVersionExtension;
 
 namespace FEXNA
 {
-    public partial class Event_Processor
+    partial class Event_Processor
     {
         // Commands that don't break out of skipping the AI turn
         readonly static int[] NO_ACTION_COMMANDS = new int[] { 1, 5, 8, 14, 15, 16, 22, 24, 25, 26, 27, 28, 29, 30, 32, 33, 34, 36, 43, 44, 46,
@@ -436,6 +436,9 @@ namespace FEXNA
                 // Edit Tile Outlines
                 case 47:
                     return command_edit_tile_outlines();
+                // AI Target Map Object
+                case 48:
+                    return command_ai_target_map_object();
                 // Change class
                 case 51:
                     return command_class_change();
@@ -880,9 +883,28 @@ namespace FEXNA
             if (Index + offset >= event_data.data.Count || Index + offset < 0)
                 return "-----";
             var event_command = event_data.data[Index + offset];
-            return string.Format("({0})  {1}{2}", (Index + offset).ToString("D4"), new string(' ', Indent[Index + offset] * 4),
-                event_command.Key == 102 ? "// " + event_command.Value.FirstOrDefault() :
-                string.Format("{0}: {1}", event_command.Key, event_control_name(event_command.Key)));
+
+            string eventString;
+            // If comment
+            if (event_command.Key == 102)
+                eventString = "// " + event_command.Value.FirstOrDefault();
+            else
+                eventString = string.Format("{0}: {1}", event_command.Key, event_control_name(event_command.Key));
+            switch (event_command.Key)
+            {
+                // Wait
+                case 3:
+                    if (offset == -1)
+                        eventString += string.Format(" {0}", Wait_Time);
+                    else if (offset >= 0)
+                        eventString += string.Format(" {0}", process_number(event_command.Value[0]));
+                    break;
+            }
+
+            return string.Format("({0})  {1}{2}",
+                (Index + offset).ToString("D4"),
+                new string(' ', Indent[Index + offset] * 4),
+                eventString);
         }
 
         private string event_control_name(int key)

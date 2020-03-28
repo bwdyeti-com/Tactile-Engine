@@ -41,6 +41,14 @@ namespace FEXNA
         }
 
         public EventHandler ArrowClicked;
+        //@Debug: ArrowPressed event?
+
+        public bool MouseOver(Vector2 drawOffset = default(Vector2))
+        {
+            Rectangle arrow_rect = OnScreenBounds(drawOffset);
+            return Global.Input.mouse_in_rectangle(
+                arrow_rect, loc - drawOffset, this.offset, this.angle, mirrored);
+        }
 
         public void UpdateInput(Vector2 drawOffset = default(Vector2))
         {
@@ -65,8 +73,7 @@ namespace FEXNA
                 if (ArrowClicked != null)
                     ArrowClicked(this, new EventArgs());
             }
-            else if (Global.Input.mouse_in_rectangle(
-                    arrow_rect, loc - drawOffset, this.offset, this.angle, mirrored) ||
+            else if (MouseOver(drawOffset) ||
                 Global.Input.touch_rectangle(
                     Services.Input.InputStates.Pressed,
                     arrow_rect, loc - drawOffset, this.offset, this.angle, mirrored, false))

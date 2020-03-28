@@ -16,10 +16,10 @@ namespace FEXNA.Debug_Monitor
         public DebugMonitorRngPage()
         {
             // Variables
-            DebugStringDisplay variable_label = new DebugStringDisplay(
-                () => "Variables", 80, text_color: "Yellow");
-            variable_label.loc = new Vector2(8, 0);
-            DebugDisplays.Add(variable_label);
+            DebugStringDisplay rngLabel = new DebugStringDisplay(
+                () => "RNG", 80, text_color: "Yellow");
+            rngLabel.loc = new Vector2(8, 0);
+            DebugDisplays.Add(rngLabel);
 
             string format = "";
             for (int i = 0; i < RNGS_PER_ROW; i++)

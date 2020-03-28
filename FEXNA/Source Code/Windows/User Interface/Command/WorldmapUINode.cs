@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA;
 using FEXNA.Graphics.Text;
+using FEXNA_Library;
 
 namespace FEXNA.Windows.UserInterface.Command
 {
@@ -9,7 +10,7 @@ namespace FEXNA.Windows.UserInterface.Command
     {
         private string NormalRank = "", HardRank = "";
         private FE_Text_Int Rank;
-        private Difficulty_Modes Difficulty;
+        private Maybe<Difficulty_Modes> Difficulty;
         private Texture2D ActiveDifficultyTexture, InactiveDifficultyTexture;
 
         internal WorldmapUINode(
@@ -28,7 +29,7 @@ namespace FEXNA.Windows.UserInterface.Command
             Rank.texture = ActiveDifficultyTexture;
         }
 
-        internal void set_rank(string rank, Difficulty_Modes difficulty)
+        internal void set_rank(string rank, Maybe<Difficulty_Modes> difficulty)
         {
             Rank.text = rank;
             Difficulty = difficulty;
@@ -38,7 +39,7 @@ namespace FEXNA.Windows.UserInterface.Command
 
         internal void refresh_rank(Difficulty_Modes mode)
         {
-            if (mode == Difficulty)
+            if (Difficulty.IsNothing || mode == Difficulty)
                 Rank.texture = ActiveDifficultyTexture;
             else
                 Rank.texture = InactiveDifficultyTexture;

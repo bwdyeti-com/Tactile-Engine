@@ -16,7 +16,7 @@ using FEXNAContentExtension;
 
 namespace FEXNA
 {
-    public enum Aid_Types { Infantry, Mounted }
+    enum Aid_Types { Infantry, Mounted }
     internal enum EventedMoveCommands { Move, Highlight, Notice, SetSpeed }
     internal partial class Game_Unit : Combat_Map_Object
     {
@@ -491,6 +491,10 @@ namespace FEXNA
         internal void change_team(int team)
         {
             Team = team;
+            // Clear item drop flag if switching to an allied team
+            if (!is_attackable_team(Constants.Team.PLAYER_TEAM))
+                Drops_Item = false;
+
             if (!Global.scene.is_test_battle)
             {
                 Global.game_map.team_add(Team, this);
@@ -758,6 +762,11 @@ namespace FEXNA
         }
         internal Maybe<int> terrain_def_bonus(Game_Unit target)
         {
+            int terrainDef = terrain_def_bonus();
+            // Skills: Swoop
+            if (target != null && Swoop_Activated)
+                terrainDef = target.terrain_def_bonus();
+
             Maybe<int> result = default(Maybe<int>);
             // Skills: Parity
             if (target != null)
@@ -772,11 +781,12 @@ namespace FEXNA
             // Skills: Commando
             if (target != null && !nihil(target))
                 if (actor.has_skill("CMNDO"))
-                    result = result.ValueOrDefault + (terrain_def_bonus() / 2);
+                    result = result.ValueOrDefault + (terrainDef / 2);
             // If terrain is ignored, return the result so far
             if (target != null && ignore_terrain_def())
                 return result;
-            return result.ValueOrDefault + terrain_def_bonus();
+
+            return result.ValueOrDefault + terrainDef;
         }
 
         internal int terrain_res_bonus()
@@ -785,6 +795,11 @@ namespace FEXNA
         }
         internal Maybe<int> terrain_res_bonus(Game_Unit target)
         {
+            int terrainRes = terrain_res_bonus();
+            // Skills: Swoop
+            if (target != null && Swoop_Activated)
+                terrainRes = target.terrain_res_bonus();
+
             Maybe<int> result = default(Maybe<int>);
             // Skills: Parity
             if (target != null)
@@ -799,12 +814,13 @@ namespace FEXNA
             // Skills: Commando
             if (target != null && !nihil(target))
                 if (actor.has_skill("CMNDO"))
-                    result = result.ValueOrDefault + (terrain_res_bonus() / 2);
+                    result = result.ValueOrDefault + (terrainRes / 2);
             // If terrain is ignored, return the result so far
             if (ignore_terrain_def())
                 //if (target != null && ignore_terrain_def()) //Debug
                 return result;
-            return result.ValueOrDefault + terrain_res_bonus();
+
+            return result.ValueOrDefault + terrainRes;
         }
 
         internal int terrain_avo_bonus()
@@ -813,6 +829,11 @@ namespace FEXNA
         }
         internal Maybe<int> terrain_avo_bonus(Game_Unit target, bool magicAttack)
         {
+            int terrainAvo = terrain_avo_bonus();
+            // Skills: Swoop
+            if (target != null && Swoop_Activated)
+                terrainAvo = target.terrain_avo_bonus();
+
             Maybe<int> result = default(Maybe<int>);
             // Skills: Parity
             if (target != null)
@@ -827,12 +848,13 @@ namespace FEXNA
             // Skills: Commando
             if (target != null && !nihil(target))
                 if (actor.has_skill("CMNDO"))
-                    result = result.ValueOrDefault + (terrain_avo_bonus() / 2);
+                    result = result.ValueOrDefault + (terrainAvo / 2);
             // If terrain is ignored, return the result so far
             if (ignore_terrain_avo())
                 //if (target != null && ignore_terrain_avo()) //Debug
                 return result;
-            return result.ValueOrDefault + terrain_avo_bonus();
+
+            return result.ValueOrDefault + terrainAvo;
         }
 
         internal bool terrain_heals()
@@ -893,11 +915,12 @@ namespace FEXNA
         public int threat(bool move)
         {
             int threat = (int)((move ? actor.hp : stat(Stat_Labels.Hp)) *
-                Constants.Actor.HP_VALUE);
+                Game_Actor.GetStatValue((int)Stat_Labels.Hp));
             for (int i = (int)Stat_Labels.Hp + 1; i <= (int)Stat_Labels.Con; i++)
-                threat += stat((Stat_Labels)i);
+                threat += (int)(stat((Stat_Labels)i) * Game_Actor.GetStatValue(i));
             if (!move)
                 return threat;
+            //@Yeti: Maybe this should use GetStatValue() too
             threat += stat(Stat_Labels.Mov) * 2;
             if (actor.equipped <= 0)
                 threat /= 2;
@@ -1011,6 +1034,10 @@ namespace FEXNA
 
         protected void new_turn_support_gain_display()
         {
+            // Only if standing near on new turn gives support points
+            if (Constants.Support.ADJACENT_SUPPORT_POINTS <= 0)
+                return;
+
             var support_partners = support_range_units()
                 .Where(x => x != Rescuing &&
                     Global.game_map.units[x].team == this.team &&
@@ -1021,6 +1048,10 @@ namespace FEXNA
 
         internal void same_target_support_gain_display(int id)
         {
+            // Only if attacking the same target gives support points
+            if (Constants.Support.SAME_TARGET_SUPPORT_POINTS <= 0)
+                return;
+
             var support_partners = Global.game_map.teams[Team]
                 .Where(x => Global.game_map.units[x].Attack_Targets_This_Turn.Contains(id) &&
                     support_possible(Global.game_map.units[x]));
@@ -1028,6 +1059,10 @@ namespace FEXNA
         }
         internal void same_target_support_gain_display(IEnumerable<int> ids)
         {
+            // Only if attacking the same target gives support points
+            if (Constants.Support.SAME_TARGET_SUPPORT_POINTS <= 0)
+                return;
+
             var support_partners = Global.game_map.teams[Team]
                 .Where(x => !Global.game_map.units[x].Attack_Targets_This_Turn.Intersect(ids).Any() &&
                     support_possible(Global.game_map.units[x]));
@@ -1036,6 +1071,10 @@ namespace FEXNA
 
         internal void heal_support_gain_display(int id)
         {
+            // Only if healing gives support points
+            if (Constants.Support.HEAL_SUPPORT_POINTS <= 0)
+                return;
+
             if (Staff_Data.get_staff_mode(this.actor.weapon_id) == Staff_Modes.Heal)
                 if (support_possible(Global.game_map.units[id]))
                     display_support_gain(id);
@@ -1043,12 +1082,20 @@ namespace FEXNA
 
         internal void talk_support_gain_display(int id)
         {
+            // Only if talks give support points
+            if (Constants.Support.TALK_SUPPORT_POINTS <= 0)
+                return;
+
             if (support_possible(Global.game_map.units[id]))
                 display_support_gain(id);
         }
 
         internal void rescue_support_gain_display(int id)
         {
+            // Only if rescuing gives support points
+            if (Constants.Support.RESCUE_SUPPORT_POINTS <= 0)
+                return;
+            
             if (support_possible(Global.game_map.units[id]))
                 display_support_gain(id);
         }
@@ -1220,7 +1267,9 @@ namespace FEXNA
         {
             bool cantoing = Cantoing;
             Cantoing = true;
-            var pathfinder = new Pathfinding.UnitMovementMap(Id).Pathfind();
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .Build(Id);
+            var pathfinder = map.Pathfind();
             HashSet<Vector2> locs = pathfinder.get_range(loc, loc, this.canto_mov);
             //HashSet<Vector2> locs = Pathfind.get_range(Loc, canto_mov, Id); //Debug
             Cantoing = cantoing;
@@ -1311,6 +1360,46 @@ namespace FEXNA
             return false;
         }
 
+        public Maybe<int> distance_to_siege(Siege_Engine siege)
+        {
+            return distance_to_siege(siege, this.canto_mov);
+        }
+        public Maybe<int> distance_to_siege(Siege_Engine siege, int mov)
+        {
+            return Pathfind.get_distance(siege.loc, Id, mov, false, Loc);
+        }
+
+        public IEnumerable<Siege_Engine> siege_weapons_in_range(IEnumerable<Siege_Engine> sieges, HashSet<Vector2> moveRange)
+        {
+            return sieges
+                .Where(x => x.item.is_weapon)
+                .Where(x => this.actor.is_equippable_as_siege(x.item.to_weapon))
+                .Where(x => moveRange.Contains(x.loc));
+        }
+
+        public IEnumerable<Siege_Engine> sieges_in_range_of_target(IEnumerable<Siege_Engine> sieges, Vector2 targetLoc)
+        {
+            return sieges.Where(x =>
+            {
+                Maybe<int> move_distance = distance_to_siege(x, -1);
+                if (move_distance.IsSomething)
+                {
+                    set_ai_base_loc(x.loc, move_distance);
+
+                    int min = min_range(Siege_Engine.SIEGE_INVENTORY_INDEX);
+                    int max = max_range(Siege_Engine.SIEGE_INVENTORY_INDEX);
+
+                    int dist = Global.game_map.distance(x.loc, targetLoc);
+                    bool inRange = dist >= min && dist <= max;
+
+                    reset_ai_loc();
+
+                    return inRange;
+                }
+                return false;
+            });
+        }
+
         public bool can_assemble()
         {
             // If no siege engines in the convoy and none in this actor's inventory
@@ -1333,7 +1422,7 @@ namespace FEXNA
                     new Vector2(0, 1), new Vector2(0, -1),
                     new Vector2(1, 0), new Vector2(-1, 0) })
                 if (!Global.game_map.is_off_map(offset + Loc))
-                    if (!Global.game_map.is_blocked(offset + Loc, Rescuing))
+                    if (!Global.game_map.is_blocked(offset + Loc, Id))
                         if (Global.game_map.get_siege(offset + Loc) == null)
                             if (Global.game_map.terrain_cost(
                                     MovementTypes.Armor, offset + Loc) >= 0)
@@ -1368,12 +1457,12 @@ namespace FEXNA
             return result;
         }
 
-        public bool can_reclaim()
+        public bool can_reclaim(bool ignoreFull = false)
         {
             // If no convoy or convoy is full
             if (!Global.game_battalions.contains_convoy(Global.battalion.convoy_id))
                 return false;
-            if (Global.battalion.is_convoy_full)
+            if (!ignoreFull && Global.battalion.is_convoy_full)
                 return false;
 
             if (this.actor.can_construct_skill())
@@ -1396,6 +1485,23 @@ namespace FEXNA
                         result.Add(offset + Loc);
                 }
             }
+
+            //@Yeti: does this allow reclaiming from under enemies?
+            return result;
+        }
+         
+        public List<Vector2> placeable_targets()
+        {
+            List<Vector2> result = new List<Vector2>();
+            foreach (Vector2 offset in new Vector2[] {
+                    new Vector2(0, 1), new Vector2(0, -1),
+                    new Vector2(1, 0), new Vector2(-1, 0) })
+                if (!Global.game_map.is_off_map(offset + Loc))
+                    if (!Global.game_map.is_blocked(offset + Loc, Id))
+                        if (Global.game_map.get_siege(offset + Loc) == null)
+                            if (Global.game_map.terrain_cost(
+                                    MovementTypes.Armor, offset + Loc) >= 0)
+                                result.Add(offset + Loc);
             return result;
         }
 
@@ -1476,9 +1582,14 @@ namespace FEXNA
             return 1;
         }
 
-        public void start_attack(int attackIndex)
+        /// <summary>
+        /// Called at the start of combat and each attack this unit is in.
+        /// Should pass in attackIndex -1 for the start of combat.
+        /// </summary>
+        /// <param name="attackIndex">The index of the attack among attack this unit performs that is about to start.</param>
+        public void start_attack(int attackIndex, Combat_Map_Object target)
         {
-            start_attack_skills(attackIndex);
+            start_attack_skills(attackIndex, target);
         }
 
         public void end_battle()
@@ -1636,7 +1747,7 @@ namespace FEXNA
 #if DEBUG
                 return true;
 #else
-                return !Constants.Actor.ONLY_PC_COLORS || this.is_player_team;
+                return !Constants.Actor.ONLY_PC_STAT_COLORS || this.is_player_team;
 #endif
             }
         }
@@ -2826,7 +2937,9 @@ namespace FEXNA
         private void update_move_range(Vector2 loc, Vector2 baseLoc)
         {
             // Use locks for thread safety? //Yeti
-            var pathfinder = new Pathfinding.UnitMovementMap(Id).Pathfind();
+            var map = new Pathfinding.UnitMovementMap.Builder()
+                .Build(Id);
+            var pathfinder = map.Pathfind();
             Move_Range = pathfinder.get_range(baseLoc, loc, this.canto_mov);
             //Move_Range = new HashSet<Vector2>( //Debug
             //    Pathfind.get_range(loc, canto_mov, Id, baseLoc)); //HashSet
@@ -2853,10 +2966,15 @@ namespace FEXNA
                         if (Move_Range.Contains(seize))
                             talk_range.Add(seize);
 
-                if (this.can_seize)
-                    foreach (Vector2 escape in Global.game_map.escape_point_locations(Team, Group))
+                foreach (Vector2 escape in Global.game_map.escape_point_locations(Team, Group))
+                {
+                    var escapePoint = Global.game_map.escape_point_data(this, escape);
+                    if (!escapePoint.LordOnly || this.can_seize)
+                    {
                         if (Move_Range.Contains(escape))
                             talk_range.Add(escape);
+                    }
+                }
             }
             Talk_Range = talk_range;
             Global.game_map.add_updated_move_range(Id);
@@ -2892,7 +3010,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         !Global.data_weapons[siege.item.Id].is_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -2935,7 +3053,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         Global.data_weapons[siege.item.Id].is_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -3074,6 +3192,21 @@ namespace FEXNA
                 return false;
 
             return moveRange.Contains(loc);
+        }
+
+        internal int first_weapon_with_range(int distance)
+        {
+            var useable = actor.useable_weapons();
+            foreach(int index in useable)
+            {
+                int min = min_range(index);
+                int max = max_range(index);
+
+                bool inRange = distance >= min && distance <= max;
+                if (inRange)
+                    return index;
+            }
+            return -1;
         }
         #endregion
 
@@ -3341,13 +3474,18 @@ namespace FEXNA
 
         public bool can_steal_item(Game_Unit target, int i)
         {
+            // Can never steal equipped weapons
             if (target.actor.equipped == i + 1)
                 return false;
             Item_Data item_data = target.actor.items[i];
+            // Can't steal invalid items
             if (item_data.Id == 0)
                 return false;
+            // Can't steal Prfs
             if (item_data.is_weapon && item_data.to_weapon.Rank == Weapon_Ranks.None)
                 return false;
+            // Check that AS is >= target AS
+            // If the item is a weapon, thief AS is adjusted as if they equipped it
             return atk_spd(1, item_data) >= target.stat(Stat_Labels.Spd);
         }
 
@@ -3594,8 +3732,13 @@ namespace FEXNA
             Prev_Loc = canto_loc;
             if (!Cantoing)
                 selection_facing();
-            Global.game_map.clear_move_range();
             sprite_moving = true;
+            show_move_range();
+        }
+
+        public void show_move_range(bool resetMoveArrow = true)
+        {
+            Global.game_map.clear_move_range(resetMoveArrow);
             Global.game_map.show_move_range(Id);
             if (!Cantoing)
                 Global.game_map.show_attack_range(Id);
@@ -3748,13 +3891,26 @@ namespace FEXNA
             Pathfind.reset();
             Global.player.force_loc(Loc);
             // Get movement path
-            List<Move_Arrow_Data> move_arrow = Global.game_map.move_arrow;
             Move_Route = new List<Vector2>();
-            for (int i = move_arrow.Count - 1; i >= 1; i--)
+            List<Move_Arrow_Data> move_arrow =
+                new List<Move_Arrow_Data>(Global.game_map.move_arrow);
+            // If target is not on the move arrow, pathfind to it
+            if (!move_arrow.Any(x => x.Loc == loc) && loc != Loc)
             {
-                Move_Route.Add(new Vector2(move_arrow[i].X, move_arrow[i].Y) -
-                    new Vector2(move_arrow[i - 1].X, move_arrow[i - 1].Y));
-                Temp_Moved += move_cost(new Vector2(move_arrow[i].X, move_arrow[i].Y));
+                pathfind_move_to(loc);
+            }
+            else
+            {
+                if (move_arrow.Any())
+                    // If only moving a subset of the total move arrow
+                    while (move_arrow.Last().Loc != loc)
+                        move_arrow.pop();
+                for (int i = move_arrow.Count - 1; i >= 1; i--)
+                {
+                    Move_Route.Add(new Vector2(move_arrow[i].X, move_arrow[i].Y) -
+                        new Vector2(move_arrow[i - 1].X, move_arrow[i - 1].Y));
+                    Temp_Moved += move_cost(new Vector2(move_arrow[i].X, move_arrow[i].Y));
+                }
             }
             Global.game_map.move_range_visible = false;
             Move_Loc = loc;
@@ -3939,14 +4095,28 @@ namespace FEXNA
 
         public void command_menu_close()
         {
-            if (Global.player.loc != Move_Loc)
+            // Context sensitive move
+            if (!Cantoing && Global.game_temp.SelectedMoveLoc.IsSomething)
+                Global.player.force_loc(Global.game_temp.SelectedMoveLoc);
+            // Selected move location is not the current cursor position
+            else if (!Cantoing && Global.game_map.move_arrow.Any() &&
+                    Global.player.loc != Global.game_map.move_arrow.Last().Loc)
+                Global.player.force_loc(Global.game_map.move_arrow.Last().Loc);
+            else if (Global.player.loc != Move_Loc)
                 Global.player.force_loc(Move_Loc); // the centering on this might cause problems with below //Debug
+
             force_loc(Prev_Loc);
             Move_Loc = Prev_Loc;
             //Global.player.center(Loc, true); //Debug
             Temp_Moved = Moved_So_Far;
-            if (!Cantoing) selection_facing();
-            Global.game_map.range_start_timer = 0;
+            //@Debug: why though, this means if you turn the unit by moving
+            // them with horse canto they'll be facing wrong when their
+            // position resets
+            // Is the desired functionality to preserve whatever facing
+            // they ended up in when moving into their canto position???
+            //if (!Cantoing) //@Debug
+                selection_facing();
+            show_move_range(false);
             Global.game_map.move_range_visible = true;
             update_map_animation(true);
         }
@@ -4398,7 +4568,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         !Global.data_weapons[siege.item.Id].is_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -4480,7 +4650,7 @@ namespace FEXNA
                         actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
                         Global.data_weapons[siege.item.Id].is_attack_staff())
                     {
-                        Maybe<int> move_distance = Pathfind.get_distance(siege.loc, Id, canto_mov, false, Loc);
+                        Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
                         {
                             set_ai_base_loc(siege.loc, move_distance);
@@ -4794,19 +4964,23 @@ namespace FEXNA
         #endregion
 
         #region Battle Animations
+        //@Yeti: should this all be moved into BattlerSpriteData?
         internal void preload_animations(int distance, bool dance = false)
         {
             var content = Global.Battler_Content as ContentManagers.ThreadSafeContentManager;
             // Get battler animation
-            Anim_Sprite_Data anim_data = get_anim_data(dance);
-            foreach(string name in preload_animation_names(anim_data, distance, dance))
+            foreach (string name in preload_animation_names(distance, dance)
+                .Distinct())
             {
                 content.Load<Texture2D>(string.Format(@"Graphics/Animations/{0}", name), null);
             }
         }
 
-        private IEnumerable<string> preload_animation_names(Anim_Sprite_Data anim_data, int distance, bool dance)
+        private IEnumerable<string> preload_animation_names(int distance, bool dance)
         {
+            var battlerData = new BattlerSpriteData(this);
+            var anim_data = battlerData.AnimData(dance);
+
             bool battler_animation_exists = !string.IsNullOrEmpty(anim_data.name);
             if (battler_animation_exists)
             {
@@ -4816,10 +4990,10 @@ namespace FEXNA
             // Get spells and added animations
             if (dance)
             {
-                var spells = animation_graphics(dance_effect_animation_ids());
+                var spells = animation_graphics(dance_effect_animation_ids(battlerData), battlerData);
                 foreach (string filename in spells)
                     yield return filename;
-                var anims = animation_graphics(dance_animation_ids(distance), true, true);
+                var anims = animation_graphics(dance_animation_ids(battlerData, distance), battlerData, true, true);
                 foreach (string filename in anims)
                     yield return filename;
             }
@@ -4827,35 +5001,28 @@ namespace FEXNA
             {
                 if (spell_animation())
                 {
-                    var spells = animation_graphics(spell_animation_ids());
+                    var spells = animation_graphics(spell_animation_ids(), battlerData);
                     foreach (string filename in spells)
                         yield return filename;
                 }
-                var skills = animation_graphics(skill_animation_ids());
+                var skills = animation_graphics(skill_animation_ids(battlerData), battlerData);
                 foreach (string filename in skills)
                     yield return filename;
-                var anims = animation_graphics(battler_animation_ids(distance), true, battler_animation_exists);
+                var anims = animation_graphics(battler_animation_ids(battlerData, distance), battlerData, true, battler_animation_exists);
                 foreach (string filename in anims)
                     yield return filename;
             }
         }
-
-        internal Anim_Sprite_Data get_anim_data(bool dance)
-        {
-            return (dance && Id == Global.game_state.dancer_id) ?
-                   FE_Battler_Image_Wrapper.anim_name(this, Global.weapon_types[0].AnimName) :
-                   FE_Battler_Image_Wrapper.anim_name(this);
-        }
-
-        internal HashSet<int> battler_animation_ids(int distance)
+        
+        private HashSet<int> battler_animation_ids(BattlerSpriteData battlerData, int distance)
         {
             HashSet<int> result = new HashSet<int>();
 
             var anim_set = FE_Battler_Image.animation_set(
-                FE_Battler_Image_Wrapper.animation_processor(this, distance));
+                FE_Battler_Image_Wrapper.animation_processor(battlerData, distance));
             if (anim_set != null)
             {
-                int offset = FE_Battler_Image_Wrapper.offset(this);
+                int offset = battlerData.AnimationGroupOffset;
                 result.UnionWith(anim_set.AttackAnimations
                     .SelectMany(x => x.all_anim_ids())
                     .Select(x => x + offset));
@@ -4866,22 +5033,22 @@ namespace FEXNA
                     foreach (int hit in Enumerable.Range(0, 2))
                         foreach (int crt in Enumerable.Range(0, 2))
                         {
-                            result.UnionWith(FE_Battler_Image_Wrapper.attack_animation_value(this, crt == 0, distance, hit == 0));
-                            result.UnionWith(FE_Battler_Image_Wrapper.still_animation_value(this, crt == 0, distance, hit == 0));
-                            result.UnionWith(FE_Battler_Image_Wrapper.return_animation_value(this, crt == 0, distance, hit == 0, false));
+                            result.UnionWith(FE_Battler_Image_Wrapper.attack_animation_value(battlerData, crt == 0, distance, hit == 0));
+                            result.UnionWith(FE_Battler_Image_Wrapper.still_animation_value(battlerData, crt == 0, distance, hit == 0));
+                            result.UnionWith(FE_Battler_Image_Wrapper.return_animation_value(battlerData, crt == 0, distance, hit == 0, false));
                         }
             }
 
-            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.avoid_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.avoid_return_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(this, false, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(this, true, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(this, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.avoid_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.avoid_return_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(battlerData, false, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.get_hit_animation_value(battlerData, true, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(battlerData, distance));
             return result;
         }
 
-        internal HashSet<int> spell_animation_ids()
+        private HashSet<int> spell_animation_ids()
         {
             HashSet<int> result = new HashSet<int>();
             // Anima spell starting effect
@@ -4919,41 +5086,41 @@ namespace FEXNA
                 yield return id;
         }
 
-        internal HashSet<int> dance_animation_ids(int distance)
+        private HashSet<int> dance_animation_ids(BattlerSpriteData battlerData, int distance)
         {
             HashSet<int> result = new HashSet<int>();
-            result.UnionWith(FE_Battler_Image_Wrapper.dance_attack_animation_value(this));
-            result.UnionWith(FE_Battler_Image_Wrapper.dance_still_animation_value(this));
-            result.UnionWith(FE_Battler_Image_Wrapper.dance_return_animation_value(this));
+            result.UnionWith(FE_Battler_Image_Wrapper.dance_attack_animation_value(battlerData));
+            result.UnionWith(FE_Battler_Image_Wrapper.dance_still_animation_value(battlerData));
+            result.UnionWith(FE_Battler_Image_Wrapper.dance_return_animation_value(battlerData));
 
-            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(this, distance));
-            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(this, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.idle_animation_value(battlerData, distance));
+            result.UnionWith(FE_Battler_Image_Wrapper.pre_battle_animation_value(battlerData, distance));
             return result;
         }
 
-        internal HashSet<int> dance_effect_animation_ids()
+        private HashSet<int> dance_effect_animation_ids(BattlerSpriteData battlerData)
         {
             HashSet<int> result = new HashSet<int>();
             int ring_id = Global.game_state.dance_item > -1 ? items[Global.game_state.dance_item].Id : -1;
-            result.UnionWith(FE_Battler_Image_Wrapper.refresh_animation_value(this, ring_id));
+            result.UnionWith(FE_Battler_Image_Wrapper.refresh_animation_value(battlerData, ring_id));
             return result;
         }
 
-        internal HashSet<int> skill_animation_ids()
+        private HashSet<int> skill_animation_ids(BattlerSpriteData battlerData)
         {
             HashSet<int> result = new HashSet<int>();
             foreach (int animation_id in actor.all_skills.Select(x => Global.data_skills[x].Animation_Id))
                 if (animation_id > -1)
                 {
                     int id = animation_id + Global.animation_group("Skills");
-                    List<int> anim = FE_Battler_Image_Wrapper.correct_animation_value(id, this);
+                    List<int> anim = FE_Battler_Image_Wrapper.correct_animation_value(id, battlerData);
                     if (anim.Count > 0)
                         result.UnionWith(anim);
                 }
             return result;
         }
 
-        internal HashSet<string> animation_graphics(HashSet<int> animation_ids, bool added_animations = false, bool only_added_animations = true)
+        private HashSet<string> animation_graphics(HashSet<int> animation_ids, BattlerSpriteData battlerData, bool added_animations = false, bool only_added_animations = true)
         {
             HashSet<Battle_Animation_Data> animations = new HashSet<Battle_Animation_Data>();
             foreach (int animation_id in animation_ids)
@@ -4971,7 +5138,7 @@ namespace FEXNA
                             // Correct animations for terrain, etc
                             for (int i = anims.Count - 1; i >= 0; i--)
                             {
-                                List<int> corrected = FE_Battler_Image_Wrapper.correct_animation_value(anims[i], this);
+                                List<int> corrected = FE_Battler_Image_Wrapper.correct_animation_value(anims[i], battlerData);
                                 anims.RemoveAt(i);
                                 anims.InsertRange(i, corrected);
                             }
@@ -5073,7 +5240,7 @@ namespace FEXNA
 
         internal void update_sprite_frame(Graphics.Map.Character_Sprite sprite)
         {
-            sprite.frame = (Facing / 2 - 1) * ((Graphics.Map.Character_Sprite)sprite).frame_count + Frame;
+            UpdateSpriteFrame(sprite, Facing, Frame);
         }
 
         public void set_sprite_batch_effects(Effect effect)

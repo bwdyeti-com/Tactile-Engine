@@ -15,6 +15,13 @@ namespace FEXNA.Menus.Worldmap
 
         protected override void GetArcs(List<int> availableChapters)
         {
+            // If classic mode and not all chapters unlocked, don't split arcs
+            if (Classic)
+            {
+                base.GetArcs(availableChapters);
+                return;
+            }
+
             // Get the arcs that are available
             var available_chapters = new HashSet<string>(availableChapters
                 .Select(x => Global.Chapter_List[x]));

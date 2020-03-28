@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FEXNA.Services.Rumble
 {
-    public class RumbleService : BaseRumbleService
+    class RumbleService : BaseRumbleService
     {
         private static Enum[] PlayerEnums;
 
@@ -19,19 +19,41 @@ namespace FEXNA.Services.Rumble
 
         public RumbleService(Game game) : base(game) { }
 
-        public override void add_rumble(TimeSpan time, float left_motor, float right_motor, PlayerIndex player, float mult)
+        internal override void add_rumble(TimeSpan time, float left_motor, float right_motor, PlayerIndex player, float mult)
         {
-            if (Global.rumble)
+            if (Global.gameSettings.Controls.Rumble)
                 Rumbles.Add(new RumbleData(time, player, left_motor, right_motor, mult));
+        }
+
+        /// <summary>
+        /// Stops rumble for all players.
+        /// </summary>
+        public override void StopRumble()
+        {
+            StopRumble(PlayerIndex.One);
+            StopRumble(PlayerIndex.Two);
+            StopRumble(PlayerIndex.Three);
+            StopRumble(PlayerIndex.Four);
+        }
+
+        /// <summary>
+        /// Stops rumble for a player.
+        /// </summary>
+        /// <param name="player"></param>
+        internal override void StopRumble(PlayerIndex player)
+        {
+            Rumbles = new HashSet<RumbleData>(
+                Rumbles.Where(x => x.Player != player));
+            GamePad.SetVibration(player, 0, 0);
         }
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             // If the rumble setting is turned off
-            if (!Global.rumble)
+            if (!Global.gameSettings.Controls.Rumble)
             {
-                Rumbles.Clear();
+                StopRumble();
                 return;
             }
 
@@ -48,12 +70,6 @@ namespace FEXNA.Services.Rumble
                     float right = 1 - rumbles.Select(x => x.RightMotor)
                         .Aggregate(1f, (a, b) => a * (1 - b));
                     GamePad.SetVibration(p, left, right);
-                    // I don't remember what this was here for //Yeti
-                    // I assume as a reminder to add an option to disable rumble
-                    // but I already did that so...
-//#if !DEBUG
-//                    throw new Exception();
-//#endif
                 }
                 else
                     GamePad.SetVibration(p, 0, 0);

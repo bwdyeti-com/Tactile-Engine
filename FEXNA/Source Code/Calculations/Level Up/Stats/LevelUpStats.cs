@@ -16,7 +16,7 @@ namespace FEXNA.Calculations.LevelUp.Stats
             string result = string.Format(
                 "LevelUpStats: {0} point change", Enumerable
                     .Range(0, StatGains.Length)
-                    .Sum(i => StatGains[i] / (float)Game_Actor.get_stat_ratio(i)));
+                    .Sum(i => StatGains[i] / (float)Game_Actor.GetStatRatio(i)));
             if (PerfectLevel)
                 result += "; Perfect level";
             else if (EmptyLevel)
@@ -87,46 +87,23 @@ namespace FEXNA.Calculations.LevelUp.Stats
             // Roll for each growth rate to change stats
             for (int i = 0; i < StatGains.Length; i++)
             {
-#if DEBUG
-                // In the unit editor, random level up stats are only used for the
-                // leftover value, and use a fixed roll
-                if (Global.scene.scene_type == "Scene_Map_Unit_Editor")
+                int rate = Math.Abs(growthRates[i]);
+                int roll;
+                if (Global.game_system.roll_rng(growthRates[i], out roll))
                 {
-                    Rolls[i] = 49;
                     if (growthRates[i] >= 0)
-                    {
-                        if (growthRates[i] >= 50)
-                            StatGains[i]++;
-                        else
-                            PerfectLevel = false;
-                    }
+                        StatGains[i]++;
                     else
-                    {
-                        if (-growthRates[i] >= 50)
-                            StatGains[i]--;
-                    }
+                        StatGains[i]--;
                 }
                 else
-#endif
                 {
-                    int rate = Math.Abs(growthRates[i]);
-                    int roll;
-                    if (Global.game_system.roll_rng(growthRates[i], out roll))
-                    {
-                        if (growthRates[i] >= 0)
-                            StatGains[i]++;
-                        else
-                            StatGains[i]--;
-                    }
-                    else
-                    {
-                        // Ignore 0 growths when checking for perfect levels I guess
-                        if (growthRates[i] != 0)
-                            PerfectLevel = false;
-                    }
-                    // Save the rolled rn
-                    Rolls[i] = roll;
+                    // Ignore 0 growths when checking for perfect levels I guess
+                    if (growthRates[i] != 0)
+                        PerfectLevel = false;
                 }
+                // Save the rolled rn
+                Rolls[i] = roll;
             }
         }
     }

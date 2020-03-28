@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2D274530-F906-4896-8850-C6729871C03E}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FEXNA_Library</RootNamespace>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
+    <AssemblyName>FEXNA_Library</AssemblyName>
+    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Android\Debug</OutputPath>
+    <DefineConstants>DEBUG;__MOBILE__;__ANDROID__;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidLinkMode>None</AndroidLinkMode>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Android\Release</OutputPath>
+    <DefineConstants>__MOBILE__;__ANDROID__;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;__MOBILE__;__ANDROID__;</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>__MOBILE__;__ANDROID__;</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Android" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Color_Util.cs" />
+    <Compile Include="Content Readers\FEXNADataReader.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Frame_Image_Data.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Association_Data.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Association_Set.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Attack_Set.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Attack_Type.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Variable_Set.cs" />
+    <Compile Include="Data Classes\Chapters\Character_Data.cs" />
+    <Compile Include="Data Classes\Chapters\DataRanking.cs" />
+    <Compile Include="Data Classes\Face_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Map_Event_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Map_Unit_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Data_Chapter.cs" />
+    <Compile Include="CharacterEventArgs.cs" />
+    <Compile Include="Data Classes\Data_Generic_Actor.cs" />
+    <Compile Include="Data Classes\Data_Skill.cs" />
+    <Compile Include="Data Classes\Data_Status.cs" />
+    <Compile Include="Data Classes\Data_Support.cs" />
+    <Compile Include="Data Classes\Frame_Data.cs" />
+    <Compile Include="Data Classes\Data_Class.cs" />
+    <Compile Include="Data Classes\Data_Equipment.cs" />
+    <Compile Include="Data Classes\Data_Item.cs" />
+    <Compile Include="Data Classes\Data_Tileset.cs" />
+    <Compile Include="Data Classes\Item_Data.cs" />
+    <Compile Include="Content Readers\AnimationReader.cs" />
+    <Compile Include="Content Readers\AnimDataReader.cs" />
+    <Compile Include="Content Readers\ClassReader.cs" />
+    <Compile Include="Content Readers\ChapterReader.cs" />
+    <Compile Include="Content Readers\SupportReader.cs" />
+    <Compile Include="Content Readers\EventReader.cs" />
+    <Compile Include="Content Readers\ItemReader.cs" />
+    <Compile Include="Content Readers\MapRecolorReader.cs" />
+    <Compile Include="Content Readers\MapReader.cs" />
+    <Compile Include="Data Classes\Chapters\Data_Map.cs" />
+    <Compile Include="Data Classes\MapSpriteRecolorData.cs" />
+    <Compile Include="Data Classes\Data_Actor.cs" />
+    <Compile Include="Content Readers\ActorReader.cs" />
+    <Compile Include="Data Classes\Data_Terrain.cs" />
+    <Compile Include="Data Classes\Data_Weapon.cs" />
+    <Compile Include="Content Readers\StatusReader.cs" />
+    <Compile Include="Content Readers\UnitReader.cs" />
+    <Compile Include="Data Classes\WeaponType.cs" />
+    <Compile Include="EnumSerializer.cs" />
+    <Compile Include="EventInput.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IFEXNADataContent.cs" />
+    <Compile Include="IntEventArgs.cs" />
+    <Compile Include="IntRange.cs" />
+    <Compile Include="Maybe.cs" />
+    <Compile Include="NodeDestinationMap.cs" />
+    <Compile Include="Noise.cs" />
+    <Compile Include="Pathfinding\ClosedList.cs" />
+    <Compile Include="Pathfinding\ClosedListRoute.cs" />
+    <Compile Include="Pathfinding\IDistanceMeasurable.cs" />
+    <Compile Include="Pathfinding\OpenList.cs" />
+    <Compile Include="Pathfinding\OpenItem.cs" />
+    <Compile Include="Pathfinding\Pathfinding.cs" />
+    <Compile Include="Pathfinding\PathfindingGridPoint.cs" />
+    <Compile Include="Pathfinding\PathfindingNode.cs" />
+    <Compile Include="Perlin_Noise.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Content Readers\TerrainReader.cs" />
+    <Compile Include="Range.cs" />
+    <Compile Include="RectangleExclusion.cs" />
+    <Compile Include="TextCommand.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AboutResources.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values\Strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\LIBRARIES\MonoGame-3.5.1 - NVorbis\MonoGame.Framework\MonoGame.Framework.Android.csproj">
+      <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
+      <Name>MonoGame.Framework.Android</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+</Project>

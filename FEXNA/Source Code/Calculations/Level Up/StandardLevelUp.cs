@@ -24,6 +24,16 @@ namespace FEXNA.Calculations.LevelUp
             }
             else
             {
+#if DEBUG
+                // In the unit editor, random level up stats are only used for the
+                // leftover value, and use a fixed roll
+                if (Global.scene.scene_type == "Scene_Map_Unit_Editor" && Actor.is_generic_actor)
+                {
+                    var stats = new Roll50LevelUpStats(growths, currentLevelStats, cappedStats);
+                    return stats;
+                }
+                else
+#endif
                 if (Constants.Actor.NO_EMPTY_LEVELS)
                 {
                     var stats = new NoZeroLevelUpStats(growths, currentLevelStats, cappedStats);

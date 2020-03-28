@@ -99,7 +99,15 @@ namespace FEXNA.Windows.Command
             }
         }
         public bool glow { set { Glow = value; } }
-        public int glow_width { set { Glowing_Line = new Unit_Line_Cursor(value); } }
+        public int glow_width
+        {
+            set
+            {
+                Glowing_Line = new Unit_Line_Cursor(value);
+                if (Window_Img != null)
+                    Glowing_Line.color_override = Window_Img.color_override;
+            }
+        }
         public Vector2 bar_offset { set { Bar_Offset = value; } }
         public bool greyed_cursor { set { Greyed_Cursor = value; } }
 
@@ -132,12 +140,23 @@ namespace FEXNA.Windows.Command
             }
         }
 
+        public bool WindowVisible
+        {
+            set
+            {
+                if (Window_Img != null)
+                    Window_Img.visible = value;
+            }
+        }
+
         public int color_override
         {
             set
             {
                 if (Window_Img != null)
                     Window_Img.color_override = value;
+                if (Glowing_Line != null)
+                    Glowing_Line.color_override = value;
             }
         }
 
@@ -163,9 +182,16 @@ namespace FEXNA.Windows.Command
             Grey_Cursor.draw_offset = new Vector2(-16, 0);
             //Hand_Texture = Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Menu_Hand");
             this.loc = loc;
-            Window_Img.width = Width = width;
+
+            Width = width;
+            if (Window_Img != null)
+                Window_Img.width = Width;
+
             if (Glowing_Line == null)
+            {
                 Glowing_Line = new Unit_Line_Cursor(column_width);
+                Glowing_Line.color_override = Window_Img.color_override;
+            }
             set_items(strs);
 
             update(false);
@@ -432,7 +458,7 @@ namespace FEXNA.Windows.Command
 
         protected void draw_window(SpriteBatch sprite_batch)
         {
-            if (Window_Img != null)
+            if (Window_Img != null && Window_Img.visible)
             {
                 // Window background
                 Window_Img.draw(sprite_batch, -(loc + draw_vector()));
@@ -449,6 +475,8 @@ namespace FEXNA.Windows.Command
         protected virtual void draw_bar(SpriteBatch sprite_batch, Vector2 loc)
         {
             if (Window_Img == null)
+                return;
+            if (Items.ActiveNode == null)
                 return;
 
             if (Glow)
@@ -485,7 +513,7 @@ namespace FEXNA.Windows.Command
                     Grey_Cursor.draw(sprite_batch, -(loc + text_draw_vector()));
             }
 
-            if (active)
+            if (active && Items.ActiveNode != null)
                 UICursor.draw(sprite_batch, -(loc + text_draw_vector()));
         }
         #endregion

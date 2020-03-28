@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Text;
 using FEXNA.Windows.UserInterface.Command;
+using FEXNA_Library;
 
 namespace FEXNA.Windows.Command
 {
@@ -80,7 +81,7 @@ namespace FEXNA.Windows.Command
                 }
         }
 
-        public void refresh_ranks(List<Tuple<string, Difficulty_Modes>> ranks)
+        public void refresh_ranks(List<Tuple<string, Maybe<Difficulty_Modes>>> ranks)
         {
             for (int i = 0; i < ranks.Count; i++)
             {

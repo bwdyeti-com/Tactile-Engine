@@ -338,10 +338,12 @@ namespace FEXNA
         // Wait
         private bool command_wait()
         {
-            Wait_Time = process_number(command.Value[0]);
+            // Minus 1 because events continue to wait on 0
+            Wait_Time = process_number(command.Value[0]) - 1;
+            Wait_Time = Math.Max(0, Wait_Time);
             //Global.game_map.wait_time = 2;
             Index++;
-            return Wait_Time <= 0;
+            return Wait_Time < 0;
         }
 
         // Change Chapter
@@ -812,7 +814,10 @@ namespace FEXNA
                     // Value[3] = Width
                     if (Global.scene.is_strict_map_scene)
                     {
-                        ((Scene_Map)Global.scene).set_popup(command.Value[1], process_number(command.Value[2]), process_number(command.Value[3]));
+                        string[] lines = command.Value[1]
+                            .Split(new string[] { @"\n" }, StringSplitOptions.None);
+                        string text = string.Join("\n", lines);
+                        ((Scene_Map)Global.scene).set_popup(text, process_number(command.Value[2]), process_number(command.Value[3]));
                     }
                     break;
                 case "Weapon":
@@ -1292,7 +1297,7 @@ namespace FEXNA
             return true;
         }
 
-        // Convoy Item Gain
+        // 34: Convoy Item Gain
         private bool command_convoy_item_gain()
         {
             // Value[0-2] = item data
@@ -1302,12 +1307,12 @@ namespace FEXNA
             else
                 item = new Item_Data(process_number(command.Value[0]), process_number(command.Value[1]), process_number(command.Value[2]));
 
-            Global.game_battalions.add_item_to_convoy(item);
+            Global.game_battalions.add_item_to_convoy(item, true);
             Index++;
             return true;
         }
 
-        // Remove Unit
+        // 35: Remove Unit
         private bool command_remove_unit()
         {
             if (command.Value[0] == "Remove All")
@@ -1315,6 +1320,27 @@ namespace FEXNA
                 // Value[0] = "Remove All"
                 while (Global.game_map.units.Any())
                     Global.game_map.remove_unit(Global.game_map.units.First().Key);
+            }
+            else if (command.Value[0] == "Remove Team")
+            {
+                // Value[0] = "Remove Team"
+                // Value[1] = team id
+                //?Value[2] = group id
+                int team = process_unit_id(command.Value[1]);
+                int group = -1;
+                if (command.Value.Length > 2)
+                    group = process_unit_id(command.Value[2]);
+
+                List<int> units = Global.game_map.units
+                    .Where(x => x.Value.team == team && (group == -1 || x.Value.group == group))
+                    .Select(x => x.Key)
+                    .ToList();
+                foreach(int id in units)
+                {
+                    Global.game_map.remove_unit(id);
+                    // Move ranges will need to be updated
+                    unit_moved = true;
+                }
             }
             else
             {
@@ -1339,7 +1365,7 @@ namespace FEXNA
             return true;
         }
 
-        // Remove Talk Event
+        // 36: Remove Talk Event
         private bool command_remove_talk()
         {
             switch (command.Value[0])
@@ -1605,6 +1631,29 @@ namespace FEXNA
             return true;
         }
 
+        // 48: AI Target Map Object
+        private bool command_ai_target_map_object()
+        {
+            // Value[0] = Type
+            // Value[1] = x, y
+            // Value[2] = team
+            Vector2 loc = process_vector2(command.Value[1]);
+            int team = process_number(command.Value[2]);
+            switch (command.Value[0])
+            {
+                case "Destroyable":
+                case "Destructible":
+                    Global.game_map.destroyable_add_enemy_team(loc, team);
+                    break;
+#if DEBUG
+                default:
+                    throw event_case_missing_exception(command.Value[0], command.Key);
+#endif
+            }
+            Index++;
+            return true;
+        }
+
         // Class Change
         private bool command_class_change()
         {
@@ -1757,10 +1806,14 @@ namespace FEXNA
                 }
                 if (unit != null && !unit.is_player_team)
                 {
-
-                    if (Global.game_state.visit_active)
-                        if (Global.game_state.visit_mode == State.Visit_Modes.Chest)
+                    bool playerAttackableTeam = unit.is_attackable_team(
+                        Constants.Team.PLAYER_TEAM);
+                    // If a chest was opened by a unit the player can attack
+                    if (playerAttackableTeam)
+                        if (Global.game_state.visit_active &&
+                            Global.game_state.visit_mode == State.Visit_Modes.Chest)
                         {
+                            // They can drop what they get from it
                             unit.drops_item = true;
                         }
                     while (actor.too_many_items)
@@ -1774,6 +1827,7 @@ namespace FEXNA
                             "(keep at least one weapon and then\n" +
                             "throw out least valuable)");
 #endif
+                        //@Debug: actually select the best item to discard
                         actor.discard_item(actor.num_items - 1);
                     }
                 }
@@ -2377,7 +2431,9 @@ namespace FEXNA
                     break;
                 case "Player Event":
                     // Value[5] = event
-                    Global.game_map.add_player_event_escape(command.Value[5], loc, escape_to_loc);
+                    //?Value[6] = lord only? (default true)
+                    bool lordOnly = command.Value.Length > 6 ? process_bool(command.Value[6]) : true;
+                    Global.game_map.add_player_event_escape(command.Value[5], loc, escape_to_loc, lordOnly);
                     break;
 #if DEBUG
                 default:
@@ -2534,8 +2590,7 @@ namespace FEXNA
                             actor = Global.game_map.last_added_unit.actor;
                     if (Global.game_map.units.ContainsKey(unit_id))
                         actor = Global.game_map.units[unit_id].actor;
-
-                    int hp_value = (int)(1 / Constants.Actor.HP_VALUE);
+                    
                     if (actor != null)
                     {
                         Dictionary<Stat_Labels, int> stat_fixes = new Dictionary<Stat_Labels, int>();
@@ -2546,7 +2601,11 @@ namespace FEXNA
                                 stat_fixes[(Stat_Labels)(i - 2)] = value;
                         }
                         int actor_stat_total = Enumerable.Range(0, Game_Actor.LEVEL_UP_VIABLE_STATS)
-                            .Select(x => actor.stat(x) / (x == (int)Stat_Labels.Hp ? hp_value : 1)).Sum();
+                            .Select(x => (int)(actor.stat(x) * Game_Actor.GetStatValue(x)))
+                            .Sum();
+                        int statFixesTotal = stat_fixes
+                            .Select(pair => (int)(pair.Value * Game_Actor.GetStatValue((int)pair.Key)))
+                            .Sum();
                         if (stat_fixes.Any(p => actor.get_cap(p.Key) < p.Value))
 #if DEBUG
                         {
@@ -2564,11 +2623,12 @@ namespace FEXNA
 #else
                         { }
 #endif
-                        else if (actor_stat_total < stat_fixes.Select(pair => pair.Value / (pair.Key == Stat_Labels.Hp ? hp_value : 1)).Sum())
+                        else if (actor_stat_total < statFixesTotal)
 #if DEBUG
                             Print.message(string.Format(
                                 "Tried to fix the stats for a unit,\nbut the final stat total is larger\nthan the current total.\nAttempted total: {0}; Actor total: {1}",
-                                stat_fixes.Select(pair => pair.Value / (pair.Key == Stat_Labels.Hp ? hp_value : 1)).Sum(), actor_stat_total));
+                                statFixesTotal,
+                                actor_stat_total));
 #else
                         { }
 #endif
@@ -2585,27 +2645,32 @@ namespace FEXNA
                                 // Randomly selects one
                                 List<Stat_Labels> stats = stat_fixes.Where(p => p.Value != -1).Select(p => p.Key).ToList();
                                 stats.Sort();
+
                                 Stat_Labels stat = stats[Global.game_system.get_rng() % stats.Count];
+                                int statRatio = Game_Actor.GetStatRatio((int)stat);
                                 // Modifies the selected stat
                                 int difference = stat_fixes[stat] - actor.stat(stat);
-                                // If the stat is hp and we're not adjusting by a full stat worth, just adjust it for free
-                                if (stat == Stat_Labels.Hp && hp_value > 1 && Math.Abs(difference) == 1)
+                                // If the stat is worth less than a point and we're not adjusting by a full stat worth, just adjust it for free
+                                if (statRatio > 1 && Math.Abs(difference) < statRatio)
                                 {
                                     actor.gain_stat(stat, difference);
                                     stat_fixes[stat] = -1;
                                     continue;
                                 }
+
                                 // Randomly selects another stat to move points between
                                 List<Stat_Labels> other_stats = Enumerable.Range(0, Game_Actor.LEVEL_UP_VIABLE_STATS)
                                     .Select(x => (Stat_Labels)x).Where(x => !stat_fixes.ContainsKey(x) &&
                                         (difference > 0 ? !actor.get_capped(x) : actor.stat(x) > 0)).ToList();
                                 // If somehow we fail to find another stat to give/take from, it still needs to adjust the target stat
+                                //@Yeti: This should take points from multiple stats and not just one, right?
                                 if (other_stats.Count > 0)
                                 {
                                     Stat_Labels other_stat = other_stats[Global.game_system.get_rng() % other_stats.Count];
-                                    actor.gain_stat(other_stat, (other_stat == Stat_Labels.Hp ? hp_value : 1) * (difference <= 0 ? 1 : -1));
+                                    int otherStatRatio = Game_Actor.GetStatRatio((int)other_stat);
+                                    actor.gain_stat(other_stat, otherStatRatio * (difference <= 0 ? 1 : -1));
                                 }
-                                actor.gain_stat(stat, (stat == Stat_Labels.Hp ? hp_value : 1) * (difference > 0 ? 1 : -1));
+                                actor.gain_stat(stat, statRatio * (difference > 0 ? 1 : -1));
                                 if (stat_fixes[stat] == actor.stat(stat))
                                     stat_fixes[stat] = -1;
 
@@ -2877,20 +2942,27 @@ namespace FEXNA
         {
             //?Value[0] = Show rankings (optional)
             //?Value[1] = Send metrics (optional)
+            //?Value[2] = Gain support points (optional)
             if (Global.scene.scene_type == "Scene_Map")
             {
                 bool show_rankings = true;
                 bool send_metrics = true;
+                bool gain_support_points = true;
 
                 if (command.Value.Length >= 1)
                 {
                     show_rankings = process_bool(command.Value[0]);
+                    // Send metrics defaults to the same value as show rankings
+                    // (If we're not showing rankings, there's probably nothing to send)
                     send_metrics = show_rankings;
                 }
                 if (command.Value.Length >= 2)
                     send_metrics = process_bool(command.Value[1]);
+                if (command.Value.Length >= 3)
+                    gain_support_points = process_bool(command.Value[2]);
 
-                Global.game_state.call_chapter_end(show_rankings, send_metrics);
+                Global.game_state.call_chapter_end(
+                    show_rankings, send_metrics, gain_support_points);
 
                 Index++;
                 return false;
@@ -2970,7 +3042,7 @@ namespace FEXNA
                 Global.game_state.play_turn_theme(command.Value[0], restart_theme);
             }
             else
-                Global.Audio.PlayBgm(command.Value[0]);
+                Global.Audio.PlayBgm(command.Value[0], forceRestart: restart_theme);
             Index++;
             return true;
         }
@@ -3500,13 +3572,13 @@ namespace FEXNA
                         value1, value2);
                     break;
                 case "S Rank":
-                    result = new Game_Ranking().ranking_index <= 0;
+                    result = new Game_Ranking().ranking_index <= 0; //@Debug
                     break;
                 case "A Rank":
-                    result = new Game_Ranking().ranking_index <= 1;
+                    result = new Game_Ranking().ranking_index <= 1; //@Debug
                     break;
                 case "B Rank":
-                    result = new Game_Ranking().ranking_index <= 2;
+                    result = new Game_Ranking().ranking_index <= 2; //@Debug
                     break;
                 #region Map State
                 case "In Combat":
@@ -3544,7 +3616,19 @@ namespace FEXNA
                 case "Tile Occupied":
                     // Value[1] = x
                     // Value[2] = y
-                    result = Global.game_map.get_unit(new Vector2(process_number(command.Value[1]), process_number(command.Value[2]))) != null;
+                    // Checks every two lines as an x/y pair, true if any
+                    for (int i = 1; i <= command.Value.Length - 2; i += 2)
+                    {
+                        Vector2 tileLoc = new Vector2(
+                            process_number(command.Value[i]),
+                            process_number(command.Value[i + 1]));
+                        unit = Global.game_map.get_unit(tileLoc);
+                        if (unit != null)
+                        {
+                            result = true;
+                            break;
+                        }
+                    }
                     break;
                 case "Tile Enemy Occupied":
                     // Value[1] = x
@@ -3652,6 +3736,28 @@ namespace FEXNA
                     get_actor(command.Value[1], command.Value[2], out actor);
                     if (actor != null)
                         result = actor.is_full_items;
+                    break;
+                // If this unit/actor has the given item
+                case "Has Item":
+                    // Value[1] = id is for a unit, or for an actor?
+                    // Value[2] = id
+                    // Value[3] = item type
+                    // Value[4] = item id
+                    get_actor(command.Value[1], command.Value[2], out actor);
+                    if (actor != null)
+                    {
+                        var itemData = new Item_Data(process_number(command.Value[3]),
+                            process_number(command.Value[4]));
+                        result = actor.HasItem(itemData);
+                    }
+                    break;
+                // If any actor in the battalion or the convoy have the given item
+                case "Item Owned":
+                    // Value[1] = item type
+                    // Value[2] = item id
+                    var ownedItemData = new Item_Data(process_number(command.Value[1]),
+                        process_number(command.Value[2]));
+                    result = Global.battalion.ItemOwned(ownedItemData);
                     break;
                 case "Mission":
                     // Value[1] = id

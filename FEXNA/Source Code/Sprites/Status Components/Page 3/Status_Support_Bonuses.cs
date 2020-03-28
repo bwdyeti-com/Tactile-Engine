@@ -121,7 +121,7 @@ namespace FEXNA
         public void update()
         {
             foreach (var bonus in Bonuses)
-                bonus.Update(false);
+                bonus.Update();
         }
 
         public void draw(SpriteBatch sprite_batch, Vector2 draw_offset)

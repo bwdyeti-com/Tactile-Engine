@@ -1,10 +1,91 @@
 ﻿#if WINDOWS && !MONOGAME
 using System;
 using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace FEGame
 {
-    class Fullscreen
+    class FullscreenService : FEXNA.Rendering.IFullscreenService
+    {
+        private Game Game;
+        private bool IsFullscreen = false;
+
+        public FullscreenService(Game game)
+        {
+            Game = game;
+        }
+
+        public void SetFullscreen(bool value, GraphicsDeviceManager graphics)
+        {
+            // Resize window
+            if (IsFullscreen != value)
+            {
+                IsFullscreen = value;
+#if !MONOGAME
+                if (IsFullscreen)
+                    FullScreen();
+                else
+                    Restore();
+#elif MONOMAC || WINDOWS
+                bool regainFocus = IsFullscreen != graphics.IsFullScreen;
+                graphics.IsFullScreen = IsFullscreen;
+#if MONOMAC
+                // going to or from fullscreen loses focus on the window, it's still on the program? //@Yeti
+                //if (regainFocus)
+                //    Game.Window.MakeCurrent();
+#endif
+#endif
+            }
+        }
+
+        public bool NeedsRefresh(bool value)
+        {
+            return IsFullscreen != value;
+        }
+
+        public int WindowWidth(GraphicsDevice device)
+        {
+#if !MONOGAME
+            return Fullscreen.ScreenX(Game.Window.Handle);
+#else
+            return device.DisplayMode.Width;
+#endif
+        }
+        public int WindowHeight(GraphicsDevice device)
+        {
+#if !MONOGAME
+            return Fullscreen.ScreenY(Game.Window.Handle);
+#else
+            return device.DisplayMode.Height;
+#endif
+        }
+
+        public void MinimizeFullscreen(Game game)
+        {
+#if !MONOGAME
+                System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm().WindowState =
+                    System.Windows.Forms.FormWindowState.Minimized;
+#elif MONOMAC
+                    game.Window.WindowState = MonoMac.OpenGL.WindowState.Minimized;
+#endif
+        }
+
+#if WINDOWS && !MONOGAME
+        private void FullScreen()
+        {
+            Fullscreen.fullscreen(Game.Window.Handle);
+        }
+        private void Restore()
+        {
+            var form = System.Windows.Forms.Form.FromHandle(Game.Window.Handle).FindForm();
+            form.WindowState = System.Windows.Forms.FormWindowState.Normal;
+            form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+        }
+#endif
+    }
+
+    static class Fullscreen
     {
         const int MONITOR_DEFAULTTONULL = 0;
         const int MONITOR_DEFAULTTOPRIMARY = 1;
@@ -12,12 +93,24 @@ namespace FEGame
 
         public static void fullscreen(IntPtr hWnd)
         {
-            System.Windows.Forms.Form.FromHandle(hWnd).FindForm().WindowState =
-                System.Windows.Forms.FormWindowState.Maximized;
-            System.Windows.Forms.Form.FromHandle(hWnd).FindForm().FormBorderStyle =
-                System.Windows.Forms.FormBorderStyle.None;
-            System.Windows.Forms.Form.FromHandle(hWnd).FindForm().TopMost = true;
-            NativeMethods.SetWindowPos(hWnd, HWND_TOP, 0, 0, PrimaryScreenX(hWnd), PrimaryScreenY(hWnd), SWP_SHOWWINDOW);
+            var form = System.Windows.Forms.Form.FromHandle(hWnd).FindForm();
+            form.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            form.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+
+            //@Yeti: Should use the setting for which screen index
+            //@Yeti: store the number and sizes of each screen in the renderer,
+            // then if any of them change restore the game window
+            var screen = System.Windows.Forms.Screen.AllScreens[0];
+            var screenBounds = screen.Bounds;
+
+            NativeMethods.SetWindowPos(hWnd, HWND_TOP,
+                screenBounds.X,
+                screenBounds.Y,
+                screenBounds.Width,
+                screenBounds.Height,
+                SWP_SHOWWINDOW);
+            form.Activate();
+            form.BringToFront();
         }
 
         private const int SM_CXSCREEN = 0;
@@ -38,15 +131,6 @@ namespace FEGame
             MONITORINFOEX info = new MONITORINFOEX();
             NativeMethods.GetMonitorInfo(handle, info);
             return info.rcMonitor.bottom - info.rcMonitor.top;
-        }
-
-        private static int PrimaryScreenX(IntPtr hWnd)
-        {
-            return NativeMethods.GetSystemMetrics(SM_CXSCREEN);
-        }
-        private static int PrimaryScreenY(IntPtr hWnd)
-        {
-            return NativeMethods.GetSystemMetrics(SM_CYSCREEN);
         }
     }
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Help;
+using FEXNA.Graphics.Preparations;
 using FEXNA.Graphics.Text;
 using FEXNA.Menus.Preparations;
 using FEXNA.Windows.Command;
@@ -22,6 +23,7 @@ namespace FEXNA
         protected Window_Command CommandWindow;
         protected Sprite Banner;
         protected FE_Text Goal;
+        private ChapterLabel ChapterLabel;
         protected Sprite InfoWindow;
         private Sprite CommandHelpWindow;
         protected FE_Text HelpText;
@@ -120,6 +122,10 @@ namespace FEXNA
             Goal.Font = "FE7_Text";
             Goal.texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_White");
             Goal.stereoscopic = Config.PREPMAIN_BANNER_DEPTH;
+            ChapterLabel = new ChapterLabel();
+            ChapterLabel.loc = new Vector2(Config.WINDOW_WIDTH - 144, 4);
+            ChapterLabel.stereoscopic = Config.PREPMAIN_BANNER_DEPTH;
+            ChapterLabel.SetChapter(Global.data_chapters[Global.game_state.chapter_id]);
             // Background
             Background = new Menu_Background();
             Background.texture = Global.Content.Load<Texture2D>(@"Graphics/Pictures/Preparation_Background");
@@ -218,7 +224,7 @@ namespace FEXNA
             // Objective text
             Goal.text = Global.game_system.Objective_Text;
             Goal.offset = new Vector2(Font_Data.text_width(Goal.text) / 2, 0);
-
+            
             // Info window
             // Rating
             float rating_factor;
@@ -287,59 +293,59 @@ namespace FEXNA
 
         protected void add_deploying_units()
         {
-            int i = 0;
+            int deployPointIndex = 0;
             bool any_units_added = false;
             // Add forced units
-            int j = 0;
-            while (i < Global.game_map.deployment_points.Count && j < Global.game_map.forced_deployment.Count)
+            int forcedCount = 0;
+            while (deployPointIndex < Global.game_map.deployment_points.Count && forcedCount < Global.game_map.forced_deployment.Count)
             {
                 // If deployment point already used
-                if (Global.game_map.get_unit(Global.game_map.deployment_points[i]) != null)
-                    i++;
+                if (Global.game_map.get_unit(Global.game_map.deployment_points[deployPointIndex]) != null)
+                    deployPointIndex++;
                 // Else if actor already deployed
-                else if (Global.game_map.is_actor_deployed(Global.game_map.forced_deployment[j]))
-                    j++;
+                else if (Global.game_map.is_actor_deployed(Global.game_map.forced_deployment[forcedCount]))
+                    forcedCount++;
                 // Else deploy unit
                 else
                 {
-                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[i],
-                        Global.game_map.forced_deployment[j], "");
+                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[deployPointIndex],
+                        Global.game_map.forced_deployment[forcedCount], "");
                     if (unit_added)
                     {
                         Global.game_map.last_added_unit.fix_unit_location(true);
                         Global.game_map.last_added_unit.queue_move_range_update();
                         any_units_added = true;
                     }
-                    i++;
-                    j++;
+                    deployPointIndex++;
+                    forcedCount++;
                 }
             }
             // Sorts battalion because reasons
             Global.battalion.sort_by_deployed();
 
             // Add other units
-            j = 0;
-            while (i < Global.game_map.deployment_points.Count && j < Global.battalion.actors.Count)
+            int deployedCount = 0;
+            while (deployPointIndex < Global.game_map.deployment_points.Count && deployedCount < Global.battalion.actors.Count)
             {
                 // If deployment point already used
-                if (Global.game_map.get_unit(Global.game_map.deployment_points[i]) != null)
-                    i++;
+                if (Global.game_map.get_unit(Global.game_map.deployment_points[deployPointIndex]) != null)
+                    deployPointIndex++;
                 // Else if actor already deployed
-                else if (Global.battalion.is_actor_deployed(j))
-                    j++;
+                else if (Global.battalion.is_actor_deployed(deployedCount))
+                    deployedCount++;
                 // Else deploy unit
                 else
                 {
-                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[i],
-                        Global.battalion.actors[j], "");
+                    bool unit_added = Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Global.game_map.deployment_points[deployPointIndex],
+                        Global.battalion.actors[deployedCount], "");
                     if (unit_added)
                     {
                         Global.game_map.last_added_unit.fix_unit_location(true);
                         Global.game_map.last_added_unit.queue_move_range_update();
                         any_units_added = true;
                     }
-                    i++;
-                    j++;
+                    deployPointIndex++;
+                    deployedCount++;
                 }
             }
             Global.battalion.sort_by_deployed();
@@ -431,8 +437,6 @@ namespace FEXNA
 
         protected override void update_input(bool active)
         {
-            if (Input.ControlSchemeSwitched)
-                create_start_button();
             StartButton.Update(active && input_ready);
 
             if (active && input_ready)
@@ -455,6 +459,12 @@ namespace FEXNA
                     OnStart(new EventArgs());
                 }
             }
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (Input.ControlSchemeSwitched)
+                create_start_button();
         }
 
         protected virtual void command_window_canceled()
@@ -490,6 +500,7 @@ namespace FEXNA
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             Banner.draw(sprite_batch);
             Goal.draw(sprite_batch);
+            ChapterLabel.draw(sprite_batch);
             // Windows
             InfoWindow.draw(sprite_batch);
             CommandHelpWindow.draw(sprite_batch);

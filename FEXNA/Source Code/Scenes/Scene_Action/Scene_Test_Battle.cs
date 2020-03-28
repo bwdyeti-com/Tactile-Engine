@@ -57,7 +57,7 @@ namespace FEXNA
         }
     }
 
-    public class Test_Battle_Character_Data
+    class Test_Battle_Character_Data
     {
         private const int DEFAULT_CLASS_ID = 16;
 
@@ -91,6 +91,7 @@ namespace FEXNA
         public FEXNA_Library.Item_Data[] Items = new FEXNA_Library.Item_Data[Constants.Actor.NUM_ITEMS];
         public int[] WLvls;
         public int Tier = 0;
+        public int Promotion = 0;
 
         private Data_Actor actor_data
         {

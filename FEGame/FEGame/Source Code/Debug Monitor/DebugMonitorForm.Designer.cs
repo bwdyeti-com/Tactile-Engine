@@ -39,9 +39,10 @@ namespace FEGame.Debug_Monitor
             this.RankingTabPage = new System.Windows.Forms.TabPage();
             this.RngTabPage = new System.Windows.Forms.TabPage();
             this.ReseedRngButton = new System.Windows.Forms.Button();
+            this.AudioTabPage = new System.Windows.Forms.TabPage();
             this.MonitorPanel = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.AudioTabPage = new System.Windows.Forms.TabPage();
+            this.InputTabPage = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1.SuspendLayout();
             this.TabPanel.SuspendLayout();
             this.DebugTabSelector.SuspendLayout();
@@ -82,6 +83,7 @@ namespace FEGame.Debug_Monitor
             this.DebugTabSelector.Controls.Add(this.RankingTabPage);
             this.DebugTabSelector.Controls.Add(this.RngTabPage);
             this.DebugTabSelector.Controls.Add(this.AudioTabPage);
+            this.DebugTabSelector.Controls.Add(this.InputTabPage);
             this.DebugTabSelector.Dock = System.Windows.Forms.DockStyle.Top;
             this.DebugTabSelector.Location = new System.Drawing.Point(0, 0);
             this.DebugTabSelector.Name = "DebugTabSelector";
@@ -164,6 +166,16 @@ namespace FEGame.Debug_Monitor
             this.ReseedRngButton.UseVisualStyleBackColor = true;
             this.ReseedRngButton.Click += new System.EventHandler(this.ReseedRngButton_Click);
             // 
+            // AudioTabPage
+            // 
+            this.AudioTabPage.Location = new System.Drawing.Point(4, 22);
+            this.AudioTabPage.Name = "AudioTabPage";
+            this.AudioTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.AudioTabPage.Size = new System.Drawing.Size(290, 49);
+            this.AudioTabPage.TabIndex = 4;
+            this.AudioTabPage.Text = "Audio";
+            this.AudioTabPage.UseVisualStyleBackColor = true;
+            // 
             // MonitorPanel
             // 
             this.MonitorPanel.Controls.Add(this.label1);
@@ -182,15 +194,14 @@ namespace FEGame.Debug_Monitor
             this.label1.TabIndex = 0;
             this.label1.Text = "Debug monitor goes here, added at runtime";
             // 
-            // AudioTabPage
+            // InputTabPage
             // 
-            this.AudioTabPage.Location = new System.Drawing.Point(4, 22);
-            this.AudioTabPage.Name = "AudioTabPage";
-            this.AudioTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.AudioTabPage.Size = new System.Drawing.Size(290, 49);
-            this.AudioTabPage.TabIndex = 4;
-            this.AudioTabPage.Text = "Audio";
-            this.AudioTabPage.UseVisualStyleBackColor = true;
+            this.InputTabPage.Location = new System.Drawing.Point(4, 22);
+            this.InputTabPage.Name = "InputTabPage";
+            this.InputTabPage.Size = new System.Drawing.Size(290, 49);
+            this.InputTabPage.TabIndex = 5;
+            this.InputTabPage.Text = "Inputs";
+            this.InputTabPage.UseVisualStyleBackColor = true;
             // 
             // DebugMonitorForm
             // 
@@ -227,6 +238,7 @@ namespace FEGame.Debug_Monitor
         private System.Windows.Forms.Button ReseedRngButton;
         private System.Windows.Forms.Button DebugControlsButton;
         private System.Windows.Forms.TabPage AudioTabPage;
+        private System.Windows.Forms.TabPage InputTabPage;
     }
 }
 #endif

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Text;
 using FEXNAWeaponExtension;
+using FEXNA_Library;
 
 namespace FEXNA.Windows.Target
 {
@@ -29,7 +30,8 @@ namespace FEXNA.Windows.Target
         }
 
         protected Window_Target_Combat() { }
-        public Window_Target_Combat(int unit_id, int item_index, Vector2 loc, string skill)
+        public Window_Target_Combat(int unit_id, int item_index, Vector2 loc, string skill,
+            Maybe<Vector2> initialTargetLoc = default(Maybe<Vector2>))
         {
             initialize(loc);
             Unit_Id = unit_id;
@@ -38,8 +40,28 @@ namespace FEXNA.Windows.Target
             List<int> targets = get_targets(item_index);
             get_unit().equip(item_index + 1);
             Targets = sort_targets(targets);
-            this.index = 0;
+
+            int index = TargetIndexOrDefault(initialTargetLoc);
+            InitialTarget(index);
+        }
+
+        protected int TargetIndexOrDefault(Maybe<Vector2> targetLoc)
+        {
+            if (targetLoc.IsSomething)
+            {
+                var targetIndex = IndexOfLoc(targetLoc);
+                if (targetIndex.IsSomething)
+                    return targetIndex;
+            }
+            // Nothing at this location
+            return 0;
+        }
+
+        protected virtual void InitialTarget(int index = 0)
+        {
+            this.index = index;
             Temp_Index = this.index;
+
             Combat_Map_Object target =
                 Global.game_map.attackable_map_object(this.target);
 #if DEBUG
@@ -52,7 +74,6 @@ namespace FEXNA.Windows.Target
             Global.player.update_movement();
             initialize_images();
             refresh();
-            index = this.index;
         }
 
         protected virtual void attacker_target_unit(Combat_Map_Object target)

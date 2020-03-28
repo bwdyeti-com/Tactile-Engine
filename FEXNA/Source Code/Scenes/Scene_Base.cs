@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FEXNA
 {
-    public abstract partial class Scene_Base
+    abstract partial class Scene_Base
     {
         protected string Scene_Type = "Scene_Base";
         protected bool Suspend_Calling = false;
@@ -28,7 +28,14 @@ namespace FEXNA
         public bool save_data_calling
         {
             get { return Save_Data_Calling; }
-            set { Save_Data_Calling = value; }
+        }
+        public void CallSaveData()
+        {
+            Save_Data_Calling = true;
+        }
+        public void EndSaveData()
+        {
+            Save_Data_Calling = false;
         }
 
         public string suspend_filename

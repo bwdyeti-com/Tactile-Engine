@@ -5,7 +5,7 @@ using Vector2Extension;
 
 namespace FEXNA.State
 {
-    public enum Visit_Modes { Visit, Chest, Door, Escape }
+    enum Visit_Modes { Visit, Chest, Door, Escape }
     class Game_Visit_State : Game_State_Component
     {
         protected bool Visit_Calling = false;
@@ -178,7 +178,11 @@ namespace FEXNA.State
                                 {
                                     if (this.visitor.cantoing && !Pillaging &&
                                             this.visitor.is_active_player_team) //Multi
+                                    {
+                                        Global.player.loc = this.visitor.loc;
+                                        Global.player.instant_move = true;
                                         this.visitor.open_move_range();
+                                    }
                                     else
                                         this.visitor.start_wait(false);
                                     this.visitor.queue_move_range_update();

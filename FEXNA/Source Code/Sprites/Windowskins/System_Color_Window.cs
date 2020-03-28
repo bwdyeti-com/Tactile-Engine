@@ -15,6 +15,7 @@ namespace FEXNA.Graphics.Windows
         #region Accessors
         public int color_override
         {
+            get { return Color_Override; }
             set
             {
                 Color_Override = (int)MathHelper.Clamp(value, -1, Constants.Team.NUM_TEAMS - 1);

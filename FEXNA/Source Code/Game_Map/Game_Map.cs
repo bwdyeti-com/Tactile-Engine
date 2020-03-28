@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Map;
+using FEXNA.Menus.Map.ContextSensitive;
 using FEXNA_Library;
 using ArrayExtension;
 using HashSetExtension;
@@ -53,6 +54,7 @@ namespace FEXNA
         private Dictionary<int, HashSet<Vector2>> Team_Range_Updates = new Dictionary<int, HashSet<Vector2>>();
         private List<int> Unit_Range_Updates = new List<int>();
         private int[,] Unit_Locations = new int[,] { };
+        internal bool UnitsHidden { get; private set; }
         private bool Fow;
         private int Vision_Range;
         private Tone Fow_Color = new Tone(40, 40, 40, 72);
@@ -133,6 +135,7 @@ namespace FEXNA
             Team_Range_Updates.write(writer);
             Unit_Range_Updates.write(writer);
             Unit_Locations.write(writer);
+            writer.Write(UnitsHidden);
             writer.Write(Fow);
             writer.Write(Vision_Range);
             Fow_Color.write(writer);
@@ -214,6 +217,8 @@ namespace FEXNA
             Team_Range_Updates.read(reader);
             Unit_Range_Updates.read(reader);
             Unit_Locations = Unit_Locations.read(reader);
+            if (!Global.LOADED_VERSION.older_than(0, 6, 6, 0)) // This is a suspend load, so this isn't needed for public release //Debug
+                UnitsHidden = reader.ReadBoolean();
             Fow = reader.ReadBoolean();
             Vision_Range = reader.ReadInt32();
             Fow_Color = Tone.read(reader);
@@ -350,21 +355,48 @@ namespace FEXNA
 
         /// <summary>
         /// Returns whether the active team has any units still able to act.
-        /// This means ready, not rescued, controllable, and on the map.
         /// </summary>
         public bool active_team_turn_over
         {
             get
             {
-                return !Teams[team_turn]
-                    .Select(id => this.units[id])
+                if (Global.game_options.auto_turn_end == 2)
+                    return !this.ready_movable_units;
+                else
+                    return !this.active_team_ready_units.Any();
+            }
+        }
+        
+        public bool ready_movable_units
+        {
+            get
+            {
+                return this.active_team_ready_units
                     .Any(unit =>
-                        {
-                            if (!unit.ready || unit.is_rescued || is_off_map(unit.loc) ||
-                                    unit.uncontrollable || unit.unselectable)
-                                return false;
-                            return Global.game_options.auto_turn_end == 2 ? unit.mov > 0 : true;
-                        });
+                    {
+                        return unit.mov > 0;
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Returns the units on the active team who are able to act.
+        /// This means ready, not rescued, controllable, and on the map.
+        /// </summary>
+        public IEnumerable<Game_Unit> active_team_ready_units
+        {
+            get
+            {
+                return Teams[this.team_turn]
+                    .Select(id => this.units[id])
+                    .Where(unit =>
+                    {
+                        if (!unit.ready || unit.is_rescued || is_off_map(unit.loc) ||
+                                unit.uncontrollable || unit.unselectable)
+                            return false;
+                        return true;
+                    })
+                    .ToList();
             }
         }
 
@@ -541,6 +573,7 @@ namespace FEXNA
         public bool move_range_visible
         {
             get { return Move_Range_Visible &&
+                !UnitsHidden &&
                 Waiting_Units.Count == 0 &&
                 !Global.game_system.is_interpreter_running &&
                 !Global.game_state.support_active; }
@@ -666,6 +699,7 @@ namespace FEXNA
         public Game_Map()
         {
             map_edge_offsets = new Rectangle(2, 2, 4, 4); //Yeti
+            UnitsHidden = false;
             Teams = new List<List<int>>();
             Group_Names = new List<Dictionary<int, string>>();
             EscapePoints = new List<EscapePoint>();
@@ -785,6 +819,7 @@ namespace FEXNA
             Unit_Locations = new int[this.width, this.height];
             Siege_Locations = new int[this.width, this.height];
             Destroyable_Locations = new int[this.width, this.height];
+
             Objects.reset();
             Deployment_Points.Clear();
             Forced_Deployment.Clear();
@@ -842,6 +877,7 @@ namespace FEXNA
             refresh_move_ranges(true);
 
             Window_Minimap.clear();
+            UnitsHidden = false;
 
             Light_Sources = new List<Vector2>[Constants.Map.ALPHA_MAX];
             for(int i = 0; i < Light_Sources.Length; i++)
@@ -1455,6 +1491,11 @@ namespace FEXNA
 
         }
 
+        public Destroyable_Object get_destroyable(int id)
+        {
+            return Objects.destroyable(id);
+
+        }
         public Destroyable_Object get_destroyable(Vector2 loc)
         {
             if (this.width == 0 || this.height == 0)
@@ -1471,6 +1512,18 @@ namespace FEXNA
                 return get_destroyable(loc);
             }
             return Objects.destroyable(id);
+        }
+
+        public IEnumerable<Destroyable_Object> enumerate_destroyables()
+        {
+            return Objects.enumerate_destroyables();
+        }
+
+        public void destroyable_add_enemy_team(Vector2 loc, int team)
+        {
+            var destroyable = get_destroyable(loc);
+            if (destroyable != null)
+                destroyable.AddEnemyTeam(team);
         }
 
         // This is not particularly performant, consider refactoring later
@@ -1541,6 +1594,7 @@ namespace FEXNA
             if (dead)
             {
                 Defeated_Units[unit.id] = unit.actor.id;
+                //@Debug: there should probably be a version of this for PCs
                 if (unit.is_player_allied)
                     DefeatedAlliedUnits.Add(unit.id);
             }
@@ -2187,47 +2241,151 @@ namespace FEXNA
 
         internal void move_selected_unit(Game_Unit selected_unit)
         {
+            Global.game_temp.ResetContextSensitiveUnitControl();
+
             // Move the selected unit if possible
             selected_unit = get_selected_unit();
-            if (selected_unit.is_active_team && !selected_unit.unselectable && Global.player.is_on_square) // && !menu_call //Yeti //Multi
+            if (selected_unit.is_active_team &&
+                !selected_unit.unselectable &&
+                Global.player.is_on_square) // && !menu_call //Yeti //Multi
             {
-                Game_Unit unit_here = get_unit(Global.player.loc);
-                // If tile is in range
-                if (selected_unit.can_move_to(Global.player.loc, Move_Range))
-                {
-                    // Tile okay to move to
-                    if (unit_here == null || unit_here == selected_unit)
-                    {
-                        selected_unit.menu(Global.player.loc);
-                    }
-                    // Someone hidden is on the tile, go crash into them
-                    else if (!unit_here.visible_by(selected_unit.team))
-                    {
-                        selected_unit.menu(Global.player.loc);
-                    }
-                    // Tile is blocked
-                    else
-                    {
-                        Global.game_system.play_se(System_Sounds.Buzzer);
-                    }
-                }
-                else
-                {
-                    if (Input.ControlScheme == ControlSchemes.Buttons ||
-                            selected_unit.cannot_cancel_move() ||
-                            !no_unit_at_location(Global.player.loc))
-                        // Can't clear move range
-                        Global.game_system.play_se(System_Sounds.Buzzer);
-                    else
-                    {
-                        selected_unit.cancel_move();
-                    }
-                }
+                Vector2 moveLoc = Global.player.loc;
+                move_selected_unit_to(selected_unit, moveLoc);
             }
             else if (!selected_unit.is_active_team || selected_unit.unselectable) //Multi
             {
                 deselect_unit();
             }
+        }
+
+        private void move_selected_unit_to(Game_Unit selected_unit, Vector2 moveLoc)
+        {
+            var attack = context_sensitive_attack(selected_unit, moveLoc);
+            if (attack != null)
+            {
+                attack.Apply();
+                moveLoc = attack.MoveLoc;
+            }
+            
+            Game_Unit unit_here = get_unit(moveLoc);
+
+            // If tile is in range
+            if (selected_unit.can_move_to(moveLoc, Move_Range))
+            {
+                // Tile okay to move to
+                if (unit_here == null || unit_here == selected_unit)
+                {
+                    selected_unit.menu(moveLoc);
+                }
+                // Someone hidden is on the tile, go crash into them
+                else if (!unit_here.visible_by(selected_unit.team))
+                {
+                    selected_unit.menu(moveLoc);
+                }
+                // Tile is blocked
+                else
+                {
+                    // Reset if didn't move
+                    Global.game_temp.ResetContextSensitiveUnitControl();
+
+                    Global.game_system.play_se(System_Sounds.Buzzer);
+                }
+            }
+            else
+            {
+                // Reset if didn't move
+                Global.game_temp.ResetContextSensitiveUnitControl();
+
+                // If using a pointing input scheme, and can cancel move, and no unit at cursor
+                if (Input.ControlScheme != ControlSchemes.Buttons &&
+                    !selected_unit.cannot_cancel_move() &&
+                    no_unit_at_location(Global.player.loc))
+                {
+                    selected_unit.cancel_move();
+                }
+                // else buzz
+                else
+                {
+                    // Can't clear move range
+                    Global.game_system.play_se(System_Sounds.Buzzer);
+                }
+            }
+        }
+
+        private CSUnitAttack context_sensitive_attack(Game_Unit selectedUnit, Vector2 moveLoc)
+        {
+            Game_Unit unit_here = get_unit(moveLoc);
+
+            // If should be trying to attack the unit that is here
+            if (unit_here != null && unit_here != selectedUnit &&
+                unit_here.visible_by() &&
+                unit_here.is_attackable_team(selectedUnit))
+            {
+                // Determine if the target is in range
+                if (selectedUnit.attack_range.Contains(moveLoc))
+                {
+                    // Check siege engines first
+                    if (selectedUnit.can_use_siege())
+                    {
+                        var sieges = selectedUnit.siege_weapons_in_range(
+                                this.siege_engines.Values, Move_Range)
+                            .Where(x => !is_blocked(x.loc, selectedUnit.id));
+                        sieges = selectedUnit.sieges_in_range_of_target(sieges, moveLoc);
+                        sieges = sieges
+                            .OrderBy(x => distance(x.loc, moveLoc))
+                            .ThenBy(x => distance(x.loc, selectedUnit.loc))
+                            .ToList();
+
+                        if (sieges.Any())
+                        {
+                            return new CSUnitAttack(
+                                sieges.First().loc,
+                                Global.player.loc,
+                                Siege_Engine.SIEGE_INVENTORY_INDEX);
+                        }
+                    }
+                    
+                    // Get attack range around the target for all weapons
+                    HashSet<Vector2> attackRange =
+                        selectedUnit.get_weapon_range(
+                            selectedUnit.actor.useable_weapons(),
+                            new HashSet<Vector2> { moveLoc });
+                    // First check if any tile on the move arrow can reach attack range
+                    for (int i = 0; i < Move_Arrow.Count; i++)
+                    {
+                        Vector2 arrowLoc = Move_Arrow[i].Loc;
+                        int atkDist = distance(arrowLoc, moveLoc);
+                        if (!is_blocked(arrowLoc, selectedUnit.id))
+                            if (attackRange.Contains(arrowLoc))
+                            {
+                                return new CSUnitAttack(
+                                    arrowLoc,
+                                    Global.player.loc,
+                                    selectedUnit.first_weapon_with_range(atkDist));
+                            }
+                    }
+
+                    // Then check what movable tiles are in attack range
+                    var moveRange = Move_Range
+                        .Intersect(attackRange)
+                        .Where(x => !is_blocked(x, selectedUnit.id))
+                        .OrderBy(x => distance(x, selectedUnit.loc))
+                        .ThenBy(x => distance(x, moveLoc))
+                        .ToList();
+                    if (moveRange.Any())
+                    {
+                        Vector2 loc = moveRange.First();
+                        int atkDist = distance(loc, moveLoc);
+                                
+                        return new CSUnitAttack(
+                            loc,
+                            Global.player.loc,
+                            selectedUnit.first_weapon_with_range(atkDist));
+                    }
+                }
+            }
+            
+            return null;
         }
 
         // B
@@ -3074,12 +3232,10 @@ namespace FEXNA
         public void add_team_escape(int team, int group, Vector2 loc, Vector2 escape_to_loc)
         {
             EscapePoints.Add(new EscapePoint(loc, escape_to_loc, team, group));
-            //Team_Escape_Points[team].add_point(group, loc, escape_to_loc); //Debug
         }
-        public void add_player_event_escape(string eventName, Vector2 loc, Vector2 escape_to_loc)
+        public void add_player_event_escape(string eventName, Vector2 loc, Vector2 escape_to_loc, bool lordOnly)
         {
-            EscapePoints.Add(new EscapePoint(loc, escape_to_loc, Constants.Team.PLAYER_TEAM, -1, eventName));
-            //PlayerEventEscapePoints[loc].add_point(group, loc, escape_to_loc); //Debug
+            EscapePoints.Add(new EscapePoint(loc, escape_to_loc, Constants.Team.PLAYER_TEAM, -1, eventName, lordOnly));
         }
 
         internal HashSet<Vector2> escape_point_locations(int team, int group)
@@ -3090,12 +3246,7 @@ namespace FEXNA
                 .Where(x => x.Group == group || x.Group == -1);
 
             HashSet<Vector2> points = new HashSet<Vector2>(group_escape_points.Select(x => x.Loc));
-
-            /* //Debug
-            if (group != -1 && Team_Escape_Points[team].ContainsKey(group))
-                points.UnionWith(Team_Escape_Points[team][group].Keys);
-            if (Team_Escape_Points[team].ContainsKey(-1))
-                points.UnionWith(Team_Escape_Points[team][-1].Keys);*/
+            
             return points;
         }
 
@@ -3107,18 +3258,7 @@ namespace FEXNA
                 .Where(x => x.Group == unit.group || x.Group == -1);
 
             return group_escape_points.First(x => x.Loc == loc);
-
-            /* //Debug
-            Maybe<Vector2> escape_point;
-            // Check for the unit's group
-            escape_point = Team_Escape_Points[unit.team].get_escape_point(unit.group, loc);
-            if (escape_point.IsSomething)
-                return escape_point;
-            // Check for any group
-            escape_point = Team_Escape_Points[unit.team].get_escape_point(-1, loc);
-            if (escape_point.IsSomething)
-                return escape_point;*/
-
+            
             throw new ArgumentException();
         }
 
@@ -3353,8 +3493,8 @@ namespace FEXNA
                 pair.Value.new_turn();
                 if (pair.Value.is_ready)
                 {
-                    Game_Unit unit = get_unit(pair.Value.loc);
-                    if (unit != null && unit.can_use_siege())
+                    Game_Unit unit = pair.Value.Rider;
+                    if (unit != null)
                         unit.refresh_sprite();
                 }
                 pair.Value.refresh_sprite();
@@ -3437,6 +3577,16 @@ namespace FEXNA
         public void update_sprites()
         {
             
+        }
+
+        public void HideUnits()
+        {
+            UnitsHidden = true;
+        }
+
+        public void ShowUnits()
+        {
+            UnitsHidden = false;
         }
         #endregion
 

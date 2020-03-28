@@ -1,5 +1,15 @@
-﻿namespace FEXNA.Constants
+﻿using System;
+using System.Collections.Generic;
+
+namespace FEXNA.Constants
 {
+    public enum StatLabelColoring
+    {
+        None,
+        Averages, // Stat labels are colored based on how far from the average the stat value is
+        Growths // Stat labels are colored based on the unit's growth in that stat
+    }
+
     public class Actor
     {
         public const char ACTOR_NAME_DELIMITER = '_';
@@ -14,6 +24,9 @@
 
         public const int LVL_CAP = 20;
         public const int TIER0_LVL_CAP = 10;
+        public const int LOWEST_TIER = 0; // Set to 0 if there are trainees and tier 1 generics should get prior levels; set to 1 if a level 1 tier 1 is the lowest level unit
+        public const bool RESET_LEVEL_ON_PROMOTION = true; // Default is true; resets level to 1 on promotion
+        public const bool PROMOTION_SELECTION_MENU = true; // Classes with multiple promotion choices bring up a menu to select one; otherwise selects one randomly
         public const int EXP_TO_LVL = 100;
         public const int EXP_PER_ENEMY = 100; // The total exp an individual enemy can give; -1 is infinite
         public const bool EXP_PER_ENEMY_KILL_EXCEPTION = true; // If true, the exp gained from the killing blow will always be the full amount
@@ -30,16 +43,22 @@
         public const bool GENERIC_AUTO_WEXP = true; // Should generic units automatically gain enough wexp to use weapons in their inventory
         public const bool GENERIC_ACTOR_RANDOM_AFFINITIES = true;
 
-        public const bool DISPLAY_STAT_COLORS = true; // Stat labels are colored based on how far from the average the stat value is
+        public const StatLabelColoring STAT_LABEL_COLORING = StatLabelColoring.Averages;
         public const bool STAT_COLORS_ONLY_IN_PREP = false; // Does stat label coloring only occur in preparations and the world map
-        public const bool ONLY_PC_COLORS = true; // Are status screen averages only shown for PCs
-        public const int COLORING_METHOD = 1; //1 for displaying coloring the difference vs averages, 2 for coloring based on the unit's growth in that stat.
-        public const int GROWTH_AVERAGE_COLOR_MIN = 0; //For growth stat coloring. Anything equal or lesser will be the darkest red.
-        public const int GROWTH_AVERAGE_COLOR_MED = 30; //For growth stat coloring. Anything equal will be exact white.
-        public const int GROWTH_AVERAGE_COLOR_MAX = 60; //For growth stat coloring. Anything equal or greater will be the brightest green.
+        public const bool ONLY_PC_STAT_COLORS = true; // Are status screen averages only shown for PCs
+        public const int GROWTH_AVERAGE_COLOR_MIN = 0; // For growth stat coloring. Anything equal or lesser will be the darkest red.
+        public const int GROWTH_AVERAGE_COLOR_MED = 30; // For growth stat coloring. Anything equal will be exact white.
+        public const int GROWTH_AVERAGE_COLOR_MAX = 60; // For growth stat coloring. Anything equal or greater will be the brightest green.
+
+        // Assumed promotion levels for each tier, for coloring stat label averages
+        public static readonly Dictionary<int, int> AVERAGE_PROMOTION_LEVELS = new Dictionary<int, int>
+        {
+            { 0, TIER0_LVL_CAP },
+            { 1, LVL_CAP }
+        };
 
         public const bool CHILD_WEAPON_TYPE_ALLOWS_PARENT = true; // Having ranks in a child weapon type allows using all of its ancestors
-        public const bool PARENT_WEAPON_TYPE_ALLOWS_CHILD = true; // Having ranks in a parent weapon type allows using all of its children
+        public const bool PARENT_WEAPON_TYPE_ALLOWS_CHILD = true; // Having ranks in a parent weapon type allows using all of its descendants
         public const bool SHOW_ALL_ACTOR_WEAPON_TYPES = false; // Dynamically adds hidden weapon types to the status screen if the actor has them
 
         public const int NUM_ITEMS = 6;
@@ -48,5 +67,51 @@
         public const int S_RANK_BONUS = 5;
 
         public const int CASUAL_MODE_LIVES = 3;
+
+        public static int LevelCap(int tier)
+        {
+            if (RESET_LEVEL_ON_PROMOTION)
+                return RawLevelCap(tier);
+            else
+            {
+                int cap = 0;
+                for (int currentTier = LOWEST_TIER; currentTier <= tier; currentTier++)
+                {
+                    cap += RawLevelCap(currentTier);
+                }
+                return cap;
+            }
+        }
+
+        //private
+        public static int RawLevelCap(int tier)
+        {
+            if (tier == 0)
+                return TIER0_LVL_CAP;
+            else
+                return LVL_CAP;
+        }
+
+        public static int ActualLevel(int tier, int level)
+        {
+            if (RESET_LEVEL_ON_PROMOTION)
+                return level + LevelsBeforeTier(tier);
+            else
+                return level;
+        }
+
+        public static int LevelsBeforeTier(int tier)
+        {
+            int level = 0;
+            for (int currentTier = LOWEST_TIER; currentTier < tier; currentTier++)
+                level += RawLevelCap(currentTier);
+
+            return level;
+        }
+
+        public static int PromotionLevel(int tier)
+        {
+            return Math.Min(RawLevelCap(tier), Config.PROMOTION_LVL);
+        }
     }
 }

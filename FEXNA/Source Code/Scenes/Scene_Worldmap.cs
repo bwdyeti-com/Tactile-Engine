@@ -28,7 +28,8 @@ namespace FEXNA
         private int Zoomed_Fade_Timer = 0;
         private Vector2 Offset = Vector2.Zero, Target_Loc;
         private Vector2 MenuOffset = Vector2.Zero;
-        private float Scroll_Speed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
+        private float EventScrollSpeed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
+        private float ScrollSpeed = 0f;
         private Character_Sprite Lord_Sprite;
         private Sprite Map, Minimap, Minimap_Backing, Zoomed_Out_Map;
         private World_Minimap_ViewArea ViewArea;
@@ -49,15 +50,15 @@ namespace FEXNA
         {
             set
             {
-                Target_Loc = value;
-                Scroll_Speed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
+                SetTargetLoc(value);
+                EventScrollSpeed = Constants.WorldMap.WORLDMAP_EVENT_SCROLL_SPEED;
                 Tracking_Unit = -1;
                 foreach (Worldmap_Unit unit in Units)
                     unit.remove_all_tracking();
             }
         }
 
-        public float scroll_speed { set { Scroll_Speed = Math.Max(0.001f, value); } }
+        public float scroll_speed { set { EventScrollSpeed = Math.Max(0.001f, value); } }
 
         public bool scrolling
         {
@@ -97,8 +98,9 @@ namespace FEXNA
             Global.game_system.Difficulty_Mode = Global.save_file.Difficulty;
 
             initialize_images();
-            Offset = Target_Loc = MenuData.Chapter.World_Map_Loc -
-                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET;
+            SetTargetLoc(MenuData.Chapter.World_Map_Loc -
+                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET);
+            Offset = Target_Loc;
 
             Global.Chapter_Text_Content.Unload();
             Global.chapter_text = Global.Chapter_Text_Content.Load<Dictionary<string, string>>(@"Data/Text/Worldmap");
@@ -163,7 +165,7 @@ namespace FEXNA
             Difficulty_Modes difficulty = Global.game_system.Difficulty_Mode;
             var validPreviousChapters =
                 Global.save_file.valid_previous_chapters(chapter.Id);
-            if (chapter.Standalone || validPreviousChapters.Count == 0)
+            if (chapter.Standalone && validPreviousChapters.Count == 0)
             {
                 Global.game_system.reset();
                 Global.game_system.reset_event_variables();
@@ -188,6 +190,12 @@ namespace FEXNA
             Global.current_save_info.SetStartedChapter(chapter.Id);
             Global.save_file = null;
             Global.scene_change("Start_Chapter");
+        }
+
+        private void SetTargetLoc(Vector2 loc)
+        {
+            Target_Loc = loc;
+            ScrollSpeed = 0f;
         }
 
         #region Update
@@ -218,10 +226,22 @@ namespace FEXNA
                     switch (Timer)
                     {
                         default:
+                            // If autoselecting a chapter with no world map event
+                            if (MenuData.AutoSelectChapter && GetWorldmapEvent() == null)
+                            {
+                                // If hard mode is blocked, nevermind
+                                if (!IsBlockedHardMode(MenuData.ChapterId))
+                                {
+                                    MenuManager = null;
+                                    start_chapter();
+                                    break;
+                                }
+                            }
+
                             if (Fade_Timer > 0)
                                 Fade_Timer--;
                             if (Fade_Timer == Constants.WorldMap.WORLDMAP_FADE_TIME / 4)
-                                if (!MenuData.Classic)
+                                if (!MenuData.AutoSelectChapter)
                                     Global.Audio.PlayBgm(Constants.WorldMap.WORLDMAP_THEME);
                             if (Fade_Timer == 0)
                                 Phase = Worldmap_Phases.Command_Process;
@@ -229,7 +249,7 @@ namespace FEXNA
                     }
                     break;
                 case Worldmap_Phases.Command_Process:
-                    if (MenuData.Classic)
+                    if (MenuData.AutoSelectChapter)
                         select_chapter_fade();
                     break;
                 case Worldmap_Phases.Controls_Fade:
@@ -371,7 +391,7 @@ namespace FEXNA
                     Offset.Y = Units[Tracking_Unit].loc.Y + TRACKING_OFFSET.Y;
             }
 
-            Target_Loc = Offset;
+            SetTargetLoc(Offset);
         }
 
         public override void update_data()
@@ -383,14 +403,39 @@ namespace FEXNA
         {
             if (Offset != Target_Loc)
             {
+                // If close to the target
                 if ((Offset - Target_Loc).Length() <= 0.5f)
+                {
                     Offset = Target_Loc;
+                    ScrollSpeed = 0f;
+                }
                 else
                 {
+                    // Get an offset vector 1/4 the way to the target
                     Vector2 offset = (Target_Loc + Offset * 3) / 4;
                     offset -= Offset;
-                    float scroll_speed = Phase == Worldmap_Phases.Worldmap_Event ?
-                        Scroll_Speed : Constants.WorldMap.WORLDMAP_SCROLL_SPEED;
+
+                    float scroll_speed;
+                    if (Phase == Worldmap_Phases.Worldmap_Event)
+                        scroll_speed = EventScrollSpeed;
+                    else
+                    {
+                        // Use a smoother scroll for mouse controls
+                        if (Input.ControlScheme == ControlSchemes.Mouse)
+                        {
+                            if (ScrollSpeed < 1)
+                                ScrollSpeed = 1f;
+                            else
+                                ScrollSpeed *= 2;
+                            ScrollSpeed = Math.Min(ScrollSpeed,
+                                Constants.WorldMap.WORLDMAP_SCROLL_SPEED);
+                            scroll_speed = ScrollSpeed;
+                        }
+                        else
+                            scroll_speed = Constants.WorldMap.WORLDMAP_SCROLL_SPEED;
+                    }
+
+                    // If the offset is too big of a jump, use the scroll speed instead
                     if (offset.Length() > scroll_speed)
                     {
                         offset.Normalize();
@@ -409,10 +454,9 @@ namespace FEXNA
         protected void select_chapter_fade()
         {
             Phase = Worldmap_Phases.Controls_Fade;
-            Fade_Timer = MenuData.Classic ?
+            Fade_Timer = MenuData.AutoSelectChapter ?
                 1 : Constants.WorldMap.WORLDMAP_CONTROLS_FADE_TIME;
-            if (Constants.WorldMap.HARD_MODE_BLOCKED.Contains(MenuData.ChapterId) &&
-                Global.game_system.Difficulty_Mode > Difficulty_Modes.Normal)
+            if (IsBlockedHardMode(MenuData.ChapterId))
             {
                 Hard_Mode_Blocked_Window = new Parchment_Info_Window();
                 Hard_Mode_Blocked_Window.set_text(@"This chapter does not yet have
@@ -425,31 +469,48 @@ loaded in normal mode. Sorry!");
             }
         }
 
+        private bool IsBlockedHardMode(string chapterId)
+        {
+            return Constants.WorldMap.HARD_MODE_BLOCKED.Contains(chapterId) &&
+                Global.game_system.Difficulty_Mode > Difficulty_Modes.Normal;
+        }
+
+        private Event_Data GetWorldmapEvent()
+        {
+            Map_Event_Data events =
+                Global.Content.Load<Map_Event_Data>(@"Data/Map Data/Event Data/Worldmap");
+            for (int event_index = 0; event_index < events.Events.Count; event_index++)
+                if (events.Events[event_index].name == MenuData.ChapterId + "Worldmap")
+                    return events.Events[event_index];
+
+            return null;
+        }
+
         protected virtual void start_chapter_worldmap_event()
         {
             Phase = Worldmap_Phases.Worldmap_Event;
-            Map_Event_Data events =
-                Global.Content.Load<Map_Event_Data>(@"Data/Map Data/Event Data/Worldmap");
-            int event_index = 0;
-            for (; event_index < events.Events.Count; event_index++)
-                if (events.Events[event_index].name == MenuData.ChapterId + "Worldmap")
-                    break;
-            if (event_index >= events.Events.Count)
+            var worldmapEvent = GetWorldmapEvent();
+            if (worldmapEvent == null)
             {
                 Phase = Worldmap_Phases.Fade_Out;
                 Fade_Timer = Constants.WorldMap.WORLDMAP_FADE_TIME;
                 Global.Audio.BgmFadeOut(Constants.WorldMap.WORLDMAP_FADE_TIME);
             }
             else
-                Global.game_system.add_event(events.Events[event_index]);
+                Global.game_system.add_event(worldmapEvent);
         }
         #endregion
 
         #region ISetupMenuHandler
+        public void SetupSaveConfig()
+        {
+            Global.save_config = true;
+        }
+
         public void SetupSave()
         {
-            // Save file
-            Save_Data_Calling = true;
+            // Save file on modifying inventory/etc
+            CallSaveData();
         }
 
         #region IWorldmapMenuHandler
@@ -472,8 +533,8 @@ loaded in normal mode. Sorry!");
                     (Lord_Sprite.texture.Width / Lord_Sprite.frame_count) / 2,
                     (Lord_Sprite.texture.Height / Lord_Sprite.facing_count) - 8);
 
-            Target_Loc = chapter.World_Map_Loc -
-                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET;
+            SetTargetLoc(chapter.World_Map_Loc -
+                Constants.WorldMap.WORLDMAP_MAP_SPRITE_OFFSET);
         }
 
         public void WorldmapLoadData(
@@ -647,7 +708,8 @@ loaded in normal mode. Sorry!");
         #region Draw
         public override void draw(SpriteBatch sprite_batch, GraphicsDevice device, RenderTarget2D[] render_targets)
         {
-            Vector2 offset = new Vector2((int)Offset.X, (int)Offset.Y) - (new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2);
+            Vector2 offset = new Vector2((int)Offset.X, (int)Offset.Y) -
+                (new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) / 2);
 
             // Draws the map
             device.SetRenderTarget(render_targets[1]);
@@ -658,9 +720,12 @@ loaded in normal mode. Sorry!");
 
             // Draw world map event objects
             if (Phase >= Worldmap_Phases.Worldmap_Event && Phase != Worldmap_Phases.Return_To_Title)
+            {
                 draw_events(sprite_batch, Zoomed_Map_Visible ? Vector2.Zero : offset);
+                draw_message(sprite_batch, device, render_targets);
+            }
 
-            if (!MenuData.Classic)
+            if (!MenuData.AutoSelectChapter)
             {
                 // Draw controls and menus
                 if (Phase < Worldmap_Phases.Worldmap_Event || Phase == Worldmap_Phases.Return_To_Title)
@@ -683,7 +748,7 @@ loaded in normal mode. Sorry!");
                     {
                         device.SetRenderTarget(render_targets[0]);
                         device.Clear(Color.Transparent);
-                        MenuManager.Draw(sprite_batch);
+                        MenuManager.Draw(sprite_batch, device, render_targets);
                         draw_render_target(
                             sprite_batch, device,
                             render_targets[0], render_targets[1],
@@ -770,8 +835,6 @@ loaded in normal mode. Sorry!");
                 unit.draw(sprite_batch, offset);
                 sprite_batch.End();
             }
-
-            draw_message(sprite_batch);
         }
         #endregion
     }

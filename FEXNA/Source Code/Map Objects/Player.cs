@@ -6,21 +6,21 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using FEXNAVector2Extension;
+using FEXNAVersionExtension;
 
 namespace FEXNA
 {
     internal class Player : Map_Object
     {
         public static int cursor_anim_count = 0;
-
-        protected Directions Dir8_Last_Frame = Directions.None;
-        protected int Move_Timer = 0, Move_Sound_Timer = 0;
+        
         protected bool Instant_Movement = true;
         protected int Target_Timer = -1;
         protected bool Next_Unit = false;
         protected int Following_Unit_Id = -1;
 
         protected DirectionFlags LockedInputs = DirectionFlags.None;
+        private bool ScrollingMovementBlocked = false;
 
         #region Serialization
         public void write(BinaryWriter writer)
@@ -29,8 +29,6 @@ namespace FEXNA
             Real_Loc.write(writer);
             writer.Write(Facing);
             writer.Write(Frame);
-            writer.Write((int)Dir8_Last_Frame);
-            writer.Write(Move_Timer);
             writer.Write(Instant_Movement);
             writer.Write(Target_Timer);
         }
@@ -41,8 +39,11 @@ namespace FEXNA
             Real_Loc = Real_Loc.read(reader);
             Facing = reader.ReadInt32();
             Frame = reader.ReadInt32();
-            Dir8_Last_Frame = (Directions)reader.ReadInt32();
-            Move_Timer = reader.ReadInt32();
+            if (Global.LOADED_VERSION.older_than(0, 6, 5, 0))
+            {
+                Directions dir8LastFrame = (Directions)reader.ReadInt32();
+                int moveTimer = reader.ReadInt32();
+            }
             Instant_Movement = reader.ReadBoolean();
             Target_Timer = reader.ReadInt32();
         }
@@ -168,6 +169,7 @@ namespace FEXNA
         {
             bool not_minimap_centered = false;
 
+            // Mouse controls
             if (Input.IsControllingOnscreenMouse &&
                 (Global.game_map.scrolling || Global.Input.mouseMoved))
             {
@@ -191,6 +193,7 @@ namespace FEXNA
                 }
                 return;
             }
+            // Touch controls
             else if (Input.ControlScheme == ControlSchemes.Touch)
             {
                 bool not_manual_target_window = Global.game_state.is_menuing &&
@@ -218,63 +221,64 @@ namespace FEXNA
                 }
                 return;
             }
+
+            // Button controls
+            if (ScrollingMovementBlocked && !Global.game_map.scrolling)
+                ScrollingMovementBlocked = false;
             
-            Directions dir8 = Global.Input.dir8();
-            if (dir8 == Directions.None)
+            DirectionFlags dir8 = Input.direction_to_flag(Global.Input.dir8());
+            if (dir8 == DirectionFlags.None)
                 LockedInputs = DirectionFlags.None;
+
+            // If moving normally
+            if (!Global.game_temp.minimap_call && !speed_up_input())
+                dir8 = Global.Input.dir_triggered();
+
             if (LockedInputs != DirectionFlags.None)
             {
-                if (Input.direction_to_flag(dir8) == LockedInputs)
-                    dir8 = Directions.None;
+                if (dir8 == LockedInputs)
+                    dir8 = DirectionFlags.None;
             }
-            if ((dir8 != Directions.None || !is_on_square) && Global.game_temp.minimap_call)
+            if ((dir8 != DirectionFlags.None || !is_on_square) && Global.game_temp.minimap_call)
             {
                 if (Loc != center_cursor_loc(false))
                     not_minimap_centered = true;
             }
-            if (dir8 != Dir8_Last_Frame)
-                Move_Timer = 0;
             bool moved = false;
-            if (is_on_square)
-                switch (dir8)
-                {
-                    case Directions.DownLeft:
-                        moved = move_down_left();
-                        break;
-                    case Directions.Down:
-                        moved = move_down();
-                        break;
-                    case Directions.DownRight:
-                        moved = move_down_right();
-                        break;
-                    case Directions.Left:
-                        moved = move_left();
-                        break;
-                    case Directions.Right:
-                        moved = move_right();
-                        break;
-                    case Directions.UpLeft:
-                        moved = move_up_left();
-                        break;
-                    case Directions.Up:
-                        moved = move_up();
-                        break;
-                    case Directions.UpRight:
-                        moved = move_up_right();
-                        break;
-                }
+            switch (dir8)
+            {
+                case DirectionFlags.DownLeft:
+                    moved = move_down_left();
+                    break;
+                case DirectionFlags.Down:
+                    moved = move_down();
+                    break;
+                case DirectionFlags.DownRight:
+                    moved = move_down_right();
+                    break;
+                case DirectionFlags.Left:
+                    moved = move_left();
+                    break;
+                case DirectionFlags.Right:
+                    moved = move_right();
+                    break;
+                case DirectionFlags.UpLeft:
+                    moved = move_up_left();
+                    break;
+                case DirectionFlags.Up:
+                    moved = move_up();
+                    break;
+                case DirectionFlags.UpRight:
+                    moved = move_up_right();
+                    break;
+            }
             if (moved)
                 start_movement();
-            if (is_on_square)
-                Move_Timer += 1;
-            Dir8_Last_Frame = dir8;
+
             if (Global.game_temp.minimap_call && (dir8 != 0 || !is_on_square))
             {
                 if (not_minimap_centered)
                     center_cursor();
-                //center(Loc);//Real_Loc / UNIT_TILE_SIZE); //Debug
-                //center(Real_Loc / UNIT_TILE_SIZE);
-                //Global.game_map.scroll_speed = (UNIT_TILE_SIZE / 4) * (speed_up_input() ? 2 : 1);
             }
         }
 
@@ -364,14 +368,23 @@ namespace FEXNA
 
         public void update_cursor_frame()
         {
-            if (cursor_anim_count >= 0 && cursor_anim_count < 20)
-                Frame = 0;
-            else if (cursor_anim_count >= 20 && cursor_anim_count < 22)
-                Frame = 1;
-            else if (cursor_anim_count >= 22 && cursor_anim_count < 30)
-                Frame = 2;
-            else if (cursor_anim_count >= 30 && cursor_anim_count < 32)
-                Frame = 3;
+            Frame = Player.CursorFrame;
+        }
+
+        public static int CursorFrame
+        {
+            get
+            {
+                if (cursor_anim_count >= 0 && cursor_anim_count < 20)
+                    return 0;
+                else if (cursor_anim_count >= 20 && cursor_anim_count < 22)
+                    return 1;
+                else if (cursor_anim_count >= 22 && cursor_anim_count < 30)
+                    return 2;
+                else if (cursor_anim_count >= 30 && cursor_anim_count < 32)
+                    return 3;
+                return 0;
+            }
         }
 
         protected void update_cursor_formation_frame()
@@ -536,18 +549,7 @@ namespace FEXNA
                     int dist = (UNIT_TILE_SIZE / 4) * (speed_up_input() ? 2 : 1);
                     if (Global.game_temp.minimap_call)
                         dist = (UNIT_TILE_SIZE / 2);
-                    else
-                    {
-                        // If just started moving
-                        if (moved && Real_Loc.X % UNIT_TILE_SIZE == 0 && Real_Loc.Y % UNIT_TILE_SIZE == 0)
-                            if (Global.game_state.is_player_turn && !Global.game_state.no_cursor)
-                            {
-                                Global.game_system.play_se(System_Sounds.Cursor_Move);
-                                Move_Sound_Timer = 4;
-                                if (Global.scene.is_strict_map_scene)
-                                    ((Scene_Map)Global.scene).update_info_image(true);
-                            }
-                    }
+
                     Vector2 real_loc = new Vector2(Additional_Math.int_closer((int)Real_Loc.X, (int)Loc.X * UNIT_TILE_SIZE, dist),
                         Additional_Math.int_closer((int)Real_Loc.Y, (int)Loc.Y * UNIT_TILE_SIZE, dist));
                     if (Real_Loc != real_loc)
@@ -685,6 +687,10 @@ namespace FEXNA
         {
             base.force_loc(loc);
             center(Loc, true, forced: forceCenter);
+            // Cursor has been forced somewhere else on the map,
+            // and normal cursor movement should be blocked until
+            // the map stops scrolling
+            ScrollingMovementBlocked = true;
         }
 
         public bool center(bool event_called = false)
@@ -716,7 +722,7 @@ namespace FEXNA
         {
             if (cursor_can_move())
             {
-                if (!is_bottom_edge())
+                if (!is_bottom_edge() && Loc.Y <= (Real_Loc.Y / UNIT_TILE_SIZE))
                 {
                     Loc.Y += 1;
                     return true;
@@ -729,7 +735,7 @@ namespace FEXNA
         {
             if (cursor_can_move())
             {
-                if (!is_left_edge())
+                if (!is_left_edge() && Loc.X >= (Real_Loc.X / UNIT_TILE_SIZE))
                 {
                     Loc.X -= 1;
                     return true;
@@ -742,7 +748,7 @@ namespace FEXNA
         {
             if (cursor_can_move())
             {
-                if (!is_right_edge())
+                if (!is_right_edge() && Loc.X <= (Real_Loc.X / UNIT_TILE_SIZE))
                 {
                     Loc.X += 1;
                     return true;
@@ -755,7 +761,7 @@ namespace FEXNA
         {
             if (cursor_can_move())
             {
-                if (!is_top_edge())
+                if (!is_top_edge() && Loc.Y >= (Real_Loc.Y / UNIT_TILE_SIZE))
                 {
                     Loc.Y -= 1;
                     return true;
@@ -794,15 +800,17 @@ namespace FEXNA
 
         protected bool cursor_can_move()
         {
-            return (Move_Timer == 0 || Move_Timer >= 10 || speed_up_input());
+            return !ScrollingMovementBlocked;
         }
 
         protected void start_movement()
         {
-            if (speed_up_input())
-                Move_Timer = 0;
-            else
-                Move_Timer++;
+            if (Global.game_state.is_player_turn && !Global.game_state.no_cursor)
+            {
+                Global.game_system.play_se(System_Sounds.Cursor_Move);
+                if (Global.scene.is_strict_map_scene)
+                    ((Scene_Map)Global.scene).update_info_image(true);
+            }
             range_edge_check();
         }
         #endregion
@@ -856,7 +864,7 @@ namespace FEXNA
             base.update_sprite(sprite);
             // Update player sprite
             sprite.update();
-            sprite.frame = (Facing / 2 - 1) * 4 + Frame;
+            UpdateSpriteFrame((Graphics.Map.Character_Sprite)sprite, Facing, Frame);
             sprite.draw_offset = new Vector2(TILE_SIZE, TILE_SIZE) / 2;
 
             sprite.visible = true;

@@ -17,7 +17,7 @@ namespace FEXNA
             set_effectiveness(1);
         }
 
-        public void set_effectiveness(int effectiveness, bool halved = false)
+        public override void set_effectiveness(int effectiveness, bool halved = false)
         {
             Effectiveness = effectiveness;
             HalvedEffectiveness = halved;

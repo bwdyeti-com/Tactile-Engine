@@ -6,7 +6,7 @@ using FEXNA_Library;
 
 namespace FEXNA.Services.Input
 {
-    public interface IInputService
+    interface IInputService
     {
         void update_input(
             Inputs inputName,
@@ -41,6 +41,10 @@ namespace FEXNA.Services.Input
         bool KeyPressed(Keys key);
 
         Keys[] PressedKeys();
+
+        void UpdateGamepadState(GamePadState padState);
+
+        Buttons[] PressedButtons();
 
         #region Buttons
         bool triggered(Inputs inputName, bool consumeInput = true);

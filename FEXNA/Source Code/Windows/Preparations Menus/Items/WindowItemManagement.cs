@@ -176,7 +176,10 @@ namespace FEXNA.Windows.Map.Items
             HelpFooter.update();
 
             base.UpdateMenu(active);
+        }
 
+        protected override void UpdateAncillary()
+        {
             if (Input.ControlSchemeSwitched)
                 refresh_input_help();
         }
@@ -237,10 +240,10 @@ namespace FEXNA.Windows.Map.Items
 
         new public void close()
         {
-            OnClosing(new EventArgs());
-
             Item_Window.restore_equipped();
             unit.actor.staff_fix();
+
+            OnClosing(new EventArgs());
 
             Item_Window.active = false;
             Supply_Window.active = false;
