@@ -614,6 +614,7 @@ namespace FEXNA
         }
 
         public Dictionary<int, int> supports { get { return Supports; } }
+        public IEnumerable<int> SupportKeys { get { return Supports.Keys; } }
 
         public int bond { get { return Bond; } }
 

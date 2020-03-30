@@ -40,23 +40,26 @@ namespace FEXNA.IO
                 foreach (int actor_id in Battalions.all_actor_ids)
                     // If this actor actually exists, checks its support data
                     if (Actors.actor_loaded(actor_id))
-                        foreach (var pair in Actors[actor_id].supports)
+                        foreach (int key in Actors[actor_id].SupportKeys)
+                        {
+                            int supportLevel = Actors[actor_id].get_support_level(key);
                             // If this support has been activated
-                            if (pair.Value > 0)
+                            if (supportLevel > 0)
                             {
                                 // Finds the key for this support data
                                 foreach (var support_pair in Global.data_supports)
                                 {
-                                    if ((support_pair.Value.Id1 == actor_id && support_pair.Value.Id2 == pair.Key) ||
-                                        (support_pair.Value.Id1 == pair.Key && support_pair.Value.Id2 == actor_id))
+                                    if ((support_pair.Value.Id1 == actor_id && support_pair.Value.Id2 == key) ||
+                                        (support_pair.Value.Id1 == key && support_pair.Value.Id2 == actor_id))
                                     {
                                         if (!result.ContainsKey(support_pair.Key))
                                             result.Add(support_pair.Key, 0);
-                                        result[support_pair.Key] = Math.Max(result[support_pair.Key], pair.Value);
+                                        result[support_pair.Key] = Math.Max(result[support_pair.Key], supportLevel);
                                         break;
                                     }
                                 }
                             }
+                        }
                 return result;
             }
         }

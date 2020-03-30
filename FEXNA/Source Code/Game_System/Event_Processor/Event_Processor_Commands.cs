@@ -3672,7 +3672,7 @@ namespace FEXNA
                         get_actor("false", command.Value[2], out support_partner);
                         if (actor != null && support_partner != null)
                         {
-                            result = actor.supports[support_partner.id] >= supportIndex;
+                            result = actor.get_support_level(support_partner.id) >= supportIndex;
                         }
                     }
                     break;
