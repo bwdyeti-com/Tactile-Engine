@@ -98,9 +98,7 @@ namespace FEXNA.Windows.UserInterface.Command
         protected virtual string RankText(int actorId, int targetActorId)
         {
             var actor = Global.game_actors[actorId];
-            return actor.supports.ContainsKey(targetActorId) ?
-                Constants.Support.SUPPORT_LETTERS[actor.supports[targetActorId]] :
-                Constants.Support.SUPPORT_LETTERS[0];
+            return Constants.Support.SUPPORT_LETTERS[actor.get_support_level(targetActorId)];
         }
 
         internal override void set_text_color(string color)
