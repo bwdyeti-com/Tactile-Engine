@@ -224,8 +224,7 @@ namespace FEXNA.Menus.Worldmap
                 Global.game_system.play_se(System_Sounds.Cancel);
                 OnCanceled(new EventArgs());
             }
-            else
-            if (input)
+            else if (input)
             {
                 if (Global.Input.triggered(Inputs.Left))
                     change_index(-1);
