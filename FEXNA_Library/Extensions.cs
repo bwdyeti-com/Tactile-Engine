@@ -132,6 +132,23 @@ namespace EnumExtension
         {
             return EnumHelper<T>.TestHasFlagProc(p1, p2);
         }
+
+        public static T Parse<T>(string name) where T : struct
+        {
+            T result;
+            TryParse(name, out result);
+            return result;
+        }
+        public static bool TryParse<T>(string name, out T result) where T : struct
+        {
+            Type type = typeof(T);
+            if (!type.IsEnum)
+                throw new InvalidCastException("Trying to parse an enum, but a non-enum type was provided.");
+
+            if (!Enum.TryParse<T>(name, out result))
+                return false;
+            return true;
+        }
     }
 }
 
