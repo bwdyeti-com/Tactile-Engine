@@ -1334,16 +1334,19 @@ namespace IntExtension
 namespace FEXNAContentExtension
 {
     using Microsoft.Xna.Framework.Content;
+    using IFEXNADataContent = FEXNA_Library.IFEXNADataContent;
+
     public static class Extension
     {
-        public static void Write<T>(this BinaryWriter writer, List<T> list) where T : FEXNA_Library.IFEXNADataContent
+        // List<IFEXNADataContent>
+        public static void Write<T>(this BinaryWriter writer, List<T> list) where T : IFEXNADataContent
         {
             writer.Write(list.Count);
             foreach (T value in list)
                 value.Write(writer);
         }
 
-        public static void ReadFEXNAContent<T>(this ContentReader reader, List<T> list) where T : FEXNA_Library.IFEXNADataContent
+        public static void ReadFEXNAContent<T>(this ContentReader reader, List<T> list) where T : IFEXNADataContent
         {
             list.Clear();
             int count = reader.ReadInt32();
@@ -1351,6 +1354,29 @@ namespace FEXNAContentExtension
             {
                 T item = reader.ReadObject<T>();
                 list.Add(item);
+            }
+        }
+
+        // Dictionary<string, IFEXNADataContent>
+        public static void Write<T>(this BinaryWriter writer, Dictionary<string, T> dictionary) where T : IFEXNADataContent
+        {
+            writer.Write(dictionary.Count);
+            foreach (var pair in dictionary)
+            {
+                writer.Write(pair.Key);
+                pair.Value.Write(writer);
+            }
+        }
+
+        public static void ReadFEXNAContent<T>(this ContentReader reader, Dictionary<string, T> dictionary) where T : IFEXNADataContent
+        {
+            dictionary.Clear();
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                string key = reader.ReadString();
+                T item = reader.ReadObject<T>();
+                dictionary.Add(key, item);
             }
         }
     }
