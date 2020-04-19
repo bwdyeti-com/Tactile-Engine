@@ -1,14 +1,41 @@
-﻿using System;
+﻿using System.IO;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 
 namespace FEXNA_Library.Palette
 {
-    public struct ColorVector : ICloneable
+    public struct ColorVector : IFEXNADataContent
     {
+        [ContentSerializer(ElementName = "H")]
         public float Hue { get; private set; }
+        [ContentSerializer(ElementName = "S")]
         public float Saturation { get; private set; }
+        [ContentSerializer(ElementName = "L")]
         public float Lightness { get; private set; }
+        [ContentSerializer(ElementName = "ToYellow")]
         public bool BlueYellowRamp { get; private set; }
+
+        #region Serialization
+        public IFEXNADataContent Read_Content(ContentReader input)
+        {
+            float hue = input.ReadSingle();
+            float saturation = input.ReadSingle();
+            float lightness = input.ReadSingle();
+            bool blueYellowRamp = input.ReadBoolean();
+
+            ColorVector result = new ColorVector(hue, saturation, lightness, blueYellowRamp);
+
+            return result;
+        }
+
+        public void Write(BinaryWriter output)
+        {
+            output.Write(Hue);
+            output.Write(Saturation);
+            output.Write(Lightness);
+            output.Write(BlueYellowRamp);
+        }
+        #endregion
 
         public ColorVector(float hue, float sat, float lit, bool blueYellowRamp = false)
         {
@@ -150,9 +177,11 @@ namespace FEXNA_Library.Palette
             return hsl;
         }
 
+        #region ICloneable
         public object Clone()
         {
             return new ColorVector(this);
         }
+        #endregion
     }
 }

@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using ColorExtension;
+using FEXNAContentExtension;
 
 namespace FEXNA_Library.Palette
 {
-    public class SpritePalette
+    public class SpritePalette : IFEXNADataContent
     {
         public string Name;
         public bool IsIndexedPalette;
@@ -12,11 +16,44 @@ namespace FEXNA_Library.Palette
         public List<PaletteRamp> Ramps = new List<PaletteRamp>();
         public Color DarkestColor;
 
+        #region Serialization
+        public IFEXNADataContent Read_Content(ContentReader input)
+        {
+            SpritePalette result = new SpritePalette();
+
+            result.Name = input.ReadString();
+            result.IsIndexedPalette = input.ReadBoolean();
+            input.ReadFEXNAContent(result.Palette);
+            input.ReadFEXNAContent(result.Ramps);
+            result.DarkestColor = result.DarkestColor.read(input);
+
+            return result;
+        }
+
+        public void Write(BinaryWriter output)
+        {
+            output.Write(Name);
+            output.Write(IsIndexedPalette);
+            output.Write(Palette);
+            output.Write(Ramps);
+            DarkestColor.write(output);
+        }
+        #endregion
+
+        public SpritePalette() { }
         public SpritePalette(string name, Color darkestColor)
         {
             Name = name;
             IsIndexedPalette = true;
             DarkestColor = darkestColor;
+        }
+        public SpritePalette(SpritePalette source)
+        {
+            Name = source.Name;
+            IsIndexedPalette = source.IsIndexedPalette;
+            Palette = source.Palette.Select(x => (PaletteEntry)x.Clone()).ToList();
+            Ramps = source.Ramps.Select(x => (PaletteRamp)x.Clone()).ToList();
+            DarkestColor = source.DarkestColor;
         }
 
         public int AddColor(Color color, int weight)
@@ -26,7 +63,7 @@ namespace FEXNA_Library.Palette
                 return index;
             else
             {
-                var entry = new PaletteEntry { Value = color, Weight = weight };
+                var entry = new PaletteEntry(color, weight);
                 Palette.Add(entry);
                 return Palette.Count - 1;
             }
@@ -113,7 +150,7 @@ namespace FEXNA_Library.Palette
                     if (index >= 0)
                         return Palette[index];
                     else
-                        return new PaletteEntry() { Value = color, Weight = 0 };
+                        return new PaletteEntry(color, 0);
                 })
                 .ToList();
             return result;
@@ -136,5 +173,12 @@ namespace FEXNA_Library.Palette
                 SetDarkestColor(index);
             }
         }
+
+        #region ICloneable
+        public object Clone()
+        {
+            return new SpritePalette(this);
+        }
+        #endregion
     }
 }

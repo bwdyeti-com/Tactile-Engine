@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using ColorExtension;
 
 namespace FEXNA_Library.Palette
 {
-    public class PaletteParameters : ICloneable
+    public class PaletteParameters : IFEXNADataContent
     {
         private float _YellowLight = 0f;
         private float _BlueShadow = 0f;
@@ -41,6 +44,31 @@ namespace FEXNA_Library.Palette
         }
         public bool ReducedDepth = false;
 
+        #region Serialization
+        public IFEXNADataContent Read_Content(ContentReader input)
+        {
+            PaletteParameters result = new PaletteParameters();
+
+            result.BaseColor = result.BaseColor.read(input);
+            result._YellowLight = input.ReadSingle();
+            result._BlueShadow = input.ReadSingle();
+            result._OriginalLightness = input.ReadSingle();
+            result.ReducedDepth = input.ReadBoolean();
+
+            return result;
+        }
+
+        public void Write(BinaryWriter output)
+        {
+            BaseColor.write(output);
+            output.Write(_YellowLight);
+            output.Write(_BlueShadow);
+            output.Write(_OriginalLightness);
+            output.Write(ReducedDepth);
+        }
+        #endregion
+
+        private PaletteParameters() { }
         public PaletteParameters(Color baseColor)
         {
             BaseColor = baseColor;

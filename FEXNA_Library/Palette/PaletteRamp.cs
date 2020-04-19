@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using ListExtension;
+using FEXNAContentExtension;
 
 namespace FEXNA_Library.Palette
 {
-    public class PaletteRamp : ICloneable
+    public class PaletteRamp : IFEXNADataContent
     {
         public string Name;
         public int BaseColorIndex;
@@ -13,6 +17,32 @@ namespace FEXNA_Library.Palette
         public List<ColorVector> Adjustments;
         public PaletteGenerator Generator;
         public bool BlueYellowAdjustments;
+
+        #region Serialization
+        public IFEXNADataContent Read_Content(ContentReader input)
+        {
+            PaletteRamp result = new PaletteRamp();
+
+            result.Name = input.ReadString();
+            result.BaseColorIndex = input.ReadInt32();
+            result.Colors.read(input);
+            input.ReadFEXNAContent(result.Adjustments);
+            result.Generator = (PaletteGenerator)result.Generator.Read_Content(input);
+            result.BlueYellowAdjustments = input.ReadBoolean();
+
+            return result;
+        }
+
+        public void Write(BinaryWriter output)
+        {
+            output.Write(Name);
+            output.Write(BaseColorIndex);
+            Colors.write(output);
+            output.Write(Adjustments);
+            Generator.Write(output);
+            output.Write(BlueYellowAdjustments);
+        }
+        #endregion
 
         public PaletteRamp()
         {
@@ -33,6 +63,7 @@ namespace FEXNA_Library.Palette
             BlueYellowAdjustments = source.BlueYellowAdjustments;
         }
 
+        [ContentSerializerIgnore]
         public Color BaseColor
         {
             get
@@ -182,6 +213,7 @@ namespace FEXNA_Library.Palette
             return parameters;
         }
 
+        [ContentSerializerIgnore]
         public List<float> ColorValues
         {
             get

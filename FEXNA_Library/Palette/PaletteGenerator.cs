@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using FEXNA_Library;
+using Microsoft.Xna.Framework.Content;
 
 namespace FEXNA_Library.Palette
 {
-    public class PaletteGenerator : ICloneable
+    public class PaletteGenerator : IFEXNADataContent
     {
         private float _Specularity = 0.5f;
         private float _ShadowAmount = 0.5f;
@@ -39,6 +40,26 @@ namespace FEXNA_Library.Palette
                 _BlackLevel = MathHelper.Clamp(value, range.Minimum, range.Maximum);
             }
         }
+
+        #region Serialization
+        public IFEXNADataContent Read_Content(ContentReader input)
+        {
+            PaletteGenerator result = new PaletteGenerator();
+
+            result._Specularity = input.ReadSingle();
+            result._ShadowAmount = input.ReadSingle();
+            result._BlackLevel = input.ReadSingle();
+
+            return result;
+        }
+
+        public void Write(BinaryWriter output)
+        {
+            output.Write(_Specularity);
+            output.Write(_ShadowAmount);
+            output.Write(_BlackLevel);
+        }
+        #endregion
 
         public PaletteGenerator() { }
         private PaletteGenerator(PaletteGenerator source)
