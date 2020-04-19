@@ -365,6 +365,7 @@ namespace HashSetExtension
 
 namespace ListExtension
 {
+    using ColorExtension;
     using Vector2Extension;
     using RectangleExtension;
     using ArrayExtension;
@@ -547,6 +548,25 @@ namespace ListExtension
             for (int i = 0; i < count; i++)
             {
                 list.Add(v.read(reader));
+            }
+        }
+
+        // List<Color>
+        public static void write(this List<Color> list, BinaryWriter writer)
+        {
+            writer.Write(list.Count);
+            foreach (Color color in list)
+                color.write(writer);
+        }
+
+        public static void read(this List<Color> list, BinaryReader reader)
+        {
+            list.Clear();
+            int count = reader.ReadInt32();
+            Color color = Color.Black;
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(color.read(reader));
             }
         }
 
@@ -1307,6 +1327,31 @@ namespace IntExtension
             for (int i = 0; i < result.Count; i++)
                 result[i] += value;
             return result;
+        }
+    }
+}
+
+namespace FEXNAContentExtension
+{
+    using Microsoft.Xna.Framework.Content;
+    public static class Extension
+    {
+        public static void Write<T>(this BinaryWriter writer, List<T> list) where T : FEXNA_Library.IFEXNADataContent
+        {
+            writer.Write(list.Count);
+            foreach (T value in list)
+                value.Write(writer);
+        }
+
+        public static void ReadFEXNAContent<T>(this ContentReader reader, List<T> list) where T : FEXNA_Library.IFEXNADataContent
+        {
+            list.Clear();
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                T item = reader.ReadObject<T>();
+                list.Add(item);
+            }
         }
     }
 }
