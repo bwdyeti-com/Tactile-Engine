@@ -32,7 +32,7 @@ namespace FEXNA
             Support_Icons.Clear();
             Support_Names.Clear();
             Support_Letters.Clear();
-            foreach (int i in actor.supports.Keys)
+            foreach (int i in actor.SupportKeys)
             {
                 if (!Global.game_actors.ContainsKey(i))
                     continue;
@@ -52,13 +52,13 @@ namespace FEXNA
                 Support_Names[Support_Names.Count - 1].text = Global.game_actors[i].name;
                 copy_stereo(Support_Names[Support_Names.Count - 1]);
                 string letter_color = "Blue";
-                if (actor.supports[i] >= Constants.Support.MAX_SUPPORT_LEVEL || actor.is_support_maxed(false, i))
+                if (actor.get_support_level(i) >= Constants.Support.MAX_SUPPORT_LEVEL || actor.is_support_maxed(false, i))
                     letter_color = "Green";
                 Support_Letters.Add(new FE_Text());
                 Support_Letters[Support_Letters.Count - 1].loc = new Vector2(72, (Support_Letters.Count - 1) * 16);
                 Support_Letters[Support_Letters.Count - 1].Font = "FE7_TextL";
                 Support_Letters[Support_Letters.Count - 1].texture = Global.Content.Load<Texture2D>(@"Graphics/Fonts/FE7_Text_" + letter_color);
-                Support_Letters[Support_Letters.Count - 1].text = Constants.Support.SUPPORT_LETTERS[actor.supports[i]];
+                Support_Letters[Support_Letters.Count - 1].text = Constants.Support.SUPPORT_LETTERS[actor.get_support_level(i)];
                 copy_stereo(Support_Letters[Support_Letters.Count - 1]);
 
             }
