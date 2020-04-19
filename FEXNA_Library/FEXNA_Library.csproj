@@ -148,6 +148,15 @@
     <Compile Include="Maybe.cs" />
     <Compile Include="NodeDestinationMap.cs" />
     <Compile Include="Noise.cs" />
+    <Compile Include="Palette\ColorVector.cs" />
+    <Compile Include="Palette\GeneratedColorPalette.cs" />
+    <Compile Include="Palette\IndexedGeneratedPalette.cs" />
+    <Compile Include="Palette\PaletteEntry.cs" />
+    <Compile Include="Palette\PaletteGenerator.cs" />
+    <Compile Include="Palette\PaletteParameters.cs" />
+    <Compile Include="Palette\PaletteRamp.cs" />
+    <Compile Include="Palette\SpritePalette.cs" />
+    <Compile Include="Palette\XnaHSL.cs" />
     <Compile Include="Pathfinding\ClosedList.cs" />
     <Compile Include="Pathfinding\ClosedListRoute.cs" />
     <Compile Include="Pathfinding\IMovementMap.cs" />
