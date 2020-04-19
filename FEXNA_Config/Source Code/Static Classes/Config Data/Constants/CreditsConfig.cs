@@ -62,6 +62,7 @@ namespace FEXNA.Constants
                 "Brivio Sergio",
                 "Charles Rainey",
                 "Corin Winnington",
+                "Christopher Lugo",
                 "Daniel Steritz",
                 "Deranger",
                 "Grant Shope",
