@@ -170,14 +170,14 @@ namespace FEXNA
             else
             {
                 string name = Battler_Name;
-                if (!Global.palette_data.ContainsKey(Battler_Name))
+                if (!Global.battlerPaletteData.ContainsKey(Battler_Name))
                 {
                     List<int> anim = FE_Battler_Image_Wrapper.attack_animation_value(Battler, false, 1, false);
                     if (anim.Count > 0)
                         name = Global.data_animations[anim[0]].filename.Split('-')[0];
                 }
 
-                if (!Global.palette_data.ContainsKey(name))
+                if (!Global.battlerPaletteData.ContainsKey(name))
                     Has_Palette = false;
                 else
                     palette_data(name, Battler.ClassId, Battler.Gender, Battler.NameFull).CopyTo(Palette, 0);
@@ -189,12 +189,12 @@ namespace FEXNA
             List<Color> palette = new List<Color>();
 
             // Start with default colors by image
-            if (!Global.palette_data.ContainsKey(image_name))
+            if (!Global.battlerPaletteData.ContainsKey(image_name))
                 image_name = image_name.Split('-')[0];
-            if (Global.palette_data.ContainsKey(image_name))
+            if (Global.battlerPaletteData.ContainsKey(image_name))
             {
-                for (int i = palette.Count; i < Global.palette_data[image_name].Length; i++)
-                    palette.Add(Global.palette_data[image_name][i]);
+                for (int i = palette.Count; i < Global.battlerPaletteData[image_name].Palette.Count; i++)
+                    palette.Add(Global.battlerPaletteData[image_name].Palette[i].Value);
             }
             // Then get battler recolored palette
             if (class_id > -1)// && FEXNA.Recolor.data.ContainsKey(image_name)) //Debug
