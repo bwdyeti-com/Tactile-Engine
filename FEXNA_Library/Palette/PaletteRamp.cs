@@ -155,6 +155,7 @@ namespace FEXNA_Library.Palette
 
             BaseColorIndex = index;
 
+            Generator.BaseLightness = new XnaHSL(this.BaseColor).Lightness;
             // Set initial palette values
             // If there are colors darker than the base color
             if (BaseColorIndex > 0)

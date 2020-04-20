@@ -82,6 +82,7 @@ namespace FEXNA_Library.Palette
             out Color highlight,
             out Color specular)
         {
+            XnaHSL baseHSL = new XnaHSL(baseColor);
             Color baseSpecular =  PaletteGenerator.BaseSpecularColor(baseColor);
 
             // Tint yellow
@@ -98,10 +99,15 @@ namespace FEXNA_Library.Palette
             // Add specular
             specularHSL = specularHSL.SetLightness(MathHelper.Lerp(
                 specularHSL.Lightness, 1f, generator.Specularity));
+            // Reduce the lightness if the base color is darker than the source color
+            if (generator.BaseLightness > 0 && baseHSL.Lightness < generator.BaseLightness)
+            {
+                float lightnessDiff = generator.BaseLightness - baseHSL.Lightness;
+                specularHSL = specularHSL.SetLightness(specularHSL.Lightness - (lightnessDiff));
+            }
             specular = specularHSL.GetColor();
 
             // Get highlight
-            XnaHSL baseHSL = new XnaHSL(baseColor);
             XnaHSL highlightHSL = XnaHSL.Lerp(baseHSL, specularHSL, 0.5f);
 
             highlight = highlightHSL.GetColor();

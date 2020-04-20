@@ -10,6 +10,7 @@ namespace FEXNA_Library.Palette
     public class PaletteGenerator : IFEXNADataContent
     {
         private float _Specularity = 0.5f;
+        private float _BaseLightness = 0.5f;
         private float _ShadowAmount = 0.5f;
         private float _BlackLevel = 0f;
 
@@ -20,6 +21,15 @@ namespace FEXNA_Library.Palette
             {
                 var range = SpecularityRange();
                 _Specularity = MathHelper.Clamp(value, range.Minimum, range.Maximum);
+            }
+        }
+        public float BaseLightness
+        {
+            get { return _BaseLightness; }
+            set
+            {
+                var range = new Range<float>(0f, 1f);
+                _BaseLightness = MathHelper.Clamp(value, range.Minimum, range.Maximum);
             }
         }
         public float ShadowAmount
@@ -47,6 +57,7 @@ namespace FEXNA_Library.Palette
             PaletteGenerator result = new PaletteGenerator();
 
             result._Specularity = input.ReadSingle();
+            result._BaseLightness = input.ReadSingle();
             result._ShadowAmount = input.ReadSingle();
             result._BlackLevel = input.ReadSingle();
 
@@ -56,6 +67,7 @@ namespace FEXNA_Library.Palette
         public void Write(BinaryWriter output)
         {
             output.Write(_Specularity);
+            output.Write(_BaseLightness);
             output.Write(_ShadowAmount);
             output.Write(_BlackLevel);
         }
@@ -65,6 +77,7 @@ namespace FEXNA_Library.Palette
         private PaletteGenerator(PaletteGenerator source)
         {
             _Specularity = source._Specularity;
+            _BaseLightness = source._BaseLightness;
             _ShadowAmount = source._ShadowAmount;
             _BlackLevel = source._BlackLevel;
         }
