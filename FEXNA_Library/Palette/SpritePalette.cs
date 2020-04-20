@@ -174,6 +174,38 @@ namespace FEXNA_Library.Palette
             }
         }
 
+        public Color[] GetRecolors(RecolorData recolorData)
+        {
+            // Go through each ramp to make a dictionary of the color remaps
+            Dictionary<Color, Color> recolors = new Dictionary<Color, Color>();
+            if (recolorData != null)
+            {
+                foreach (var ramp in Ramps)
+                {
+                    if (recolorData.Recolors.ContainsKey(ramp.Name))
+                    {
+                        var parameters = recolorData.Recolors[ramp.Name];
+                        var recolorPalette = ramp.GetIndexedPalette(parameters);
+                        for (int i = 0; i < ramp.Colors.Count; i++)
+                        {
+                            recolors[ramp.Colors[i]] = recolorPalette.GetColor(i);
+                        }
+                    }
+                }
+            }
+
+            // Take the original palette and apply all the recolors
+            Color[] result = Palette
+                .Select(x => x.Value)
+                .ToArray();
+            for (int i = 0; i < Palette.Count; i++)
+            {
+                if (recolors.ContainsKey(result[i]))
+                    result[i] = recolors[result[i]];
+            }
+            return result;
+        }
+
         #region ICloneable
         public object Clone()
         {
