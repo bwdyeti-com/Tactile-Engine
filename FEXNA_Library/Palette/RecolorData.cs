@@ -9,7 +9,7 @@ namespace FEXNA_Library.Palette
     public class RecolorData : IFEXNADataContent
     {
         public string Name;
-        public Dictionary<string, PaletteParameters> Recolors = new Dictionary<string, PaletteParameters>();
+        public Dictionary<string, RecolorEntry> Recolors = new Dictionary<string, RecolorEntry>();
 
         #region Serialization
         public IFEXNADataContent Read_Content(ContentReader input)
@@ -39,7 +39,7 @@ namespace FEXNA_Library.Palette
             Name = source.Name;
             Recolors = source.Recolors.ToDictionary(
                 p => p.Key,
-                p => (PaletteParameters)p.Value.Clone());
+                p => (RecolorEntry)p.Value.Clone());
         }
 
         #region ICloneable

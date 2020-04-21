@@ -156,6 +156,7 @@
     <Compile Include="Palette\PaletteParameters.cs" />
     <Compile Include="Palette\PaletteRamp.cs" />
     <Compile Include="Palette\RecolorData.cs" />
+    <Compile Include="Palette\RecolorEntry.cs" />
     <Compile Include="Palette\SpritePalette.cs" />
     <Compile Include="Palette\XnaHSL.cs" />
     <Compile Include="Pathfinding\ClosedList.cs" />

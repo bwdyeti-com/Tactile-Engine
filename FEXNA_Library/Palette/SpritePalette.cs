@@ -182,14 +182,22 @@ namespace FEXNA_Library.Palette
             {
                 foreach (var ramp in Ramps)
                 {
-                    if (recolorData.Recolors.ContainsKey(ramp.Name))
+                    string name = ramp.Name;
+                    if (!recolorData.Recolors.ContainsKey(ramp.Name))
                     {
-                        var parameters = recolorData.Recolors[ramp.Name];
-                        var recolorPalette = ramp.GetIndexedPalette(parameters);
-                        for (int i = 0; i < ramp.Colors.Count; i++)
-                        {
-                            recolors[ramp.Colors[i]] = recolorPalette.GetColor(i);
-                        }
+                        // If no recolor has this name, check their OtherNames
+                        var pair = recolorData.Recolors.FirstOrDefault(x => x.Value.OtherNames.Contains(ramp.Name));
+                        if (!string.IsNullOrEmpty(pair.Key))
+                            name = pair.Key;
+                        else
+                            continue;
+                    }
+
+                    var parameters = recolorData.Recolors[name].Parameters;
+                    var recolorPalette = ramp.GetIndexedPalette(parameters);
+                    for (int i = 0; i < ramp.Colors.Count; i++)
+                    {
+                        recolors[ramp.Colors[i]] = recolorPalette.GetColor(i);
                     }
                 }
             }
