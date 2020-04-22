@@ -196,7 +196,7 @@ namespace FEXNA_Library.Palette
 
         public static float ValueFormula(Color color)
         {
-            return new XnaHSL(color).Lightness;
+            return Color_Util.GetLuma(color);
         }
 
         public bool DarkerThanBase(Color color)

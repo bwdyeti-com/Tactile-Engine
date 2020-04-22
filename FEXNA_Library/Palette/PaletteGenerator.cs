@@ -105,7 +105,10 @@ namespace FEXNA_Library.Palette
 
         public void AdjustValue(Color color, Color baseColor, float value)
         {
-            var parameters = new PaletteParameters(baseColor);
+            AdjustValue(color, new PaletteParameters(baseColor), value);
+        }
+        public void AdjustValue(Color color, PaletteParameters parameters, float value)
+        {
             var palette = GetPalette(parameters);
 
             if (palette.DarkerThanBase(color))
@@ -116,7 +119,7 @@ namespace FEXNA_Library.Palette
             else
             {
                 // Adjust specular
-                AdjustSpecularity(color, palette, value);
+                AdjustSpecularity(color, parameters, value);
             }
         }
 
@@ -131,6 +134,7 @@ namespace FEXNA_Library.Palette
 
         private void AdjustShadowAmount(Color color, GeneratedColorPalette palette, float rawAmount)
         {
+            // The percent of the way between 0 and the BASE_VALUE
             float amount = rawAmount / GeneratedColorPalette.BASE_VALUE;
             // Avoid divide by 0
             if (amount <= 0)
@@ -169,32 +173,36 @@ namespace FEXNA_Library.Palette
                 }
             }
         }
-        private void AdjustSpecularity(Color color, GeneratedColorPalette palette, float rawAmount)
+        private void AdjustSpecularity(Color color, PaletteParameters parameters, float rawAmount)
         {
-            float amount =
-                (rawAmount - GeneratedColorPalette.BASE_VALUE) /
-                (1f - GeneratedColorPalette.BASE_VALUE);
+            // Find what this color's value looks like with minimum and maximum
+            // specularity, and using where it should be inverse lerp into that
+            // range
+            var range = SpecularityRange();
+
+            var darkGenerator = (PaletteGenerator)Clone();
+            darkGenerator.Specularity = range.Minimum;
+            var darkPalette = darkGenerator.GetPalette(parameters);
+
+            var lightGenerator = (PaletteGenerator)Clone();
+            lightGenerator.Specularity = range.Maximum;
+            var lightPalette = lightGenerator.GetPalette(parameters);
+
+            // Dark Base Value will be a larger number, because a dark color
+            // will be closer to the specular
+            float darkBaseValue = darkPalette.GetValue(color);
+            float lightBaseValue = lightPalette.GetValue(color);
+
+            // I don't know how, but
             // Avoid divide by 0
-            if (amount <= 0)
+            if (lightBaseValue == darkBaseValue)
             {
                 this.Specularity = 1f;
                 return;
             }
-            
-            Color baseSpecular = BaseSpecularColor(palette.BaseColor);
-            float baseSpecularValue = GeneratedColorPalette.ValueFormula(baseSpecular);
-            // Avoid divide by 0
-            if (baseSpecularValue >= 1f)
-            {
-                this.Specularity = 0.5f;
-                return;
-            }
 
-            float baseValue = GeneratedColorPalette.ValueFormula(palette.BaseColor);
-            float colorValue = GeneratedColorPalette.ValueFormula(color);
-            float targetSpecularValue = MathHelper.Lerp(baseValue, colorValue, 1f / amount);
-
-            this.Specularity = (targetSpecularValue - baseSpecularValue) / (1f - baseSpecularValue);
+            float value = (rawAmount - lightBaseValue) / (darkBaseValue - lightBaseValue);
+            this.Specularity = MathHelper.Lerp(range.Maximum, range.Minimum, value);
         }
 
         internal void MinimizeSpecularityError(PaletteParameters parameters, List<PaletteEntry> ramp)
@@ -223,7 +231,7 @@ namespace FEXNA_Library.Palette
             Func<PaletteGenerator, float, float> function)
         {
             const int count = 20;
-            const int iterations = 10;
+            const int iterations = 3;
 
             List<Tuple<float, float>> errors = null;
             int index = -1;
@@ -234,7 +242,7 @@ namespace FEXNA_Library.Palette
                 index = errors.FindIndex(x => x.Item2 == min);
 
                 // Get the indices above and below the minimum value
-                int step = Math.Max(1, (int)(count * 0.75f) / 2);
+                int step = Math.Max(1, (int)(count * 0.3f) / 2);
                 int startIndex = Math.Max(0, index - step);
                 startIndex = Math.Min(count - step * 2, startIndex);
                 int endIndex = startIndex + step * 2;
@@ -251,6 +259,7 @@ namespace FEXNA_Library.Palette
             Func<PaletteGenerator, float, float> function)
         {
             PaletteGenerator copyGenerator = (PaletteGenerator)Clone();
+            PaletteParameters copyParameters = (PaletteParameters)parameters.Clone();
             float interval = (range.Maximum - range.Minimum) / count;
 
             var errors = new List<Tuple<float, float>>();
@@ -260,7 +269,13 @@ namespace FEXNA_Library.Palette
                 float value = range.Minimum + interval * i;
                 function(copyGenerator, value);
 
-                var palette = copyGenerator.GetPalette(parameters);
+                // Kind of necessary for user facing values
+                // Minimize error on blue shadow
+                copyParameters.MinimizeBlueError(copyGenerator, ramp);
+                // Minimize error on yellow light
+                copyParameters.MinimizeYellowError(copyGenerator, ramp);
+
+                var palette = copyGenerator.GetPalette(copyParameters);
                 float error = palette.GetError(ramp);
                 errors.Add(Tuple.Create(value, error));
             }

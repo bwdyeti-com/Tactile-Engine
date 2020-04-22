@@ -117,7 +117,7 @@ namespace FEXNA_Library.Palette
             Func<PaletteParameters, float, float> function)
         {
             const int count = 20;
-            const int iterations = 10;
+            const int iterations = 3;
 
             List<Tuple<float, float>> errors = null;
             int index = -1;
@@ -128,7 +128,7 @@ namespace FEXNA_Library.Palette
                 index = errors.FindIndex(x => x.Item2 == min);
 
                 // Get the indices above and below the minimum value
-                int step = Math.Max(1, (int)(count * 0.75f) / 2);
+                int step = Math.Max(1, (int)(count * 0.3f) / 2);
                 int startIndex = Math.Max(0, index - step);
                 startIndex = Math.Min(count - step * 2, startIndex);
                 int endIndex = startIndex + step * 2;

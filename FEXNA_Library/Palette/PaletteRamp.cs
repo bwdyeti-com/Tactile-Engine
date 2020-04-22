@@ -97,7 +97,7 @@ namespace FEXNA_Library.Palette
 
             Color baseColor = this.BaseColor;
 
-            var order = PaletteRamp.ColorLightnessOrder(Colors).ToList();
+            var order = PaletteRamp.ColorLumaOrder(Colors).ToList();
             Adjustments = order
                 .Select(x => Adjustments[x])
                 .ToList();
@@ -126,7 +126,7 @@ namespace FEXNA_Library.Palette
             }
         }
 
-        public static IEnumerable<int> ColorLightnessOrder(IEnumerable<Color> colors)
+        public static IEnumerable<int> ColorLumaOrder(IEnumerable<Color> colors)
         {
             List<int> order = Enumerable
                 .Range(0, colors.Count())
@@ -136,7 +136,10 @@ namespace FEXNA_Library.Palette
                     XnaHSL hsl = new XnaHSL(color);
                     return Tuple.Create(x, color, hsl);
                 })
-                .OrderBy(x => x.Item3.Lightness)
+                // This actually needs to use luma instead of lightness,
+                // because the perceptual order is important
+                .OrderBy(x => GeneratedColorPalette.ValueFormula(x.Item2))
+                .ThenBy(x => x.Item3.Lightness)
                 // If colors have the same lightness,
                 // use the one with the least saturation
                 .ThenBy(x => x.Item3.Saturation)
@@ -187,7 +190,7 @@ namespace FEXNA_Library.Palette
             }
         }
 
-        public void SetValue(int index, float value)
+        private void SetValue(int index, float value)
         {
             // Can't adjust the base color value
             if (index == BaseColorIndex)

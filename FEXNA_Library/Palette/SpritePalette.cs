@@ -98,7 +98,7 @@ namespace FEXNA_Library.Palette
         public void AddRamp(List<Color> sourceColors, List<int> sourceWeights)
         {
             // Order the colors by lightness
-            var order = PaletteRamp.ColorLightnessOrder(sourceColors);
+            var order = PaletteRamp.ColorLumaOrder(sourceColors);
             var orderedColors = order
                 .Select(x => sourceColors[x])
                 .ToList();
@@ -168,7 +168,7 @@ namespace FEXNA_Library.Palette
         {
             if (Palette.Any())
             {
-                var order = PaletteRamp.ColorLightnessOrder(Palette.Select(x => x.Value));
+                var order = PaletteRamp.ColorLumaOrder(Palette.Select(x => x.Value));
                 int index = order.ElementAt(0);
                 SetDarkestColor(index);
             }
