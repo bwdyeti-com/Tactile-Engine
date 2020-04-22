@@ -15,19 +15,31 @@ namespace FEXNA_Library.Palette
         public List<PaletteEntry> Palette = new List<PaletteEntry>();
         public List<PaletteRamp> Ramps = new List<PaletteRamp>();
         public Color DarkestColor;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            SpritePalette result = new SpritePalette();
+            return GetEmptyInstance();
+        }
+        public static SpritePalette GetEmptyInstance()
+        {
+            return new SpritePalette();
+        }
 
-            result.Name = input.ReadString();
-            result.IsIndexedPalette = input.ReadBoolean();
-            input.ReadFEXNAContent(result.Palette);
-            input.ReadFEXNAContent(result.Ramps);
-            result.DarkestColor = result.DarkestColor.read(input);
-
+        public static SpritePalette ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Name = input.ReadString();
+            IsIndexedPalette = input.ReadBoolean();
+            input.ReadFEXNAContent(Palette, PaletteEntry.GetEmptyInstance());
+            input.ReadFEXNAContent(Ramps, PaletteRamp.GetEmptyInstance());
+            DarkestColor = DarkestColor.read(input);
         }
 
         public void Write(BinaryWriter output)

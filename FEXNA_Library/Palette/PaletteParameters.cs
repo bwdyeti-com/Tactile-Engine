@@ -43,19 +43,31 @@ namespace FEXNA_Library.Palette
             }
         }
         public bool ReducedDepth = false;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            PaletteParameters result = new PaletteParameters();
+            return GetEmptyInstance();
+        }
+        public static PaletteParameters GetEmptyInstance()
+        {
+            return new PaletteParameters();
+        }
 
-            result.BaseColor = result.BaseColor.read(input);
-            result._YellowLight = input.ReadSingle();
-            result._BlueShadow = input.ReadSingle();
-            result._OriginalLightness = input.ReadSingle();
-            result.ReducedDepth = input.ReadBoolean();
-
+        public static PaletteParameters ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            BaseColor = BaseColor.read(input);
+            _YellowLight = input.ReadSingle();
+            _BlueShadow = input.ReadSingle();
+            _OriginalLightness = input.ReadSingle();
+            ReducedDepth = input.ReadBoolean();
         }
 
         public void Write(BinaryWriter output)

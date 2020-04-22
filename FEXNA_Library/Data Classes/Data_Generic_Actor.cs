@@ -14,20 +14,32 @@ namespace FEXNA_Library
         public List<int> BaseStats = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0 };
         public List<int> Growths = new List<int> { 0, 0, 0, 0, 0, 0, 0 };
         public List<int> Skills = new List<int>();
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            Data_Generic_Actor result = new Data_Generic_Actor();
+            return GetEmptyInstance();
+        }
+        public static Data_Generic_Actor GetEmptyInstance()
+        {
+            return new Data_Generic_Actor();
+        }
 
-            result.Name = input.ReadString();
-            result.MiniFaceName = input.ReadString();
-            result.Description = input.ReadString();
-            result.BaseStats.read(input);
-            result.Growths.read(input);
-            result.Skills.read(input);
-
+        public static Data_Generic_Actor ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Name = input.ReadString();
+            MiniFaceName = input.ReadString();
+            Description = input.ReadString();
+            BaseStats.read(input);
+            Growths.read(input);
+            Skills.read(input);
         }
 
         public void Write(BinaryWriter output)

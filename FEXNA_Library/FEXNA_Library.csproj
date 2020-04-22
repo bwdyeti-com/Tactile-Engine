@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color_Util.cs" />
+    <Compile Include="Content Readers\FEXNAStructReader.cs" />
     <Compile Include="Content Readers\FEXNADataReader.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />

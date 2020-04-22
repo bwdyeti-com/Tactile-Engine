@@ -7,18 +7,30 @@ namespace FEXNA_Library.Palette
 {
     public class RecolorEntry : IFEXNADataContent
     {
-        public List<string> OtherNames;
+        public List<string> OtherNames = new List<string>();
         public PaletteParameters Parameters;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            RecolorEntry result = new RecolorEntry();
+            return GetEmptyInstance();
+        }
+        public static RecolorEntry GetEmptyInstance()
+        {
+            return new RecolorEntry();
+        }
 
-            result.OtherNames.read(input);
-            result.Parameters = (PaletteParameters)result.Parameters.Read_Content(input);
-
+        public static RecolorEntry ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            OtherNames.read(input);
+            Parameters = PaletteParameters.ReadContent(input);
         }
 
         public void Write(BinaryWriter output)

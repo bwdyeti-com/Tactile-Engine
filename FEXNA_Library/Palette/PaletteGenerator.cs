@@ -50,18 +50,30 @@ namespace FEXNA_Library.Palette
                 _BlackLevel = MathHelper.Clamp(value, range.Minimum, range.Maximum);
             }
         }
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            PaletteGenerator result = new PaletteGenerator();
+            return GetEmptyInstance();
+        }
+        public static PaletteGenerator GetEmptyInstance()
+        {
+            return new PaletteGenerator();
+        }
 
-            result._Specularity = input.ReadSingle();
-            result._BaseLightness = input.ReadSingle();
-            result._ShadowAmount = input.ReadSingle();
-            result._BlackLevel = input.ReadSingle();
-
+        public static PaletteGenerator ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            _Specularity = input.ReadSingle();
+            _BaseLightness = input.ReadSingle();
+            _ShadowAmount = input.ReadSingle();
+            _BlackLevel = input.ReadSingle();
         }
 
         public void Write(BinaryWriter output)

@@ -51,37 +51,46 @@ namespace FEXNA_Library
         [ContentSerializerIgnore]
         public bool[] Staff_Traits = new bool[] { false, false, false, false, false, false, false };
         public int[] Effectiveness;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            return read(input);
+            return GetEmptyInstance();
         }
-        public static Data_Weapon read(BinaryReader reader)
+        public static Data_Weapon GetEmptyInstance()
         {
-            Data_Weapon result = new Data_Weapon();
-            result.read_equipment(reader);
-            
-            result.Mgt = reader.ReadInt32();
-            result.Hit = reader.ReadInt32();
-            result.Crt = reader.ReadInt32();
-            result.Wgt = reader.ReadInt32();
-            result.Min_Range = reader.ReadInt32();
-            result.Max_Range = reader.ReadInt32();
-            result.Mag_Range = reader.ReadBoolean();
-            result.No_Counter = reader.ReadBoolean();
-            result.Long_Range = reader.ReadBoolean();
-            result.Main_Type = reader.ReadInt32();
-            result.Scnd_Type = reader.ReadInt32();
-            result.Rank = (Weapon_Ranks)reader.ReadInt32();
-            result.Attack_Type = (Attack_Types)reader.ReadInt32();
-            result.WExp = reader.ReadInt32();
-            result.Staff_Exp = reader.ReadInt32();
-            result.Traits = result.Traits.read(reader);
-            result.Staff_Traits = result.Staff_Traits.read(reader);
-            result.Effectiveness = result.Effectiveness.read(reader);
+            return new Data_Weapon();
+        }
 
+        public static Data_Weapon ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader reader)
+        {
+            read_equipment(reader);
+
+            Mgt = reader.ReadInt32();
+            Hit = reader.ReadInt32();
+            Crt = reader.ReadInt32();
+            Wgt = reader.ReadInt32();
+            Min_Range = reader.ReadInt32();
+            Max_Range = reader.ReadInt32();
+            Mag_Range = reader.ReadBoolean();
+            No_Counter = reader.ReadBoolean();
+            Long_Range = reader.ReadBoolean();
+            Main_Type = reader.ReadInt32();
+            Scnd_Type = reader.ReadInt32();
+            Rank = (Weapon_Ranks)reader.ReadInt32();
+            Attack_Type = (Attack_Types)reader.ReadInt32();
+            WExp = reader.ReadInt32();
+            Staff_Exp = reader.ReadInt32();
+            Traits = Traits.read(reader);
+            Staff_Traits = Staff_Traits.read(reader);
+            Effectiveness = Effectiveness.read(reader);
         }
 
         public void Write(BinaryWriter output)

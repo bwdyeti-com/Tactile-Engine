@@ -9,16 +9,28 @@ namespace FEXNA_Library.Palette
     {
         public Color Value;
         public int Weight;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            PaletteEntry result = new PaletteEntry();
+            return GetEmptyInstance();
+        }
+        public static PaletteEntry GetEmptyInstance()
+        {
+            return new PaletteEntry();
+        }
 
-            result.Value = result.Value.read(input);
-            result.Weight = input.ReadInt32();
-
+        public static PaletteEntry ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Value = Value.read(input);
+            Weight = input.ReadInt32();
         }
 
         public void Write(BinaryWriter output)

@@ -11,15 +11,27 @@ namespace FEXNA_Library.Palette
         public string Name;
         public Dictionary<string, RecolorEntry> Recolors = new Dictionary<string, RecolorEntry>();
 
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            RecolorData result = new RecolorData();
+            return GetEmptyInstance();
+        }
+        public static RecolorData GetEmptyInstance()
+        {
+            return new RecolorData();
+        }
 
-            result.Name = input.ReadString();
-            input.ReadFEXNAContent(result.Recolors);
-
+        public static RecolorData ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Name = input.ReadString();
+            input.ReadFEXNAContent(Recolors, RecolorEntry.GetEmptyInstance());
         }
 
         public void Write(BinaryWriter output)

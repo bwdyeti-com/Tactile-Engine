@@ -17,20 +17,32 @@ namespace FEXNA_Library.Palette
         public List<ColorVector> Adjustments;
         public PaletteGenerator Generator;
         public bool BlueYellowAdjustments;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            PaletteRamp result = new PaletteRamp();
+            return GetEmptyInstance();
+        }
+        public static PaletteRamp GetEmptyInstance()
+        {
+            return new PaletteRamp();
+        }
 
-            result.Name = input.ReadString();
-            result.BaseColorIndex = input.ReadInt32();
-            result.Colors.read(input);
-            input.ReadFEXNAContent(result.Adjustments);
-            result.Generator = (PaletteGenerator)result.Generator.Read_Content(input);
-            result.BlueYellowAdjustments = input.ReadBoolean();
-
+        public static PaletteRamp ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Name = input.ReadString();
+            BaseColorIndex = input.ReadInt32();
+            Colors.read(input);
+            input.ReadFEXNAContentStruct(Adjustments);
+            Generator.Read(input);
+            BlueYellowAdjustments = input.ReadBoolean();
         }
 
         public void Write(BinaryWriter output)
@@ -38,7 +50,7 @@ namespace FEXNA_Library.Palette
             output.Write(Name);
             output.Write(BaseColorIndex);
             Colors.write(output);
-            output.Write(Adjustments);
+            output.WriteStruct(Adjustments);
             Generator.Write(output);
             output.Write(BlueYellowAdjustments);
         }

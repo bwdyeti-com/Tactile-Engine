@@ -65,55 +65,63 @@ namespace FEXNA_Library
         public int Ranking_Completion = 0;
         public Preset_Chapter_Data Preset_Data;
         public List<string> Progression_Ids = new List<string>();
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            return Read(input);
+            return GetEmptyInstance();
         }
-        public static Data_Chapter Read(BinaryReader reader)
+        public static Data_Chapter GetEmptyInstance()
         {
-            Data_Chapter result = new Data_Chapter();
+            return new Data_Chapter();
+        }
 
-            result.Id = reader.ReadString();
-            result.Prior_Chapters.read(reader);
-            result.Prior_Ranking_Chapters.read(reader);
-            result.Completed_Chapters.read(reader);
-            result.Standalone = reader.ReadBoolean();
-
-            result.Label = (ChapterLabels)reader.ReadInt32();
-            result.LabelString = reader.ReadString();
-            result.Chapter_Name = reader.ReadString();
-
-            result.WorldMapNameFormatString = reader.ReadString();
-            result.DisplayNameFormatString = reader.ReadString();
-            result.FileSelectNameFormatString = reader.ReadString();
-            result.ShortNameFormatString = reader.ReadString();
-            result.ListNameFormatString = reader.ReadString();
-            result.AlternateTitle = reader.ReadString();
-            
-            result.Arc = reader.ReadString();
-            result.World_Map_Loc = result.World_Map_Loc.read(reader);
-            result.World_Map_Lord_Id = reader.ReadInt32();
-
-            result.Turn_Themes.read(reader);
-            result.Battle_Themes.read(reader);
-
-            result.Battalion = reader.ReadInt32();
-            result.Text_Key = reader.ReadString();
-            result.Event_Data_Id = reader.ReadString();
-
-            result.Unranked = reader.ReadBoolean();
-            result.Ranking_Turns = reader.ReadInt32();
-            result.Ranking_Combat = reader.ReadInt32();
-            result.Ranking_Exp = reader.ReadInt32();
-            result.Ranking_Completion = reader.ReadInt32();
-
-            result.Preset_Data = Preset_Chapter_Data.Read(reader);
-
-            result.Progression_Ids.read(reader);
-
+        public static Data_Chapter ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Id = input.ReadString();
+            Prior_Chapters.read(input);
+            Prior_Ranking_Chapters.read(input);
+            Completed_Chapters.read(input);
+            Standalone = input.ReadBoolean();
+
+            Label = (ChapterLabels)input.ReadInt32();
+            LabelString = input.ReadString();
+            Chapter_Name = input.ReadString();
+
+            WorldMapNameFormatString = input.ReadString();
+            DisplayNameFormatString = input.ReadString();
+            FileSelectNameFormatString = input.ReadString();
+            ShortNameFormatString = input.ReadString();
+            ListNameFormatString = input.ReadString();
+            AlternateTitle = input.ReadString();
+            
+            Arc = input.ReadString();
+            World_Map_Loc = World_Map_Loc.read(input);
+            World_Map_Lord_Id = input.ReadInt32();
+
+            Turn_Themes.read(input);
+            Battle_Themes.read(input);
+
+            Battalion = input.ReadInt32();
+            Text_Key = input.ReadString();
+            Event_Data_Id = input.ReadString();
+
+            Unranked = input.ReadBoolean();
+            Ranking_Turns = input.ReadInt32();
+            Ranking_Combat = input.ReadInt32();
+            Ranking_Exp = input.ReadInt32();
+            Ranking_Completion = input.ReadInt32();
+
+            Preset_Data = Preset_Chapter_Data.Read(input);
+
+            Progression_Ids.read(input);
         }
 
         public void Write(BinaryWriter output)

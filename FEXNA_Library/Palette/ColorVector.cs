@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Content;
 
 namespace FEXNA_Library.Palette
 {
-    public struct ColorVector : IFEXNADataContent
+    public struct ColorVector : IFEXNADataContentStruct
     {
         [ContentSerializer(ElementName = "H")]
         public float Hue { get; private set; }
@@ -16,7 +16,7 @@ namespace FEXNA_Library.Palette
         public bool BlueYellowRamp { get; private set; }
 
         #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        public IFEXNADataContentStruct Read(BinaryReader input)
         {
             float hue = input.ReadSingle();
             float saturation = input.ReadSingle();
