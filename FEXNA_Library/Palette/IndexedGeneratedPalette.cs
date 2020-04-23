@@ -33,7 +33,7 @@ namespace FEXNA_Library.Palette
             var rawPalette = ramp.GetColorPalette(rawParameters);
 
             AdjustmentsSaturationMultiplier = SaturationMultiplier(
-                rawPalette, ramp, ramp.BaseColorIndex);
+                rawPalette.BaseColor, new XnaHSL(ramp.BaseColor));
 
             //@Debug: per color saturation adjustments
             /*AdjustmentsSaturationMultipliers = PaletteAdjustments
@@ -54,6 +54,11 @@ namespace FEXNA_Library.Palette
             XnaHSL targetHsl = new XnaHSL(target);
             XnaHSL sourceHsl = new XnaHSL(source);
 
+            return SaturationMultiplier(targetHsl, sourceHsl);
+        }
+
+        private static float SaturationMultiplier(XnaHSL targetHsl, XnaHSL sourceHsl)
+        {
             if (targetHsl.Saturation < sourceHsl.Saturation && sourceHsl.Saturation > 0)
                 return targetHsl.Saturation / sourceHsl.Saturation;
             else

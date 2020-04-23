@@ -12,7 +12,7 @@ namespace FEXNA_Library.Palette
     public class PaletteRamp : IFEXNADataContent
     {
         public string Name;
-        public int BaseColorIndex;
+        public float BaseColorIndex;
         public List<Color> Colors;
         public List<ColorVector> Adjustments;
         public PaletteGenerator Generator;
@@ -38,7 +38,7 @@ namespace FEXNA_Library.Palette
         public void Read(BinaryReader input)
         {
             Name = input.ReadString();
-            BaseColorIndex = input.ReadInt32();
+            BaseColorIndex = input.ReadSingle();
             Colors.read(input);
             input.ReadFEXNAContentStruct(Adjustments);
             Generator.Read(input);
@@ -59,7 +59,7 @@ namespace FEXNA_Library.Palette
         public PaletteRamp()
         {
             Name = "";
-            BaseColorIndex = -1;
+            BaseColorIndex = 0;
             Colors = new List<Color>();
             Adjustments = new List<ColorVector>();
             Generator = new PaletteGenerator();
@@ -80,10 +80,37 @@ namespace FEXNA_Library.Palette
         {
             get
             {
-                if (BaseColorIndex < 0)
-                    return Color.Black;
-                return Colors[BaseColorIndex];
+                return GetColor(BaseColorIndex);
             }
+        }
+
+        public Color GetColor(float index)
+        {
+            XnaHSL black = new XnaHSL(Colors.FirstOrDefault());
+            black = black.SetSaturation(0f);
+            black = black.SetLightness(0f);
+            XnaHSL white = new XnaHSL(Colors.LastOrDefault());
+            white = white.SetSaturation(0f);
+            white = white.SetLightness(1f);
+
+            XnaHSL left = black;
+            XnaHSL right = white;
+
+            for (int i = 0; i <= Colors.Count; i++, index -= 1f, left = right)
+            {
+                if (i == Colors.Count)
+                    right = white;
+                else
+                    right = new XnaHSL(Colors[i]);
+
+                if (index <= 0f)
+                {
+                    XnaHSL hslResult = XnaHSL.Lerp(left, right, (index + 1));
+                    Color result = hslResult.GetColor();
+                    return result;
+                }
+            }
+            return right.GetColor();
         }
 
         public void AddColor(Color color)
@@ -163,12 +190,9 @@ namespace FEXNA_Library.Palette
             return order;
         }
 
-        public void SetBaseColor(int index, List<PaletteEntry> entries)
+        public void SetBaseColor(float index, List<PaletteEntry> entries)
         {
-            if (index < 0 || index >= Colors.Count)
-                return;
-
-            BaseColorIndex = index;
+            BaseColorIndex = MathHelper.Clamp(index, -1, Colors.Count);
 
             Generator.BaseLightness = new XnaHSL(this.BaseColor).Lightness;
             // Set initial palette values
