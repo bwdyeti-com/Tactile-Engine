@@ -9,11 +9,11 @@ namespace FEXNA_Library.Palette
     {
         public const float BASE_VALUE = 0.6f;
 
-        public Color BaseColor { get; private set; }
-        public Color Darkest { get; private set; }
-        private Color Shadow;
-        private Color Highlight;
-        public Color Specular { get; private set; }
+        public XnaHSL BaseColor { get; private set; }
+        public XnaHSL Darkest { get; private set; }
+        private XnaHSL Shadow;
+        private XnaHSL Highlight;
+        public XnaHSL Specular { get; private set; }
 
         public bool ReducedDepth;
 
@@ -22,13 +22,13 @@ namespace FEXNA_Library.Palette
             PaletteParameters parameters)
         {
             // Adjust base color up if black level is too close to it
-            Color baseColor = AdjustBaseColor(parameters.BaseColor, generator.BlackLevel);
+            XnaHSL baseColor = AdjustBaseColor(parameters.BaseColor, generator.BlackLevel);
 
-            Color highlight, specular;
+            XnaHSL highlight, specular;
             GetHighlight(baseColor, generator, parameters,
                 out highlight, out specular);
 
-            Color shadow, darkest;
+            XnaHSL shadow, darkest;
             GetShadow(baseColor, generator, parameters,
                 out shadow, out darkest);
 
@@ -61,7 +61,7 @@ namespace FEXNA_Library.Palette
         /// <summary>
         /// Adjusts base color lightness up if it's too close to the BlackLevel
         /// </summary>
-        private static Color AdjustBaseColor(Color color, float blackLevel)
+        private static XnaHSL AdjustBaseColor(Color color, float blackLevel)
         {
             // Use HSV instead of HSL to have finer control over the saturation
             float h, s, v;
@@ -72,18 +72,18 @@ namespace FEXNA_Library.Palette
             float adjustedS = adjustedV == 0 ? 0 : s * (v / adjustedV);
             Color adjusted = Color_Util.HSVToColor(h, adjustedS, adjustedV);
             adjusted.A = color.A;
-            return adjusted;
+
+            return new XnaHSL(adjusted);
         }
 
         private static void GetHighlight(
-            Color baseColor,
+            XnaHSL baseHSL,
             PaletteGenerator generator,
             PaletteParameters parameters,
-            out Color highlight,
-            out Color specular)
+            out XnaHSL highlight,
+            out XnaHSL specular)
         {
-            XnaHSL baseHSL = new XnaHSL(baseColor);
-            Color baseSpecular =  PaletteGenerator.BaseSpecularColor(baseColor);
+            Color baseSpecular =  PaletteGenerator.BaseSpecularColor(baseHSL.GetColor());
 
             // Tint yellow
             XnaHSL specularHSL = new XnaHSL(baseSpecular);
@@ -105,31 +105,35 @@ namespace FEXNA_Library.Palette
                 float lightnessDiff = generator.BaseLightness - baseHSL.Lightness;
                 specularHSL = specularHSL.SetLightness(specularHSL.Lightness - (lightnessDiff));
             }
-            specular = specularHSL.GetColor();
+            specular = specularHSL;
 
             // Get highlight
             XnaHSL highlightHSL = XnaHSL.Lerp(baseHSL, specularHSL, 0.5f);
 
-            highlight = highlightHSL.GetColor();
+            highlight = highlightHSL;
         }
 
         private static void GetShadow(
-            Color baseColor,
+            XnaHSL baseHSL,
             PaletteGenerator generator,
             PaletteParameters parameters,
-            out Color shadow,
-            out Color darkest)
+            out XnaHSL shadow,
+            out XnaHSL darkest)
         {
-            XnaHSL baseHSL = new XnaHSL(baseColor);
-            XnaHSL blackHSL = new XnaHSL(baseHSL.Hue, baseHSL.Saturation, generator.BlackLevel, baseColor.A);
+            XnaHSL blackHSL = new XnaHSL(
+                baseHSL.Hue,
+                baseHSL.Saturation * generator.ShadowAmount,
+                generator.BlackLevel,
+                baseHSL.Alpha);
 
-            // Tint shadow blue
+            // Tint black and shadow blue
+            blackHSL = blackHSL.LerpHue(240, parameters.BlueShadow);
             XnaHSL shadowHSL = XnaHSL.Lerp(blackHSL, baseHSL, generator.ShadowAmount);
-            shadowHSL = shadowHSL.LerpHue(240, parameters.BlueShadow);
-            blackHSL = blackHSL.SetHue(shadowHSL.Hue);
+            shadowHSL = shadowHSL.SetHue(blackHSL.Hue);
+            shadowHSL = shadowHSL.LerpHue(baseHSL.Hue, 0.25f);
 
-            shadow = shadowHSL.GetColor();
-            darkest = new XnaHSL(0, 0, generator.BlackLevel, baseColor.A).GetColor();
+            shadow = shadowHSL;
+            darkest = new XnaHSL(blackHSL.Hue, blackHSL.Saturation, generator.BlackLevel, baseHSL.Alpha);
         }
 
         public Color GetColor(float value)
@@ -141,13 +145,13 @@ namespace FEXNA_Library.Palette
                 if (value < end.Item2)
                 {
                     float range = end.Item2 - start.Item2;
-                    Color c = Color.Lerp(start.Item1, end.Item1,
+                    XnaHSL hsl = XnaHSL.Lerp(start.Item1, end.Item1,
                         (value - start.Item2) / range);
-                    return DepthColor(c);
+                    return DepthColor(hsl.GetColor());
                 }
                 start = end;
             }
-            return DepthColor(Specular);
+            return DepthColor(Specular.GetColor());
         }
         private Color DepthColor(Color c)
         {
@@ -198,6 +202,10 @@ namespace FEXNA_Library.Palette
         {
             return Color_Util.GetLuma(color);
         }
+        public static float ValueFormula(XnaHSL hsl)
+        {
+            return ValueFormula(hsl.GetColor());
+        }
 
         public bool DarkerThanBase(Color color)
         {
@@ -230,18 +238,18 @@ namespace FEXNA_Library.Palette
             return error;
         }
 
-        private IEnumerable<Tuple<Color, float>> GetRanges()
+        private IEnumerable<Tuple<XnaHSL, float>> GetRanges()
         {
             var anchors = AnchorValues().ToArray();
             var colors = AnchorColors().ToArray();
 
             for (int i = 0; i < anchors.Length; i++)
             {
-                yield return new Tuple<Color, float>(colors[i], anchors[i]);
+                yield return new Tuple<XnaHSL, float>(colors[i], anchors[i]);
             }
         }
 
-        private IEnumerable<Color> AnchorColors()
+        private IEnumerable<XnaHSL> AnchorColors()
         {
             yield return Darkest;
             yield return Shadow;

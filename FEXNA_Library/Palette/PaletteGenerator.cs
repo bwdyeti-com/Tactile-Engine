@@ -94,17 +94,17 @@ namespace FEXNA_Library.Palette
             _BlackLevel = source._BlackLevel;
         }
 
-        private static Range<float> SpecularityRange()
+        public static Range<float> SpecularityRange()
         {
             return new Range<float>(0.25f, 1f);
             //return new Range<float>(0f, 1f);
         }
-        private static Range<float> ShadowRange()
+        public static Range<float> ShadowRange()
         {
             return new Range<float>(0.25f, 0.75f);
             //return new Range<float>(0f, 1f);
         }
-        private static Range<float> BlackRange()
+        public static Range<float> BlackRange()
         {
             return new Range<float>(0f, 0.5f);
             //return new Range<float>(0f, 1f);

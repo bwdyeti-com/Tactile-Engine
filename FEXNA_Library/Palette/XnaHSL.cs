@@ -73,7 +73,8 @@ namespace FEXNA_Library.Palette
         private static float LerpHue(float value1, float value2, float amount)
         {
             // If the hues are closer across the blue-red boundary
-            if (Math.Abs(value1 - value2) > 180)
+            float diff = Math.Abs(value1 - value2);
+            if (diff >= 180)
             {
                 float result;
                 if (value1 > value2)
