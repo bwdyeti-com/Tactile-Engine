@@ -84,7 +84,7 @@ namespace FEXNA_Library.Palette
             }
         }
 
-        public Color GetColor(float index)
+        public XnaHSL GetHsl(float index)
         {
             XnaHSL black = new XnaHSL(Colors.FirstOrDefault());
             black = black.SetSaturation(0f);
@@ -106,11 +106,14 @@ namespace FEXNA_Library.Palette
                 if (index <= 0f)
                 {
                     XnaHSL hslResult = XnaHSL.Lerp(left, right, (index + 1));
-                    Color result = hslResult.GetColor();
-                    return result;
+                    return hslResult;
                 }
             }
-            return right.GetColor();
+            return right;
+        }
+        public Color GetColor(float index)
+        {
+            return GetHsl(index).GetColor();
         }
 
         public void AddColor(Color color)
