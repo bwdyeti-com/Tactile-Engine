@@ -7,9 +7,11 @@ namespace FEXNA_Library.Palette
 {
     public class PaletteEntry : IFEXNADataContent
     {
-        public Color Value;
-        public int Weight;
-        
+        [ContentSerializer]
+        public Color Value { get; private set; }
+        [ContentSerializer]
+        public int Weight { get; private set; }
+
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
         {

@@ -9,7 +9,7 @@ namespace FEXNA_Library.Palette
         private GeneratedColorPalette BasePalette;
         private float[] ColorValues;
         private ColorVector[] PaletteAdjustments;
-        float AdjustmentsSaturationMultiplier;
+        private float AdjustmentsSaturationMultiplier;
 
         public IndexedGeneratedPalette(
             PaletteRamp ramp,

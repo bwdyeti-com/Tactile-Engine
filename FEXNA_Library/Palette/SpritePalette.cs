@@ -10,11 +10,16 @@ namespace FEXNA_Library.Palette
 {
     public class SpritePalette : IFEXNADataContent
     {
-        public string Name;
-        public bool IsIndexedPalette;
-        public List<PaletteEntry> Palette = new List<PaletteEntry>();
-        public List<PaletteRamp> Ramps = new List<PaletteRamp>();
-        public Color DarkestColor;
+        [ContentSerializer]
+        private string Name;
+        [ContentSerializer]
+        private bool IsIndexedPalette;
+        [ContentSerializer]
+        private List<PaletteEntry> Palette = new List<PaletteEntry>();
+        [ContentSerializer]
+        private List<PaletteRamp> Ramps = new List<PaletteRamp>();
+        [ContentSerializer]
+        private Color DarkestColor;
         
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
@@ -68,6 +73,19 @@ namespace FEXNA_Library.Palette
             DarkestColor = source.DarkestColor;
         }
 
+        [ContentSerializerIgnore]
+        public int Count { get { return Palette.Count; } }
+        public List<Color> GetPalette()
+        {
+            return Palette
+                .Select(x => x.Value)
+                .ToList();
+        }
+        public Color GetColor(int index)
+        {
+            return Palette[index].Value;
+        }
+
         public int AddColor(Color color, int weight)
         {
             int index = ColorIndex(color);
@@ -94,16 +112,13 @@ namespace FEXNA_Library.Palette
 
         public void AddRamp()
         {
-            var ramp = new PaletteRamp();
-            ramp.Generator.BlackLevel = GeneratedColorPalette.ValueFormula(
-                DarkestColor);
-
             string name = "New Ramp";
             for (int index = 1;  Ramps.Any(x => x.Name == name); index++)
             {
                 name = string.Format("New Ramp{0}", index);
             }
-            ramp.Name = name;
+
+            var ramp = new PaletteRamp(name, DarkestColor);
 
             Ramps.Add(ramp);
         }
@@ -173,7 +188,7 @@ namespace FEXNA_Library.Palette
             DarkestColor = Palette[index].Value;
 
             for (int i = 0; i < Ramps.Count; i++)
-                Ramps[i].Generator.BlackLevel = GeneratedColorPalette.ValueFormula(DarkestColor);
+                Ramps[i].SetBlackLevel(DarkestColor);
         }
 
         public void RefreshDarkestColor()
