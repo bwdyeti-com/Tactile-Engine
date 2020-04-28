@@ -12,18 +12,20 @@ namespace FEXNA_Library.Palette
     public class PaletteRamp : IFEXNADataContent
     {
         [ContentSerializer]
-        public string Name { get; private set; }
-        [ContentSerializer]
-        private float BaseColorIndex;
-        [ContentSerializer]
+        public string Name;
+        [ContentSerializer(ElementName = "BaseColorIndex")]
+        private float _BaseColorIndex;
+        [ContentSerializer(ElementName = "Colors")]
         private List<Color> _Colors;
-        [ContentSerializer]
+        [ContentSerializer(ElementName = "Adjustments")]
         private List<ColorVector> _Adjustments;
         [ContentSerializer]
-        private PaletteGenerator Generator;
+        public PaletteGenerator Generator;
         [ContentSerializer]
-        private bool BlueYellowAdjustments;
+        public bool BlueYellowAdjustments;
 
+        [ContentSerializerIgnore]
+        public float BaseColorIndex { get { return _BaseColorIndex; } }
         [ContentSerializerIgnore]
         public List<Color> Colors
         {
@@ -61,7 +63,7 @@ namespace FEXNA_Library.Palette
         public void Read(BinaryReader input)
         {
             Name = input.ReadString();
-            BaseColorIndex = input.ReadSingle();
+            _BaseColorIndex = input.ReadSingle();
             _Colors.read(input);
             input.ReadFEXNAContentStruct(_Adjustments);
             Generator.Read(input);
@@ -71,7 +73,7 @@ namespace FEXNA_Library.Palette
         public void Write(BinaryWriter output)
         {
             output.Write(Name);
-            output.Write(BaseColorIndex);
+            output.Write(_BaseColorIndex);
             _Colors.write(output);
             output.WriteStruct(_Adjustments);
             Generator.Write(output);
@@ -83,7 +85,7 @@ namespace FEXNA_Library.Palette
         public PaletteRamp(string name, Color darkestColor)
         {
             Name = name;
-            BaseColorIndex = 0;
+            _BaseColorIndex = 0;
             _Colors = new List<Color>();
             _Adjustments = new List<ColorVector>();
             Generator = new PaletteGenerator();
@@ -94,7 +96,7 @@ namespace FEXNA_Library.Palette
         private PaletteRamp(PaletteRamp source)
         {
             Name = source.Name;
-            BaseColorIndex = source.BaseColorIndex;
+            _BaseColorIndex = source._BaseColorIndex;
             _Colors = new List<Color>(source._Colors);
             _Adjustments = new List<ColorVector>(source._Adjustments);
             Generator = (PaletteGenerator)source.Generator.Clone();
@@ -102,11 +104,13 @@ namespace FEXNA_Library.Palette
         }
 
         [ContentSerializerIgnore]
+        public int Count { get { return _Colors.Count; } }
+        [ContentSerializerIgnore]
         public Color BaseColor
         {
             get
             {
-                return GetColor(BaseColorIndex);
+                return GetColor(_BaseColorIndex);
             }
         }
 
@@ -151,7 +155,7 @@ namespace FEXNA_Library.Palette
             _Colors.Add(color);
             _Adjustments.Add(new ColorVector());
 
-            if (BaseColorIndex < 0)
+            if (_BaseColorIndex < 0)
                 SetBaseColor(0, null);
 
             // Order the colors by lightness
@@ -173,7 +177,7 @@ namespace FEXNA_Library.Palette
                 .Select(x => _Colors[x])
                 .ToList();
 
-            BaseColorIndex = _Colors.IndexOf(baseColor);
+            _BaseColorIndex = _Colors.IndexOf(baseColor);
         }
 
         public void RemoveColor(int index)
@@ -189,8 +193,8 @@ namespace FEXNA_Library.Palette
                 _Colors.RemoveAt(index);
                 _Adjustments.RemoveAt(index);
 
-                if (BaseColorIndex >= _Colors.Count)
-                    BaseColorIndex--;
+                if (_BaseColorIndex >= _Colors.Count)
+                    _BaseColorIndex--;
             }
         }
 
@@ -221,25 +225,25 @@ namespace FEXNA_Library.Palette
 
         public void SetBaseColor(float index, List<PaletteEntry> entries)
         {
-            BaseColorIndex = MathHelper.Clamp(index, -1, _Colors.Count);
+            _BaseColorIndex = MathHelper.Clamp(index, -1, _Colors.Count);
 
             Generator.BaseLightness = new XnaHSL(this.BaseColor).Lightness;
             // Set initial palette values
             // If there are colors darker than the base color
-            if (BaseColorIndex > 0)
+            if (_BaseColorIndex > 0)
             {
                 // Sets the darkest color a fraction of the distance to the base color
-                float step = GeneratedColorPalette.BASE_VALUE / (BaseColorIndex + 1);
+                float step = GeneratedColorPalette.BASE_VALUE / (_BaseColorIndex + 1);
                 SetValue(0, step);
             }
             else
                 Generator.ShadowAmount = 0.5f;
             // If there are colors lighter than the base color
-            if (BaseColorIndex < _Colors.Count - 1)
+            if (_BaseColorIndex < _Colors.Count - 1)
             {
                 // Sets the lightest color a fraction of the distance to the base color
                 float step = (1f - GeneratedColorPalette.BASE_VALUE) /
-                    (_Colors.Count - BaseColorIndex);
+                    (_Colors.Count - _BaseColorIndex);
                 SetValue(_Colors.Count - 1, 1f - step);
             }
             else
@@ -258,7 +262,7 @@ namespace FEXNA_Library.Palette
         private void SetValue(int index, float value)
         {
             // Can't adjust the base color value
-            if (index == BaseColorIndex)
+            if (index == _BaseColorIndex)
                 return;
 
             var color = _Colors[index];

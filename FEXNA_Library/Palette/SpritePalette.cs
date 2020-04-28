@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -13,14 +14,17 @@ namespace FEXNA_Library.Palette
         [ContentSerializer]
         private string Name;
         [ContentSerializer]
-        private bool IsIndexedPalette;
+        public bool IsIndexedPalette;
         [ContentSerializer]
         private List<PaletteEntry> Palette = new List<PaletteEntry>();
         [ContentSerializer]
         private List<PaletteRamp> Ramps = new List<PaletteRamp>();
-        [ContentSerializer]
-        private Color DarkestColor;
+        [ContentSerializer(ElementName = "DarkestColor")]
+        private Color _DarkestColor;
         
+        [ContentSerializerIgnore]
+        public Color DarkestColor { get { return _DarkestColor; } }
+
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
         {
@@ -44,7 +48,7 @@ namespace FEXNA_Library.Palette
             IsIndexedPalette = input.ReadBoolean();
             input.ReadFEXNAContent(Palette, PaletteEntry.GetEmptyInstance());
             input.ReadFEXNAContent(Ramps, PaletteRamp.GetEmptyInstance());
-            DarkestColor = DarkestColor.read(input);
+            _DarkestColor = _DarkestColor.read(input);
         }
 
         public void Write(BinaryWriter output)
@@ -53,7 +57,7 @@ namespace FEXNA_Library.Palette
             output.Write(IsIndexedPalette);
             output.Write(Palette);
             output.Write(Ramps);
-            DarkestColor.write(output);
+            _DarkestColor.write(output);
         }
         #endregion
 
@@ -62,7 +66,7 @@ namespace FEXNA_Library.Palette
         {
             Name = name;
             IsIndexedPalette = true;
-            DarkestColor = darkestColor;
+            _DarkestColor = darkestColor;
         }
         public SpritePalette(SpritePalette source)
         {
@@ -70,7 +74,7 @@ namespace FEXNA_Library.Palette
             IsIndexedPalette = source.IsIndexedPalette;
             Palette = source.Palette.Select(x => (PaletteEntry)x.Clone()).ToList();
             Ramps = source.Ramps.Select(x => (PaletteRamp)x.Clone()).ToList();
-            DarkestColor = source.DarkestColor;
+            _DarkestColor = source._DarkestColor;
         }
 
         [ContentSerializerIgnore]
@@ -81,9 +85,18 @@ namespace FEXNA_Library.Palette
                 .Select(x => x.Value)
                 .ToList();
         }
+        public PaletteEntry GetEntry(int index)
+        {
+            return (PaletteEntry)Palette[index].Clone();
+        }
+        public PaletteEntry GetEntry(int rampIndex, int colorIndex)
+        {
+            int index = ColorIndex(rampIndex, colorIndex);
+            return GetEntry(index);
+        }
         public Color GetColor(int index)
         {
-            return Palette[index].Value;
+            return GetEntry(index).Value;
         }
 
         public int AddColor(Color color, int weight)
@@ -110,6 +123,123 @@ namespace FEXNA_Library.Palette
             Ramps[rampIndex].AddColor(Palette[colorIndex].Value);
         }
 
+        public void RemoveColor(Color color)
+        {
+            int index = ColorIndex(color);
+            if (index >= 0)
+                RemoveAt(index);
+        }
+        public void RemoveAt(int index)
+        {
+            var entry = Palette[index];
+            Palette.RemoveAt(index);
+            for (int i = 0; i < Ramps.Count; i++)
+            {
+                Ramps[i].RemoveColor(entry.Value);
+            }
+        }
+
+        public bool MoveColor(int oldIndex, int newIndex)
+        {
+            if (oldIndex != newIndex &&
+                oldIndex >= 0 && oldIndex < Palette.Count &&
+                newIndex >= 0 && newIndex < Palette.Count)
+            {
+                var entry = Palette[oldIndex];
+                Palette.RemoveAt(oldIndex);
+                Palette.Insert(newIndex, entry);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public int ColorIndex(Color color)
+        {
+            return Palette.FindIndex(x => x.Value == color);
+        }
+        public int ColorIndex(int rampIndex, int colorIndex)
+        {
+            Color color = Ramps[rampIndex].Colors[colorIndex];
+            return Palette.FindIndex(x => x.Value == color);
+        }
+
+        public void SetWeight(int index, int value)
+        {
+            Palette[index].Weight = value;
+        }
+
+        public void PopularitySort()
+        {
+            var ordered_colors = Palette
+                // Put transparent colors last
+                .OrderBy(x => x.Value.A == 0 ? 1 : -1)
+                // Sort by weight
+                .ThenByDescending(x => x.Weight)
+                .ToList();
+
+            // Reverse if it was already sorted
+            if (Enumerable.Range(0, Palette.Count)
+                    .All(x => Palette.ElementAt(x) == ordered_colors.ElementAt(x)))
+            {
+                ordered_colors = ordered_colors
+                    .Reverse<PaletteEntry>()
+                    .OrderBy(x => x.Value.A == 0 ? 1 : -1)
+                    .ToList();
+            }
+            Palette = ordered_colors.ToList();
+        }
+        public void LuminanceSort()
+        {
+            var ordered_colors = Palette
+                .Select(x => new Tuple<PaletteEntry, float>(
+                    x, Color_Util.GetLuma(x.Value)))
+                // Put transparent colors last
+                .OrderBy(x => x.Item1.Value.A == 0 ? 1 : -1)
+                // Sort by luma
+                .ThenByDescending(x => x.Item2)
+                .Select(x => x.Item1)
+                .ToList();
+
+            // Reverse if it was already sorted
+            if (Enumerable.Range(0, Palette.Count)
+                    .All(x => Palette.ElementAt(x) == ordered_colors.ElementAt(x)))
+            {
+                ordered_colors = ordered_colors
+                    .Reverse<PaletteEntry>()
+                    .OrderBy(x => x.Value.A == 0 ? 1 : -1)
+                    .ToList();
+            }
+            Palette = ordered_colors.ToList();
+        }
+
+        public List<PaletteEntry> RampEntries(int rampIndex)
+        {
+            return RampEntries(Ramps[rampIndex]);
+        }
+        public List<PaletteEntry> RampEntries(PaletteRamp ramp)
+        {
+            var result = ramp.Colors
+                .Select(color =>
+                {
+                    int index = ColorIndex(color);
+                    if (index >= 0)
+                        return GetEntry(index);
+                    else
+                        return new PaletteEntry(color, 0);
+                })
+                .ToList();
+            return result;
+        }
+
+        [ContentSerializerIgnore]
+        public int RampCount { get { return Ramps.Count; } }
+        public int RampSize(int index)
+        {
+            return Ramps[index].Count;
+        }
+
         public void AddRamp()
         {
             string name = "New Ramp";
@@ -118,7 +248,7 @@ namespace FEXNA_Library.Palette
                 name = string.Format("New Ramp{0}", index);
             }
 
-            var ramp = new PaletteRamp(name, DarkestColor);
+            var ramp = new PaletteRamp(name, _DarkestColor);
 
             Ramps.Add(ramp);
         }
@@ -143,59 +273,101 @@ namespace FEXNA_Library.Palette
             }
         }
 
-        public void RemoveColor(Color color)
+        public bool MoveRamp(int oldIndex, int newIndex)
         {
-            int index = ColorIndex(color);
-            if (index >= 0)
-                RemoveAt(index);
-        }
-        public void RemoveAt(int index)
-        {
-            var entry = Palette[index];
-            Palette.RemoveAt(index);
-            for (int i = 0; i < Ramps.Count; i++)
+            if (oldIndex != newIndex &&
+                oldIndex >= 0 && oldIndex < Ramps.Count &&
+                newIndex >= 0 && newIndex < Ramps.Count)
             {
-                Ramps[i].RemoveColor(entry.Value);
+                var ramp = Ramps[oldIndex];
+                Ramps.RemoveAt(oldIndex);
+                Ramps.Insert(newIndex, ramp);
+
+                return true;
             }
+
+            return false;
         }
 
-        private int ColorIndex(Color color)
+        public void RemoveRamp(int index)
         {
-            return Palette.FindIndex(x => x.Value == color);
+            Ramps.RemoveAt(index);
         }
 
-        public List<PaletteEntry> RampEntries(int rampIndex)
+        public PaletteRamp GetRamp(int index)
         {
-            return RampEntries(Ramps[rampIndex]);
+            return Ramps[index];
         }
-        public List<PaletteEntry> RampEntries(PaletteRamp ramp)
+        public void ReplaceRamp(int index, PaletteRamp ramp)
         {
-            var result = ramp.Colors
-                .Select(color =>
+            Ramps[index] = ramp;
+        }
+
+        public PaletteRamp FindRampFromName(string name, List<string> otherNames)
+        {
+            var ramp = Ramps
+                .FirstOrDefault(x => x.Name == name);
+            if (ramp == null && otherNames != null)
+            {
+                // Use other names if the actual name doesn't show up
+                foreach (string otherName in otherNames)
                 {
-                    int index = ColorIndex(color);
-                    if (index >= 0)
-                        return Palette[index];
-                    else
-                        return new PaletteEntry(color, 0);
-                })
-                .ToList();
-            return result;
+                    ramp = Ramps
+                        .FirstOrDefault(x => x.Name == otherName);
+                    if (ramp != null)
+                        break;
+                }
+            }
+
+            return ramp;
+        }
+
+        public string GetRampName(int index)
+        {
+            return Ramps[index].Name;
+        }
+        public void SetRampName(int index, string name)
+        {
+            Ramps[index].Name = name;
+        }
+
+        public IEnumerable<string> AllRampNames()
+        {
+            return Ramps.Select(x => x.Name);
+        }
+
+        public bool AnyRampName(string name)
+        {
+            return Ramps.Any(x => name == x.Name);
+        }
+        public bool AnyRampName(IEnumerable<string> names)
+        {
+            return Ramps.Any(x => names.Contains(x.Name));
+        }
+
+        public int RampColorIndex(int rampIndex, Color color)
+        {
+            return Ramps[rampIndex].Colors.IndexOf(color);
+        }
+
+        public IEnumerable<Color> AllRampColors()
+        {
+            return Ramps.SelectMany(x => x.Colors);
         }
 
         public void SetDarkestColor(int index)
         {
-            DarkestColor = Palette[index].Value;
+            _DarkestColor = Palette[index].Value;
 
             for (int i = 0; i < Ramps.Count; i++)
-                Ramps[i].SetBlackLevel(DarkestColor);
+                Ramps[i].SetBlackLevel(_DarkestColor);
         }
 
         public void RefreshDarkestColor()
         {
             if (Palette.Any())
             {
-                var order = PaletteRamp.ColorLumaOrder(Palette.Select(x => x.Value));
+                var order = PaletteRamp.ColorLumaOrder(GetPalette());
                 int index = order.ElementAt(0);
                 SetDarkestColor(index);
             }
@@ -222,7 +394,7 @@ namespace FEXNA_Library.Palette
 
                     var parameters = recolorData.Recolors[name].Parameters;
                     var recolorPalette = ramp.GetIndexedPalette(parameters);
-                    for (int i = 0; i < ramp.Colors.Count; i++)
+                    for (int i = 0; i < ramp.Count; i++)
                     {
                         recolors[ramp.Colors[i]] = recolorPalette.GetColor(i);
                     }
@@ -230,9 +402,7 @@ namespace FEXNA_Library.Palette
             }
 
             // Take the original palette and apply all the recolors
-            Color[] result = Palette
-                .Select(x => x.Value)
-                .ToArray();
+            Color[] result = GetPalette().ToArray();
             for (int i = 0; i < Palette.Count; i++)
             {
                 if (recolors.ContainsKey(result[i]))

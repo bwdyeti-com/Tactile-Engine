@@ -21,8 +21,8 @@ namespace FEXNA_Library.Palette
             PaletteAdjustments = ramp.Adjustments.ToArray();
 
 #if DEBUG
-            System.Diagnostics.Debug.Assert(ramp.Colors.Count == ColorValues.Length, "Palette and ramp size must match");
-            System.Diagnostics.Debug.Assert(ramp.Colors.Count == PaletteAdjustments.Length, "Palette and ramp size must match");
+            System.Diagnostics.Debug.Assert(ramp.Count == ColorValues.Length, "Palette and ramp size must match");
+            System.Diagnostics.Debug.Assert(ramp.Count == PaletteAdjustments.Length, "Palette and ramp size must match");
 #endif
 
             // Saturation of the adjustment is reduced if the generated palette

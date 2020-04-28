@@ -10,7 +10,7 @@ namespace FEXNA_Library.Palette
         [ContentSerializer]
         public Color Value { get; private set; }
         [ContentSerializer]
-        public int Weight { get; private set; }
+        public int Weight;
 
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
