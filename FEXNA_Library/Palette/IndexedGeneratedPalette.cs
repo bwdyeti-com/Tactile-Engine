@@ -12,7 +12,7 @@ namespace FEXNA_Library.Palette
         private float AdjustmentsSaturationMultiplier;
 
         public IndexedGeneratedPalette(
-            PaletteRamp ramp,
+            SpriteRamp ramp,
             PaletteParameters parameters)
         {
             BasePalette = ramp.GetColorPalette(parameters);

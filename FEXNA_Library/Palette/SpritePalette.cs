@@ -94,6 +94,13 @@ namespace FEXNA_Library.Palette
             int index = ColorIndex(rampIndex, colorIndex);
             return GetEntry(index);
         }
+        public PaletteEntry GetEntry(Color color)
+        {
+            int index = ColorIndex(color);
+            if (index < 0)
+                return new PaletteEntry(color, 1);
+            return GetEntry(index);
+        }
         public Color GetColor(int index)
         {
             return GetEntry(index).Value;
@@ -120,7 +127,8 @@ namespace FEXNA_Library.Palette
                     Ramps[i].RemoveColor(Palette[colorIndex].Value);
             }
 
-            Ramps[rampIndex].AddColor(Palette[colorIndex].Value);
+            var spriteRamp = GetRamp(rampIndex);
+            spriteRamp.AddRampColor(Palette[colorIndex].Value);
         }
 
         public void RemoveColor(Color color)
@@ -214,11 +222,7 @@ namespace FEXNA_Library.Palette
             Palette = ordered_colors.ToList();
         }
 
-        public List<PaletteEntry> RampEntries(int rampIndex)
-        {
-            return RampEntries(Ramps[rampIndex]);
-        }
-        public List<PaletteEntry> RampEntries(PaletteRamp ramp)
+        internal List<PaletteEntry> RampEntries(PaletteRamp ramp)
         {
             var result = ramp.Colors
                 .Select(color =>
@@ -294,16 +298,17 @@ namespace FEXNA_Library.Palette
             Ramps.RemoveAt(index);
         }
 
-        public PaletteRamp GetRamp(int index)
+        public SpriteRamp GetRamp(int index)
         {
-            return Ramps[index];
+            var ramp = Ramps[index];
+            return new SpriteRamp(this, ramp);
         }
-        public void ReplaceRamp(int index, PaletteRamp ramp)
+        internal void ReplaceRamp(int index, PaletteRamp ramp)
         {
             Ramps[index] = ramp;
         }
 
-        public PaletteRamp FindRampFromName(string name, List<string> otherNames)
+        public int FindRampIndexFromName(string name, List<string> otherNames)
         {
             var ramp = Ramps
                 .FirstOrDefault(x => x.Name == name);
@@ -319,7 +324,7 @@ namespace FEXNA_Library.Palette
                 }
             }
 
-            return ramp;
+            return Ramps.IndexOf(ramp);
         }
 
         public string GetRampName(int index)
@@ -379,8 +384,9 @@ namespace FEXNA_Library.Palette
             Dictionary<Color, Color> recolors = new Dictionary<Color, Color>();
             if (recolorData != null)
             {
-                foreach (var ramp in Ramps)
+                for (int i = 0; i < Ramps.Count; i++)
                 {
+                    var ramp = GetRamp(i);
                     string name = ramp.Name;
                     if (!recolorData.Recolors.ContainsKey(ramp.Name))
                     {
@@ -394,9 +400,9 @@ namespace FEXNA_Library.Palette
 
                     var parameters = recolorData.Recolors[name].Parameters;
                     var recolorPalette = ramp.GetIndexedPalette(parameters);
-                    for (int i = 0; i < ramp.Count; i++)
+                    for (int j = 0; j < ramp.Count; j++)
                     {
-                        recolors[ramp.Colors[i]] = recolorPalette.GetColor(i);
+                        recolors[ramp.GetColor(j)] = recolorPalette.GetColor(j);
                     }
                 }
             }

@@ -12,7 +12,7 @@ namespace FEXNA_Library.Palette
     public class PaletteRamp : IFEXNADataContent
     {
         [ContentSerializer]
-        public string Name;
+        internal string Name;
         [ContentSerializer(ElementName = "BaseColorIndex")]
         private float _BaseColorIndex;
         [ContentSerializer(ElementName = "Colors")]
@@ -20,14 +20,18 @@ namespace FEXNA_Library.Palette
         [ContentSerializer(ElementName = "Adjustments")]
         private List<ColorVector> _Adjustments;
         [ContentSerializer]
-        public PaletteGenerator Generator;
+        internal PaletteGenerator Generator;
         [ContentSerializer]
-        public bool BlueYellowAdjustments;
+        internal bool BlueYellowAdjustments;
 
         [ContentSerializerIgnore]
-        public float BaseColorIndex { get { return _BaseColorIndex; } }
+        internal float BaseColorIndex
+        {
+            get { return _BaseColorIndex; }
+            set { _BaseColorIndex = MathHelper.Clamp(value, -1, _Colors.Count); }
+        }
         [ContentSerializerIgnore]
-        public List<Color> Colors
+        internal List<Color> Colors
         {
             get
             {
@@ -35,14 +39,14 @@ namespace FEXNA_Library.Palette
             }
         }
         [ContentSerializerIgnore]
-        public List<ColorVector> Adjustments
+        internal List<ColorVector> Adjustments
         {
             get
             {
                 return new List<ColorVector>(_Adjustments);
             }
         }
-        
+
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
         {
@@ -81,8 +85,8 @@ namespace FEXNA_Library.Palette
         }
         #endregion
 
-        public PaletteRamp() : this("", Color.Black) { }
-        public PaletteRamp(string name, Color darkestColor)
+        internal PaletteRamp() : this("", Color.Black) { }
+        internal PaletteRamp(string name, Color darkestColor)
         {
             Name = name;
             _BaseColorIndex = 0;
@@ -104,87 +108,19 @@ namespace FEXNA_Library.Palette
         }
 
         [ContentSerializerIgnore]
-        public int Count { get { return _Colors.Count; } }
-        [ContentSerializerIgnore]
-        public Color BaseColor
+        internal int Count { get { return _Colors.Count; } }
+
+        internal void AddColor(Color color)
         {
-            get
-            {
-                return GetColor(_BaseColorIndex);
-            }
-        }
-
-        public XnaHSL GetHsl(float index)
-        {
-            XnaHSL black = new XnaHSL(_Colors.FirstOrDefault());
-            black = black.SetSaturation(0f);
-            black = black.SetLightness(0f);
-            XnaHSL white = new XnaHSL(_Colors.LastOrDefault());
-            white = white.SetSaturation(0f);
-            white = white.SetLightness(1f);
-
-            XnaHSL left = black;
-            XnaHSL right = white;
-
-            for (int i = 0; i <= _Colors.Count; i++, index -= 1f, left = right)
-            {
-                if (i == _Colors.Count)
-                    right = white;
-                else
-                    right = new XnaHSL(_Colors[i]);
-
-                if (index <= 0f)
-                {
-                    XnaHSL hslResult = XnaHSL.Lerp(left, right, (index + 1));
-                    return hslResult;
-                }
-            }
-            return right;
-        }
-        public Color GetColor(float index)
-        {
-            return GetHsl(index).GetColor();
-        }
-
-        public void AddColor(Color color)
-        {
-            // If the color already exists
-            if (_Colors.Contains(color))
-                RemoveColor(color);
-
             _Colors.Add(color);
             _Adjustments.Add(new ColorVector());
-
-            if (_BaseColorIndex < 0)
-                SetBaseColor(0, null);
-
-            // Order the colors by lightness
-            OrderColors();
         }
 
-        private void OrderColors()
-        {
-            if (!_Colors.Any())
-                return;
-
-            Color baseColor = this.BaseColor;
-
-            var order = PaletteRamp.ColorLumaOrder(_Colors).ToList();
-            _Adjustments = order
-                .Select(x => _Adjustments[x])
-                .ToList();
-            _Colors = order
-                .Select(x => _Colors[x])
-                .ToList();
-
-            _BaseColorIndex = _Colors.IndexOf(baseColor);
-        }
-
-        public void RemoveColor(int index)
+        internal void RemoveColor(int index)
         {
             RemoveColor(_Colors[index]);
         }
-        public void RemoveColor(Color color)
+        internal void RemoveColor(Color color)
         {
             int index = _Colors.IndexOf(color);
 
@@ -198,7 +134,25 @@ namespace FEXNA_Library.Palette
             }
         }
 
-        public static IEnumerable<int> ColorLumaOrder(IEnumerable<Color> colors)
+        internal Color GetColor(int index)
+        {
+            return _Colors[index];
+        }
+
+        internal void SetAdjustment(int index, ColorVector adjustment)
+        {
+            _Adjustments[index] = adjustment;
+        }
+
+        internal void SetColors(List<Color> colors, List<ColorVector> adjustments)
+        {
+            _Colors = colors;
+            _Adjustments = adjustments;
+
+            _BaseColorIndex = 0;
+        }
+
+        internal static IEnumerable<int> ColorLumaOrder(IEnumerable<Color> colors)
         {
             List<int> order = Enumerable
                 .Range(0, colors.Count())
@@ -223,155 +177,9 @@ namespace FEXNA_Library.Palette
             return order;
         }
 
-        public void SetBaseColor(float index, List<PaletteEntry> entries)
-        {
-            _BaseColorIndex = MathHelper.Clamp(index, -1, _Colors.Count);
-
-            Generator.BaseLightness = new XnaHSL(this.BaseColor).Lightness;
-            // Set initial palette values
-            // If there are colors darker than the base color
-            if (_BaseColorIndex > 0)
-            {
-                // Sets the darkest color a fraction of the distance to the base color
-                float step = GeneratedColorPalette.BASE_VALUE / (_BaseColorIndex + 1);
-                SetValue(0, step);
-            }
-            else
-                Generator.ShadowAmount = 0.5f;
-            // If there are colors lighter than the base color
-            if (_BaseColorIndex < _Colors.Count - 1)
-            {
-                // Sets the lightest color a fraction of the distance to the base color
-                float step = (1f - GeneratedColorPalette.BASE_VALUE) /
-                    (_Colors.Count - _BaseColorIndex);
-                SetValue(_Colors.Count - 1, 1f - step);
-            }
-            else
-                Generator.Specularity = 0.5f;
-
-            if (entries != null)
-            {
-                var parameters = new PaletteParameters(this.BaseColor);
-                // Minimize error on shadow amount
-                MinimizeShadowError(parameters, entries);
-                // Minimize error on specularity
-                MinimizeSpecularityError(parameters, entries);
-            }
-        }
-
-        private void SetValue(int index, float value)
-        {
-            // Can't adjust the base color value
-            if (index == _BaseColorIndex)
-                return;
-
-            var color = _Colors[index];
-
-            // Update the gradient so that this index natrually has this value
-            Generator.AdjustValue(
-                color,
-                this.BaseColor,
-                value);
-        }
-
-        public void SetBlackLevel(Color darkestColor)
+        internal void SetBlackLevel(Color darkestColor)
         {
             Generator.BlackLevel = GeneratedColorPalette.ValueFormula(darkestColor);
-        }
-
-        public PaletteParameters DefaultParameters(List<PaletteEntry> entries)
-        {
-            var parameters = new PaletteParameters(this.BaseColor);
-            parameters.ReducedDepth = true;
-            // Minimize error on blue shadow
-            MinimizeBlueError(parameters, entries);
-            // Minimize error on yellow light
-            MinimizeYellowError(parameters, entries);
-
-            return parameters;
-        }
-
-        [ContentSerializerIgnore]
-        public List<float> ColorValues
-        {
-            get
-            {
-                var parameters = new PaletteParameters(this.BaseColor);
-                var palette = GetColorPalette(parameters);
-
-                var result = _Colors
-                    .Select(x => palette.GetValue(x))
-                    .ToList();
-                return result;
-            }
-        }
-
-        private void MinimizeShadowError(PaletteParameters parameters, List<PaletteEntry> entries)
-        {
-            Generator.MinimizeShadowError(parameters, entries);
-            RefreshAdjustments(entries);
-        }
-        private void MinimizeSpecularityError(PaletteParameters parameters, List<PaletteEntry> entries)
-        {
-            Generator.MinimizeSpecularityError(parameters, entries);
-            RefreshAdjustments(entries);
-        }
-        public void MinimizeBlueError(PaletteParameters parameters, List<PaletteEntry> entries)
-        {
-            parameters.MinimizeBlueError(Generator, entries);
-        }
-        public void MinimizeYellowError(PaletteParameters parameters, List<PaletteEntry> entries)
-        {
-            parameters.MinimizeYellowError(Generator, entries);
-        }
-
-        public void RefreshAdjustments(List<PaletteEntry> entries)
-        {
-            var basePalette = GetDefaultColorPalette(entries);
-            var values = _Colors
-                .Select(x => basePalette.GetValue(x))
-                .ToArray();
-
-            for (int i = 0; i < _Colors.Count; i++)
-            {
-                // Get the adjustment that turns the palette color back into
-                // the ramp color
-                Color source = basePalette.GetColor(values[i]);
-                Color target = _Colors[i];
-
-                var adjustment = ColorVector.ColorDifference(source, target, BlueYellowAdjustments);
-                _Adjustments[i] = adjustment;
-            }
-        }
-
-        public GeneratedColorPalette GetDefaultColorPalette(List<PaletteEntry> entries)
-        {
-            return GetColorPalette(DefaultParameters(entries));
-        }
-        public GeneratedColorPalette GetColorPalette(PaletteParameters parameters)
-        {
-            parameters = (PaletteParameters)parameters.Clone();
-
-            // Adjust the lightness of the base color
-            XnaHSL baseHsl = new XnaHSL(this.BaseColor);
-            XnaHSL parametersHsl = new XnaHSL(parameters.BaseColor);
-            parametersHsl = parametersHsl.SetLightness(
-                MathHelper.Lerp(
-                    parametersHsl.Lightness,
-                    baseHsl.Lightness,
-                    parameters.OriginalLightness));
-            parameters.BaseColor = parametersHsl.GetColor();
-
-            return Generator.GetPalette(parameters);
-        }
-
-        public IndexedGeneratedPalette GetDefaultIndexedPalette(List<PaletteEntry> entries)
-        {
-            return GetIndexedPalette(DefaultParameters(entries));
-        }
-        public IndexedGeneratedPalette GetIndexedPalette(PaletteParameters parameters)
-        {
-            return new IndexedGeneratedPalette(this, parameters);
         }
 
         #region ICloneable
