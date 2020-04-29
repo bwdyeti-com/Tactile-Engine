@@ -45,11 +45,11 @@ namespace FEXNA_Library.Palette
         public XnaHSL GetHsl(float index)
         {
             PaletteEntry entry = Palette.GetEntry(Ramp.Colors.FirstOrDefault());
-            XnaHSL black = new XnaHSL(entry.Value);
+            XnaHSL black = new XnaHSL(entry.Color);
             black = black.SetSaturation(0f);
             black = black.SetLightness(0f);
             entry = Palette.GetEntry(Ramp.Colors.LastOrDefault());
-            XnaHSL white = new XnaHSL(entry.Value);
+            XnaHSL white = new XnaHSL(entry.Color);
             white = white.SetSaturation(0f);
             white = white.SetLightness(1f);
 
@@ -63,7 +63,7 @@ namespace FEXNA_Library.Palette
                 else
                 {
                     entry = Palette.GetEntry(Ramp.GetColor(i));
-                    right = new XnaHSL(entry.Value);
+                    right = new XnaHSL(entry.Color);
                 }
 
                 if (index <= 0f)
@@ -86,12 +86,21 @@ namespace FEXNA_Library.Palette
                 {
                     int index = Palette.ColorIndex(color);
                     if (index >= 0)
-                        return  Palette.GetEntry(index);
+                        return Palette.GetEntry(index);
                     else
                         return new PaletteEntry(color, 0);
                 })
                 .ToList();
             return result;
+        }
+        public PaletteEntry GetEntry(int index)
+        {
+            return Palette.GetEntry(Ramp.GetColor(index));
+        }
+
+        public List<PaletteEntry> SpriteEntries()
+        {
+            return Palette.GetEntries();
         }
 
         public void AddRampColor(Color color)
@@ -122,7 +131,7 @@ namespace FEXNA_Library.Palette
             float adjustment = Ramp.BaseColorIndex - oldBaseIndex;
 
             var entries = Palette.RampEntries(Ramp);
-            var order = PaletteRamp.ColorLumaOrder(entries.Select(x => x.Value)).ToList();
+            var order = PaletteRamp.ColorLumaOrder(entries.Select(x => x.Color)).ToList();
             var colors = order
                 .Select(x => Ramp.Colors[x])
                 .ToList();
@@ -179,8 +188,8 @@ namespace FEXNA_Library.Palette
             if (index == Ramp.BaseColorIndex)
                 return;
 
-            PaletteEntry entry = Palette.GetEntry(Ramp.GetColor(index));
-            var color = entry.Value;
+            PaletteEntry entry = GetEntry(index);
+            var color = entry.Color;
 
             // Update the gradient so that this index natrually has this value
             Ramp.Generator.AdjustValue(
@@ -229,7 +238,7 @@ namespace FEXNA_Library.Palette
             var basePalette = GetDefaultColorPalette();
             var entries = Palette.RampEntries(Ramp);
             var values = entries
-                .Select(x => x.Value)
+                .Select(x => x.Color)
                 .Select(x => basePalette.GetValue(x))
                 .ToArray();
 
@@ -239,7 +248,7 @@ namespace FEXNA_Library.Palette
                 // the ramp color
                 Color source = basePalette.GetColor(values[i]);
                 PaletteEntry entry = entries[i];
-                Color target = entry.Value;
+                Color target = entry.Color;
 
                 var adjustment = ColorVector.ColorDifference(source, target, Ramp.BlueYellowAdjustments);
                 Ramp.SetAdjustment(i, adjustment);
@@ -260,16 +269,16 @@ namespace FEXNA_Library.Palette
 
                 var entries = Palette.RampEntries(Ramp);
                 var result = entries
-                    .Select(x => x.Value)
+                    .Select(x => x.Color)
                     .Select(x => palette.GetValue(x))
                     .ToList();
                 return result;
             }
         }
 
-        public void AdjustGeneratorValue(Color color, Color baseColor, float value)
+        public void AdjustGeneratorValue(Color color, float value)
         {
-            Ramp.Generator.AdjustValue(color, baseColor, value);
+            Ramp.Generator.AdjustValue(color, this.BaseColor, value);
         }
 
         public void SetGeneratorSpecularity(float value)

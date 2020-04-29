@@ -85,6 +85,12 @@ namespace FEXNA_Library.Palette
                 .Select(x => x.Value)
                 .ToList();
         }
+        public List<Color> GetRemappedPalette()
+        {
+            return Palette
+                .Select(x => x.Color)
+                .ToList();
+        }
         public PaletteEntry GetEntry(int index)
         {
             return (PaletteEntry)Palette[index].Clone();
@@ -101,9 +107,9 @@ namespace FEXNA_Library.Palette
                 return new PaletteEntry(color, 1);
             return GetEntry(index);
         }
-        public Color GetColor(int index)
+        public List<PaletteEntry> GetEntries()
         {
-            return GetEntry(index).Value;
+            return Palette.Select(x => (PaletteEntry)x.Clone()).ToList();
         }
 
         public int AddColor(Color color, int weight)
@@ -202,7 +208,7 @@ namespace FEXNA_Library.Palette
         {
             var ordered_colors = Palette
                 .Select(x => new Tuple<PaletteEntry, float>(
-                    x, Color_Util.GetLuma(x.Value)))
+                    x, Color_Util.GetLuma(x.Color)))
                 // Put transparent colors last
                 .OrderBy(x => x.Item1.Value.A == 0 ? 1 : -1)
                 // Sort by luma
@@ -362,7 +368,7 @@ namespace FEXNA_Library.Palette
 
         public void SetDarkestColor(int index)
         {
-            _DarkestColor = Palette[index].Value;
+            _DarkestColor = Palette[index].Color;
 
             for (int i = 0; i < Ramps.Count; i++)
                 Ramps[i].SetBlackLevel(_DarkestColor);
@@ -372,9 +378,15 @@ namespace FEXNA_Library.Palette
         {
             if (Palette.Any())
             {
-                var order = PaletteRamp.ColorLumaOrder(GetPalette());
-                int index = order.ElementAt(0);
-                SetDarkestColor(index);
+                var order = PaletteRamp.ColorLumaOrder(GetRemappedPalette());
+                order = order
+                    .Where(x => Palette[x].Color.A > 0)
+                    .ToList();
+                if (order.Any())
+                {
+                    int index = order.ElementAt(0);
+                    SetDarkestColor(index);
+                }
             }
         }
 
@@ -402,17 +414,19 @@ namespace FEXNA_Library.Palette
                     var recolorPalette = ramp.GetIndexedPalette(parameters);
                     for (int j = 0; j < ramp.Count; j++)
                     {
-                        recolors[ramp.GetColor(j)] = recolorPalette.GetColor(j);
+                        recolors[ramp.GetEntry(j).Value] = recolorPalette.GetColor(j);
                     }
                 }
             }
 
             // Take the original palette and apply all the recolors
-            Color[] result = GetPalette().ToArray();
+            Color[] result = new Color[Palette.Count];
             for (int i = 0; i < Palette.Count; i++)
             {
-                if (recolors.ContainsKey(result[i]))
-                    result[i] = recolors[result[i]];
+                if (recolors.ContainsKey(Palette[i].Value))
+                    result[i] = recolors[Palette[i].Value];
+                else
+                    result[i] = Palette[i].Color;
             }
             return result;
         }

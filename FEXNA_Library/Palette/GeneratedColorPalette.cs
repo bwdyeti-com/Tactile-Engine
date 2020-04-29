@@ -216,7 +216,7 @@ namespace FEXNA_Library.Palette
         {
             var palette = this;
             var values = ramp
-                .Select(x => palette.GetValue(x.Value))
+                .Select(x => palette.GetValue(x.Color))
                 .ToList();
 
             // Show final error
@@ -224,7 +224,7 @@ namespace FEXNA_Library.Palette
             for (int i = 0; i < ramp.Count; i++)
             {
                 int weight = ramp[i].Weight;
-                var source = ramp[i].Value;
+                var source = ramp[i].Color;
                 var target = GetColor(values[i]);
                 
                 var vector = XnaHSL.BiconeDifference(source, target);

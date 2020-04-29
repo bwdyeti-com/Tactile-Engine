@@ -11,6 +11,8 @@ namespace FEXNA_Library.Palette
         public Color Value { get; private set; }
         [ContentSerializer]
         public int Weight;
+        [ContentSerializer(Optional = true)]
+        public Maybe<Color> Remap { get; private set; }
 
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
@@ -33,31 +35,50 @@ namespace FEXNA_Library.Palette
         {
             Value = Value.read(input);
             Weight = input.ReadInt32();
+            bool remap = input.ReadBoolean();
+            if (remap)
+                Remap = new Color().read(input);
         }
 
         public void Write(BinaryWriter output)
         {
             Value.write(output);
             output.Write(Weight);
+            output.Write(Remap.IsSomething);
+            if (Remap.IsSomething)
+                Remap.ValueOrDefault.write(output);
         }
         #endregion
 
-        public PaletteEntry() { }
+        private PaletteEntry() { }
         public PaletteEntry(Color value, int weight)
         {
             Value = value;
             Weight = weight;
+            Remap = Maybe<Color>.Nothing;
         }
         public PaletteEntry(PaletteEntry source)
         {
             Value = source.Value;
             Weight = source.Weight;
+            Remap = source.Remap;
         }
 
         public override string ToString()
         {
-            return string.Format("PaletteEntry: {0} Weight {1}",
-                Value, Weight);
+            return string.Format("PaletteEntry: {0} Weight {1}{2}",
+                Value, Weight, Remap.IsSomething ? " (Remapped)" : "");
+        }
+
+        [ContentSerializerIgnore]
+        public Color Color
+        {
+            get
+            {
+                if (Remap.IsSomething)
+                    return Remap;
+                return Value;
+            }
         }
 
         #region ICloneable

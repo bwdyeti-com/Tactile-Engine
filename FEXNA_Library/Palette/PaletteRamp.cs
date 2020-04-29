@@ -129,7 +129,7 @@ namespace FEXNA_Library.Palette
                 _Colors.RemoveAt(index);
                 _Adjustments.RemoveAt(index);
 
-                if (_BaseColorIndex >= _Colors.Count)
+                if (_BaseColorIndex >= index)
                     _BaseColorIndex--;
             }
         }
