@@ -12,7 +12,7 @@ namespace FEXNA_Library.Palette
         [ContentSerializer]
         public int Weight;
         [ContentSerializer(Optional = true)]
-        public Maybe<Color> Remap { get; private set; }
+        internal Color? Remap;
 
         #region IFEXNADataContent
         public IFEXNADataContent EmptyInstance()
@@ -44,9 +44,9 @@ namespace FEXNA_Library.Palette
         {
             Value.write(output);
             output.Write(Weight);
-            output.Write(Remap.IsSomething);
-            if (Remap.IsSomething)
-                Remap.ValueOrDefault.write(output);
+            output.Write(Remap.HasValue);
+            if (Remap.HasValue)
+                Remap.Value.write(output);
         }
         #endregion
 
@@ -67,7 +67,7 @@ namespace FEXNA_Library.Palette
         public override string ToString()
         {
             return string.Format("PaletteEntry: {0} Weight {1}{2}",
-                Value, Weight, Remap.IsSomething ? " (Remapped)" : "");
+                Value, Weight, Remap.HasValue ? " (Remapped)" : "");
         }
 
         [ContentSerializerIgnore]
@@ -75,8 +75,8 @@ namespace FEXNA_Library.Palette
         {
             get
             {
-                if (Remap.IsSomething)
-                    return Remap;
+                if (Remap.HasValue)
+                    return Remap.Value;
                 return Value;
             }
         }

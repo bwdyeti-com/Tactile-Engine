@@ -184,6 +184,28 @@ namespace FEXNA_Library.Palette
             Palette[index].Weight = value;
         }
 
+        public void RemapColor(int index, Maybe<Color> remap)
+        {
+            Palette[index].Remap = remap.IsSomething ? (Color?)remap : null;
+
+            // The darkest color might have changed
+            RefreshDarkestColor();
+
+            // All the ramps need resorted
+            ResortRamps();
+
+            // Each ramp with the color needs to re-minimize its error and
+            // calculate its adjustments
+            for (int i = 0; i < Ramps.Count; i++)
+            {
+                if (Ramps[i].Colors.Contains(Palette[index].Value))
+                {
+                    var spriteRamp = GetRamp(i);
+                    spriteRamp.RecalibrateError();
+                }
+            }
+        }
+
         public void PopularitySort()
         {
             var ordered_colors = Palette
@@ -387,6 +409,15 @@ namespace FEXNA_Library.Palette
                     int index = order.ElementAt(0);
                     SetDarkestColor(index);
                 }
+            }
+        }
+
+        private void ResortRamps()
+        {
+            for (int i = 0; i < Ramps.Count; i++)
+            {
+                var spriteRamp = GetRamp(i);
+                spriteRamp.OrderColors();
             }
         }
 

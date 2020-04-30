@@ -39,7 +39,11 @@ namespace FEXNA_Library.Palette
         public bool BlueYellowAdjustments
         {
             get { return Ramp.BlueYellowAdjustments; }
-            set { Ramp.BlueYellowAdjustments = value; }
+            set
+            {
+                Ramp.BlueYellowAdjustments = value;
+                RefreshAdjustments();
+            }
         }
 
         public XnaHSL GetHsl(float index)
@@ -122,7 +126,7 @@ namespace FEXNA_Library.Palette
             Ramp.RemoveColor(index);
         }
 
-        private void OrderColors()
+        internal void OrderColors()
         {
             if (!Ramp.Colors.Any())
                 return;
@@ -153,7 +157,13 @@ namespace FEXNA_Library.Palette
         {
             Ramp.BaseColorIndex = index;
 
+            RecalibrateError();
+        }
+
+        internal void RecalibrateError()
+        {
             Ramp.Generator.BaseLightness = new XnaHSL(this.BaseColor).Lightness;
+
             // Set initial palette values
             // If there are colors darker than the base color
             if (Ramp.BaseColorIndex > 0)
@@ -164,6 +174,7 @@ namespace FEXNA_Library.Palette
             }
             else
                 Ramp.Generator.ShadowAmount = 0.5f;
+
             // If there are colors lighter than the base color
             if (Ramp.BaseColorIndex < Ramp.Count - 1)
             {

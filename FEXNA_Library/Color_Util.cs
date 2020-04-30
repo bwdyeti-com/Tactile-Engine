@@ -206,7 +206,7 @@ namespace FEXNA_Library
 
         public static float GetLuma(Color color)
         {
-            return ((color.R * 0.3f) + (color.G * 0.59f) + (color.B * 0.11f)) / 765f;
+            return ((color.R * 0.3f) + (color.G * 0.59f) + (color.B * 0.11f)) / 255f;
         }
     }
 }
