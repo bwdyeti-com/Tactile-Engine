@@ -72,6 +72,12 @@ namespace FEXNA_Library.Palette
         }
         private static float LerpHue(float value1, float value2, float amount)
         {
+            // If either hue is invalid, return the other one
+            if (float.IsNaN(value1))
+                return value2;
+            else if (float.IsNaN(value2))
+                return value1;
+
             // If the hues are closer across the blue-red boundary
             float diff = Math.Abs(value1 - value2);
             if (diff >= 180)

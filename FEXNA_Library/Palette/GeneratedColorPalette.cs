@@ -99,18 +99,28 @@ namespace FEXNA_Library.Palette
             // Add specular
             specularHSL = specularHSL.SetLightness(MathHelper.Lerp(
                 specularHSL.Lightness, 1f, generator.Specularity));
-            // Reduce the lightness if the base color is darker than the source color
+            // Reduce the lightness if the base color is darker than the generator color
             if (generator.BaseLightness > 0 && baseHSL.Lightness < generator.BaseLightness)
             {
                 float lightnessDiff = generator.BaseLightness - baseHSL.Lightness;
                 specularHSL = specularHSL.SetLightness(specularHSL.Lightness - (lightnessDiff));
             }
-            specular = specularHSL;
+            float highlightAmount = 0.5f;
+            // If the base color is sufficiently bright, lighten the specular
+            // to keep the contrast from getting too low
+            float lightnessRatio = (baseHSL.Lightness - 0.5f) * 2f;
+            if (lightnessRatio > 0)
+            {
+                specularHSL = specularHSL.SetLightness(
+                    MathHelper.Lerp(specularHSL.Lightness, 1f, lightnessRatio));
+                highlightAmount = MathHelper.Lerp(0.5f, 1f, lightnessRatio);
+            }
 
             // Get highlight
-            XnaHSL highlightHSL = XnaHSL.Lerp(baseHSL, specularHSL, 0.5f);
+            XnaHSL highlightHSL = XnaHSL.Lerp(baseHSL, specularHSL, highlightAmount);
 
             highlight = highlightHSL;
+            specular = specularHSL;
         }
 
         private static void GetShadow(
@@ -126,14 +136,36 @@ namespace FEXNA_Library.Palette
                 generator.BlackLevel,
                 baseHSL.Alpha);
 
+            // If the base color is sufficiently bright, lighten the darker shades
+            float lightnessRatio = (baseHSL.Lightness - 0.5f) * 2f;
+            if (lightnessRatio > 0)
+            {
+                blackHSL = blackHSL.SetSaturation(blackHSL.Saturation * (1f - lightnessRatio * 0.95f));
+
+                float blackLuma = Color_Util.GetLuma(blackHSL.GetColor());
+                // Increase the lightness by more if it's a color with a low
+                // luma to lightness ratio
+                float lumaRatio = 1f;
+                if (blackLuma > 0)
+                    lumaRatio = blackHSL.Lightness / blackLuma;
+
+                blackHSL = blackHSL.SetLightness(
+                    MathHelper.Lerp(blackHSL.Lightness,
+                        MathHelper.Lerp(blackHSL.Lightness, 1f, 0.25f),
+                        lightnessRatio * lumaRatio));
+            }
+
             // Tint black and shadow blue
             blackHSL = blackHSL.LerpHue(240, parameters.BlueShadow);
+            blackHSL = blackHSL.SetSaturation(MathHelper.Lerp(blackHSL.Saturation, 1f, parameters.BlueShadow / 4f));
+
             XnaHSL shadowHSL = XnaHSL.Lerp(blackHSL, baseHSL, generator.ShadowAmount);
+            shadowHSL = shadowHSL.SetSaturation(MathHelper.Lerp(blackHSL.Saturation, baseHSL.Saturation, 0.5f));
             shadowHSL = shadowHSL.SetHue(blackHSL.Hue);
             shadowHSL = shadowHSL.LerpHue(baseHSL.Hue, 0.25f);
 
             shadow = shadowHSL;
-            darkest = new XnaHSL(blackHSL.Hue, blackHSL.Saturation, generator.BlackLevel, baseHSL.Alpha);
+            darkest = blackHSL;
         }
 
         public Color GetColor(float value)

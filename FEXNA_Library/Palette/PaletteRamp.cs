@@ -107,6 +107,11 @@ namespace FEXNA_Library.Palette
             BlueYellowAdjustments = source.BlueYellowAdjustments;
         }
 
+        public override string ToString()
+        {
+            return string.Format("PaletteRamp: {0}; {1} colors", Name, this.Count);
+        }
+
         [ContentSerializerIgnore]
         internal int Count { get { return _Colors.Count; } }
 
