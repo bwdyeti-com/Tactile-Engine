@@ -24,12 +24,19 @@ namespace FEXNA_Library.Palette
             // Adjust base color up if black level is too close to it
             XnaHSL baseColor = AdjustBaseColor(parameters.BaseColor, generator.BlackLevel);
 
+            // Tint just a little toward yellow based on yellow light
+            XnaHSL untintedBaseColor = baseColor;
+            if (baseColor.Saturation > 0)
+            {
+                baseColor = baseColor.LerpHue(60, parameters.YellowLight * 0.075f);
+            }
+
             XnaHSL highlight, specular;
             GetHighlight(baseColor, generator, parameters,
                 out highlight, out specular);
 
             XnaHSL shadow, darkest;
-            GetShadow(baseColor, generator, parameters,
+            GetShadow(untintedBaseColor, generator, parameters,
                 out shadow, out darkest);
 
             // Set the calculated values
