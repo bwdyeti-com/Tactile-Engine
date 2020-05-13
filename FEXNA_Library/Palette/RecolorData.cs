@@ -54,6 +54,24 @@ namespace FEXNA_Library.Palette
                 p => (RecolorEntry)p.Value.Clone());
         }
 
+        public List<string> OtherNames(string key, Dictionary<string, string> defaultOtherNames)
+        {
+            var result = new List<string>(Recolors[key].OtherNames);
+            foreach (var otherName in defaultOtherNames
+                .Where(x => x.Value == key)
+                .Select(x => x.Key))
+            {
+                if (!HasRamp(otherName))
+                    result.Add(otherName);
+            }
+            return result;
+        }
+
+        public bool HasRamp(string name)
+        {
+            return Recolors.ContainsKey(name) || Recolors.Any(x => x.Value.OtherNames.Contains(name));
+        }
+
         #region ICloneable
         public object Clone()
         {

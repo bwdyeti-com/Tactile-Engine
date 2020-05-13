@@ -77,6 +77,11 @@ namespace FEXNA_Library.Palette
             _DarkestColor = source._DarkestColor;
         }
 
+        public override string ToString()
+        {
+            return string.Format("SpritePalette: {0}", Name);
+        }
+
         [ContentSerializerIgnore]
         public int Count { get { return Palette.Count; } }
         public List<Color> GetPalette()
@@ -421,7 +426,7 @@ namespace FEXNA_Library.Palette
             }
         }
 
-        public Color[] GetRecolors(RecolorData recolorData)
+        public Color[] GetRecolors(RecolorData recolorData, Dictionary<string, string> defaultOtherNames)
         {
             // Go through each ramp to make a dictionary of the color remaps
             Dictionary<Color, Color> recolors = new Dictionary<Color, Color>();
@@ -434,7 +439,8 @@ namespace FEXNA_Library.Palette
                     if (!recolorData.Recolors.ContainsKey(ramp.Name))
                     {
                         // If no recolor has this name, check their OtherNames
-                        var pair = recolorData.Recolors.FirstOrDefault(x => x.Value.OtherNames.Contains(ramp.Name));
+                        var pair = recolorData.Recolors
+                            .FirstOrDefault(x => recolorData.OtherNames(x.Key, defaultOtherNames).Contains(ramp.Name));
                         if (!string.IsNullOrEmpty(pair.Key))
                             name = pair.Key;
                         else

@@ -21,6 +21,11 @@ namespace FEXNA_Library.Palette
             Ramp = (PaletteRamp)source.Ramp.Clone();
         }
 
+        public override string ToString()
+        {
+            return string.Format("SpriteRamp: {0}", this.Name);
+        }
+
         public string Name { get { return Ramp.Name; } }
         public int Count { get { return Ramp.Count; } }
 
