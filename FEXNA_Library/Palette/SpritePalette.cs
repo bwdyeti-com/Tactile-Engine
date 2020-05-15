@@ -333,6 +333,9 @@ namespace FEXNA_Library.Palette
 
         public SpriteRamp GetRamp(int index)
         {
+            if (index == -1)
+                return null;
+
             var ramp = Ramps[index];
             return new SpriteRamp(this, ramp);
         }

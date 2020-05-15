@@ -160,6 +160,7 @@ namespace FEXNA
             if (content_exists("Face_Data"))
                 FaceData = Content.Load<Dictionary<string, FEXNA_Library.Face_Data>>(@"Face_Data");
             BattlerPaletteData = Content.Load<Dictionary<string, SpritePalette>>(@"Battler_Palette_Data");
+            BattlerRecolorData = Content.Load<Dictionary<string, RecolorData>>(@"Data/BattlerRecolorData");
             Face_Palette_Data = Content.Load<Dictionary<string, Color[]>>(@"Face_Palette_Data");
             Map_Sprite_Colors = Global.Content.Load<MapSpriteRecolorData>(@"MapSpriteRecolors");
 
@@ -1289,6 +1290,13 @@ namespace FEXNA
         public static Dictionary<string, SpritePalette> battlerPaletteData
         {
             get { return BattlerPaletteData; }
+        }
+
+        static Dictionary<string, RecolorData> BattlerRecolorData;
+
+        public static Dictionary<string, RecolorData> battlerRecolorData
+        {
+            get { return BattlerRecolorData; }
         }
 
         static Dictionary<string, Color[]> Face_Palette_Data;
