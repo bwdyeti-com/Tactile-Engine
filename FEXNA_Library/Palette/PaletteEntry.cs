@@ -55,7 +55,7 @@ namespace FEXNA_Library.Palette
         {
             Value = value;
             Weight = weight;
-            Remap = Maybe<Color>.Nothing;
+            Remap = null;
         }
         public PaletteEntry(PaletteEntry source)
         {
