@@ -155,7 +155,7 @@ namespace FEXNA
 
         protected void refresh_palette(string filename)
         {
-            if (Global.palette_data.ContainsKey(filename) || Global.palette_data.ContainsKey(filename.Split('-')[0]))
+            if (Global.battlerPaletteData.ContainsKey(filename) || Global.battlerPaletteData.ContainsKey(filename.Split('-')[0]))
             {
                 Palette_Used = true;
                 Battler_Sprite.palette_data(filename, -1, -1, "").CopyTo(Palette, 0);

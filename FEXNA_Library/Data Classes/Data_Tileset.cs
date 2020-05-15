@@ -18,22 +18,36 @@ namespace FEXNA_Library
         public List<Rectangle> Animated_Tile_Data = new List<Rectangle> { };
         public Dictionary<Vector2, Vector2> Pillage_Tile_Changes = new Dictionary<Vector2, Vector2>();
         public List<int> Terrain_Tags = new List<int>();
-
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            Data_Tileset result = new Data_Tileset();
+            return GetEmptyInstance();
+        }
+        public static Data_Tileset GetEmptyInstance()
+        {
+            return new Data_Tileset();
+        }
 
-            result.Id = input.ReadInt32();
-            result.Name = input.ReadString();
-            result.Graphic_Name = input.ReadString();
-            result.BattlebackSuffix = input.ReadString();
-            result.Animated_Tile_Names.read(input);
-            result.Animated_Tile_Data.read(input);
-            result.Pillage_Tile_Changes.read(input);
-            result.Terrain_Tags.read(input);
-
+        public static Data_Tileset ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
         }
+
+        public void Read(BinaryReader input)
+        {
+            Id = input.ReadInt32();
+            Name = input.ReadString();
+            Graphic_Name = input.ReadString();
+            BattlebackSuffix = input.ReadString();
+            Animated_Tile_Names.read(input);
+            Animated_Tile_Data.read(input);
+            Pillage_Tile_Changes.read(input);
+            Terrain_Tags.read(input);
+        }
+
         public void Write(BinaryWriter output)
         {
             output.Write(Id);
@@ -44,33 +58,6 @@ namespace FEXNA_Library
             Animated_Tile_Data.write(output);
             Pillage_Tile_Changes.write(output);
             Terrain_Tags.write(output);
-        }
-
-        #region Serialization
-        public static Data_Tileset read(BinaryReader reader)
-        {
-            Data_Tileset result = new Data_Tileset();
-            result.Id = reader.ReadInt32();
-            result.Name = reader.ReadString();
-            result.Graphic_Name = reader.ReadString();
-            result.BattlebackSuffix = reader.ReadString();
-            result.Animated_Tile_Names.read(reader);
-            result.Animated_Tile_Data.read(reader);
-            result.Pillage_Tile_Changes.read(reader);
-            result.Terrain_Tags.read(reader);
-            return result;
-        }
-
-        public void write(BinaryWriter writer)
-        {
-            writer.Write(Id);
-            writer.Write(Name);
-            writer.Write(Graphic_Name);
-            writer.Write(BattlebackSuffix);
-            Animated_Tile_Names.write(writer);
-            Animated_Tile_Data.write(writer);
-            Pillage_Tile_Changes.write(writer);
-            Terrain_Tags.write(writer);
         }
         #endregion
 

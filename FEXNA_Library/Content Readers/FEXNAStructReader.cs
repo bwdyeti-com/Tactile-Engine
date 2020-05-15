@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Content;
 
-using TRead = FEXNA_Library.IFEXNADataContent;
+using TRead = FEXNA_Library.IFEXNADataContentStruct;
 
 namespace FEXNA_Library
 {
@@ -12,13 +12,13 @@ namespace FEXNA_Library
     /// be a part of your main game project, and not the Content Pipeline
     /// Extension Library project.
     /// </summary>
-    public class FEXNADataReader : ContentTypeReader<TRead>
+    public class FEXNAStructReader : ContentTypeReader<TRead>
     {
         protected override TRead Read(ContentReader input, TRead existingInstance)
         {
-            TRead result = existingInstance.EmptyInstance();
-            result.Read(input);
-            return result;
+            existingInstance = existingInstance.Read(input);
+
+            return existingInstance;
         }
     }
 }

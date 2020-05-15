@@ -13,22 +13,36 @@ namespace FEXNA_Library
         public int Image_Index = 0;
         public int Animation_Id = -1;
         public int Map_Anim_Id = -1;
-
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            Data_Skill result = new Data_Skill();
+            return GetEmptyInstance();
+        }
+        public static Data_Skill GetEmptyInstance()
+        {
+            return new Data_Skill();
+        }
 
-            result.Id = input.ReadInt32();
-            result.Name = input.ReadString();
-            result.Description = input.ReadString();
-            result.Abstract = input.ReadString();
-            result.Image_Name = input.ReadString();
-            result.Image_Index = input.ReadInt32();
-            result.Animation_Id = input.ReadInt32();
-            result.Map_Anim_Id = input.ReadInt32();
-
+        public static Data_Skill ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
         }
+
+        public void Read(BinaryReader input)
+        {
+            Id = input.ReadInt32();
+            Name = input.ReadString();
+            Description = input.ReadString();
+            Abstract = input.ReadString();
+            Image_Name = input.ReadString();
+            Image_Index = input.ReadInt32();
+            Animation_Id = input.ReadInt32();
+            Map_Anim_Id = input.ReadInt32();
+        }
+
         public void Write(BinaryWriter output)
         {
             output.Write(Id);
@@ -40,6 +54,7 @@ namespace FEXNA_Library
             output.Write(Animation_Id);
             output.Write(Map_Anim_Id);
         }
+        #endregion
 
         public Data_Skill() { }
         public Data_Skill(Data_Skill source)

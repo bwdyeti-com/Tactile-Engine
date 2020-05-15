@@ -365,6 +365,7 @@ namespace HashSetExtension
 
 namespace ListExtension
 {
+    using ColorExtension;
     using Vector2Extension;
     using RectangleExtension;
     using ArrayExtension;
@@ -547,6 +548,25 @@ namespace ListExtension
             for (int i = 0; i < count; i++)
             {
                 list.Add(v.read(reader));
+            }
+        }
+
+        // List<Color>
+        public static void write(this List<Color> list, BinaryWriter writer)
+        {
+            writer.Write(list.Count);
+            foreach (Color color in list)
+                color.write(writer);
+        }
+
+        public static void read(this List<Color> list, BinaryReader reader)
+        {
+            list.Clear();
+            int count = reader.ReadInt32();
+            Color color = Color.Black;
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(color.read(reader));
             }
         }
 
@@ -1241,34 +1261,6 @@ namespace DictionaryExtension
             }
         }
 
-        // Dictionary<int, FEXNA_Library.Battler.Battle_Animation_Association_Data>
-        public static void write(this Dictionary<int, FEXNA_Library.Battler.Battle_Animation_Association_Data> dictionary, BinaryWriter writer)
-        {
-            writer.Write(dictionary.Count);
-            foreach (KeyValuePair<int, FEXNA_Library.Battler.Battle_Animation_Association_Data> pair in dictionary)
-            {
-                writer.Write(pair.Key);
-                pair.Value.Write(writer);
-            }
-        }
-
-        public static void read(
-            this Dictionary<int, FEXNA_Library.Battler.Battle_Animation_Association_Data> dictionary,
-            ContentReader reader)
-        {
-            var anim_data = new FEXNA_Library.Battler.Battle_Animation_Association_Data();
-
-            dictionary.Clear();
-            int count = reader.ReadInt32();
-            for (int i = 0; i < count; i++)
-            {
-                int key = reader.ReadInt32();
-                var value = (FEXNA_Library.Battler.Battle_Animation_Association_Data)
-                    anim_data.Read_Content(reader);
-                dictionary.Add(key, value);
-            }
-        }
-
         // Dictionary<FEXNA_Library.Battler.AttackAnims, List<int>>
         public static void write(this Dictionary<FEXNA_Library.Battler.AttackAnims, List<int>> dictionary, BinaryWriter writer)
         {
@@ -1308,5 +1300,103 @@ namespace IntExtension
                 result[i] += value;
             return result;
         }
+    }
+}
+
+namespace FEXNAContentExtension
+{
+    using IFEXNADataContent = FEXNA_Library.IFEXNADataContent;
+    using IFEXNADataContentStruct = FEXNA_Library.IFEXNADataContentStruct;
+
+    public static class Extension
+    {
+        // List<IFEXNADataContent>
+        public static void Write<T>(this BinaryWriter writer, List<T> list) where T : IFEXNADataContent
+        {
+            writer.Write(list.Count);
+            foreach (T value in list)
+                value.Write(writer);
+        }
+
+        public static void ReadFEXNAContent<T>(this BinaryReader reader, List<T> list, T existingInstance) where T : IFEXNADataContent
+        {
+            list.Clear();
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                T item = (T)existingInstance.EmptyInstance();
+                item.Read(reader);
+                list.Add(item);
+            }
+        }
+
+        // Dictionary<int, IFEXNADataContent>
+        public static void Write<T>(this BinaryWriter writer, Dictionary<int, T> dictionary) where T : IFEXNADataContent
+        {
+            writer.Write(dictionary.Count);
+            foreach (var pair in dictionary)
+            {
+                writer.Write(pair.Key);
+                pair.Value.Write(writer);
+            }
+        }
+
+        public static void ReadFEXNAContent<T>(this BinaryReader reader, Dictionary<int, T> dictionary, T existingInstance) where T : IFEXNADataContent
+        {
+            dictionary.Clear();
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                int key = reader.ReadInt32();
+                T item = (T)existingInstance.EmptyInstance();
+                item.Read(reader);
+                dictionary.Add(key, item);
+            }
+        }
+
+        // Dictionary<string, IFEXNADataContent>
+        public static void Write<T>(this BinaryWriter writer, Dictionary<string, T> dictionary) where T : IFEXNADataContent
+        {
+            writer.Write(dictionary.Count);
+            foreach (var pair in dictionary)
+            {
+                writer.Write(pair.Key);
+                pair.Value.Write(writer);
+            }
+        }
+
+        public static void ReadFEXNAContent<T>(this BinaryReader reader, Dictionary<string, T> dictionary, T existingInstance) where T : IFEXNADataContent
+        {
+            dictionary.Clear();
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                string key = reader.ReadString();
+                T item = (T)existingInstance.EmptyInstance();
+                item.Read(reader);
+                dictionary.Add(key, item);
+            }
+        }
+
+        // List<IFEXNADataContentStruct>
+        public static void WriteStruct<T>(this BinaryWriter writer, List<T> list) where T : IFEXNADataContentStruct
+        {
+            writer.Write(list.Count);
+            foreach (T value in list)
+                value.Write(writer);
+        }
+
+        public static void ReadFEXNAContentStruct<T>(this BinaryReader reader, List<T> list) where T : struct, IFEXNADataContentStruct
+        {
+            list.Clear();
+            int count = reader.ReadInt32();
+            T existingInstance = default(T);
+            for (int i = 0; i < count; i++)
+            {
+                var item = (T)existingInstance.Read(reader);
+                list.Add(item);
+            }
+        }
+
     }
 }

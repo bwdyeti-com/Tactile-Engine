@@ -63,33 +63,45 @@ namespace FEXNA_Library
         {
             get { return string.IsNullOrEmpty(Background_Rename) ? Name : Background_Rename; }
         }
-
+        
         #region IFEXNADataContent
-        public IFEXNADataContent Read_Content(ContentReader input)
+        public IFEXNADataContent EmptyInstance()
         {
-            Data_Terrain result = new Data_Terrain();
-            
-            result.Id = input.ReadInt32();
-            result.Name = input.ReadString();
+            return GetEmptyInstance();
+        }
+        public static Data_Terrain GetEmptyInstance()
+        {
+            return new Data_Terrain();
+        }
 
-            result.Avoid = input.ReadInt32();
-            result.Def = input.ReadInt32();
-            result.Res = input.ReadInt32();
-            result.Stats_Visible = input.ReadBoolean();
-
-            result.Step_Sound_Group = input.ReadInt32();
-            result.Platform_Rename = input.ReadString();
-            result.Background_Rename = input.ReadString();
-            result.Dust_Type = input.ReadInt32();
-            result.Fire_Through = input.ReadBoolean();
-
-            result.Move_Costs = result.Move_Costs.read(input);
-            bool healHasValue = input.ReadBoolean();
-            result.Heal = healHasValue ? new int[0].read(input) : null;
-            result.Minimap = input.ReadInt32();
-            result.Minimap_Group.read(input);
-
+        public static Data_Terrain ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Id = input.ReadInt32();
+            Name = input.ReadString();
+
+            Avoid = input.ReadInt32();
+            Def = input.ReadInt32();
+            Res = input.ReadInt32();
+            Stats_Visible = input.ReadBoolean();
+
+            Step_Sound_Group = input.ReadInt32();
+            Platform_Rename = input.ReadString();
+            Background_Rename = input.ReadString();
+            Dust_Type = input.ReadInt32();
+            Fire_Through = input.ReadBoolean();
+
+            Move_Costs = Move_Costs.read(input);
+            bool healHasValue = input.ReadBoolean();
+            Heal = healHasValue ? new int[0].read(input) : null;
+            Minimap = input.ReadInt32();
+            Minimap_Group.read(input);
         }
 
         public void Write(BinaryWriter output)

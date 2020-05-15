@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA_Library;
 using EnumExtension;
 using IntExtension;
 using ListExtension;
-using FEXNATexture2DExtension;
 using FEXNAWeaponExtension;
 
 namespace FEXNA
@@ -170,14 +170,14 @@ namespace FEXNA
             else
             {
                 string name = Battler_Name;
-                if (!Global.palette_data.ContainsKey(Battler_Name))
+                if (!Global.battlerPaletteData.ContainsKey(Battler_Name))
                 {
                     List<int> anim = FE_Battler_Image_Wrapper.attack_animation_value(Battler, false, 1, false);
                     if (anim.Count > 0)
                         name = Global.data_animations[anim[0]].filename.Split('-')[0];
                 }
 
-                if (!Global.palette_data.ContainsKey(name))
+                if (!Global.battlerPaletteData.ContainsKey(name))
                     Has_Palette = false;
                 else
                     palette_data(name, Battler.ClassId, Battler.Gender, Battler.NameFull).CopyTo(Palette, 0);
@@ -189,35 +189,25 @@ namespace FEXNA
             List<Color> palette = new List<Color>();
 
             // Start with default colors by image
-            if (!Global.palette_data.ContainsKey(image_name))
+            if (!Global.battlerPaletteData.ContainsKey(image_name))
                 image_name = image_name.Split('-')[0];
-            if (Global.palette_data.ContainsKey(image_name))
-            {
-                for (int i = palette.Count; i < Global.palette_data[image_name].Length; i++)
-                    palette.Add(Global.palette_data[image_name][i]);
-            }
             // Then get battler recolored palette
-            if (class_id > -1)// && FEXNA.Recolor.data.ContainsKey(image_name)) //Debug
+            if (Global.battlerPaletteData.ContainsKey(image_name))
             {
-                int color_count = Math.Max(15, palette.Count);
-                bool recolors_found = false;
-                for (int i = 0; i < color_count; i++)
+                var paletteData = Global.battlerPaletteData[image_name];
+                for (int i = palette.Count; i < paletteData.Count; i++)
+                    palette.Add(paletteData.GetEntry(i).Value);
+                var basePalette = new List<Color>(palette);
+
+                // First, get the colors defined by FEXNA.Recolor
+                if (class_id > -1)
                 {
-                    Color? target_color = FEXNA.Recolor.get_color(class_id, gender, name, i);
-                    if (target_color != null)
-                    {
-                        if (palette.Count == i)
-                            palette.Add((Color)target_color);
-                        else
-                            palette[i] = (Color)target_color;
-                        recolors_found = true;
-                    }
-                }
-                // If no recolors were found, try again with base gender
-                if (!recolors_found)
+                    int color_count = Math.Max(15, palette.Count);
+
+                    bool recolors_found = false;
                     for (int i = 0; i < color_count; i++)
                     {
-                        Color? target_color = FEXNA.Recolor.get_color(class_id, gender % 2, name, i);
+                        Color? target_color = FEXNA.Recolor.get_color(class_id, gender, name, i);
                         if (target_color != null)
                         {
                             if (palette.Count == i)
@@ -227,43 +217,39 @@ namespace FEXNA
                             recolors_found = true;
                         }
                     }
+                    // If no recolors were found, try again with base gender
+                    if (!recolors_found)
+                        for (int i = 0; i < color_count; i++)
+                        {
+                            Color? target_color = FEXNA.Recolor.get_color(class_id, gender % 2, name, i);
+                            if (target_color != null)
+                            {
+                                if (palette.Count == i)
+                                    palette.Add((Color)target_color);
+                                else
+                                    palette[i] = (Color)target_color;
+                                recolors_found = true;
+                            }
+                        }
+                }
+
+                // Then, get colors from recolor data
+                FEXNA_Library.Palette.RecolorData recolorData;
+                if (Global.battlerRecolorData.ContainsKey(name))
+                    recolorData = Global.battlerRecolorData[name];
+                else if (Recolor.SPRITE_RENAME_LIST.ContainsKey(name))
+                    recolorData = Global.battlerRecolorData[Recolor.SPRITE_RENAME_LIST[name]];
+                else
+                    recolorData = Global.battlerRecolorData.FirstOrDefault(x => x.Key.StartsWith(name)).Value;
+
+                if (recolorData != null)
+                {
+                    var recolors = paletteData.GetRecolors(recolorData, FEXNA.Recolor.RAMP_DEFAULT_OTHER_NAMES);
+                    for (int i = 0; i < palette.Count && i < recolors.Length; i++)
+                        palette[i] = recolors[i];
+                }
             }
             return palette.ToArray();
-            /*// Get battler recolored palette
-            //if (class_id > -1)
-            if (class_id > -1)// && FEXNA.Recolor.data.ContainsKey(image_name)) //Debug
-            {
-                Dictionary<Color, Color> recolors = new Dictionary<Color, Color>();
-                // why only 16
-                for (int i = 0; i < 16; i++)
-                {
-                    Color? target_color = FEXNA.Recolor.get_color(class_id, gender, name, i);
-                    if (target_color != null)
-                    {
-                        //recolors.Add(color, (Color)target_color);
-                        palette.Add((Color)target_color);
-                    }
-                }
-                if (palette.Count == 0)
-                    for (int i = 0; i < 16; i++)
-                    {
-                        Color? target_color = FEXNA.Recolor.get_color(class_id, gender % 2, name, i);
-                        if (target_color != null)
-                        {
-                            //recolors.Add(color, (Color)target_color);
-                            palette.Add((Color)target_color);
-                        }
-                    }
-            }
-            // Fill remaining colors with defaults by image
-            if (!Global.palette_data.ContainsKey(image_name))
-                image_name = image_name.Split('-')[0];
-            if (Global.palette_data.ContainsKey(image_name))
-            {
-                for (int i = palette.Count; i < Global.palette_data[image_name].Length; i++)
-                    palette.Add(Global.palette_data[image_name][i]);
-            }
-            return palette.ToArray();*/
         }
 
         bool Animation_Initialized = false;

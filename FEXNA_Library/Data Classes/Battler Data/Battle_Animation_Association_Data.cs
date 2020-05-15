@@ -42,24 +42,36 @@ namespace FEXNA_Library.Battler
         public List<int> get_crit { get { return GetCrit.Any() ? GetCrit : GetHit; } }
         #endregion
 
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            Battle_Animation_Association_Data result = new Battle_Animation_Association_Data();
+            return GetEmptyInstance();
+        }
+        public static Battle_Animation_Association_Data GetEmptyInstance()
+        {
+            return new Battle_Animation_Association_Data();
+        }
 
-            result.Idle.read(input);
-            result.Avoid.read(input);
-            result.AvoidReturn.read(input);
-            result.GetHit.read(input);
-            result.GetCrit.read(input);
-            result.Dance.read(input);
-            result.DanceHold.read(input);
-            result.DanceReturn.read(input);
-            result.PreFight.read(input);
-
-            result.AttackAnimations.read(input);
-
+        public static Battle_Animation_Association_Data ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Idle.read(input);
+            Avoid.read(input);
+            AvoidReturn.read(input);
+            GetHit.read(input);
+            GetCrit.read(input);
+            Dance.read(input);
+            DanceHold.read(input);
+            DanceReturn.read(input);
+            PreFight.read(input);
+
+            AttackAnimations.read(input);
         }
 
         public void Write(BinaryWriter output)
