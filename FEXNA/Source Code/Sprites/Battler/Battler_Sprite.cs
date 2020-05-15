@@ -6,7 +6,6 @@ using FEXNA_Library;
 using EnumExtension;
 using IntExtension;
 using ListExtension;
-using FEXNATexture2DExtension;
 using FEXNAWeaponExtension;
 
 namespace FEXNA

@@ -12,7 +12,6 @@ using FEXNA.Menus;
 using FEXNA.Windows.UserInterface;
 using FEXNA.Windows.UserInterface.Status;
 using FEXNA_Library;
-using FEXNATexture2DExtension;
 
 namespace FEXNA
 {
