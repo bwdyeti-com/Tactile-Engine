@@ -203,5 +203,10 @@ namespace FEXNA_Library
             float min = Math.Min(Math.Min(color.R, color.G), color.B) / 255f;
             return (max + min) / 2f;
         }
+
+        public static float GetLuma(Color color)
+        {
+            return ((color.R * 0.3f) + (color.G * 0.59f) + (color.B * 0.11f)) / 255f;
+        }
     }
 }

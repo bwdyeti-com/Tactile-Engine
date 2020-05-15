@@ -58,6 +58,7 @@
     <Compile Include="AnimationWriter.cs" />
     <Compile Include="AnimDataWriter.cs" />
     <Compile Include="ClassWriter.cs" />
+    <Compile Include="FEXNAStructWriter.cs" />
     <Compile Include="FEXNADataWriter.cs" />
     <Compile Include="SupportWriter.cs" />
     <Compile Include="TextureProcessorFacePalette.cs" />

@@ -30,36 +30,48 @@ namespace FEXNA_Library
 
         [ContentSerializer(Optional = true)]
         public int ParentKey;
-
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            WeaponType result = new WeaponType();
+            return GetEmptyInstance();
+        }
+        public static WeaponType GetEmptyInstance()
+        {
+            return new WeaponType();
+        }
 
-            result.Key = input.ReadInt32();
-            result.Name = input.ReadString();
-            result.StatusHelpName = input.ReadString();
-            result.EventName = input.ReadString();
-
-            result.IconIndex = input.ReadInt32();
-            result.ClassReelIconIndex = input.ReadInt32();
-            result.StatusIndex = input.ReadInt32();
-            result.AnimName = input.ReadString();
-            result.ThrownAnimName = input.ReadString();
-            result.StatusDescription = input.ReadString();
-            result.UnitDescription = input.ReadString();
-            result.IsMagic = input.ReadBoolean();
-            result.IsStaff = input.ReadBoolean();
-            result.DisplayedInStatus = input.ReadBoolean();
-
-            result.WtaTypes.read(input);
-            result.WtaReaverTypes.read(input);
-            result.WtaRanges.read(input);
-            result.WtdRanges.read(input);
-
-            result.ParentKey = input.ReadInt32();
-
+        public static WeaponType ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Key = input.ReadInt32();
+            Name = input.ReadString();
+            StatusHelpName = input.ReadString();
+            EventName = input.ReadString();
+
+            IconIndex = input.ReadInt32();
+            ClassReelIconIndex = input.ReadInt32();
+            StatusIndex = input.ReadInt32();
+            AnimName = input.ReadString();
+            ThrownAnimName = input.ReadString();
+            StatusDescription = input.ReadString();
+            UnitDescription = input.ReadString();
+            IsMagic = input.ReadBoolean();
+            IsStaff = input.ReadBoolean();
+            DisplayedInStatus = input.ReadBoolean();
+
+            WtaTypes.read(input);
+            WtaReaverTypes.read(input);
+            WtaRanges.read(input);
+            WtdRanges.read(input);
+
+            ParentKey = input.ReadInt32();
         }
 
         public void Write(BinaryWriter output)

@@ -49,12 +49,26 @@ namespace FEXNA_Library
         {
             return string.Format("{0} {1}", Id, Name);
         }
-
+        
         #region IFEXNADataContent
-        public IFEXNADataContent Read_Content(ContentReader input)
+        public IFEXNADataContent EmptyInstance()
         {
-            Data_Terrain result = new Data_Terrain();
+            return GetEmptyInstance();
+        }
+        public static Data_Status GetEmptyInstance()
+        {
+            return new Data_Status();
+        }
 
+        public static Data_Status ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
+            return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
             Id = input.ReadInt32();
             Name = input.ReadString();
             Description = input.ReadString();
@@ -71,8 +85,6 @@ namespace FEXNA_Library
             Image_Index = input.ReadInt32();
             Map_Anim_Id = input.ReadInt32();
             Battle_Color = Battle_Color.read(input);
-
-            return result;
         }
 
         public void Write(BinaryWriter output)

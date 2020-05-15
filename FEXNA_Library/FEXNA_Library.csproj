@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Color_Util.cs" />
+    <Compile Include="Content Readers\FEXNAStructReader.cs" />
     <Compile Include="Content Readers\FEXNADataReader.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />
@@ -148,6 +149,18 @@
     <Compile Include="Maybe.cs" />
     <Compile Include="NodeDestinationMap.cs" />
     <Compile Include="Noise.cs" />
+    <Compile Include="Palette\ColorVector.cs" />
+    <Compile Include="Palette\GeneratedColorPalette.cs" />
+    <Compile Include="Palette\IndexedGeneratedPalette.cs" />
+    <Compile Include="Palette\PaletteEntry.cs" />
+    <Compile Include="Palette\PaletteGenerator.cs" />
+    <Compile Include="Palette\PaletteParameters.cs" />
+    <Compile Include="Palette\PaletteRamp.cs" />
+    <Compile Include="Palette\RecolorData.cs" />
+    <Compile Include="Palette\RecolorEntry.cs" />
+    <Compile Include="Palette\SpritePalette.cs" />
+    <Compile Include="Palette\SpriteRamp.cs" />
+    <Compile Include="Palette\XnaHSL.cs" />
     <Compile Include="Pathfinding\ClosedList.cs" />
     <Compile Include="Pathfinding\ClosedListRoute.cs" />
     <Compile Include="Pathfinding\IMovementMap.cs" />

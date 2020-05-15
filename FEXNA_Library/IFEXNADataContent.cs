@@ -1,12 +1,18 @@
 ﻿using System;
 using System.IO;
-using Microsoft.Xna.Framework.Content;
 
 namespace FEXNA_Library
 {
     public interface IFEXNADataContent : ICloneable
     {
-        IFEXNADataContent Read_Content(ContentReader input);
+        IFEXNADataContent EmptyInstance();
+        void Read(BinaryReader input);
+        void Write(BinaryWriter output);
+    }
+
+    public interface IFEXNADataContentStruct : ICloneable
+    {
+        IFEXNADataContentStruct Read(BinaryReader input);
         void Write(BinaryWriter output);
     }
 }

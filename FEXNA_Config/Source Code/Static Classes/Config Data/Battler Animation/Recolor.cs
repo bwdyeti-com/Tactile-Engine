@@ -492,6 +492,37 @@ namespace FEXNA
             { "Immortal", "Bern" }
         };
 
+        public readonly static Dictionary<string, string> RAMP_DEFAULT_OTHER_NAMES = new Dictionary<string, string>
+        {
+            { "Armor", "Main" },
+            { "Clothes", "Main" },
+            { "Assassin Main", "Main" },
+            { "Cleric Robes", "Main" },
+            { "Justice Main", "Main" },
+            { "Nomad Main", "Main" },
+            { "Rogue Main", "Main" },
+            { "Valkyrie Mane", "Main" },
+
+            { "Paladin Shield", "Secondary" },
+            { "General Flaps", "Secondary" },
+            { "Nomad Clothes", "Secondary" },
+            { "Bishop Staff", "Secondary" },
+            { "Draco", "Secondary" },
+            { "Lieutenant Trim", "Secondary" },
+
+            { "Assassin Tertiary", "Tertiary" },
+            { "Justice Chainmail", "Tertiary" },
+            { "Ribbon", "Tertiary" },
+            { "Scholar Pages", "Tertiary" },
+            { "SageF Trim", "Tertiary" },
+            { "Draco Secondary", "Tertiary" },
+
+            { "Bishop Shawl", "Corsair Shirt" },
+            { "Warlock Trim", "Gold Trim" },
+
+            { "Nomad Hair", "Hair" },
+        };
+
         static Dictionary<string, List<Color>> Recolor_Data = new Dictionary<string, List<Color>>();
         public static Dictionary<string, List<Color>> data { get { return Recolor_Data; } }
 
@@ -527,6 +558,8 @@ namespace FEXNA
                     break;
             }
             bool key_found = true;
+            try
+            { 
             switch (key)
             {
                 #region 3: Recruit
@@ -4848,6 +4881,11 @@ namespace FEXNA
                 default:
                     key_found = false;
                     break;
+            }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return null;
             }
             if (key_test && key_found)
                 return new Color();

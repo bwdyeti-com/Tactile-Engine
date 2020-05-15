@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA_Library;
-using FEXNATexture2DExtension;
 
 namespace FEXNA
 {
