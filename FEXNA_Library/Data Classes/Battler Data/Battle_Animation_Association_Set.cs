@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Content;
-using DictionaryExtension;
+using FEXNAContentExtension;
 
 namespace FEXNA_Library.Battler
 {
@@ -11,21 +11,33 @@ namespace FEXNA_Library.Battler
         public string Key;
         public Dictionary<int, Battle_Animation_Association_Data> DataSet;
 
-        #region Serialization
-        public IFEXNADataContent Read_Content(ContentReader input)
+        #region IFEXNADataContent
+        public IFEXNADataContent EmptyInstance()
         {
-            Battle_Animation_Association_Set result = new Battle_Animation_Association_Set();
+            return GetEmptyInstance();
+        }
+        public static Battle_Animation_Association_Set GetEmptyInstance()
+        {
+            return new Battle_Animation_Association_Set();
+        }
 
-            result.Key = input.ReadString();
-            DataSet.read(input);
-
+        public static Battle_Animation_Association_Set ReadContent(BinaryReader reader)
+        {
+            var result = GetEmptyInstance();
+            result.Read(reader);
             return result;
+        }
+
+        public void Read(BinaryReader input)
+        {
+            Key = input.ReadString();
+            input.ReadFEXNAContent(DataSet, Battle_Animation_Association_Data.GetEmptyInstance());
         }
 
         public void Write(BinaryWriter output)
         {
             output.Write(Key);
-            DataSet.write(output);
+            output.Write(DataSet);
         }
         #endregion
 

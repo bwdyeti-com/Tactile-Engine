@@ -709,7 +709,7 @@
     <Compile Include="Source Code\Windows\World Map\World_Minimap_ViewArea.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\FEXNA LIBRARIES\FEXNA_Library\FEXNA_Library\FEXNA_Library.csproj">
+    <ProjectReference Include="..\FEXNA_Library\FEXNA_Library.csproj">
       <Project>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</Project>
       <Name>FEXNA_Library</Name>
     </ProjectReference>

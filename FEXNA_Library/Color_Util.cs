@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 
 namespace FEXNA_Library
@@ -49,10 +51,30 @@ namespace FEXNA_Library
                 h *= 60;               // degrees
                 if (h < 0)
                     h += 360;
+
+                // Minimize s to the lowest value that still gives the same
+                // result when converted back into a Color
+                if (s > 0)
+                {
+                    // Experimentally confirmed with all 24 bit colors, so
+                    // that's good enough for me
+                    // Gets the saturation as if the max channel were one lower
+                    float steppedDownMax = max - 1 / 255f;
+                    float steppedDownS = (steppedDownMax - min) / max;
+                    // Set the final saturation to slightly above the average
+                    s = MathHelper.Lerp(steppedDownS, s, 0.501f);
+
+#if DEBUG
+                    Color testColor = HSVToColor(h, s, v);
+                    testColor.A = color.A;
+                    if (color != testColor)
+                        throw new ArgumentException();
+#endif
+                }
             }
             else
             {
-                // r = g = b = 0       // s = 0, v is undefined
+                // r = g = b = 0       // s = 0, h is undefined
                 s = 0;
                 h = -1;
             }
@@ -180,6 +202,11 @@ namespace FEXNA_Library
             float max = GetValue(color);
             float min = Math.Min(Math.Min(color.R, color.G), color.B) / 255f;
             return (max + min) / 2f;
+        }
+
+        public static float GetLuma(Color color)
+        {
+            return ((color.R * 0.3f) + (color.G * 0.59f) + (color.B * 0.11f)) / 255f;
         }
     }
 }
