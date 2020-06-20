@@ -444,6 +444,13 @@ namespace FEXNA
             get { return Load_Save_Info; }
             set { Load_Save_Info = value; }
         }
+        static bool SkipUpdatingFileId = false;
+        public static bool skipUpdatingFileId
+        {
+            get { return SkipUpdatingFileId; }
+            set { SkipUpdatingFileId = value; }
+        }
+
         static Suspend_Info Suspend_File_Info;
         internal static Suspend_Info suspend_file_info
         {

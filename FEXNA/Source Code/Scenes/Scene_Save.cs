@@ -64,6 +64,7 @@ namespace FEXNA
                             if (All_Saves_Overwritten)
                                 Global.delete_suspend = true;
                             Global.load_save_info = true;
+                            Global.skipUpdatingFileId = true;
                         }
                     }
                     break;
