@@ -182,6 +182,7 @@ namespace FEXNA.IO
                         // Updates the save info for the selected file
                         LoadSaveInfo();
                         Global.load_save_info = false;
+                        Global.skipUpdatingFileId = false;
                     }
                 }
                 #endregion
@@ -194,10 +195,11 @@ namespace FEXNA.IO
                         // Load progress data
                         LoadProgress();
                         // Rechecks the most recent suspend and reloads save info
-                        LoadSuspendInfo();
+                        LoadSuspendInfo(!Global.skipUpdatingFileId);
                         LoadSaveInfo();
                     }
                     Global.load_save_info = false;
+                    Global.skipUpdatingFileId = false;
                 }
                 // Load Suspend
                 else if (Global.Loading_Suspend)
@@ -214,7 +216,7 @@ namespace FEXNA.IO
                         else
                             FileId = Global.suspend_file_info.save_id;
                         // Load save file first, then test if the suspend works
-                        if (LoadFile() && TestLoad(true))
+                        if (LoadFile(false) && TestLoad(true))
                         {
                             // Then load relevant suspend
                             if (Global.scene.scene_type != "Scene_Soft_Reset")
@@ -254,7 +256,8 @@ namespace FEXNA.IO
                             Global.start_game_file_id = -1;
                         }
                         DebugFileIdTest = FileId;
-                        LoadFile();
+                        LoadFile(!Global.ignore_options_load);
+                        Global.ignore_options_load = false;
                         Global.game_options.post_read();
                     }
                     else
@@ -316,7 +319,7 @@ namespace FEXNA.IO
                                         FileId = SavestateFileId;
                                         DebugFileIdTest = FileId;
                                         SavestateFileId = -1;
-                                        LoadFile();
+                                        LoadFile(false);
                                         Global.cancel_sound();
                                         load(SAVESTATE_FILENAME + Config.SAVE_FILE_EXTENSION);
                                         RefreshSaveId();
@@ -580,7 +583,7 @@ namespace FEXNA.IO
             Global.save_file = new Save_File();
         }
 
-        public bool LoadFile()
+        public bool LoadFile(bool loadOptions)
         {
             string filename = FileId.ToString() + Config.SAVE_FILE_EXTENSION;
             ResetFile();
@@ -608,7 +611,8 @@ namespace FEXNA.IO
                             OLDEST_ALLOWED_SAVE_VERSION);
                         if (loadSuccessful)
                         {
-                            Global.game_options = fileData.Options;
+                            if (loadOptions)
+                                Global.game_options = fileData.Options;
                             Global.save_file = fileData.File;
                         }
                         else
