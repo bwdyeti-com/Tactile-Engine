@@ -503,7 +503,9 @@ namespace FEXNA
                 return true;
 
             // If attacker is dead return
-            if (attacker.is_dead)
+            //@Debug: make sure units who are out of hp but technically aren't
+            // dead for whatever reason will stop
+            if (attacker.hp <= 0) //@Debug: .is_dead)
                 return false;
 
             bool is_target_unit = false;
