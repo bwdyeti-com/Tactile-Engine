@@ -791,7 +791,9 @@ namespace FEXNA
 #if DEBUG
                     if (!Global.game_state.battle_active && Global.game_actors[actor_id].is_dead())
                     {
-                        throw new Exception("hey this old code got triggered weirdly"); //Yeti
+                        // Triggers when units die in the arena, make an exception
+                        if (!Global.game_system.In_Arena)
+                            throw new Exception("hey this old code got triggered weirdly"); //Yeti
                     }
 #endif
                 }

@@ -14,6 +14,7 @@ using FEXNA.Metrics;
 using FEXNA.Services.Audio;
 using FEXNA_Library;
 using FEXNA_Library.Battler;
+using FEXNA_Library.Palette;
 using FEXNAVersionExtension;
 
 namespace FEXNA
@@ -158,7 +159,8 @@ namespace FEXNA
             Frame_Data = Content.Load<Dictionary<string, FEXNA_Library.Frame_Data>>(@"Data/Frame_Data");
             if (content_exists("Face_Data"))
                 FaceData = Content.Load<Dictionary<string, FEXNA_Library.Face_Data>>(@"Face_Data");
-            Palette_Data = Content.Load<Dictionary<string, Color[]>>(@"Palette_Data");
+            BattlerPaletteData = Content.Load<Dictionary<string, SpritePalette>>(@"Battler_Palette_Data");
+            BattlerRecolorData = Content.Load<Dictionary<string, RecolorData>>(@"Data/BattlerRecolorData");
             Face_Palette_Data = Content.Load<Dictionary<string, Color[]>>(@"Face_Palette_Data");
             Map_Sprite_Colors = Global.Content.Load<MapSpriteRecolorData>(@"MapSpriteRecolors");
 
@@ -442,6 +444,13 @@ namespace FEXNA
             get { return Load_Save_Info; }
             set { Load_Save_Info = value; }
         }
+        static bool SkipUpdatingFileId = false;
+        public static bool skipUpdatingFileId
+        {
+            get { return SkipUpdatingFileId; }
+            set { SkipUpdatingFileId = value; }
+        }
+
         static Suspend_Info Suspend_File_Info;
         internal static Suspend_Info suspend_file_info
         {
@@ -1331,11 +1340,18 @@ namespace FEXNA
         }
 
         // Palette Data
-        static Dictionary<string, Color[]> Palette_Data;
+        static Dictionary<string, SpritePalette> BattlerPaletteData;
 
-        public static Dictionary<string, Color[]> palette_data
+        public static Dictionary<string, SpritePalette> battlerPaletteData
         {
-            get { return Palette_Data; }
+            get { return BattlerPaletteData; }
+        }
+
+        static Dictionary<string, RecolorData> BattlerRecolorData;
+
+        public static Dictionary<string, RecolorData> battlerRecolorData
+        {
+            get { return BattlerRecolorData; }
         }
 
         static Dictionary<string, Color[]> Face_Palette_Data;

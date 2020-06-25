@@ -47,7 +47,7 @@ namespace FE7x
         public int WindowWidth(GraphicsDevice device)
         {
 #if !MONOGAME
-            return FE7x.Fullscreen.ScreenX(Game.Window.Handle);
+            return Fullscreen.ScreenX(Game.Window.Handle);
 #else
             return device.DisplayMode.Width;
 #endif
@@ -55,7 +55,7 @@ namespace FE7x
         public int WindowHeight(GraphicsDevice device)
         {
 #if !MONOGAME
-            return FE7x.Fullscreen.ScreenY(Game.Window.Handle);
+            return Fullscreen.ScreenY(Game.Window.Handle);
 #else
             return device.DisplayMode.Height;
 #endif

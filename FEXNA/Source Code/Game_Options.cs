@@ -37,12 +37,8 @@ namespace FEXNA
                     .ToArray();
                 data = volumeRemoved;
             }
+            result.Data = data;
 
-            if (Global.ignore_options_load)
-                result.Data = Global.game_options.Data;
-            else
-                result.Data = data;
-            Global.ignore_options_load = false;
             if (result.Data.Length != DATA_COUNT)
             {
                 result.reset_options();

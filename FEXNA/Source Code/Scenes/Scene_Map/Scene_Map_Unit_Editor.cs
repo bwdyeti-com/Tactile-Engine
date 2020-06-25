@@ -33,6 +33,7 @@ namespace FEXNA
         {
             Global.Audio.BgmFadeOut();
             Global.load_save_info = true;
+            Global.skipUpdatingFileId = true;
             suspend_fade_in();
         }
 

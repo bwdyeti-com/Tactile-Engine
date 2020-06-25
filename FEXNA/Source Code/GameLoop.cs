@@ -711,7 +711,7 @@ namespace FEXNA
                     if (newScene == "Start_Game")
                     {
 #endif
-                        IOHandler.LoadFile();
+                        IOHandler.LoadFile(true);
                         Global.game_options.post_read();
                         Global.game_temp = new Game_Temp();
                     }
@@ -747,7 +747,7 @@ namespace FEXNA
                     else
                     {
                         IOHandler.RefreshFileId();
-                        IOHandler.LoadFile();
+                        IOHandler.LoadFile(true);
                         Global.game_options.post_read();
                         Global.game_temp = new Game_Temp();
 

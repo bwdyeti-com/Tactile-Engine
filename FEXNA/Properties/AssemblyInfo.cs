@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -32,4 +31,4 @@ using System.Diagnostics;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.6.10.0")]
+[assembly: AssemblyVersion("0.6.10.1")]

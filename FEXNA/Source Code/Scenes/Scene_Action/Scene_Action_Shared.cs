@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using FEXNA.Graphics.Text;
-using FEXNATexture2DExtension;
 
 namespace FEXNA
 {
@@ -52,17 +51,8 @@ namespace FEXNA
             string terrain_name;
             Texture2D result;
 
-            // Check for platform rename
-            if (!string.IsNullOrEmpty(Global.data_terrains[tag].Platform_Rename))
-            {
-                terrain_name = Global.data_terrains[tag].Platform_Rename;
-                result = terrain_texture(platform_format, terrain_name, range);
-                if (result != null)
-                    return result;
-            }
-
-            // Check for terrain actual name
-            terrain_name = Global.data_terrains[tag].Name;
+            // Check for platform
+            terrain_name = Global.data_terrains[tag].PlatformName;
             result = terrain_texture(platform_format, terrain_name, range);
             if (result != null)
                 return result;
@@ -84,21 +74,11 @@ namespace FEXNA
             int tag = battler.terrain_id();
             Texture2D result;
 
-            // Check for background rename
-            if (!string.IsNullOrEmpty(Global.data_terrains[tag].Background_Rename))
-            {
-                terrain_name = Global.data_terrains[tag].Background_Rename;
-                result = terrain_texture(background_format, terrain_name);
-                if (result != null)
-                    return result;
-            }
-
-            // Check for terrain actual name
-            terrain_name = Global.data_terrains[tag].Name;
+            // Check for background
+            terrain_name = Global.data_terrains[tag].BackgroundName;
             result = terrain_texture(background_format, terrain_name);
             if (result != null)
                 return result;
-
 
             return battle_content.Load<Texture2D>(string.Format(background_format, "Plains"));
         }
@@ -107,10 +87,14 @@ namespace FEXNA
         {
             if (Global.content_exists(string.Format(format,
                     terrain_name + "_" + Global.game_map.tileset_battleback_suffix, range)))
+            {
                 return battle_content.Load<Texture2D>(string.Format(format,
                     terrain_name + "_" + Global.game_map.tileset_battleback_suffix, range));
+            }
             else if (Global.content_exists(string.Format(format, terrain_name, range)))
+            {
                 return battle_content.Load<Texture2D>(string.Format(format, terrain_name, range));
+            }
 
             return null;
         }

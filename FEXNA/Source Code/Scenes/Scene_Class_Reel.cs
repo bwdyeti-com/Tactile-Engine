@@ -251,11 +251,7 @@ namespace FEXNA
             Attack_Count = data.Num_Attacks;
             // Platform
             Terrain_Tag = data.Platform;
-            string terrain_name;
-            if (Global.data_terrains[Terrain_Tag].Platform_Rename.Length > 0)
-                terrain_name = Global.data_terrains[Terrain_Tag].Platform_Rename;
-            else
-                terrain_name = Global.data_terrains[Terrain_Tag].Name;
+            string terrain_name = Global.data_terrains[Terrain_Tag].PlatformName;
 
             if (Global.content_exists(@"Graphics/Battlebacks/" + terrain_name + "-Melee"))
                 Platform.platform_1 = Global.Content.Load<Texture2D>(@"Graphics/Battlebacks/" + terrain_name + "-Melee");
