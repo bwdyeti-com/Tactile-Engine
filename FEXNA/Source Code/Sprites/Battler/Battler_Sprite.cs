@@ -234,11 +234,26 @@ namespace FEXNA
                 }
 
                 // Then, get colors from recolor data
+                HashSet<string> alreadyRenamed = new HashSet<string>();
+                // Check for renames a set depth
+                for (int i = 0; i < 16; i++)
+                {
+                    if (Recolor.SPRITE_RENAME_LIST.ContainsKey(name))
+                    {
+                        // To avoid getting caught in loops
+                        if (alreadyRenamed.Contains(name))
+                            break;
+
+                        alreadyRenamed.Add(name);
+                        name = Recolor.SPRITE_RENAME_LIST[name];
+                    }
+                    else
+                        break;
+                }
+
                 FEXNA_Library.Palette.RecolorData recolorData;
                 if (Global.battlerRecolorData.ContainsKey(name))
                     recolorData = Global.battlerRecolorData[name];
-                else if (Recolor.SPRITE_RENAME_LIST.ContainsKey(name))
-                    recolorData = Global.battlerRecolorData[Recolor.SPRITE_RENAME_LIST[name]];
                 else
                     recolorData = Global.battlerRecolorData.FirstOrDefault(x => x.Key.StartsWith(name)).Value;
 
