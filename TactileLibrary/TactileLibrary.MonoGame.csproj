@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</ProjectGuid>
+    <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TactileLibrary</RootNamespace>
+    <AssemblyName>TactileLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
+    <XnaPlatform>Windows</XnaPlatform>
+    <XnaProfile>HiDef</XnaProfile>
+    <XnaCrossPlatformGroupID>1a2f2662-a5f1-40d0-bf71-ada7a68a162c</XnaCrossPlatformGroupID>
+    <XnaOutputType>Library</XnaOutputType>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\MonoGame\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <XnaCompressContent>false</XnaCompressContent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\MonoGame\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <XnaCompressContent>true</XnaCompressContent>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Net">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />
+    <Compile Include="Data Classes\Battle Animation\Battle_Frame_Image_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Map_Event_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Map_Unit_Data.cs" />
+    <Compile Include="Data Classes\Chapters\Data_Chapter.cs" />
+    <Compile Include="CharacterEventArgs.cs" />
+    <Compile Include="Data Classes\Data_Skill.cs" />
+    <Compile Include="Data Classes\Data_Status.cs" />
+    <Compile Include="Data Classes\Data_Support.cs" />
+    <Compile Include="Data Classes\Frame_Data.cs" />
+    <Compile Include="Data Classes\Data_Class.cs" />
+    <Compile Include="Data Classes\Data_Equipment.cs" />
+    <Compile Include="Data Classes\Data_Item.cs" />
+    <Compile Include="Data Classes\Data_Tileset.cs" />
+    <Compile Include="Data Classes\Item_Data.cs" />
+    <Compile Include="Content Readers\AnimationReader.cs" />
+    <Compile Include="Content Readers\AnimDataReader.cs" />
+    <Compile Include="Content Readers\ClassReader.cs" />
+    <Compile Include="Content Readers\ChapterReader.cs" />
+    <Compile Include="Content Readers\SupportReader.cs" />
+    <Compile Include="Content Readers\EventReader.cs" />
+    <Compile Include="Content Readers\ItemReader.cs" />
+    <Compile Include="Content Readers\MapRecolorReader.cs" />
+    <Compile Include="Content Readers\MapReader.cs" />
+    <Compile Include="Data Classes\Chapters\Data_Map.cs" />
+    <Compile Include="Data Classes\MapSpriteRecolorData.cs" />
+    <Compile Include="Data Classes\Data_Actor.cs" />
+    <Compile Include="Content Readers\ActorReader.cs" />
+    <Compile Include="Data Classes\Data_Terrain.cs" />
+    <Compile Include="Data Classes\Data_Weapon.cs" />
+    <Compile Include="Content Readers\SkillReader.cs" />
+    <Compile Include="Content Readers\StatusReader.cs" />
+    <Compile Include="Content Readers\UnitReader.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IntEventArgs.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Content Readers\TilesetReader.cs" />
+    <Compile Include="Content Readers\TerrainReader.cs" />
+    <Compile Include="Content Readers\WeaponReader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\MonoGame-3.2 audio edit\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+      <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
+      <Name>MonoGame.Framework.WindowsGL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!--
+      To modify your build process, add your task inside one of the targets below and uncomment it. 
+      Other similar extension points exist, see Microsoft.Common.targets.
+      <Target Name="BeforeBuild">
+      </Target>
+      <Target Name="AfterBuild">
+      </Target>
+    -->
+  <PropertyGroup>
+    <PostBuildEvent></PostBuildEvent>
+  </PropertyGroup>
+</Project>
