@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 using TactileLibrary;
 
@@ -120,19 +121,11 @@ namespace Tactile
             int build = Convert.ToInt32(data_ary[7].Split('|')[0]);
             int con = Convert.ToInt32(data_ary[8].Split('|')[0]);
 
-            // If units were created with NUM_ITEMS = 6,
-            // and then NUM_ITEMS was changed to 4 or 5, things would break
-            // Come up with a longterm solution//Yeti
-            List<Item_Data> items = new List<Item_Data>();
-            for (int item_index = 0; item_index < Global.ActorConfig.NumItems; item_index++)
-            {
-                string[] item_ary = data_ary[11 + item_index].Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None);
-                items.Add(new Item_Data(Convert.ToInt32(item_ary[0]),
-                    Convert.ToInt32(item_ary[1]), Convert.ToInt32(item_ary[2])));
-            }
+            int numItems;
+            var items = ReadUnitDataItems(11, data_ary, out numItems);
             actor.set_items(items);
 
-            int index_after_items = 11 + Global.ActorConfig.NumItems;
+            int index_after_items = 11 + numItems;
             string[] wexp_ary = data_ary[index_after_items + 0]
                 .Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None);
             int[] wexp = Enumerable.Range(0, Global.weapon_types.Count - 1)
@@ -170,19 +163,11 @@ namespace Tactile
             actor.stats[5] = Convert.ToInt32(data_ary[13].Split('|')[0]);
             actor.stats[6] = Convert.ToInt32(data_ary[14].Split('|')[0]);*/
 
-            // If units were created with NUM_ITEMS = 6,
-            // and then NUM_ITEMS was changed to 4 or 5, things would break
-            // Come up with a longterm solution//Yeti
-            List<Item_Data> items = new List<Item_Data>();
-            for (int item_index = 0; item_index < Global.ActorConfig.NumItems; item_index++)
-            {
-                string[] item_ary = data_ary[17 + item_index].Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None);
-                items.Add(new Item_Data(Convert.ToInt32(item_ary[0]),
-                    Convert.ToInt32(item_ary[1]), Convert.ToInt32(item_ary[2])));
-            }
+            int numItems;
+            var items = ReadUnitDataItems(17, data_ary, out numItems);
             actor.set_items(items);
 
-            int index_after_items = 17 + Global.ActorConfig.NumItems;
+            int index_after_items = 17 + numItems;
             string[] wexp_ary = data_ary[index_after_items]
                 .Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None);
             for (int i = 0; i < Global.weapon_types.Count - 1; i++)
@@ -197,6 +182,47 @@ namespace Tactile
             new_unit_id();
             var new_unit = Objects.add_unit(
                 new Game_Unit(Last_Added_Unit_Id, loc, team, priority, actor.id), identifier, mission);
+        }
+
+        internal static List<Item_Data> ReadUnitDataItems(
+            int firstItemIndex,
+            string[] data_ary,
+            out int numItems)
+        {
+            numItems = Global.ActorConfig.NumItems;
+
+            if (firstItemIndex + numItems != data_ary.Length - 1)
+            {
+                numItems = 0;
+                for (int i = 1; firstItemIndex + i < data_ary.Length; i++)
+                {
+                    if (!Regex.IsMatch(
+                            data_ary[firstItemIndex + i - 1],
+                            string.Format("|Item {0}$", i)))
+                        break;
+
+                    numItems = i;
+                }
+                if (firstItemIndex + numItems != data_ary.Length - 1)
+                    throw new IndexOutOfRangeException("Unit data had the wrong number of items");
+            }
+
+            // If units were created with NUM_ITEMS = 6,
+            // and then NUM_ITEMS was changed to 4 or 5, things would break
+            //@Yeti: Come up with a longterm solution
+            //@Debug: should be solved for now
+            List<Item_Data> items = new List<Item_Data>();
+            for (int item_index = 0; item_index < numItems; item_index++)
+            {
+                int dataIndex = firstItemIndex + item_index;
+                string[] item_ary = data_ary[dataIndex].Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None);
+                items.Add(new Item_Data(Convert.ToInt32(item_ary[0]),
+                    Convert.ToInt32(item_ary[1]), Convert.ToInt32(item_ary[2])));
+            }
+
+            items = items.Take(Global.ActorConfig.NumItems).ToList();
+
+            return items;
         }
 
         public bool add_actor_unit(int team, Vector2 loc, int actor_id, string identifier)

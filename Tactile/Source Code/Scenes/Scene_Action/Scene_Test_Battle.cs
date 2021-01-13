@@ -145,16 +145,17 @@ namespace Tactile
                 battler.Mission = Convert.ToInt32(ary[10].Split('|')[0]);
                 battler.Weapon_Id = Convert.ToInt32(ary[11].Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None)[1]);
 
-                // If units were created with NUM_ITEMS = 6,
-                // and then NUM_ITEMS was changed to 4 or 6, things would break
-                // Come up with a longterm solution//Yeti
+                int numItems;
+                var items = Game_Map.ReadUnitDataItems(11, ary, out numItems);
                 for (int i = 0; i < battler.Items.Length; i++)
                 {
-                    string[] item = ary[i + 11].Split('|')[0].Split(new string[] { ", " }, StringSplitOptions.None);
-                    battler.Items[i] = new TactileLibrary.Item_Data(Convert.ToInt32(item[0]), Convert.ToInt32(item[1]), Convert.ToInt32(item[2]));
+                    if (i < items.Count)
+                        battler.Items[i] = items[i];
+                    else
+                        battler.Items[i] = new Item_Data(0, 0, -1);
                 }
 
-                int index_after_items = 11 + Global.ActorConfig.NumItems;
+                int index_after_items = 11 + numItems;
                 string[] wlvls = ary[index_after_items].Split('|')[0]
                     .Split(new string[] { ", " }, StringSplitOptions.None);
                 for (int i = 0; i < battler.WLvls.Length; i++)

@@ -1747,7 +1747,7 @@ namespace Tactile
 #if DEBUG
                 return true;
 #else
-                return !Global.ActorConfig.ONLY_PC_STAT_COLORS || this.is_player_team;
+                return !Global.ActorConfig.OnlyPcStatColors || this.is_player_team;
 #endif
             }
         }
