@@ -119,11 +119,13 @@ namespace Tactile.Windows.Map.Info
                     {
                         Turn_Count.text = "Last Turn";
                         Turn_Count.SetFont(Config.UI_FONT, Global.Content, "Green");
+                        Turn_Count.offset = new Vector2(-(Turn_Count.text_width / 2 + 2), 0);
                     }
                     else
                     {
                         Turn_Count.text = this.turn.ToString();
                         Turn_Count.SetFont(Config.UI_FONT, Global.Content, "Blue");
+                        Turn_Count.offset = new Vector2(0, 0);
                     }
                     Turn_Max.text = Global.game_system.Objective_Mode[1].ToString();
                     Turn_Label.loc = new Vector2(0, 16 * (lines - 1));
