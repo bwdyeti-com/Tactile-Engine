@@ -103,6 +103,8 @@ namespace TactileGame
 #if WINDOWS || XBOX
     static class Program
     {
+        private const int ERROR_EDITOR = 0x74;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -149,6 +151,21 @@ namespace TactileGame
                 writer.Write(string.Format("{0}\r\n{1}\r\n\r\n",
                     DateTime.Now.ToString(), e.ToString()));
             }
+
+#if DEBUG
+            // Probably running from the editor, which would like to report exceptions
+            if (Tactile.Global.OutputEditorException)
+            {
+                Environment.ExitCode = ERROR_EDITOR;
+
+                // Save to a log that the Tactile Editor can read
+                using (StreamWriter writer = new StreamWriter("EditorException.log", false))
+                {
+                    writer.Write(string.Format("{0}\r\n{1}\r\n\r\n",
+                        DateTime.Now.ToString(), e.ToString()));
+                }
+            }
+#endif
         }
 #endif
 

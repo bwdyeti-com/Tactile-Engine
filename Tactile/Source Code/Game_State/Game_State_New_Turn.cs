@@ -197,17 +197,23 @@ namespace Tactile
                     }
                     else
                     {
-                        if (new_turn_unit.actor.clear_updated_states())
+                        var statusEffectUpdate = new_turn_unit.actor.clear_updated_states();
+
+                        get_scene_map().update_map_sprite_status(New_Turn_Unit_Id);
+
+                        // Refresh move range if any status effect changed
+                        if (statusEffectUpdate != StatusEffectCleared.None)
+                            Global.game_map.remove_updated_move_range(New_Turn_Unit_Id);
+
+                        // Focus on unit for status heal effect if a negative effect was removed
+                        if (statusEffectUpdate == StatusEffectCleared.NegativeRemoved)
                         {
                             Global.player.force_loc(new_turn_unit.loc);
-                            Global.game_map.remove_updated_move_range(New_Turn_Unit_Id);
-                            get_scene_map().update_map_sprite_status(New_Turn_Unit_Id);
                             New_Turn_Action++;
                             return true;
                         }
                         else
                         {
-                            get_scene_map().update_map_sprite_status(New_Turn_Unit_Id);
                             New_Turn_Phase++;
                             return false;
                         }

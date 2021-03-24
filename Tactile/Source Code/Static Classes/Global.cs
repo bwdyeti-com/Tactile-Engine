@@ -714,6 +714,8 @@ namespace Tactile
 
 #if DEBUG
         public static bool UnitEditorActive { get; private set; }
+
+        public static bool OutputEditorException { get { return Global.UnitEditorActive; } }
 #endif
 
         public static string new_scene { get { return New_Scene; } }
