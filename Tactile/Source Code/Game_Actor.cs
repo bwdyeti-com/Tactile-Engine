@@ -15,6 +15,7 @@ namespace Tactile
 {
     enum Power_Types { Strength, Magic, Power }
     enum Equippability { CanEquip, CannotEquip, CannotEquipPrf, CanEquipSiege, Silenced }
+    enum StatusEffectCleared { None, AnyRemoved, NegativeRemoved }
     internal partial class Game_Actor
     {
         internal const int LEVEL_UP_VIABLE_STATS = (int)Stat_Labels.Con; // Stats preceding this can go up on level
@@ -3993,27 +3994,31 @@ namespace Tactile
 
         /// <summary>
         /// Removes states that had their timers run out.
-        /// Returns true if a negative state was removed.
+        /// Returns whether a negative state or just any state was removed.
         /// </summary>
         /// <returns></returns>
-        public bool clear_updated_states()
+        public StatusEffectCleared clear_updated_states()
         {
-            int i = 0;
-            bool result = false;
-            while (i < States.Count)
+            StatusEffectCleared result = StatusEffectCleared.None;
+            for (int i = 0; i < States.Count; )
             {
                 // If there are no turns left on a state and it doesn't last indefinitely
                 if (States[i][1] <= 0 && Global.data_statuses[States[i][0]].Turns > -1)
                 {
                     if (Global.data_statuses[States[i][0]].Negative)
-                        result = true;
+                        result = StatusEffectCleared.NegativeRemoved;
+                    // Negative has priority over any
+                    else if (result != StatusEffectCleared.NegativeRemoved)
+                        result = StatusEffectCleared.AnyRemoved;
+
                     States.RemoveAt(i);
                 }
                 else
                     i++;
             }
             Skills_Need_Updated = true;
-            if (result && weapon == null)
+            // If a status was removed and we have no weapon
+            if (result != StatusEffectCleared.None && weapon == null)
             {
                 setup_items(false);
             }
