@@ -196,15 +196,17 @@ namespace Tactile
                 numItems = 0;
                 for (int i = 1; firstItemIndex + i < data_ary.Length; i++)
                 {
-                    if (!Regex.IsMatch(
-                            data_ary[firstItemIndex + i - 1],
-                            string.Format("|Item {0}$", i)))
+                    var match = Regex.Match(
+                        data_ary[firstItemIndex + i - 1],
+                        string.Format("\\|Item {0}$", i));
+                    if (!match.Success)
                         break;
 
                     numItems = i;
                 }
-                if (firstItemIndex + numItems != data_ary.Length - 1)
-                    throw new IndexOutOfRangeException("Unit data had the wrong number of items");
+                //@Debug: not actually a problem, but worth noting
+                //if (firstItemIndex + numItems != data_ary.Length - 1)
+                //    throw new IndexOutOfRangeException("Unit data had the wrong number of items");
             }
 
             // If units were created with NUM_ITEMS = 6,
