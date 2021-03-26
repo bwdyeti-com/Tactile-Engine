@@ -526,7 +526,6 @@
     <Compile Include="Source Code\Sprites\Windowskins\Trade_Target_Window_Img.cs" />
     <Compile Include="Source Code\Sprites\Windowskins\Unit_Window.cs" />
     <Compile Include="Source Code\Static Classes\Print.cs" />
-    <Compile Include="Source Code\Static Classes\Processing\Additional_Math.cs" />
     <Compile Include="Source Code\Services\Audio\Audio.cs" />
     <Compile Include="Source Code\Static Classes\Processing\BattlerAnimsService.cs" />
     <Compile Include="Source Code\Static Classes\Processing\Combat.cs" />

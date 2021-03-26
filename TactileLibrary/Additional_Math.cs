@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework;
 
 namespace Tactile
 {
-    class Additional_Math
+    public class Additional_Math
     {
         public static int int_closer(int source, int target, int val)
         {
@@ -26,7 +26,8 @@ namespace Tactile
         }
 
         /// <summary>
-        /// If formula(value) is 0, returns the sign of value. Otherwise returns the result.
+        /// If formula(value) is 0, returns the sign of the input value.
+        /// Otherwise returns the result.
         /// </summary>
         public static int preserve_sign(int value, Func<int, int> formula)
         {
