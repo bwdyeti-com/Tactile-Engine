@@ -132,39 +132,39 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <AndroidAsset Include="Content\Battler_Palette_Data.xnb" />
-    <AndroidAsset Include="Content\DiagFont.xnb" />
-    <AndroidAsset Include="Content\Face_Data.xnb" />
-    <AndroidAsset Include="Content\Face_Palette_Data.xnb" />
-    <AndroidAsset Include="Content\manifest.xnb" />
-    <AndroidAsset Include="Content\MapSpriteRecolors.xnb" />
-    <AndroidAsset Include="Content\Weapon_Types.xnb" />
-    <AndroidAsset Include="Content\Audio\BGM\*" />
-    <AndroidAsset Include="Content\Audio\SE\Battle Sounds\*" />
-    <AndroidAsset Include="Content\Audio\SE\Map Sounds\*" />
-    <AndroidAsset Include="Content\Audio\SE\Step Sounds\*" />
-    <AndroidAsset Include="Content\Audio\SE\System Sounds\*" />
-    <AndroidAsset Include="Content\Data\*" />
-    <AndroidAsset Include="Content\Data\Map Data\Event Data\*" />
-    <AndroidAsset Include="Content\Data\Map Data\Maps\*" />
-    <AndroidAsset Include="Content\Data\Map Data\Unit Data\*" />
-    <AndroidAsset Include="Content\Data\Text\*" />
-    <AndroidAsset Include="Content\Graphics\*" />
-    <AndroidAsset Include="Content\Graphics\Animations\*" />
-    <AndroidAsset Include="Content\Graphics\Animations\Effects\*" />
-    <AndroidAsset Include="Content\Graphics\Autotiles\*" />
-    <AndroidAsset Include="Content\Graphics\Battlebacks\*" />
-    <AndroidAsset Include="Content\Graphics\Characters\*" />
-    <AndroidAsset Include="Content\Graphics\Faces\*" />
-    <AndroidAsset Include="Content\Graphics\Faces\Countries\*" />
-    <AndroidAsset Include="Content\Graphics\Fonts\*" />
-    <AndroidAsset Include="Content\Graphics\Icons\*" />
-    <AndroidAsset Include="Content\Graphics\Palettes\Battlers\*" />
-    <AndroidAsset Include="Content\Graphics\Panoramas\*" />
-    <AndroidAsset Include="Content\Graphics\Pictures\*" />
-    <AndroidAsset Include="Content\Graphics\Tilesets\*" />
-    <AndroidAsset Include="Content\Graphics\Titles\*" />
-    <AndroidAsset Include="Content\Graphics\Windowskins\*" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Battler_Palette_Data.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\DiagFont.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Face_Data.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Face_Palette_Data.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\MapSpriteRecolors.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\manifest.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Weapon_Types.xnb" Link="\Content\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Audio\BGM\*" Link="\Content\Audio\BGM\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Audio\SE\Battle Sounds\*" Link="\Content\Audio\SE\Battle Sounds\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Audio\SE\Map Sounds\*" Link="\Content\Audio\SE\Map Sounds\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Audio\SE\Step Sounds\*" Link="\Content\Audio\SE\Step Sounds\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Audio\SE\System Sounds\*" Link="\Content\Audio\SE\System Sounds\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Data\*" Link="\Content\Data\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Data\Map Data\Event Data\*" Link="\Content\Data\Map Data\Event Data\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Data\Map Data\Maps\*" Link="\Content\Data\Map Data\Maps\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Data\Map Data\Unit Data\*" Link="\Content\Data\Map Data\Unit Data\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Data\Text\*" Link="\Content\Data\Text\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\*" Link="\Content\Graphics\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Animations\*" Link="\Content\Graphics\Animations\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Animations\Effects\*" Link="\Content\Graphics\Animations\Effects\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Autotiles\*" Link="\Content\Graphics\Autotiles\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Battlebacks\*" Link="\Content\Graphics\Battlebacks\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Characters\*" Link="\Content\Graphics\Characters\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Faces\*" Link="\Content\Graphics\Faces\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Faces\Countries\*" Link="\Content\Graphics\Faces\Countries\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Fonts\*" Link="\Content\Graphics\Fonts\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Icons\*" Link="\Content\Graphics\Icons\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Palettes\Battlers\*" Link="\Content\Graphics\Palettes\Battlers\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Panoramas\*" Link="\Content\Graphics\Panoramas\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Pictures\*" Link="\Content\Graphics\Pictures\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Tilesets\*" Link="\Content\Graphics\Tilesets\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Titles\*" Link="\Content\Graphics\Titles\%(Filename)%(Extension)" />
+    <AndroidAsset Include="..\..\bin\x86\Release\Content\Graphics\Windowskins\*" Link="\Content\Graphics\Windowskins\%(Filename)%(Extension)" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
