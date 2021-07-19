@@ -32,7 +32,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
+    <OutputPath>..\..\bin\Android\AnyCPU\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;__MOBILE__;__ANDROID__;MONOGAME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -54,7 +54,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\$(MonoGamePlatform)\$(Platform)\$(Configuration)\</OutputPath>
+    <OutputPath>..\..\bin\Android\AnyCPU\Release\</OutputPath>
     <DefineConstants>TRACE;__MOBILE__;__ANDROID__;MONOGAME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -71,7 +71,7 @@
     <DebugSymbols>False</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'PreRelease|AnyCPU'">
-    <OutputPath>bin\Android\AnyCPU\PreRelease\</OutputPath>
+    <OutputPath>..\..\bin\Android\AnyCPU\PreRelease\</OutputPath>
     <DefineConstants>TRACE;__MOBILE__;__ANDROID__;MONOGAME;PRERELEASE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
