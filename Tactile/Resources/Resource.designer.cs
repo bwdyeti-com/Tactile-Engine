@@ -8,9 +8,9 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: global::Android.Runtime.ResourceDesignerAttribute("TactileLibrary.Resource", IsApplication=false)]
+[assembly: global::Android.Runtime.ResourceDesignerAttribute("Tactile.Resource", IsApplication=false)]
 
-namespace TactileLibrary
+namespace Tactile
 {
 	
 	

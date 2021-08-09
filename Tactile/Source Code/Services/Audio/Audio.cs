@@ -379,9 +379,9 @@ namespace Tactile.Services.Audio
                 try
 				{
                     Stream cue_stream = TitleContainer.OpenStream(@"Content\Audio\BGM\" + cue_name + ".ogg");
-
                     
 #if __ANDROID__
+                    // Android wants to work from a memory stream
 					MemoryStream stream = new MemoryStream();
 					cue_stream.CopyTo(stream);
                     vorbis = new NVorbis.VorbisReader(stream, cue_name, true);
@@ -443,10 +443,8 @@ namespace Tactile.Services.Audio
 
             if (music != null)
                 music.IsLooped = true;
-#if !__ANDROID__
-            if (song != null)
-				song.Dispose();
-#endif
+            //@Yeti: Audio Merge
+
             return music;
         }
         private static SoundEffectInstance get_vorbis_music(
@@ -454,17 +452,11 @@ namespace Tactile.Services.Audio
             int intro_start, int loop_start, int loop_length)
         {
             SoundEffectInstance music;
-#if __ANDROID__
+            //@Yeti: Audio Merge
             SoundEffect sound_effect = SoundEffectStreamed.FromVorbis(
                 vorbis, intro_start, loop_start, loop_start + loop_length);
             music = sound_effect.CreateInstance();
             music.AlsoDisposeEffect();
-#else
-            if (loop_start != -1)
-                music = new SoundEffectInstance(vorbis, intro_start, loop_start, loop_start + loop_length);
-            else
-                music = new SoundEffectInstance(vorbis, 0, -1, -1);
-#endif
 
             return music;
         }
@@ -473,17 +465,14 @@ namespace Tactile.Services.Audio
             int intro_start, int loop_start, int loop_length)
         {
             SoundEffectInstance music;
-#if __ANDROID__
+            //@Yeti: Audio Merge
+            //@Debug: also the loop points don't matter for this function,
+            // even for the old code because real numbers were never passed in?
+            // Could be worth reworking for the functionality though
             if (song == null)
                 return null;
             music = song.CreateInstance();
             music.AlsoDisposeEffect();
-#else
-                if (loop_start != -1)
-                    music = new SoundEffectInstance(song, intro_start, loop_start, loop_start + loop_length);
-                else
-                    music = new SoundEffectInstance(song);
-#endif
 
             return music;
         }
@@ -692,18 +681,11 @@ namespace Tactile.Services.Audio
 #endif
 
             sound.Name = cue_name;
-#if __ANDROID__
+            //@Yeti: Audio Merge
+            //@Debug: also no longer uses LOOP_DATA forced loop points
             instance = sound.CreateInstance();
             instance.AlsoDisposeEffect();
-#else
-            if (looping && LOOP_DATA.ContainsKey(filename) && LOOP_DATA[filename][1] != -1)
-            {
-                instance = new SoundEffectInstance(sound, LOOP_DATA[filename][0], LOOP_DATA[filename][1], LOOP_DATA[filename][1] + LOOP_DATA[filename][2]);
-                instance.IsLooped = true;
-            }
-            else
-                instance = new SoundEffectInstance(sound);
-#endif
+
             return new SoundEffectGetter(ogg, sound, instance);
         }
 
@@ -1003,6 +985,7 @@ namespace Tactile.Services.Audio
                     using (Stream cue_stream = TitleContainer.OpenStream(cue_name))
                     {
 #if __ANDROID__
+                        // Android wants to work from a memory stream
 						MemoryStream stream = new MemoryStream();
 						cue_stream.CopyTo(stream);
                         using (var vorbis = new NVorbis.VorbisReader(stream, cue_name, false))
@@ -1050,12 +1033,9 @@ namespace Tactile.Services.Audio
                 WriteWave(writer, LOOP_DATA[cue_name][3], LOOP_DATA[cue_name][4], SOUND_DATA[cue_name]);
                 // Resets the stream's position back to 0 after writing
                 stream.Position = 0;
-#if __ANDROID__
+                //@Yeti: Audio Merge
                 sound = SoundEffect.FromStream(
                     stream, intro_start, loop_start, loop_start + loop_length);
-#else
-                sound = SoundEffect.FromStream(stream);
-#endif
                 sound.Name = cue_name;
             }
         }
@@ -1135,21 +1115,19 @@ namespace Tactile.Services.Audio
             Instance = instance;
         }
 
-        private bool dispose_sound
+        private bool ShouldDisposeSound
         {
             get
             {
-#if __ANDROID__
+                //@Yeti: Audio Merge
                 return false;
-#endif
-                return Ogg;
             }
         }
 
         public void Dispose()
         {
             if (Sound != null)
-                if (dispose_sound)
+                if (this.ShouldDisposeSound)
                     Sound.Dispose();
         }
     }

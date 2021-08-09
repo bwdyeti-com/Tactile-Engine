@@ -15,7 +15,7 @@
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AssemblyName>TactileLibrary</AssemblyName>
-    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v6.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -65,7 +65,16 @@
     <Reference Include="Mono.Android" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Additional_Math.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Color_Util.cs" />
+    <Compile Include="Config\ActorConfig.cs" />
+    <Compile Include="Config\BgmConfig.cs" />
+    <Compile Include="Config\BattleSceneConfig.cs" />
+    <Compile Include="Config\ConfigData.cs" />
+    <Compile Include="Content Readers\TactileDataContent\TextDataReader.cs" />
+    <Compile Include="Content Readers\TactileDataContent\ConfigDataReader.cs" />
+    <Compile Include="Content Readers\TactileStructReader.cs" />
     <Compile Include="Content Readers\TactileDataReader.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />
@@ -77,6 +86,7 @@
     <Compile Include="Data Classes\Battler Data\Battle_Animation_Variable_Set.cs" />
     <Compile Include="Data Classes\Chapters\Character_Data.cs" />
     <Compile Include="Data Classes\Chapters\DataRanking.cs" />
+    <Compile Include="Data Classes\Chapters\TextData.cs" />
     <Compile Include="Data Classes\Face_Data.cs" />
     <Compile Include="Data Classes\Chapters\Map_Event_Data.cs" />
     <Compile Include="Data Classes\Chapters\Map_Unit_Data.cs" />
@@ -95,10 +105,8 @@
     <Compile Include="Content Readers\AnimationReader.cs" />
     <Compile Include="Content Readers\AnimDataReader.cs" />
     <Compile Include="Content Readers\ClassReader.cs" />
-    <Compile Include="Content Readers\ChapterReader.cs" />
     <Compile Include="Content Readers\SupportReader.cs" />
     <Compile Include="Content Readers\EventReader.cs" />
-    <Compile Include="Content Readers\ItemReader.cs" />
     <Compile Include="Content Readers\MapRecolorReader.cs" />
     <Compile Include="Content Readers\MapReader.cs" />
     <Compile Include="Data Classes\Chapters\Data_Map.cs" />
@@ -107,31 +115,53 @@
     <Compile Include="Content Readers\ActorReader.cs" />
     <Compile Include="Data Classes\Data_Terrain.cs" />
     <Compile Include="Data Classes\Data_Weapon.cs" />
-    <Compile Include="Content Readers\StatusReader.cs" />
     <Compile Include="Content Readers\UnitReader.cs" />
+    <Compile Include="Data Classes\ShopItemData.cs" />
     <Compile Include="Data Classes\WeaponType.cs" />
+    <Compile Include="Encryption\ContentEncryption.cs" />
+    <Compile Include="Encryption\StreamEncryption.cs" />
     <Compile Include="EnumSerializer.cs" />
     <Compile Include="EventInput.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="TactileDataContent.cs" />
+    <Compile Include="BoolEventArgs.cs" />
     <Compile Include="IntEventArgs.cs" />
     <Compile Include="IntRange.cs" />
     <Compile Include="Maybe.cs" />
     <Compile Include="NodeDestinationMap.cs" />
     <Compile Include="Noise.cs" />
+    <Compile Include="Palette\ColorVector.cs" />
+    <Compile Include="Palette\GeneratedColorPalette.cs" />
+    <Compile Include="Palette\IndexedGeneratedPalette.cs" />
+    <Compile Include="Palette\PaletteEntry.cs" />
+    <Compile Include="Palette\PaletteGenerator.cs" />
+    <Compile Include="Palette\PaletteParameters.cs" />
+    <Compile Include="Palette\PaletteRamp.cs" />
+    <Compile Include="Palette\RecolorData.cs" />
+    <Compile Include="Palette\RecolorEntry.cs" />
+    <Compile Include="Palette\SpritePalette.cs" />
+    <Compile Include="Palette\SpriteRamp.cs" />
+    <Compile Include="Palette\XnaHSL.cs" />
     <Compile Include="Pathfinding\ClosedList.cs" />
     <Compile Include="Pathfinding\ClosedListRoute.cs" />
-    <Compile Include="Pathfinding\IDistanceMeasurable.cs" />
-    <Compile Include="Pathfinding\OpenList.cs" />
+    <Compile Include="Pathfinding\IMovementMap.cs" />
+    <Compile Include="Pathfinding\Old\ClosedList.cs" />
+    <Compile Include="Pathfinding\Old\ClosedListRoute.cs" />
+    <Compile Include="Pathfinding\Old\IDistanceMeasurable.cs" />
+    <Compile Include="Pathfinding\Old\OpenList.cs" />
+    <Compile Include="Pathfinding\Old\OpenItem.cs" />
+    <Compile Include="Pathfinding\Old\Pathfinding.cs" />
+    <Compile Include="Pathfinding\Old\PathfindingGridPoint.cs" />
+    <Compile Include="Pathfinding\Old\PathfindingNode.cs" />
     <Compile Include="Pathfinding\OpenItem.cs" />
-    <Compile Include="Pathfinding\Pathfinding.cs" />
-    <Compile Include="Pathfinding\PathfindingGridPoint.cs" />
-    <Compile Include="Pathfinding\PathfindingNode.cs" />
+    <Compile Include="Pathfinding\OpenList.cs" />
+    <Compile Include="Pathfinding\PassabilityMap3D.cs" />
+    <Compile Include="Pathfinding\Pathfinder.cs" />
     <Compile Include="Perlin_Noise.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Content Readers\TerrainReader.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="RectangleExclusion.cs" />
+    <Compile Include="SquirrelNoise.cs" />
+    <Compile Include="NoiseRand.cs" />
     <Compile Include="TextCommand.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -141,7 +171,7 @@
     <AndroidResource Include="Resources\values\Strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\LIBRARIES\MonoGame-3.5.1 - NVorbis\MonoGame.Framework\MonoGame.Framework.Android.csproj">
+    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Android.csproj">
       <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
       <Name>MonoGame.Framework.Android</Name>
     </ProjectReference>

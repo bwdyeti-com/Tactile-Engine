@@ -66,13 +66,34 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Additional_Math.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Color_Util.cs" />
+    <Compile Include="Config\ActorConfig.cs" />
+    <Compile Include="Config\BgmConfig.cs" />
+    <Compile Include="Config\BattleSceneConfig.cs" />
+    <Compile Include="Config\ConfigData.cs" />
+    <Compile Include="Content Readers\TactileDataContent\TextDataReader.cs" />
+    <Compile Include="Content Readers\TactileDataContent\ConfigDataReader.cs" />
+    <Compile Include="Content Readers\TactileStructReader.cs" />
+    <Compile Include="Content Readers\TactileDataReader.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Animation_Data.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Frame_Data.cs" />
     <Compile Include="Data Classes\Battle Animation\Battle_Frame_Image_Data.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Association_Data.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Association_Set.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Attack_Set.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Attack_Type.cs" />
+    <Compile Include="Data Classes\Battler Data\Battle_Animation_Variable_Set.cs" />
+    <Compile Include="Data Classes\Chapters\Character_Data.cs" />
+    <Compile Include="Data Classes\Chapters\DataRanking.cs" />
+    <Compile Include="Data Classes\Chapters\TextData.cs" />
+    <Compile Include="Data Classes\Face_Data.cs" />
     <Compile Include="Data Classes\Chapters\Map_Event_Data.cs" />
     <Compile Include="Data Classes\Chapters\Map_Unit_Data.cs" />
     <Compile Include="Data Classes\Chapters\Data_Chapter.cs" />
     <Compile Include="CharacterEventArgs.cs" />
+    <Compile Include="Data Classes\Data_Generic_Actor.cs" />
     <Compile Include="Data Classes\Data_Skill.cs" />
     <Compile Include="Data Classes\Data_Status.cs" />
     <Compile Include="Data Classes\Data_Support.cs" />
@@ -85,10 +106,8 @@
     <Compile Include="Content Readers\AnimationReader.cs" />
     <Compile Include="Content Readers\AnimDataReader.cs" />
     <Compile Include="Content Readers\ClassReader.cs" />
-    <Compile Include="Content Readers\ChapterReader.cs" />
     <Compile Include="Content Readers\SupportReader.cs" />
     <Compile Include="Content Readers\EventReader.cs" />
-    <Compile Include="Content Readers\ItemReader.cs" />
     <Compile Include="Content Readers\MapRecolorReader.cs" />
     <Compile Include="Content Readers\MapReader.cs" />
     <Compile Include="Data Classes\Chapters\Data_Map.cs" />
@@ -97,18 +116,57 @@
     <Compile Include="Content Readers\ActorReader.cs" />
     <Compile Include="Data Classes\Data_Terrain.cs" />
     <Compile Include="Data Classes\Data_Weapon.cs" />
-    <Compile Include="Content Readers\SkillReader.cs" />
-    <Compile Include="Content Readers\StatusReader.cs" />
     <Compile Include="Content Readers\UnitReader.cs" />
+    <Compile Include="Data Classes\ShopItemData.cs" />
+    <Compile Include="Data Classes\WeaponType.cs" />
+    <Compile Include="Encryption\ContentEncryption.cs" />
+    <Compile Include="Encryption\StreamEncryption.cs" />
+    <Compile Include="EnumSerializer.cs" />
+    <Compile Include="EventInput.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="TactileDataContent.cs" />
+    <Compile Include="BoolEventArgs.cs" />
     <Compile Include="IntEventArgs.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Content Readers\TilesetReader.cs" />
-    <Compile Include="Content Readers\TerrainReader.cs" />
-    <Compile Include="Content Readers\WeaponReader.cs" />
+    <Compile Include="IntRange.cs" />
+    <Compile Include="Maybe.cs" />
+    <Compile Include="NodeDestinationMap.cs" />
+    <Compile Include="Noise.cs" />
+    <Compile Include="Palette\ColorVector.cs" />
+    <Compile Include="Palette\GeneratedColorPalette.cs" />
+    <Compile Include="Palette\IndexedGeneratedPalette.cs" />
+    <Compile Include="Palette\PaletteEntry.cs" />
+    <Compile Include="Palette\PaletteGenerator.cs" />
+    <Compile Include="Palette\PaletteParameters.cs" />
+    <Compile Include="Palette\PaletteRamp.cs" />
+    <Compile Include="Palette\RecolorData.cs" />
+    <Compile Include="Palette\RecolorEntry.cs" />
+    <Compile Include="Palette\SpritePalette.cs" />
+    <Compile Include="Palette\SpriteRamp.cs" />
+    <Compile Include="Palette\XnaHSL.cs" />
+    <Compile Include="Pathfinding\ClosedList.cs" />
+    <Compile Include="Pathfinding\ClosedListRoute.cs" />
+    <Compile Include="Pathfinding\IMovementMap.cs" />
+    <Compile Include="Pathfinding\Old\ClosedList.cs" />
+    <Compile Include="Pathfinding\Old\ClosedListRoute.cs" />
+    <Compile Include="Pathfinding\Old\IDistanceMeasurable.cs" />
+    <Compile Include="Pathfinding\Old\OpenList.cs" />
+    <Compile Include="Pathfinding\Old\OpenItem.cs" />
+    <Compile Include="Pathfinding\Old\Pathfinding.cs" />
+    <Compile Include="Pathfinding\Old\PathfindingGridPoint.cs" />
+    <Compile Include="Pathfinding\Old\PathfindingNode.cs" />
+    <Compile Include="Pathfinding\OpenItem.cs" />
+    <Compile Include="Pathfinding\OpenList.cs" />
+    <Compile Include="Pathfinding\PassabilityMap3D.cs" />
+    <Compile Include="Pathfinding\Pathfinder.cs" />
+    <Compile Include="Perlin_Noise.cs" />
+    <Compile Include="Range.cs" />
+    <Compile Include="RectangleExclusion.cs" />
+    <Compile Include="SquirrelNoise.cs" />
+    <Compile Include="NoiseRand.cs" />
+    <Compile Include="TextCommand.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MonoGame-3.2 audio edit\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
     </ProjectReference>
