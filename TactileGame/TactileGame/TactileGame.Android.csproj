@@ -118,7 +118,7 @@
       <Project>{2d274530-f906-4896-8850-c6729871c03e}</Project>
       <Name>TactileLibrary.Android</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-3.5.1 - NVorbis\MonoGame.Framework\MonoGame.Framework.Android.csproj">
+    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Android.csproj">
       <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
       <Name>MonoGame.Framework.Android</Name>
     </ProjectReference>

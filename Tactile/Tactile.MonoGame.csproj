@@ -681,7 +681,7 @@
       <Project>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</Project>
       <Name>TactileLibrary.MonoGame</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-3.2 audio edit\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
       <Aliases>global</Aliases>

@@ -171,7 +171,7 @@
     <AndroidResource Include="Resources\values\Strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-3.5.1 - NVorbis\MonoGame.Framework\MonoGame.Framework.Android.csproj">
+    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Android.csproj">
       <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
       <Name>MonoGame.Framework.Android</Name>
     </ProjectReference>

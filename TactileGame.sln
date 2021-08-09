@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TactileConfig", "TactileCon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentWriterExtension", "ContentWriterExtension\ContentWriterExtension.csproj", "{76460235-460A-4EFC-A92E-D074CB280804}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Windows.Audio", "..\TactileSharedLibraries\MonoGame-audio\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj", "{7DE47032-A904-4C29-BD22-2D235E8D91BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Windows.Audio", "..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj", "{7DE47032-A904-4C29-BD22-2D235E8D91BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentManifestExtensions", "..\TactileSharedLibraries\ContentManifestExtensions\ContentManifestExtensions.csproj", "{F4CDBC64-A84A-41CD-A941-418B67578AF7}"
 EndProject
