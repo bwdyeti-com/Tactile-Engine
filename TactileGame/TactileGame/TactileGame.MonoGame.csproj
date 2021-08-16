@@ -100,6 +100,8 @@
     <Compile Include="Source Code\Debug Monitor\GraphicsDeviceService.cs" />
     <Compile Include="Source Code\Debug Monitor\ServiceContainer.cs" />
     <Compile Include="Source Code\Fullscreen.cs" />
+    <Compile Include="Source Code\MobileFullscreen.cs" />
+    <Compile Include="Source Code\NetConnection.cs" />
     <Compile Include="Source Code\Update_Checker.cs" />
     <Compile Include="Source Code\Metrics_Handler.cs" />
     <Compile Include="Source Code\NativeMethods.cs" />
@@ -110,7 +112,10 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
-    <Content Include="oalinst.exe">
+    <Content Include="Redist\dotNetFx40_Full_setup.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Redist\oalinst.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -224,6 +229,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Content Include="Redist\xnafx40_redist.msi">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Source Code\Debug Monitor\DebugMonitorForm.resx">
