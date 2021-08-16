@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TactileConfig", "TactileCon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentWriterExtension", "ContentWriterExtension\ContentWriterExtension.csproj", "{76460235-460A-4EFC-A92E-D074CB280804}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Windows.Audio", "..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj", "{7DE47032-A904-4C29-BD22-2D235E8D91BA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentManifestExtensions", "..\TactileSharedLibraries\ContentManifestExtensions\ContentManifestExtensions.csproj", "{F4CDBC64-A84A-41CD-A941-418B67578AF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVorbis", "..\TactileSharedLibraries\NVorbis\NVorbis.csproj", "{A372E591-DFEF-49C4-9C82-98C4361EFCCD}"
@@ -199,33 +197,6 @@ Global
 		{76460235-460A-4EFC-A92E-D074CB280804}.Release|x86.Build.0 = DebugPipeline|x86
 		{76460235-460A-4EFC-A92E-D074CB280804}.Release|Xbox 360.ActiveCfg = DebugPipeline|x86
 		{76460235-460A-4EFC-A92E-D074CB280804}.Release|Xbox 360.Build.0 = DebugPipeline|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Any CPU.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|x86.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|x86.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Xbox 360.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Any CPU.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Mixed Platforms.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Mixed Platforms.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|x86.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|x86.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Xbox 360.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|Any CPU.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|Any CPU.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|Mixed Platforms.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|Mixed Platforms.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|x86.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|x86.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.PreRelease|Xbox 360.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Any CPU.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Any CPU.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Mixed Platforms.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|x86.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|x86.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Xbox 360.ActiveCfg = Release|x86
 		{F4CDBC64-A84A-41CD-A941-418B67578AF7}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{F4CDBC64-A84A-41CD-A941-418B67578AF7}.Debug|Any CPU.Build.0 = Debug|x86
 		{F4CDBC64-A84A-41CD-A941-418B67578AF7}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
