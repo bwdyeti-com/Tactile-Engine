@@ -11,9 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tactile.Android", "Tactile\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TactileConfig.Android", "TactileConfig\TactileConfig.Android.csproj", "{A9502348-609F-481C-92E2-6DD77FEC9291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Android", "..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Android.csproj", "{BA9476CF-99BA-4D03-92F2-73D2C5E58883}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Android", "..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.Android.csproj", "{BA9476CF-99BA-4D03-92F2-73D2C5E58883}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Android", "..\TactileSharedLibraries\MonoGame-3.5.1 - NVorbis\ThirdParty\Lidgren.Network\Lidgren.Network.Android.csproj", "{565129E0-4EE5-4F6F-B403-C3484C9740BE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Android", "..\TactileSharedLibraries\MonoGame-Tactile Source\ThirdParty\Lidgren.Network\Lidgren.Network.Android.csproj", "{565129E0-4EE5-4F6F-B403-C3484C9740BE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVorbis.Android", "..\TactileSharedLibraries\NVorbis\NVorbis.Android.csproj", "{81774731-E7F9-470C-9DC1-D8928529238B}"
 EndProject

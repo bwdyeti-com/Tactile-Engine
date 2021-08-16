@@ -698,7 +698,7 @@
     <Compile Include="Source Code\Windows\World Map\World_Minimap_ViewArea.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj">
+    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.Windows.Audio</Name>
     </ProjectReference>

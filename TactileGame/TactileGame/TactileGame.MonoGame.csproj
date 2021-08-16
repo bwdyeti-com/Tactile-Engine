@@ -236,7 +236,7 @@
       <Project>{9a516e53-b277-4a47-b2bf-bbd2e67d08fd}</Project>
       <Name>TactileLibrary.MonoGame</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
     </ProjectReference>

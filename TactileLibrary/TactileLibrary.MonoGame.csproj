@@ -166,7 +166,7 @@
     <Compile Include="TextCommand.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
     </ProjectReference>
@@ -181,6 +181,7 @@
       </Target>
     -->
   <PropertyGroup>
-    <PostBuildEvent></PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

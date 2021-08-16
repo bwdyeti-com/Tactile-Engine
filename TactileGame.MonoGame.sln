@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TactileGame.MonoGame", "TactileGame\TactileGame\TactileGame.MonoGame.csproj", "{0EEDDACE-B5BB-4136-8283-29529A8A02BB}"
 EndProject
@@ -13,9 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tactile.MonoGame", "Tactile
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVorbis", "..\TactileSharedLibraries\NVorbis\NVorbis.csproj", "{A372E591-DFEF-49C4-9C82-98C4361EFCCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.WindowsGL", "..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj", "{7DE47032-A904-4C29-BD22-2D235E8D91BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.WindowsGL", "..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj", "{6D75E618-19CA-4C51-9546-F10965FBC0B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Windows", "..\TactileSharedLibraries\MonoGame-3.2 audio edit\ThirdParty\Lidgren.Network\Lidgren.Network.Windows.csproj", "{AE483C29-042E-4226-BA52-D247CE7676DA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Windows", "..\TactileSharedLibraries\MonoGame-Tactile Source\ThirdParty\Lidgren.Network\Lidgren.Network.WindowsGL.csproj", "{AE483C29-042E-4226-BA52-D247CE7676DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,27 +133,27 @@ Global
 		{A372E591-DFEF-49C4-9C82-98C4361EFCCD}.Release|Mixed Platforms.Build.0 = Release|x86
 		{A372E591-DFEF-49C4-9C82-98C4361EFCCD}.Release|x86.ActiveCfg = Release|Any CPU
 		{A372E591-DFEF-49C4-9C82-98C4361EFCCD}.Release|Xbox 360.ActiveCfg = Release|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|x86.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|x86.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Any CPU.Build.0 = Debug|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Mixed Platforms.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Mixed Platforms.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|x86.ActiveCfg = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|x86.Build.0 = Debug|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.DebugPipeline|Xbox 360.ActiveCfg = Debug|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Mixed Platforms.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|x86.ActiveCfg = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|x86.Build.0 = Release|x86
-		{7DE47032-A904-4C29-BD22-2D235E8D91BA}.Release|Xbox 360.ActiveCfg = Release|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|x86.ActiveCfg = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|x86.Build.0 = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Debug|Xbox 360.ActiveCfg = Debug|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|Any CPU.Build.0 = Debug|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|Mixed Platforms.ActiveCfg = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|Mixed Platforms.Build.0 = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|x86.ActiveCfg = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|x86.Build.0 = Debug|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.DebugPipeline|Xbox 360.ActiveCfg = Debug|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|Mixed Platforms.Build.0 = Release|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|x86.ActiveCfg = Release|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|x86.Build.0 = Release|x86
+		{6D75E618-19CA-4C51-9546-F10965FBC0B8}.Release|Xbox 360.ActiveCfg = Release|Any CPU
 		{AE483C29-042E-4226-BA52-D247CE7676DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE483C29-042E-4226-BA52-D247CE7676DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE483C29-042E-4226-BA52-D247CE7676DA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
@@ -175,5 +175,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E05BB32C-A1B6-4A8E-9832-7BCAB86B46AB}
 	EndGlobalSection
 EndGlobal
