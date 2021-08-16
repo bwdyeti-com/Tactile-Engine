@@ -11,10 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tactile.Android", "Tactile\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TactileConfig.Android", "TactileConfig\TactileConfig.Android.csproj", "{A9502348-609F-481C-92E2-6DD77FEC9291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoGame.Framework.Android", "..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.Android.csproj", "{BA9476CF-99BA-4D03-92F2-73D2C5E58883}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lidgren.Network.Android", "..\TactileSharedLibraries\MonoGame-Tactile Source\ThirdParty\Lidgren.Network\Lidgren.Network.Android.csproj", "{565129E0-4EE5-4F6F-B403-C3484C9740BE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVorbis.Android", "..\TactileSharedLibraries\NVorbis\NVorbis.Android.csproj", "{81774731-E7F9-470C-9DC1-D8928529238B}"
 EndProject
 Global
@@ -51,18 +47,6 @@ Global
 		{A9502348-609F-481C-92E2-6DD77FEC9291}.PreRelease|Any CPU.Build.0 = Release|Any CPU
 		{A9502348-609F-481C-92E2-6DD77FEC9291}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9502348-609F-481C-92E2-6DD77FEC9291}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA9476CF-99BA-4D03-92F2-73D2C5E58883}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA9476CF-99BA-4D03-92F2-73D2C5E58883}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA9476CF-99BA-4D03-92F2-73D2C5E58883}.PreRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{BA9476CF-99BA-4D03-92F2-73D2C5E58883}.PreRelease|Any CPU.Build.0 = Release|Any CPU
-		{BA9476CF-99BA-4D03-92F2-73D2C5E58883}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA9476CF-99BA-4D03-92F2-73D2C5E58883}.Release|Any CPU.Build.0 = Release|Any CPU
-		{565129E0-4EE5-4F6F-B403-C3484C9740BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{565129E0-4EE5-4F6F-B403-C3484C9740BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{565129E0-4EE5-4F6F-B403-C3484C9740BE}.PreRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{565129E0-4EE5-4F6F-B403-C3484C9740BE}.PreRelease|Any CPU.Build.0 = Release|Any CPU
-		{565129E0-4EE5-4F6F-B403-C3484C9740BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{565129E0-4EE5-4F6F-B403-C3484C9740BE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{81774731-E7F9-470C-9DC1-D8928529238B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{81774731-E7F9-470C-9DC1-D8928529238B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81774731-E7F9-470C-9DC1-D8928529238B}.PreRelease|Any CPU.ActiveCfg = Release|Any CPU
@@ -72,6 +56,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C3CB96B9-9F93-46FE-9C4B-232A6131AD0F}
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = TactileGame\TactileGame\TactileGame.Android.csproj

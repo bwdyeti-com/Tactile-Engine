@@ -75,6 +75,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\bin\Android\Release\MonoGame.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -712,10 +715,6 @@
     <Folder Include="Source Code\Sprites\Pick Units Components\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.Android.csproj">
-      <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
-      <Name>MonoGame.Framework.Android</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\TactileSharedLibraries\NVorbis\NVorbis.Android.csproj">
       <Project>{81774731-e7f9-470c-9dc1-d8928529238b}</Project>
       <Name>NVorbis.Android</Name>

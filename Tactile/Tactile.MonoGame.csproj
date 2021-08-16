@@ -44,6 +44,10 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.5.1.1679, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\bin\x86\Release\MonoGame.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -679,11 +683,6 @@
     <ProjectReference Include="..\TactileLibrary\TactileLibrary.MonoGame.csproj">
       <Project>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</Project>
       <Name>TactileLibrary.MonoGame</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
-      <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
-      <Name>MonoGame.Framework.WindowsGL</Name>
-      <Aliases>global</Aliases>
     </ProjectReference>
     <ProjectReference Include="..\..\TactileSharedLibraries\NVorbis\NVorbis.csproj">
       <Project>{a372e591-dfef-49c4-9c82-98c4361efccd}</Project>
