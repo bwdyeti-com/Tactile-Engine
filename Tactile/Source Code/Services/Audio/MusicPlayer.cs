@@ -456,17 +456,11 @@ namespace Tactile.Services.Audio
             int intro_start, int loop_start, int loop_length)
         {
             SoundEffectInstance music;
-#if __ANDROID__
+            //@Yeti: Audio Merge
             SoundEffect sound_effect = SoundEffectStreamed.FromVorbis(
                 vorbis, intro_start, loop_start, loop_start + loop_length);
             music = sound_effect.CreateInstance();
             music.AlsoDisposeEffect();
-#else
-            if (loop_start != -1)
-                music = new SoundEffectInstance(vorbis, intro_start, loop_start, loop_start + loop_length);
-            else
-                music = new SoundEffectInstance(vorbis, 0, -1, -1);
-#endif
 
             return music;
         }
@@ -475,17 +469,14 @@ namespace Tactile.Services.Audio
             int intro_start, int loop_start, int loop_length)
         {
             SoundEffectInstance music;
-#if __ANDROID__
+            //@Yeti: Audio Merge
+            //@Debug: also the loop points don't matter for this function,
+            // even for the old code because real numbers were never passed in?
+            // Could be worth reworking for the functionality though
             if (song == null)
                 return null;
             music = song.CreateInstance();
             music.AlsoDisposeEffect();
-#else
-            if (loop_start != -1)
-                music = new SoundEffectInstance(song, intro_start, loop_start, loop_start + loop_length);
-            else
-                music = new SoundEffectInstance(song);
-#endif
 
             return music;
         }

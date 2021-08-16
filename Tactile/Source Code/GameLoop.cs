@@ -207,6 +207,7 @@ namespace Tactile
             GamePadState controllerState = GamePad.GetState(PlayerIndex.One);
 
 #if !MONOGAME
+            OpenALInterface.UpdateSfxPool();
             OpenALInterface.update();
 #endif
 
@@ -253,6 +254,7 @@ namespace Tactile
                 if (i > 0)
                 {
 #if !MONOGAME
+                    OpenALInterface.UpdateSfxPool();
                     OpenALInterface.update();
 #endif
                 }

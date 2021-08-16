@@ -864,88 +864,57 @@ namespace Tactile
                 //case Difficulty_Modes.Lunatic: //Debug
                 //    difficulty_bonus = 0.2f;
                 default:
-                    // 1.15x multiplier to growths, instead of +5% to each
+                    // 1.1x multiplier to growths, instead of +5% to each
                     difficulty_bonus = 0.1f;
 
-                    // +15 for lunatic and +25 for L+??? //Yeti
-                    // honestly both need to use a lower growth bonus and then give exp bonuses instead
-                    // this makes the stats more variable, since flat growth bonuses boost every stat equally
-                    // and also it keeps promoted units from getting insane bonuses compared to unpromoted
+                    // +15 for lunatic and +25 for L+??? //@Yeti
+
+                    //@Yeti: really difficulty bonuses should be primarily
+                    // free hidden levels instead of growth bonuses, to just
+                    // add a flat extra amount of stats to units;
+                    // growth bonuses make promoted units get insane boosts
+                    // compared to unpromoted
                     break;
             }
 
-#if DEBUG
-            //if (Global.scene.scene_type == "Scene_Map_Unit_Editor") //Debug
-            //    difficulty_bonus = 0;
-#endif
-
-            var adjusted_growths = Enumerable.Range(0, (int)Stat_Labels.Con)
-                .Select(x => Data.Growths[x] * GetStatValue(x));
-#if DEBUG
-            int total_growth_bonus = (int)(adjusted_growths.Sum() * difficulty_bonus);
-            int total_difficulty_stat_bonus =
-                ((generic_exp(level, prepromote_levels) + exp) / Global.ActorConfig.ExpToLvl) *
-                total_growth_bonus / 100;
-#endif
-            int total_bonus = (int)(adjusted_growths.Sum() * difficulty_bonus);
-            int actual_bonus = adjusted_growths
-                .Select(x => (int)(x * difficulty_bonus))
-                .Sum();
-            int remaining_bonus = total_bonus - actual_bonus;
-
             if (difficulty_bonus != 0)
+            {
+                // Get the starting growth rates as a collection to start manipulating
+                var adjusted_growths = Enumerable.Range(0, (int)Stat_Labels.Con)
+                    .Select(x => Data.Growths[x] * GetStatValue(x));
+#if DEBUG
+                int total_growth_bonus = (int)(adjusted_growths.Sum() * difficulty_bonus);
+                int total_difficulty_stat_bonus =
+                    ((generic_exp(level, prepromote_levels) + exp) / Global.ActorConfig.ExpToLvl) *
+                    total_growth_bonus / 100;
+#endif
+                // Total the growth rates
+                int total_bonus = (int)(adjusted_growths.Sum() * difficulty_bonus);
+                int actual_bonus = adjusted_growths
+                    .Select(x => (int)(x * difficulty_bonus))
+                    .Sum();
+                int remaining_bonus = total_bonus - actual_bonus;
+
                 for (int i = 0; i < (int)Stat_Labels.Con; i++)
                     Data.Growths[i] += (int)(Data.Growths[i] * difficulty_bonus);
-            while (remaining_bonus != 0)
-            {
-                foreach (int i in Enumerable.Range(0, (int)Stat_Labels.Con))
-                    if (remaining_bonus != 0)
-                    {
-                        Data.Growths[i] += GetStatRatio(i);
+                // Apply any fractional leftovers
+                //@Yeti: this just applies to the first stat found (HP) despite
+                // appearing to be a loop
+                while (remaining_bonus != 0)
+                {
+                    foreach (int i in Enumerable.Range(0, (int)Stat_Labels.Con))
+                        if (remaining_bonus != 0)
+                        {
+                            Data.Growths[i] += GetStatRatio(i);
 
-                        if (remaining_bonus > 0)
-                            remaining_bonus--;
-                        else
-                            remaining_bonus++;
-                    }
+                            if (remaining_bonus > 0)
+                                remaining_bonus--;
+                            else
+                                remaining_bonus++;
+                        }
+                }
             }
         }
-        /* //Debug
-        private void difficulty_bonuses(int level, int prepromote_levels, int exp)
-        {
-            int difficulty_bonus;
-            switch (Global.game_system.Difficulty_Mode)
-            {
-                case Difficulty_Modes.Normal:
-                    difficulty_bonus = 0;
-                    break;
-                case Difficulty_Modes.Hard:
-                default:
-                    difficulty_bonus = 5;
-                    // +15 for lunatic and +25 for L+??? //Yeti
-                    // honestly both need to use a lower growth bonus and then give exp bonuses instead
-                    // this makes the stats more variable, since flat growth bonuses boost every stat equally
-                    // and also it keeps promoted units from getting insane bonuses compared to unpromoted
-                    break;
-            }
-#if DEBUG
-            //if (Global.scene.scene_type == "Scene_Map_Unit_Editor") //Debug
-            //    difficulty_bonus = 0;
-#endif
-#if DEBUG
-            int total_growth_bonus = (int)(Stat_Labels.Con) * difficulty_bonus;
-            int total_difficulty_stat_bonus =
-                ((generic_exp(level, prepromote_levels) + exp) / Global.ActorConfig.EXP_TO_LVL) *
-                total_growth_bonus / 100;
-#endif
-            if (difficulty_bonus != 0)
-                for (int i = 0; i < (int)Stat_Labels.Con; i++)
-                    if (i == (int)Stat_Labels.Hp)
-                        Data.Growths[i] +=
-                            (int)(difficulty_bonus / Global.ActorConfig.HP_VALUE);
-                    else
-                        Data.Growths[i] += difficulty_bonus;
-        }*/
 
         private int generic_exp(int level, int prepromote_levels)
         {
