@@ -5143,7 +5143,25 @@ namespace Tactile
                                 anims.InsertRange(i, corrected);
                             }
                             foreach (int temp_anim in anims)
+                            {
+#if DEBUG
+                                if (!Global.data_animations.ContainsKey(temp_anim))
+                                {
+                                    var animGroup = Global.data_animation_groups
+                                        .Where(x => x.Value < temp_anim)
+                                        .OrderByDescending(x => x.Value)
+                                        .First();
+                                    int animIndex = temp_anim - animGroup.Value;
+                                    Print.message(
+                                        string.Format(
+                                            "Missing animation of added effect:\n\n" +
+                                            "Group \"{0}\", index {1:D4}",
+                                            animGroup.Key, animIndex),
+                                        "Animation Missing");
+                                }
+#endif
                                 animations.Add(Global.data_animations[temp_anim]);
+                            }
                         }
                 }
             }
