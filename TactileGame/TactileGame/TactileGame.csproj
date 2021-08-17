@@ -174,10 +174,6 @@
       <Project>{9A516E53-B277-4A47-B2BF-BBD2E67D08FD}</Project>
       <Name>TactileLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Windows.Audio.csproj">
-      <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
-      <Name>MonoGame.Framework.Windows.Audio</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Tactile\Tactile.csproj">
       <Project>{8b5feee2-abf5-44f0-9431-000a1f61c8a8}</Project>
       <Name>Tactile</Name>

@@ -114,13 +114,13 @@
     <AndroidResource Include="Resources\Values\Styles.xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.Android.csproj">
+      <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
+      <Name>MonoGame.Framework.Android</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TactileLibrary\TactileLibrary.Android.csproj">
       <Project>{2d274530-f906-4896-8850-c6729871c03e}</Project>
       <Name>TactileLibrary.Android</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.Android.csproj">
-      <Project>{ba9476cf-99ba-4d03-92f2-73d2c5e58883}</Project>
-      <Name>MonoGame.Framework.Android</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Tactile\Tactile.Android.csproj">
       <Project>{61a7516d-6d37-4a7b-8363-cfd307948445}</Project>

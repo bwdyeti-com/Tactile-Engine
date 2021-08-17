@@ -2,7 +2,6 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{0EEDDACE-B5BB-4136-8283-29529A8A02BB}</ProjectGuid>
-    <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>WinExe</OutputType>
@@ -101,6 +100,8 @@
     <Compile Include="Source Code\Debug Monitor\GraphicsDeviceService.cs" />
     <Compile Include="Source Code\Debug Monitor\ServiceContainer.cs" />
     <Compile Include="Source Code\Fullscreen.cs" />
+    <Compile Include="Source Code\MobileFullscreen.cs" />
+    <Compile Include="Source Code\NetConnection.cs" />
     <Compile Include="Source Code\Update_Checker.cs" />
     <Compile Include="Source Code\Metrics_Handler.cs" />
     <Compile Include="Source Code\NativeMethods.cs" />
@@ -111,7 +112,10 @@
   <ItemGroup>
     <Content Include="Game.ico" />
     <Content Include="GameThumbnail.png" />
-    <Content Include="oalinst.exe">
+    <Content Include="Redist\dotNetFx40_Full_setup.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Redist\oalinst.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -225,6 +229,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <Content Include="Redist\xnafx40_redist.msi">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Source Code\Debug Monitor\DebugMonitorForm.resx">
@@ -236,7 +243,7 @@
       <Project>{9a516e53-b277-4a47-b2bf-bbd2e67d08fd}</Project>
       <Name>TactileLibrary.MonoGame</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\TactileSharedLibraries\MonoGame-Tactile\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
+    <ProjectReference Include="..\..\..\TactileSharedLibraries\MonoGame-Tactile Source\MonoGame.Framework\MonoGame.Framework.WindowsGL.csproj">
       <Project>{7de47032-a904-4c29-bd22-2d235e8d91ba}</Project>
       <Name>MonoGame.Framework.WindowsGL</Name>
     </ProjectReference>
