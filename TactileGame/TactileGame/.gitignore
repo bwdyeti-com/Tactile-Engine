@@ -2,8 +2,8 @@
 Thumbs.db
 ehthumbs.db
 
-# Ignore Content folder
-Content/
+# Include Android Content folder
+!Content/
 
 # Folder config file
 Desktop.ini

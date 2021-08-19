@@ -3,7 +3,7 @@ Thumbs.db
 ehthumbs.db
 
 # Ignore Content folder
-*Content/
+*Content/*
 
 # Folder config file
 Desktop.ini
