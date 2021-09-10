@@ -11,7 +11,7 @@ namespace Tactile.Debug_Monitor
 {
     public class DebugMonitorState
     {
-        private int Index;
+        private int Index = 0;
         DebugMonitorPage[] Monitors;
 
         public DebugMonitorState()
@@ -30,6 +30,7 @@ namespace Tactile.Debug_Monitor
         {
             Index = page;
         }
+        public int Page { get { return Index; } }
 
         public void change_variable_group(int group)
         {

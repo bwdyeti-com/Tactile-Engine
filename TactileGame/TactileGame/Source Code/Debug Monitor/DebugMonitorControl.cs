@@ -70,6 +70,7 @@ namespace TactileGame.Debug_Monitor
         {
             Tactile.Global.debug_monitor.change_page(index);
         }
+        public int CurrentTab { get { return Tactile.Global.debug_monitor.Page; } }
 
         internal void change_variable_group(int group)
         {

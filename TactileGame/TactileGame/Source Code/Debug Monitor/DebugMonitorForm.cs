@@ -31,6 +31,8 @@ namespace TactileGame.Debug_Monitor
 
             this.Owner = Form.FromHandle(game.Window.Handle) as Form;
             this.Icon = this.Owner.Icon;
+
+            DebugTabSelector.SelectedIndex = this.debugMonitorControl1.CurrentTab;
         }
 
         internal void set_event_data_size(int sizePerPage, int total)
