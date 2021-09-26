@@ -102,6 +102,7 @@
     <Compile Include="Source Code\Calculations\Stats\BattlerStats.cs" />
     <Compile Include="Source Code\Calculations\Stats\CombatStats.cs" />
     <Compile Include="Source Code\Combat Abstraction\Test_Combat_Data.cs" />
+    <Compile Include="Source Code\Debug Monitor\DebugMonitorBattalionPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorInputPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorAudioPage.cs" />
     <Compile Include="Source Code\Debug Monitor\DebugMonitorRankingPage.cs" />

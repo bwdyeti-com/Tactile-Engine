@@ -72,6 +72,10 @@ namespace TactileGame.Debug_Monitor
         }
         public int CurrentTab { get { return Tactile.Global.debug_monitor.Page; } }
 
+        internal void ChangeBattalion(int index)
+        {
+            Tactile.Global.debug_monitor.ChangeBattalion(index);
+        }
         internal void change_variable_group(int group)
         {
             Tactile.Global.debug_monitor.change_variable_group(group);
