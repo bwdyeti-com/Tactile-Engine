@@ -117,6 +117,8 @@ namespace Tactile.Menus.Worldmap
                 Global.game_system.Difficulty_Mode = Difficulty_Modes.Normal;
 
             RefreshDataPanel();
+
+            Global.game_system.WorldmapChapterId = MenuData.ChapterId;
         }
 
         internal void RefreshPreviousChapters(Dictionary<string, int> previousChapterIndices)
