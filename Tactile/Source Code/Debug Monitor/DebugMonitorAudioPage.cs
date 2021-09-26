@@ -1,10 +1,6 @@
 ﻿#if DEBUG && WINDOWS
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Tactile.Debug_Monitor
 {
@@ -12,7 +8,7 @@ namespace Tactile.Debug_Monitor
     {
         public DebugMonitorAudioPage()
         {
-            // I'm somewhat confused as to how exactly this works,
+            // I'm somewhat confused as to how exactly this functions correctly,
             // and gets the current state of the audio despite getting
             // a struct once //@Debug
             // I guess the properties hook references into the underlying
