@@ -228,10 +228,29 @@ namespace Tactile
 
         private void rebalance_arena_fight()
         {
-            // Mess with stats if people can't hit/damage
             Global.game_system.In_Arena = true;
-            int dmg, hit;
+
+            // Always treat weapon triangle atk bonus as at max +1 in the arena
+            // (without the tactics of movement and a team of units, the
+            // benefits of using other atk bonuses fall away)
             var stats = new Calculations.Stats.CombatStats(
+                unit.id, opponent.id, distance: Actual_Distance);
+            if (Weapon_Triangle.DMG_BONUS > Config.ARENA_WTA_DMG_OVERRIDE)
+            {
+                var tri = stats.Tri(opponent);
+                if (tri != WeaponTriangle.Nothing)
+                {
+                    int dmgTri = (Weapon_Triangle.DMG_BONUS - Config.ARENA_WTA_DMG_OVERRIDE) *
+                        (tri == WeaponTriangle.Advantage ? 1 : -1);
+                    // Adjust pow and def/res to account for wta bonus
+                    opponent.actor.gain_stat(Stat_Labels.Pow, dmgTri);
+                    opponent.actor.gain_stat(Stat_Labels.Def, dmgTri);
+                    opponent.actor.gain_stat(Stat_Labels.Res, dmgTri);
+                }
+            }
+            // Mess with stats if people can't hit/damage
+            int dmg, hit;
+            stats = new Calculations.Stats.CombatStats(
                 unit.id, opponent.id, distance: Actual_Distance);
             var opponent_stats = new Calculations.Stats.CombatStats(
                 opponent.id, unit.id, distance: Actual_Distance);
@@ -276,6 +295,7 @@ namespace Tactile
                 opponent.actor.gain_stat(Stat_Labels.Spd, -1);
                 opponent.actor.gain_stat(Stat_Labels.Lck, -1);
             }
+
             Global.game_system.In_Arena = false;
         }
 
@@ -390,6 +410,12 @@ namespace Tactile
                     case Arena_Messages.Intro:
                         generate_opponent();
                         set_text(Arena_Messages.Question);
+#if DEBUG
+                        Console.WriteLine(string.Format("{0}:\t{1:0.00}%;\t{2} gold",
+                            opponent.actor.class_name,
+                            combat_odds(unit, opponent) * 100,
+                            wager()));
+#endif
                         break;
                     case Arena_Messages.Question:
                         Message_Active = false;

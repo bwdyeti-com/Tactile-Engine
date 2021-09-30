@@ -270,6 +270,7 @@ namespace Tactile
 
         public const int MIN_ARENA_HIT = 40;
         public const int MAX_ARENA_DMG_ROUNDS = 8; // Max rounds worth of damage the player can take to kill
+        public const int ARENA_WTA_DMG_OVERRIDE = 1; // Override to wta damage bonus for the arena; used in gladiator generation; should always be 1 unless the wta dmg bonus is a very high number (10+)
 
         public readonly static Dictionary<int, KeyValuePair<int[], int[]>> ARENA_WEAPON_TYPES =
                 new Dictionary<int, KeyValuePair<int[], int[]>> {

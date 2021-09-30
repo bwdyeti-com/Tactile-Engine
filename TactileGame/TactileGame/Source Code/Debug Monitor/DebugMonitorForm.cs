@@ -31,6 +31,9 @@ namespace TactileGame.Debug_Monitor
 
             this.Owner = Form.FromHandle(game.Window.Handle) as Form;
             this.Icon = this.Owner.Icon;
+
+            DebugTabSelector.SelectedIndex = this.debugMonitorControl1.CurrentTab;
+            VariableGroupComboBox_SelectedIndexChanged(BattalionSpinner, new EventArgs());
         }
 
         internal void set_event_data_size(int sizePerPage, int total)
@@ -59,6 +62,11 @@ namespace TactileGame.Debug_Monitor
         private void DebugTabSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
             debugMonitorControl1.change_tab(DebugTabSelector.SelectedIndex);
+        }
+
+        private void BattalionSpinner_ValueChanged(object sender, EventArgs e)
+        {
+            debugMonitorControl1.ChangeBattalion((int)BattalionSpinner.Value);
         }
 
         private void VariableGroupComboBox_SelectedIndexChanged(object sender, EventArgs e)

@@ -11,24 +11,37 @@ namespace Tactile.Debug_Monitor
 {
     public class DebugMonitorState
     {
-        private int Index;
+        private int Index = 0;
         DebugMonitorPage[] Monitors;
 
         public DebugMonitorState()
         {
-            Monitors = new DebugMonitorPage[6];
+            var monitors = new DebugMonitorPage[]
+            {
+                new DebugMonitorOverviewPage(),
+                new DebugMonitorBattalionPage(),
+                new DebugMonitorVariablesPage(),
+                new DebugMonitorRankingPage(),
+                new DebugMonitorRngPage(),
+                new DebugMonitorAudioPage(),
+                new DebugMonitorInputPage()
+            };
 
-            Monitors[0] = new DebugMonitorOverviewPage();
-            Monitors[1] = new DebugMonitorVariablesPage();
-            Monitors[2] = new DebugMonitorRankingPage();
-            Monitors[3] = new DebugMonitorRngPage();
-            Monitors[4] = new DebugMonitorAudioPage();
-            Monitors[5] = new DebugMonitorInputPage();
+            Monitors = monitors;
         }
 
         public void change_page(int page)
         {
             Index = page;
+        }
+        public int Page { get { return Index; } }
+
+        public void ChangeBattalion(int index)
+        {
+            // Change variable group on variable pages
+            for (int i = 0; i < Monitors.Length; i++)
+                if (Monitors[i] is DebugMonitorBattalionPage)
+                    (Monitors[i] as DebugMonitorBattalionPage).Index = index;
         }
 
         public void change_variable_group(int group)

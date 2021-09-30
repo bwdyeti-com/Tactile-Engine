@@ -40,9 +40,12 @@ namespace TactileGame.Debug_Monitor
             this.RngTabPage = new System.Windows.Forms.TabPage();
             this.ReseedRngButton = new System.Windows.Forms.Button();
             this.AudioTabPage = new System.Windows.Forms.TabPage();
+            this.InputTabPage = new System.Windows.Forms.TabPage();
             this.MonitorPanel = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.InputTabPage = new System.Windows.Forms.TabPage();
+            this.BattalionTabPage = new System.Windows.Forms.TabPage();
+            this.BattalionSpinner = new System.Windows.Forms.NumericUpDown();
+            this.BattalionLabel = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.TabPanel.SuspendLayout();
             this.DebugTabSelector.SuspendLayout();
@@ -50,6 +53,8 @@ namespace TactileGame.Debug_Monitor
             this.VariablesTabPage.SuspendLayout();
             this.RngTabPage.SuspendLayout();
             this.MonitorPanel.SuspendLayout();
+            this.BattalionTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BattalionSpinner)).BeginInit();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -79,6 +84,7 @@ namespace TactileGame.Debug_Monitor
             // DebugTabSelector
             // 
             this.DebugTabSelector.Controls.Add(this.OverviewTabPage);
+            this.DebugTabSelector.Controls.Add(this.BattalionTabPage);
             this.DebugTabSelector.Controls.Add(this.VariablesTabPage);
             this.DebugTabSelector.Controls.Add(this.RankingTabPage);
             this.DebugTabSelector.Controls.Add(this.RngTabPage);
@@ -176,6 +182,15 @@ namespace TactileGame.Debug_Monitor
             this.AudioTabPage.Text = "Audio";
             this.AudioTabPage.UseVisualStyleBackColor = true;
             // 
+            // InputTabPage
+            // 
+            this.InputTabPage.Location = new System.Drawing.Point(4, 22);
+            this.InputTabPage.Name = "InputTabPage";
+            this.InputTabPage.Size = new System.Drawing.Size(290, 49);
+            this.InputTabPage.TabIndex = 5;
+            this.InputTabPage.Text = "Inputs";
+            this.InputTabPage.UseVisualStyleBackColor = true;
+            // 
             // MonitorPanel
             // 
             this.MonitorPanel.Controls.Add(this.label1);
@@ -194,14 +209,43 @@ namespace TactileGame.Debug_Monitor
             this.label1.TabIndex = 0;
             this.label1.Text = "Debug monitor goes here, added at runtime";
             // 
-            // InputTabPage
+            // BattalionTabPage
             // 
-            this.InputTabPage.Location = new System.Drawing.Point(4, 22);
-            this.InputTabPage.Name = "InputTabPage";
-            this.InputTabPage.Size = new System.Drawing.Size(290, 49);
-            this.InputTabPage.TabIndex = 5;
-            this.InputTabPage.Text = "Inputs";
-            this.InputTabPage.UseVisualStyleBackColor = true;
+            this.BattalionTabPage.Controls.Add(this.BattalionLabel);
+            this.BattalionTabPage.Controls.Add(this.BattalionSpinner);
+            this.BattalionTabPage.Location = new System.Drawing.Point(4, 22);
+            this.BattalionTabPage.Name = "BattalionTabPage";
+            this.BattalionTabPage.Size = new System.Drawing.Size(290, 49);
+            this.BattalionTabPage.TabIndex = 6;
+            this.BattalionTabPage.Text = "Battalion";
+            this.BattalionTabPage.UseVisualStyleBackColor = true;
+            // 
+            // BattalionSpinner
+            // 
+            this.BattalionSpinner.Location = new System.Drawing.Point(69, 3);
+            this.BattalionSpinner.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
+            this.BattalionSpinner.Name = "BattalionSpinner";
+            this.BattalionSpinner.Size = new System.Drawing.Size(80, 20);
+            this.BattalionSpinner.TabIndex = 0;
+            this.BattalionSpinner.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
+            this.BattalionSpinner.ValueChanged += new System.EventHandler(this.BattalionSpinner_ValueChanged);
+            // 
+            // BattalionLabel
+            // 
+            this.BattalionLabel.AutoSize = true;
+            this.BattalionLabel.Location = new System.Drawing.Point(3, 5);
+            this.BattalionLabel.Name = "BattalionLabel";
+            this.BattalionLabel.Size = new System.Drawing.Size(60, 13);
+            this.BattalionLabel.TabIndex = 1;
+            this.BattalionLabel.Text = "Battalion Id";
             // 
             // DebugMonitorForm
             // 
@@ -219,6 +263,9 @@ namespace TactileGame.Debug_Monitor
             this.RngTabPage.ResumeLayout(false);
             this.MonitorPanel.ResumeLayout(false);
             this.MonitorPanel.PerformLayout();
+            this.BattalionTabPage.ResumeLayout(false);
+            this.BattalionTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.BattalionSpinner)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -239,6 +286,9 @@ namespace TactileGame.Debug_Monitor
         private System.Windows.Forms.Button DebugControlsButton;
         private System.Windows.Forms.TabPage AudioTabPage;
         private System.Windows.Forms.TabPage InputTabPage;
+        private System.Windows.Forms.TabPage BattalionTabPage;
+        private System.Windows.Forms.Label BattalionLabel;
+        private System.Windows.Forms.NumericUpDown BattalionSpinner;
     }
 }
 #endif
