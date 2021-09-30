@@ -410,6 +410,12 @@ namespace Tactile
                     case Arena_Messages.Intro:
                         generate_opponent();
                         set_text(Arena_Messages.Question);
+#if DEBUG
+                        Console.WriteLine(string.Format("{0}:\t{1:0.00}%;\t{2} gold",
+                            opponent.actor.class_name,
+                            combat_odds(unit, opponent) * 100,
+                            wager()));
+#endif
                         break;
                     case Arena_Messages.Question:
                         Message_Active = false;
