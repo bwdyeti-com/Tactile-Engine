@@ -9,25 +9,27 @@ using TactileListExtension;
 
 namespace Tactile
 {
-    enum SpeakerArrowSide { Bottom, Left, Right }
+    enum SpeakerArrowSide { Bottom, Left, Right, Top }
 
     class Text_Window : Text_Box
     {
         const int FADE_TIME = 10;
         const int CG_FADE_TIME = 16;
+        internal const int BASE_Y = 24;
         internal const int BACKGROUND_OFFSET = -16;
         internal const int OFFSCREEN_OFFSET = -16;
         internal const int CG_OFFSET = 96;
         internal const int CG_WIDTH = 200;
         const int GUTTERS = 16;
         const int OFFSCREEN_GUTTER = 16;
+        const bool SPEAKER_ARROW_POINTS_DOWN = true;
 
         private Vector2 Loc;
         private int Base_Y;
         private List<int> Move = new List<int>();
         private int Speaker = Window_Message.CENTER_TOP_SPEAKER;
         private int? SpeakerArrowPos;
-        private SpeakerArrowSide ArrowSide = SpeakerArrowSide.Bottom;
+        private SpeakerArrowSide ArrowSide = SPEAKER_ARROW_POINTS_DOWN ? SpeakerArrowSide.Bottom : SpeakerArrowSide.Top;
         private int FadeTimer;
         private int Scroll_Dist = 0, Temp_Scroll_Dist = 0;
         private TextSprite SpeakerName;
@@ -246,7 +248,7 @@ namespace Tactile
                 SpeakerArrowPos = speaker_x / 8 * 8;
             else
                 SpeakerArrowPos = null;
-            ArrowSide = SpeakerArrowSide.Bottom;
+            ArrowSide = SPEAKER_ARROW_POINTS_DOWN ? SpeakerArrowSide.Bottom : SpeakerArrowSide.Top;
 
             opacity = 0;
             set_speaker_name(name);
@@ -448,18 +450,31 @@ namespace Tactile
                             if (mirrored)
                                 offset.X = src_rect.Width - offset.X;
                             // Little arrow to the speaker
-                            if (SpeakerArrowPos != null && ArrowSide == SpeakerArrowSide.Bottom &&
-                                (x == SpeakerArrowPos || x - 8 == SpeakerArrowPos) && Height - y <= 8)
+                            bool normalRender = true;
+                            if (SpeakerArrowPos != null &&
+                                (x == SpeakerArrowPos || x - 8 == SpeakerArrowPos))
                             {
-                                if (x == SpeakerArrowPos)
+                                // Check if top or bottom
+                                if ((ArrowSide == SpeakerArrowSide.Bottom && Height - y <= 8) ||
+                                    (ArrowSide == SpeakerArrowSide.Top && y == 0))
                                 {
-                                    sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
-                                        new Rectangle(24, 0, 16, 16), tint, angle,
-                                        offset - new Vector2(x, y), scale,
-                                        (Speaker <= Face_Sprite_Data.FACE_COUNT / 2) ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
+                                    if (x == SpeakerArrowPos)
+                                    {
+                                        if (ArrowSide == SpeakerArrowSide.Top)
+                                            sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
+                                                new Rectangle(24, 0, 16, 16), tint, angle,
+                                                offset - new Vector2(x, y - 8), scale,
+                                                SpriteEffects.FlipVertically | ((Speaker <= Face_Sprite_Data.FACE_COUNT / 2) ? SpriteEffects.FlipHorizontally : SpriteEffects.None), Z);
+                                        else
+                                            sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
+                                                new Rectangle(24, 0, 16, 16), tint, angle,
+                                                offset - new Vector2(x, y), scale,
+                                                (Speaker <= Face_Sprite_Data.FACE_COUNT / 2) ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
+                                    }
+                                    normalRender = false;
                                 }
                             }
-                            else
+                            if (normalRender)
                                 sprite_batch.Draw(texture, (loc + draw_vector()) - draw_offset,
                                     src_rect, tint, angle, offset - new Vector2(x, y), scale,
                                     mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);

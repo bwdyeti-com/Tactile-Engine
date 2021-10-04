@@ -157,7 +157,7 @@ function normally. Suggested value is -3.",
 #endif
             Backlog = new Convo_Backlog();
             Text_Speed = (Constants.Message_Speeds)Global.game_options.text_speed;
-            reset(false, new Vector2(40, 24),
+            reset(false, new Vector2(40, Text_Window.BASE_Y),
                 240, Message_Lines * Window_Message.FontData.CharHeight + 16);
         }
 

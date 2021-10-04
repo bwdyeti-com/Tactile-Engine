@@ -34,7 +34,7 @@ using Android.App;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.7.1.1")]
+[assembly: AssemblyVersion("0.7.1.2")]
 
 // Add some common permissions, these can be removed if not needed
 #if __ANDROID__
