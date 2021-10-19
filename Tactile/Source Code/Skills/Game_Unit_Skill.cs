@@ -424,7 +424,7 @@ namespace Tactile
                 }
             // Skills: Not Tomebreaker
             if (target != null && !nihil(target)) // This and all the others don't have to check if target is null, because nihil() already does? //Yeti
-                if (tri != WeaponTriangle.Disadvantage)
+                if (distance == 1)
                     if (actor.has_skill("TOMEBREAK") && target_weapon != null)
                     {
                         if (!weapon.is_staff() && weapon.is_always_magic() &&
