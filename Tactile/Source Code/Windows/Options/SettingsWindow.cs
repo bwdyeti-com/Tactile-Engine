@@ -223,6 +223,12 @@ namespace Tactile.Windows.Options
         {
             switch (Settings.SettingType(this.index))
             {
+                case ConfigTypes.OnOffSwitch:
+                    bool flag = Settings.Value<bool>(index);
+                    Settings.ConfirmSetting(this.index, !flag);
+                    Input.ResetDoubleTap();
+                    selected = false;
+                    break;
                 case ConfigTypes.Button:
                     // Simply execute the button's operation
                     if (selected)
@@ -251,6 +257,7 @@ namespace Tactile.Windows.Options
             SettingSelected = selected;
             Greyed_Cursor = SettingSelected;
 
+            // If a setting is selected (not a button or submenu, and didn't fail)
             if (SettingSelected)
             {
                 TempSelectedSettings = (ISettings)Settings.Clone();

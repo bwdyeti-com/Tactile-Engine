@@ -767,6 +767,17 @@ namespace Tactile
             Input.PlayerOneInputs.LockRepeat(input_name);
         }
 
+        /// <summary>
+        /// Resets the touch panel tracking the last tap made, so that the next
+        /// tap cannot be a double tap.
+        /// </summary>
+        internal static void ResetDoubleTap()
+        {
+#if TOUCH_EMULATION || __MOBILE__
+            TouchPanel.ResetDoubleTap();
+#endif
+        }
+
         #region Mouse
         private static bool any_mouse_triggered
         {

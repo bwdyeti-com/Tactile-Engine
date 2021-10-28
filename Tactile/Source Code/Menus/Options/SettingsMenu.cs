@@ -221,7 +221,7 @@ namespace Tactile.Menus.Options
                 MenuSettingSelected = settingsWindow.SelectSetting(true);
 
                 // If a setting is not selected (presumably because a button
-                // was pressed), ignore inputs temporarily
+                // or submenu was pressed), ignore inputs temporarily
                 if (!MenuSettingSelected)
                     IgnoreInputs();
             }
