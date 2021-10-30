@@ -1,12 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Text;
+using Tactile.Graphics.Gauges;
 
 namespace Tactile.Windows.UserInterface.Command.Config
 {
     class SliderUINode : NumberUINode
     {
-        private Stat_Bar Bar;
+        private Slider Bar;
         private int GaugeMin, GaugeMax;
 
         internal SliderUINode(
@@ -25,7 +26,7 @@ namespace Tactile.Windows.UserInterface.Command.Config
             Text.SetFont(Tactile.Config.UI_FONT, Global.Content, "White");
             Text.text = str;
 
-            Bar = new Stat_Bar();
+            Bar = new Slider();
             Bar.offset = new Vector2(-120 - 2, -8);
             Bar.bar_width = gaugeWidth;
 
