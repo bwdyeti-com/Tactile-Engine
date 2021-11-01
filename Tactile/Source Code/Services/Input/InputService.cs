@@ -296,9 +296,10 @@ namespace Tactile.Services.Input
                     if (sample.Delta.X != 0 || sample.Delta.Y != 0 ||
                             sample.Delta2.X != 0 || sample.Delta2.Y != 0)
                         Console.WriteLine(string.Format(
-                            "{0}: Movement [{1}, {2}] - [{3}, {4}]", gesture,
+                            "{0}: Movement [{1}, {2}] - [{3}, {4}]; [{5}, {6}]", gesture,
                             sample.Delta.X, sample.Delta.Y,
-                            sample.Delta2.X, sample.Delta2.Y));
+                            sample.Delta2.X, sample.Delta2.Y,
+                            sample.Position2.X, sample.Position2.Y));
                 }
                 else
                     Console.WriteLine(string.Format(
@@ -796,6 +797,34 @@ namespace Tactile.Services.Input
             }
         }
 
+        private bool GestureHasStartLoc(TouchGestures gesture)
+        {
+            switch (gesture)
+            {
+                case TouchGestures.FreeDrag:
+                case TouchGestures.VerticalDrag:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public override Vector2 GestureStartLoc(TouchGestures gesture)
+        {
+            if (GestureHasStartLoc(gesture))
+            {
+                Vector2 gesture_loc = Gestures[gesture].Position2;
+                return Tactile.Input.mouse_world_loc(
+                    (int)gesture_loc.X, (int)gesture_loc.Y);
+            }
+            else
+            {
+                throw new ArgumentException(string.Format(
+                    "Gesture \"{0}\" does not provide start position information",
+                    gesture));
+            }
+        }
+
         public override bool touch_rectangle(
             InputStates state, Rectangle rect, bool consumeInput)
         {
@@ -866,6 +895,20 @@ namespace Tactile.Services.Input
                     if (Gestures.ContainsKey(gesture))
                     {
                         Vector2 gesture_loc = this.gesture_loc(gesture);
+                        bool result = rect.Contains(
+                            (int)gesture_loc.X, (int)gesture_loc.Y);
+
+                        if (result && consumeInput && consume_input(gesture))
+                            return false;
+
+                        return result;
+                    }
+                    return false;
+                case TouchGestures.FreeDrag:
+                case TouchGestures.VerticalDrag:
+                    if (Gestures.ContainsKey(gesture))
+                    {
+                        Vector2 gesture_loc = this.GestureStartLoc(gesture);
                         bool result = rect.Contains(
                             (int)gesture_loc.X, (int)gesture_loc.Y);
 

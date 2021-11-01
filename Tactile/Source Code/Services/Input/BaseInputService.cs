@@ -207,6 +207,8 @@ namespace Tactile.Services.Input
 
         public abstract Vector2 gesture_loc(TouchGestures gesture);
 
+        public abstract Vector2 GestureStartLoc(TouchGestures gesture);
+
         public abstract bool touch_rectangle(
             InputStates state, Rectangle rect, bool consumeInput);
 
