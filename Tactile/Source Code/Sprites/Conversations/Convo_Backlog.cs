@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Text;
+using Tactile.Windows;
 
 namespace Tactile
 {
@@ -13,10 +13,8 @@ namespace Tactile
         private int Index = -1;
         private TextSprite[] Text = new TextSprite[Config.CONVO_BACKLOG_LINES];
         private Sprite Black_Fill;
-        private Vector2 Offset = Vector2.Zero;
         private int FadeTimer = 0, PanTimer = 0;
-        private float Scroll_Speed = 0;
-        private bool ScrollWheel = false;
+        private ScrollComponent Scroll;
         private bool Fading_In = false;
         private string LastColorSet;
         protected Page_Arrow UpArrow, DownArrow;
@@ -24,9 +22,6 @@ namespace Tactile
         #region Accessors
         public bool ready { get { return FadeTimer == 0 && PanTimer == 0; } }
         
-        private int min_offset { get { return Config.WINDOW_HEIGHT - (Text.Length * Window_Message.FontData.CharHeight); } }
-        private int max_offset { get { return ((Index + 2) - Text.Length) * Window_Message.FontData.CharHeight; } }
-
         public float stereoscopic
         {
             set
@@ -61,6 +56,17 @@ namespace Tactile
             DownArrow.loc = new Vector2(Config.WINDOW_WIDTH / 2 + 8, Config.WINDOW_HEIGHT - 4);
             DownArrow.mirrored = true;
             DownArrow.angle = MathHelper.PiOver2;
+
+            Scroll = new ScrollComponent(
+                new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT),
+                new Vector2(Config.WINDOW_WIDTH, Window_Message.FontData.CharHeight),
+                ScrollDirections.Vertical);
+            Scroll.SetScrollSpeeds(
+                Config.CONVO_BACKLOG_MAX_SCROLL_SPEED,
+                Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);
+            Scroll.loc = Vector2.Zero;
+            Scroll.UpArrow = UpArrow;
+            Scroll.DownArrow = DownArrow;
         }
 
         private int LineY(int index)
@@ -113,7 +119,8 @@ namespace Tactile
             }
             Text[Index].offset = Vector2.Zero;
             // Scroll to the bottom
-            Offset.Y = Math.Max(this.min_offset, this.max_offset);
+            Scroll.SetElementLengths(new Vector2(1, Index + 2));
+            Scroll.ScrollToBottom();
         }
 
         public void set_color(string color)
@@ -142,7 +149,8 @@ namespace Tactile
                 Text[Index].SetTextFontColor(0, colors[i]);
             }
             // Scroll to the bottom
-            Offset.Y = Math.Max(this.min_offset, this.max_offset);
+            Scroll.SetElementLengths(new Vector2(1, Index + 2));
+            Scroll.ScrollToBottom();
         }
 
         private void remove_lines(int count)
@@ -177,7 +185,7 @@ namespace Tactile
         public void fade_in(bool swipeIn = false)
         {
             Active = true;
-            Scroll_Speed = 0;
+            Scroll.Reset();
             FadeTimer = Config.CONVO_BACKLOG_FADE_TIME;
             Fading_In = true;
             PanTimer = swipeIn ? Config.CONVO_BACKLOG_PAN_IN_TIME : 0;
@@ -193,7 +201,7 @@ namespace Tactile
         public void fade_out(bool swipeOut = false)
         {
             Active = false;
-            Scroll_Speed = 0;
+            Scroll.Reset();
             FadeTimer = Config.CONVO_BACKLOG_FADE_TIME;
             Fading_In = false;
             PanTimer = swipeOut ? Config.CONVO_BACKLOG_PAN_OUT_TIME : 0;
@@ -207,15 +215,6 @@ namespace Tactile
         {
             UpArrow.update();
             DownArrow.update();
-
-            float max_speed;
-            if (Input.ControlScheme == ControlSchemes.Buttons)
-                max_speed = (Global.Input.speed_up_input() ? 2 : 1) *
-                    Config.CONVO_BACKLOG_MAX_SCROLL_SPEED;
-            else if (Input.ControlScheme == ControlSchemes.Mouse)
-                max_speed = 5f * Config.CONVO_BACKLOG_MAX_SCROLL_SPEED;
-            else
-                max_speed = Config.WINDOW_HEIGHT;
 
             // Pan out
             if (PanTimer > 0 && !Fading_In)
@@ -259,106 +258,22 @@ namespace Tactile
             if (FadeTimer == 0 && PanTimer == 0)
                 Fading_In = false;
 
-            if (ready)
-            {
-                update_input(max_speed);
-            }
-            Scroll_Speed = MathHelper.Clamp(Scroll_Speed, -max_speed, max_speed);
-            Offset.Y = MathHelper.Clamp(Offset.Y + Scroll_Speed, this.min_offset, this.max_offset);
+            Scroll.Update(this.ready && Active);
 
-            UpArrow.visible = Offset.Y > this.min_offset;
-            DownArrow.visible = Offset.Y < this.max_offset;
-        }
-
-        private void update_input(float max_speed)
-        {
-            if (Active)
-            {
-                if (Global.Input.pressed(Inputs.Up))
-                {
-                    if (Scroll_Speed > 0)
-                        Scroll_Speed = 0;
-                    if (Scroll_Speed > -max_speed)
-                        Scroll_Speed--;
-                    return;
-                }
-                else if (Global.Input.pressed(Inputs.Down))
-                {
-                    if (Scroll_Speed < 0)
-                        Scroll_Speed = 0;
-                    if (Scroll_Speed < max_speed)
-                        Scroll_Speed++;
-                    return;
-                }
-                else if (Global.Input.mouseScroll < 0)
-                {
-                    Scroll_Speed += max_speed / 5;
-                    ScrollWheel = true;
-                    return;
-                }
-                else if (Global.Input.mouseScroll > 0)
-                {
-                    Scroll_Speed += -max_speed / 5;
-                    ScrollWheel = true;
-                    return;
-                }
-                else if (Input.ControlScheme == ControlSchemes.Mouse && UpArrow.MouseOver())
-                {
-                    Scroll_Speed = -Config.CONVO_BACKLOG_MAX_SCROLL_SPEED;
-                    ScrollWheel = false;
-                    return;
-                }
-                else if (Input.ControlScheme == ControlSchemes.Mouse && DownArrow.MouseOver())
-                {
-                    Scroll_Speed = Config.CONVO_BACKLOG_MAX_SCROLL_SPEED;
-                    ScrollWheel = false;
-                    return;
-                }
-                else if (Global.Input.gesture_triggered(TouchGestures.VerticalDrag))
-                {
-                    Scroll_Speed = -(int)Global.Input.verticalDragVector.Y;
-                    return;
-                }
-            }
-
-            if (Scroll_Speed != 0)
-            {
-                if (Input.ControlScheme == ControlSchemes.Buttons)
-                {
-                    Scroll_Speed = (float)Additional_Math.double_closer(
-                        Scroll_Speed, 0, 1);
-                }
-                else if (Input.ControlScheme == ControlSchemes.Mouse)
-                {
-                    if (ScrollWheel)
-                        Scroll_Speed *= (float)Math.Pow(
-                            Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION, 2f);
-                    else
-                        Scroll_Speed = (float)Additional_Math.double_closer(
-                            Scroll_Speed, 0, 1);
-                }
-                else
-                {
-                    Scroll_Speed *= Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION;
-                }
-
-                if (Math.Abs(Scroll_Speed) < 0.1f)
-                {
-                    Scroll_Speed = 0;
-                    ScrollWheel = false;
-                }
-            }
+            UpArrow.visible = !Scroll.AtTop;
+            DownArrow.visible = !Scroll.AtBottom;
         }
 
         public void draw(SpriteBatch sprite_batch)
         {
-            Vector2 int_offset = new Vector2((int)Offset.X, (int)Offset.Y);
+            Vector2 offset = Scroll.offset -
+                new Vector2(0, Config.CONVO_BACKLOG_LINES * Window_Message.FontData.CharHeight - Config.WINDOW_HEIGHT);
+            Vector2 int_offset = new Vector2((int)offset.X, (int)offset.Y);
 
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             Black_Fill.draw(sprite_batch);
             sprite_batch.End();
 
-            //sprite_batch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend); //@Debug
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             if (PanTimer > 0 || (Fading_In ? FadeTimer == 0 : Active))
             {
