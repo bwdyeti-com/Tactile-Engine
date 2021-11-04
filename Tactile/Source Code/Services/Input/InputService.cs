@@ -169,6 +169,20 @@ namespace Tactile.Services.Input
                     movement_gesture = true;
 #endif
                     break;
+                case TouchGestures.HorizontalDrag:
+                    sample = new GestureSample(
+                        sample.GestureType,
+                        sample.Timestamp,
+                        sample.Position,
+                        sample.Position2,
+                        new Vector2(sample.Delta.X, 0),
+                        new Vector2(sample.Delta2.X, 0));
+                    Gestures[gesture] = sample;
+#if DEBUG
+                    gesture_added = true;
+                    movement_gesture = true;
+#endif
+                    break;
                 case TouchGestures.VerticalDrag:
                     sample = new GestureSample(
                         sample.GestureType,
@@ -703,6 +717,17 @@ namespace Tactile.Services.Input
                     (int)Gestures[TouchGestures.FreeDrag].Delta.Y);
             }
         }
+        public override Vector2 horizontalDragVector
+        {
+            get
+            {
+                if (!Gestures.ContainsKey(TouchGestures.HorizontalDrag))
+                    return Vector2.Zero;
+                return Tactile.Input.mouse_world_loc(
+                    (int)Gestures[TouchGestures.HorizontalDrag].Delta.X,
+                    (int)Gestures[TouchGestures.HorizontalDrag].Delta.Y);
+            }
+        }
         public override Vector2 verticalDragVector
         {
             get
@@ -802,6 +827,7 @@ namespace Tactile.Services.Input
             switch (gesture)
             {
                 case TouchGestures.FreeDrag:
+                case TouchGestures.HorizontalDrag:
                 case TouchGestures.VerticalDrag:
                     return true;
                 default:
@@ -905,6 +931,7 @@ namespace Tactile.Services.Input
                     }
                     return false;
                 case TouchGestures.FreeDrag:
+                case TouchGestures.HorizontalDrag:
                 case TouchGestures.VerticalDrag:
                     if (Gestures.ContainsKey(gesture))
                     {

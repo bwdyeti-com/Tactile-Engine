@@ -24,22 +24,23 @@ namespace Tactile
     }
     enum TouchGestures
     {
-        None =          0,
-        Tap =           1 << 0,
-        DoubleTap =     1 << 1,
-        TapNoDouble =   1 << 2,
-        ShortPress =    1 << 3,
-        LongPress =     1 << 4,
-        FreeDrag =      1 << 5,
-        VerticalDrag =  1 << 6,
-        SwipeDown =     1 << 7,
-        SwipeLeft =     1 << 8,
-        SwipeRight =    1 << 9,
-        SwipeUp =       1 << 10,
-        Pinch =         1 << 11,
-        PinchIn =       1 << 12,
-        PinchOut =      1 << 13,
-        Scrubbing =     1 << 14,
+        None =              0,
+        Tap =               1 << 0,
+        DoubleTap =         1 << 1,
+        TapNoDouble =       1 << 2,
+        ShortPress =        1 << 3,
+        LongPress =         1 << 4,
+        FreeDrag =          1 << 5,
+        HorizontalDrag =    1 << 6,
+        VerticalDrag =      1 << 7,
+        SwipeDown =         1 << 8,
+        SwipeLeft =         1 << 9,
+        SwipeRight =        1 << 10,
+        SwipeUp =           1 << 11,
+        Pinch =             1 << 12,
+        PinchIn =           1 << 13,
+        PinchOut =          1 << 14,
+        Scrubbing =         1 << 15,
     }
     enum Directions : byte
     {
@@ -704,6 +705,8 @@ namespace Tactile
                 case TouchGestures.ShortPress:
                     return GestureType.ShortHold;
                 case TouchGestures.FreeDrag:
+                    return GestureType.FreeDrag;
+                case TouchGestures.HorizontalDrag:
                     return GestureType.FreeDrag;
                 case TouchGestures.VerticalDrag:
                     return GestureType.FreeDrag;

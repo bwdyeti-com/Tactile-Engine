@@ -194,6 +194,7 @@ namespace Tactile.Services.Input
         public abstract Vector2 touchPressPosition { get; }
         public abstract Vector2 touchReleasePosition { get; }
         public abstract Vector2 freeDragVector { get; }
+        public abstract Vector2 horizontalDragVector { get; }
         public abstract Vector2 verticalDragVector { get; }
 
         public abstract bool touch_triggered(bool consumeInput);
