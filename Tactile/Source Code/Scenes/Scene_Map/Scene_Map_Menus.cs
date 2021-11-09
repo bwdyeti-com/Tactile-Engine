@@ -1078,6 +1078,7 @@ namespace Tactile
         #region Shop Menu
         protected void preview_shop()
         {
+            Global.game_system.SecretShop = false;
             UnitMenu = UnitMenuManager.PreviewShop(this, Global.game_map.get_shop());
         }
         
