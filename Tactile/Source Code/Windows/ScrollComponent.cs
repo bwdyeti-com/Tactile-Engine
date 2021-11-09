@@ -26,6 +26,7 @@ namespace Tactile.Windows
         //@Debug: replace with IUIObject and move the needed functions up to the interface
         public Page_Arrow UpArrow, DownArrow;
         public Page_Arrow LeftArrow, RightArrow;
+        public Scroll_Bar Scrollbar;
 
         private Vector2 ScrollAreaSize { get { return ElementSize * ElementLengths; } }
         private Vector2 MinOffset { get { return new Vector2(0, 0); } }
@@ -129,7 +130,7 @@ namespace Tactile.Windows
                 (int)Math.Floor(this.offset.Y) / (int)ElementSize.Y);
         }
 
-        public void UpdateInput(bool active, float maxSpeed)
+        private void UpdateInput(bool active, float maxSpeed)
         {
             if (Direction.HasFlag(ScrollDirections.Horizontal))
                 UpdateHorizontalInput(active, maxSpeed);
@@ -274,6 +275,20 @@ namespace Tactile.Windows
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     DownArrow != null && DownArrow.MouseOver())
+                {
+                    ScrollSpeed.Y = MaxScrollSpeed;
+                    ScrollWheel = false;
+                    return;
+                }
+                else if (Input.ControlScheme == ControlSchemes.Mouse &&
+                    Scrollbar != null && Scrollbar.UpHeld)
+                {
+                    ScrollSpeed.Y = -MaxScrollSpeed;
+                    ScrollWheel = false;
+                    return;
+                }
+                else if (Input.ControlScheme == ControlSchemes.Mouse &&
+                    Scrollbar != null && Scrollbar.DownHeld)
                 {
                     ScrollSpeed.Y = MaxScrollSpeed;
                     ScrollWheel = false;
