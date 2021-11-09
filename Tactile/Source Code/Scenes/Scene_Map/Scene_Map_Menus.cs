@@ -1227,7 +1227,10 @@ namespace Tactile
 
         internal static bool intro_chapter_options_blocked()
         {
-            return Global.game_system.chapter_id == "Pre";
+            //@Debug: example condition for blocking most menu options during
+            // the introduction chapter
+            //return Global.game_system.chapter_id == "Pre";
+            return false;
         }
 
         internal static bool debug_chapter_options_blocked()
