@@ -107,8 +107,14 @@ namespace Tactile.Menus.Preparations
                     AddMenu(pickUnitsMenu);
                     break;
                 case PreparationsChoices.Trade:
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    AddItemMenu();
+                    if (Global.battalion.actors.Count > 0)
+                    {
+                        Global.game_system.play_se(System_Sounds.Confirm);
+                        AddItemMenu();
+                    }
+                    else
+                        // Buzz if battalion is empty
+                        Global.game_system.play_se(System_Sounds.Buzzer);
                     break;
                 case PreparationsChoices.Fortune:
                     if (Global.game_state.augury_event_exists())
