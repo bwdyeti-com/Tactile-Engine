@@ -149,7 +149,7 @@ namespace Tactile
                 if (weapon == null)
                     return 0;
                 // Else if can't equip this weapon type
-                else if (this.ClassData.Max_WLvl[weapon.Main_Type - 1] == 0)
+                else if (_Unit.actor.max_weapon_level(weapon.main_type(), true) <= 0)
                     return 0;
 
                 return weaponId;

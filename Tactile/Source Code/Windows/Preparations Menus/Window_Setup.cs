@@ -199,6 +199,11 @@ namespace Tactile
 
         public virtual void refresh()
         {
+            if (Global.battalion.actors.Count > 0)
+                CommandWindow.set_text_color(1, "White");
+            else
+                CommandWindow.set_text_color(1, "Grey");
+
             // Does augury exist?
             if (Global.game_state.augury_event_exists())
                 CommandWindow.set_text_color(2, "White");

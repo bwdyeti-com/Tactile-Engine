@@ -196,7 +196,7 @@ namespace Tactile.Menus.Map.Unit
             // 7, 11: Visit, Chest
             SimpleCommands.Add(7, (Game_Unit unit) => Visit(unit, State.Visit_Modes.Visit));
             SimpleCommands.Add(11, (Game_Unit unit) => Visit(unit, State.Visit_Modes.Chest));
-            // 9, 10, 29, 30: Shop, Arena
+            // 9, 10, 29, 30: Shop, Arena (Secret Shop, Secret Arena)
             SimpleCommands.Add(9, (Game_Unit unit) => Shop(unit, false));
             SimpleCommands.Add(10, (Game_Unit unit) => Shop(unit, false));
             SimpleCommands.Add(29, (Game_Unit unit) => Shop(unit, true));

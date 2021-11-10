@@ -662,7 +662,8 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, hit);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false,
+                    Animation.dmg, Animation.hit, Animation.kill);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -682,7 +683,8 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, distance);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false,
+                    Animation.dmg, Animation.hit, Animation.kill);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -702,7 +704,8 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false,
+                    Animation.dmg, Animation.hit, Animation.kill);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;

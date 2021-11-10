@@ -642,7 +642,7 @@ namespace Tactile
                         Global.game_temp.highlighted_unit_id == -1 && !Global.game_map.scrolling)
                     {
                         if (Global.game_map.shops.ContainsKey(Global.player.loc) &&
-                            !Global.game_map.get_shop(Global.player.loc).arena)
+                            !Global.game_map.get_shop(Global.player.loc, false).arena)
                         {
                             Global.game_system.play_se(System_Sounds.Confirm);
                             Global.game_temp.preview_shop();
