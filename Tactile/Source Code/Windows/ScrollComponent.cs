@@ -65,6 +65,24 @@ namespace Tactile.Windows
             }
         }
 
+        protected Vector2 ViewableElements { get { return ViewAreaSize / ElementSize; } }
+
+        protected Vector2 ScrollIndex
+        {
+            get
+            {
+                switch (Direction)
+                {
+                    case ScrollDirections.Horizontal:
+                        int rows = Math.Max(1, (int)ElementLengths.Y);
+                        return new Vector2(Index / rows, Index % rows);
+                    default:
+                        int columns = Math.Max(1, (int)ElementLengths.X);
+                        return new Vector2(Index % columns, Index / columns);
+                }
+            }
+        }
+
         public bool AtLeft { get { return this.offset.X <= this.MinOffset.X; } }
         public bool AtRight { get { return this.offset.X >= this.MaxOffset.X; } }
         public bool AtTop { get { return this.offset.Y <= this.MinOffset.Y; } }
@@ -143,8 +161,8 @@ namespace Tactile.Windows
                 this.offset = this.IntOffset;
 
             TopIndex = new Vector2(
-                (int)Math.Floor(this.offset.X) / (int)ElementSize.X,
-                (int)Math.Floor(this.offset.Y) / (int)ElementSize.Y);
+                this.offset.X / ElementSize.X,
+                this.offset.Y / ElementSize.Y);
         }
 
         private void UpdateInput(bool active, float maxSpeed)
