@@ -266,7 +266,7 @@ namespace Tactile
 
         public void draw(SpriteBatch sprite_batch)
         {
-            Vector2 offset = Scroll.offset -
+            Vector2 offset = Scroll.IntOffset -
                 new Vector2(0, Config.CONVO_BACKLOG_LINES * Window_Message.FontData.CharHeight - Config.WINDOW_HEIGHT);
             Vector2 int_offset = new Vector2((int)offset.X, (int)offset.Y);
 

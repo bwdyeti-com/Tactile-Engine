@@ -117,7 +117,7 @@ namespace Tactile.Menus.Title
             Scroll.Update(active);
 
             if (Scrollbar != null)
-                Scrollbar.scroll = (int)Scroll.offset.Y;
+                Scrollbar.scroll = (int)Scroll.IntOffset.Y;
 
             // Full credits link
             if (FullCreditsButton != null)
@@ -211,7 +211,7 @@ namespace Tactile.Menus.Title
 
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, scissorState);
                 foreach (var text in CreditsText)
-                    text.draw(spriteBatch, Scroll.offset - BASE_OFFSET);
+                    text.draw(spriteBatch, Scroll.IntOffset - BASE_OFFSET);
                 spriteBatch.End();
 
                 if (FullCreditsButton != null)

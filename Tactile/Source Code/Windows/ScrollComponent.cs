@@ -28,6 +28,16 @@ namespace Tactile.Windows
         public Page_Arrow LeftArrow, RightArrow;
         public Scroll_Bar Scrollbar;
 
+        public Vector2 IntOffset
+        {
+            get
+            {
+                return new Vector2(
+                    (int)Math.Round(this.offset.X),
+                    (int)Math.Round(this.offset.Y));
+            }
+        }
+
         private Vector2 ScrollAreaSize { get { return ElementSize * ElementLengths; } }
         private Vector2 MinOffset { get { return new Vector2(0, 0); } }
         private Vector2 MaxOffset
@@ -125,6 +135,9 @@ namespace Tactile.Windows
             // Apply scroll speed to offset and clamp to offset
             this.offset = Vector2.Clamp(this.offset + ScrollSpeed,
                 this.MinOffset, this.MaxOffset);
+            if (ScrollSpeed.LengthSquared() == 0)
+                this.offset = this.IntOffset;
+
             TopIndex = new Vector2(
                 (int)Math.Floor(this.offset.X) / (int)ElementSize.X,
                 (int)Math.Floor(this.offset.Y) / (int)ElementSize.Y);
