@@ -65,8 +65,8 @@ namespace Tactile
                 Config.CONVO_BACKLOG_MAX_SCROLL_SPEED,
                 Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);
             Scroll.loc = Vector2.Zero;
-            Scroll.UpArrow = UpArrow;
-            Scroll.DownArrow = DownArrow;
+            Scroll.UpMouseOver = UpArrow;
+            Scroll.DownMouseOver = DownArrow;
         }
 
         private int LineY(int index)

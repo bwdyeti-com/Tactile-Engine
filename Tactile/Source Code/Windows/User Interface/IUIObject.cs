@@ -22,5 +22,7 @@ namespace Tactile.Windows.UserInterface
         void UpdateInput(Vector2 drawOffset = default(Vector2));
 
         Rectangle OnScreenBounds(Vector2 drawOffset);
+
+        bool MouseOver(Vector2 drawOffset = default(Vector2));
     }
 }

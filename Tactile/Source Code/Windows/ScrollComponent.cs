@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Tactile.Windows.UserInterface;
 
 namespace Tactile.Windows
 {
@@ -23,10 +24,9 @@ namespace Tactile.Windows
 
         private float MaxScrollSpeed = 4;
         private float ScrollFriction = 0.95f;
-        
-        //@Debug: replace with IUIObject and move the needed functions up to the interface
-        public Page_Arrow UpArrow, DownArrow;
-        public Page_Arrow LeftArrow, RightArrow;
+
+        public IUIObject UpMouseOver, DownMouseOver;
+        public IUIObject LeftMouseOver, RightMouseOver;
         public Scroll_Bar Scrollbar;
 
         public Vector2 IntOffset
@@ -209,7 +209,7 @@ namespace Tactile.Windows
                 }
                 // Mouse
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
-                    LeftArrow != null && LeftArrow.MouseOver())
+                    LeftMouseOver != null && LeftMouseOver.MouseOver())
                 {
                     ScrollSpeed.X = -MaxScrollSpeed;
                     // If only horizontal
@@ -218,7 +218,7 @@ namespace Tactile.Windows
                     return;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
-                    RightArrow != null && RightArrow.MouseOver())
+                    RightMouseOver != null && RightMouseOver.MouseOver())
                 {
                     ScrollSpeed.X = MaxScrollSpeed;
                     // If only horizontal
@@ -302,14 +302,14 @@ namespace Tactile.Windows
                 }
                 // Mouse
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
-                    UpArrow != null && UpArrow.MouseOver())
+                    UpMouseOver != null && UpMouseOver.MouseOver())
                 {
                     ScrollSpeed.Y = -MaxScrollSpeed;
                     ScrollWheel = false;
                     return;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
-                    DownArrow != null && DownArrow.MouseOver())
+                    DownMouseOver != null && DownMouseOver.MouseOver())
                 {
                     ScrollSpeed.Y = MaxScrollSpeed;
                     ScrollWheel = false;

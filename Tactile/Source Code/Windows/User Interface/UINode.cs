@@ -266,6 +266,13 @@ namespace Tactile.Windows.UserInterface
             return new Rectangle((int)loc.X, (int)loc.Y,
                 (int)Size.X, (int)Size.Y);
         }
+
+        public bool MouseOver(Vector2 drawOffset = default(Vector2))
+        {
+            Rectangle objectRect = OnScreenBounds(drawOffset);
+            return Global.Input.mouse_in_rectangle(
+                objectRect, loc - drawOffset, this.offset, 0f, false);
+        }
         protected virtual Vector2 HitBoxLoc(Vector2 drawOffset)
         {
             Vector2 loc = this.loc + this.draw_offset;
