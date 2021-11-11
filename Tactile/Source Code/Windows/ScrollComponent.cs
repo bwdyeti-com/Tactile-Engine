@@ -17,6 +17,7 @@ namespace Tactile.Windows
         private ScrollDirections Direction;
         private Vector2 ElementLengths = Vector2.One;
         private Vector2 TopIndex = Vector2.Zero;
+        public int Index { get; private set; }
         private Vector2 ScrollSpeed = Vector2.Zero;
         private bool ScrollWheel = false;
 
@@ -109,8 +110,11 @@ namespace Tactile.Windows
             ScrollSpeed.Y = 0;
         }
 
-        public void Update(bool active)
+        public void Update(bool active, int index = -1)
         {
+            if (index != -1)
+                Index = index;
+
             // Adjust max speed by input method
             float maxSpeed;
             // On buttons, double speed if speed up button is held
