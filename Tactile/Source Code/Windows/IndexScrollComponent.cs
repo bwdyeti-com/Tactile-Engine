@@ -11,6 +11,17 @@ namespace Tactile.Windows
         public IndexScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollDirections direction)
             : base(viewAreaSize, elementSize, direction) { }
 
+        protected override void SetOffset(Vector2 offset)
+        {
+            base.SetOffset(offset);
+            ResetOffsetTarget();
+        }
+
+        private void ResetOffsetTarget()
+        {
+            OffsetTarget = this.offset / ElementSize;
+        }
+
         public override void Update(bool active, int index = -1)
         {
             base.Update(active, index);
@@ -18,7 +29,7 @@ namespace Tactile.Windows
             if (!IndexedScroll || ScrollWheel)
                 FixIndex();
             if (!IndexedScroll)
-                OffsetTarget = this.offset  / ElementSize;
+                ResetOffsetTarget();
         }
 
         protected override void UpdateHorizontalInput(bool active, float maxSpeed)

@@ -138,6 +138,12 @@ namespace Tactile.Windows
             ScrollFriction = scrollFriction;
         }
 
+
+        protected virtual void SetOffset(Vector2 offset)
+        {
+            this.offset = offset;
+        }
+
         /// <summary>
         /// Reset scroll speed to zero.
         /// </summary>
@@ -183,6 +189,27 @@ namespace Tactile.Windows
             }
         }
 
+        // Jumps scroll position to bring index inside the view area.
+        public void FixScroll(int index)
+        {
+            Index = index;
+
+            Vector2 offset = this.OutsideScrollAreaOffset;
+            if (offset != Vector2.Zero)
+            {
+                Vector2 scrollIndex = this.offset / ElementSize - offset;
+                scrollIndex.X = scrollIndex.X >= 0 ? (float)Math.Ceiling(scrollIndex.X) : (float)Math.Floor(scrollIndex.X);
+                scrollIndex.Y = scrollIndex.Y >= 0 ? (float)Math.Ceiling(scrollIndex.Y) : (float)Math.Floor(scrollIndex.Y);
+
+                SetOffset(Vector2.Clamp(
+                    scrollIndex * ElementSize,
+                    this.MinOffset, this.MaxOffset));
+                
+                UpdateTopIndex();
+                Reset();
+            }
+        }
+
         public virtual void Update(bool active, int index = -1)
         {
             if (index != -1)
@@ -215,6 +242,11 @@ namespace Tactile.Windows
             if (ScrollSpeed.LengthSquared() == 0)
                 this.offset = this.IntOffset;
 
+            UpdateTopIndex();
+        }
+
+        private void UpdateTopIndex()
+        {
             TopIndex = new Vector2(
                 this.offset.X / ElementSize.X,
                 this.offset.Y / ElementSize.Y);
