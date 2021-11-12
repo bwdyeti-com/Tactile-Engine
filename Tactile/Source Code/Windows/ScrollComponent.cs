@@ -88,13 +88,38 @@ namespace Tactile.Windows
         public bool AtTop { get { return this.offset.Y <= this.MinOffset.Y; } }
         public bool AtBottom { get { return this.offset.Y >= this.MaxOffset.Y; } }
 
+        /// <summary>
+        /// Returns the distance in elements the index is outside of the visible area.
+        /// </summary>
+        protected Vector2 OutsideScrollAreaOffset
+        {
+            get
+            {
+                Vector2 index = this.ScrollIndex;
+
+                float ox = 0;
+                if (TopIndex.X > index.X)
+                    ox = TopIndex.X - index.X;
+                else if (TopIndex.X + ViewableElements.X < index.X + 1)
+                    ox = (TopIndex.X + ViewableElements.X) - (index.X + 1);
+
+                float oy = 0;
+                if (TopIndex.Y > index.Y)
+                    oy = TopIndex.Y - index.Y;
+                else if (TopIndex.Y + ViewableElements.Y < index.Y + 1)
+                    oy = (TopIndex.Y + ViewableElements.Y) - (index.Y + 1);
+
+                return new Vector2(ox, oy);
+            }
+        }
+
         public ScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollDirections direction)
         {
             ViewAreaSize = Vector2.Max(viewAreaSize, Vector2.One);
             ElementSize = Vector2.Max(elementSize, Vector2.One);
             Direction = direction;
         }
-        
+
         /// <summary>
         /// Sets the number of columns and rows of the scrollable area elements.
         /// </summary>
@@ -126,6 +151,34 @@ namespace Tactile.Windows
         {
             this.offset.Y = Math.Max(this.MinOffset.Y, this.MaxOffset.Y);
             ScrollSpeed.Y = 0;
+        }
+
+        /// <summary>
+        /// Clamps the index within the current view area.
+        /// </summary>
+        protected void FixIndex()
+        {
+            Vector2 offset = this.OutsideScrollAreaOffset;
+            if (offset != Vector2.Zero)
+            {
+                int ox = (int)Math.Round(offset.X);
+                int oy = (int)Math.Round(offset.Y);
+
+                int indexOffset;
+                switch (Direction)
+                {
+                    case ScrollDirections.Horizontal:
+                        int rows = Math.Max(1, (int)ElementLengths.Y);
+                        indexOffset = rows * ox + oy;
+                        break;
+                    default:
+                        int columns = Math.Max(1, (int)ElementLengths.X);
+                        indexOffset = columns * oy + ox;
+                        break;
+                }
+
+                Index += indexOffset;
+            }
         }
 
         public void Update(bool active, int index = -1)
