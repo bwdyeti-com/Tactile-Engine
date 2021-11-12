@@ -14,13 +14,13 @@ namespace Tactile.Windows
     class ScrollComponent : Graphic_Object
     {
         private Vector2 ViewAreaSize;
-        private Vector2 ElementSize;
-        private ScrollDirections Direction;
-        private Vector2 ElementLengths = Vector2.One;
-        private Vector2 TopIndex = Vector2.Zero;
+        protected Vector2 ElementSize { get; private set; }
+        protected ScrollDirections Direction { get; private set; }
+        protected Vector2 ElementLengths { get; private set; }
+        protected Vector2 TopIndex { get; private set; }
         public int Index { get; private set; }
-        private Vector2 ScrollSpeed = Vector2.Zero;
-        private bool ScrollWheel = false;
+        protected Vector2 ScrollSpeed = Vector2.Zero;
+        protected bool ScrollWheel = false;
 
         private float MaxScrollSpeed = 4;
         private float ScrollFriction = 0.95f;
@@ -40,8 +40,8 @@ namespace Tactile.Windows
         }
 
         private Vector2 ScrollAreaSize { get { return ElementSize * ElementLengths; } }
-        private Vector2 MinOffset { get { return new Vector2(0, 0); } }
-        private Vector2 MaxOffset
+        protected Vector2 MinOffset { get { return new Vector2(0, 0); } }
+        protected Vector2 MaxOffset
         {
             get
             {
@@ -115,6 +115,8 @@ namespace Tactile.Windows
 
         public ScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollDirections direction)
         {
+            ElementLengths = Vector2.One;
+
             ViewAreaSize = Vector2.Max(viewAreaSize, Vector2.One);
             ElementSize = Vector2.Max(elementSize, Vector2.One);
             Direction = direction;
@@ -181,7 +183,7 @@ namespace Tactile.Windows
             }
         }
 
-        public void Update(bool active, int index = -1)
+        public virtual void Update(bool active, int index = -1)
         {
             if (index != -1)
                 Index = index;
@@ -226,7 +228,7 @@ namespace Tactile.Windows
                 UpdateVerticalInput(active, maxSpeed);
         }
 
-        private void UpdateHorizontalInput(bool active, float maxSpeed)
+        protected virtual void UpdateHorizontalInput(bool active, float maxSpeed)
         {
             if (active)
             {
@@ -288,6 +290,10 @@ namespace Tactile.Windows
                 }
             }
 
+            UpdateHorizontalScroll();
+        }
+        protected void UpdateHorizontalScroll()
+        {
             // If scrolling and there were no inputs, decelerate/etc
             if (ScrollSpeed.X != 0)
             {
@@ -319,7 +325,8 @@ namespace Tactile.Windows
                 }
             }
         }
-        private void UpdateVerticalInput(bool active, float maxSpeed)
+
+        protected virtual void UpdateVerticalInput(bool active, float maxSpeed)
         {
             if (active)
             {
@@ -391,6 +398,10 @@ namespace Tactile.Windows
                 }
             }
 
+            UpdateVerticalScroll();
+        }
+        protected void UpdateVerticalScroll()
+        {
             // If scrolling and there were no inputs, decelerate/etc
             if (ScrollSpeed.Y != 0)
             {
