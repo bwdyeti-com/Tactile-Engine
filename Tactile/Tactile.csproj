@@ -338,6 +338,7 @@
     <Compile Include="Source Code\Sprites\Text\Battle_Hit_Number.cs" />
     <Compile Include="Source Code\Sprites\Text\Quick_Stat_Up_Num.cs" />
     <Compile Include="Source Code\Windows\Command Windows\WindowCommandSupportViewerActor.cs" />
+    <Compile Include="Source Code\Windows\IndexScrollComponent.cs" />
     <Compile Include="Source Code\Windows\Options\SettingsWindow.cs" />
     <Compile Include="Source Code\Windows\Preparations Menus\WindowPrepActorList.cs" />
     <Compile Include="Source Code\Windows\ScrollComponent.cs" />
