@@ -679,6 +679,7 @@
     <Compile Include="Source Code\Windows\User Interface\Preparations\PrepItemsUnitUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Status\StatusUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\UICursor.cs" />
+    <Compile Include="Source Code\Windows\User Interface\UIEmptyObject.cs" />
     <Compile Include="Source Code\Windows\User Interface\UINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\UINodeSet.cs" />
     <Compile Include="Source Code\Windows\WindowRankingComparison.cs" />
