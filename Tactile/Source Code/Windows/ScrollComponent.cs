@@ -421,6 +421,14 @@ namespace Tactile.Windows
                     ScrollWheel = false;
                     return;
                 }
+                else if (Input.ControlScheme == ControlSchemes.Mouse &&
+                    Scrollbar != null && Scrollbar.Scrubbing)
+                {
+                    ScrollSpeed.Y = 0;
+                    this.offset.Y = Scrollbar.ScrubPercent * (this.MaxOffset.Y - this.MinOffset.Y);
+                    ScrollWheel = false;
+                    return;
+                }
                 // Touch gestures
                 else if (Global.Input.gesture_rectangle(
                     TouchGestures.VerticalDrag, this.ViewAreaRectangle, false))

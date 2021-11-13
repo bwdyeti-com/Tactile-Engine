@@ -1,6 +1,7 @@
 ﻿using System;   
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TactileLibrary;
 
 namespace Tactile
 {
@@ -12,6 +13,7 @@ namespace Tactile
         protected bool Moving_Down, Moving_Up;
         public bool DownHeld { get; private set; }
         public bool UpHeld { get; private set; }
+        public bool Scrubbing { get; private set; }
         protected int Scroll;
         protected bool Up_Arrow_Visible, Down_Arrow_Visible;
 
@@ -35,7 +37,25 @@ namespace Tactile
                 Up_Arrow_Visible = value > 0;
                 Down_Arrow_Visible = value < (Max_Items - Items_At_Once);
                 value = Math.Min(value, Max_Items - Items_At_Once);
-                Scroll = value * (Height - (Height * Items_At_Once / Max_Items)) / (Max_Items - Items_At_Once);
+                Scroll = value * (Height - (this.FillHeight)) / (Max_Items - Items_At_Once);
+            }
+        }
+
+        private int FillHeight { get { return Height * Items_At_Once / Max_Items; } }
+
+        public Maybe<float> ScrubPercent
+        {
+            get
+            {
+                if (!Scrubbing)
+                    return Maybe<float>.Nothing;
+
+                int height = this.BarRect.Height - this.FillHeight;
+                if (height <= 0)
+                    return 0f;
+
+                float percent = (Global.Input.mousePosition.Y - (this.FillHeight / 2 + this.BarRect.Y)) / (float)height;
+                return MathHelper.Clamp(percent, 0f, 1f);
             }
         }
         #endregion
@@ -62,6 +82,19 @@ namespace Tactile
         internal EventHandler UpArrowClicked;
         internal EventHandler DownArrowClicked;
 
+        private Rectangle UpArrowRect
+        {
+            get { return new Rectangle((int)loc.X, (int)loc.Y - 9, 8, 8); }
+        }
+        private Rectangle DownArrowRect
+        {
+            get { return new Rectangle((int)loc.X, (int)loc.Y + Height + 2, 8, 8); }
+        }
+        private Rectangle BarRect
+        {
+            get { return new Rectangle((int)loc.X, (int)loc.Y, 8, Height); }
+        }
+
         public void update_input(Vector2 draw_offset = default(Vector2))
         {
             DownHeld = false;
@@ -71,10 +104,23 @@ namespace Tactile
                 return;
 
             Vector2 loc = (this.loc + this.draw_offset) - draw_offset;
-            Rectangle up_arrow_rect = new Rectangle(
-                (int)loc.X, (int)loc.Y - 9, 8, 8);
-            Rectangle down_arrow_rect = new Rectangle(
-                (int)loc.X, (int)loc.Y + Height + 2, 8, 8);
+            Rectangle up_arrow_rect = this.UpArrowRect;
+            Rectangle down_arrow_rect = this.DownArrowRect;
+
+            // Scrubbing
+            if (Scrubbing)
+            {
+                if (!Global.Input.mouse_pressed(MouseButtons.Left, false) ||
+                    Input.ControlScheme != ControlSchemes.Mouse)
+                {
+                    Scrubbing = false;
+                }
+            }
+            else if (Global.Input.mouse_down_rectangle(
+                    MouseButtons.Left, this.BarRect, true))
+            {
+                Scrubbing = true;
+            }
 
             // Up Arrow clicked
             if (Global.Input.mouseScroll > 0 ||
@@ -142,7 +188,7 @@ namespace Tactile
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     // Fill
                     y = 0;
-                    while (y < Height * Items_At_Once / Max_Items)
+                    while (y < this.FillHeight)
                     {
                         sprite_batch.Draw(texture, (this.loc + draw_vector() + new Vector2(0, y + Scroll)) - draw_offset,
                             new Rectangle(0, 3, 8, 1), tint, angle, offset, scale,
