@@ -116,6 +116,9 @@ namespace TactileLibrary.Pathfinding
                             continue;
                         if (Map.InvalidLocation(test_loc, target_loc, restrict_to_map))
                             continue;
+                        // Can't pathfind backwards through obstructed tiles
+                        if (Map.Obstructed(test_loc, target_loc))
+                            continue;
                         check_tile(test_loc, last_added, mov, target_loc,
                             open_list, closed_list);
                     }
