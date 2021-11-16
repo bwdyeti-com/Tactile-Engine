@@ -8,6 +8,8 @@ namespace TactileLibrary.Pathfinding
     {
         Pathfinder<T> Pathfind();
 
+        TileData GetTileData(T loc, T goalLoc);
+
         bool Passable(T loc);
         bool Passable(T loc, T goalLoc);
 

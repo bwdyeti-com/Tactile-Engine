@@ -183,6 +183,16 @@ namespace Tactile.Pathfinding
             return result;
         }
 
+        public TileData GetTileData(Vector2 loc, Vector2 goalLoc)
+        {
+            bool passable = Passable(loc, goalLoc);
+            int tileCost = -1;
+            if (passable)
+                tileCost = TileCost(loc, goalLoc);
+
+            return new TileData(passable, tileCost);
+        }
+
         public bool Passable(Vector2 loc)
         {
             return terrain_cost(loc) >= 0;

@@ -251,11 +251,12 @@ namespace TactileLibrary.Pathfinding
             OpenList<T> open_list, ClosedListRoute<T> closed_list, bool dijkstras = false, bool use_euclidean_distance = false)
         {
             T prevLoc = closed_list.loc(parent);
-            bool pass = Map.Passable(loc, target_loc);
 
-            if (pass)
+            var tileData = Map.GetTileData(loc, target_loc);
+
+            if (tileData.Passable)
             {
-                int move_cost = Map.TileCost(loc, target_loc);
+                int move_cost = tileData.TileCost;
                 int g = move_cost + closed_list.get_g(parent);
                 if (mov < 0 || g <= mov * COST_FACTOR)
                 {
@@ -271,7 +272,7 @@ namespace TactileLibrary.Pathfinding
                     }
                     else
                     {
-                        open_list.add_item(loc, parent, f, g, pass);
+                        open_list.add_item(loc, parent, f, g, tileData.Passable);
                     }
                 }
             }

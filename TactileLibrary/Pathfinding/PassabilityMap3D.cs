@@ -23,6 +23,16 @@ namespace TactileLibrary.Pathfinding
             return new Pathfinder<Vector3>(this);
         }
 
+        public TileData GetTileData(Vector3 loc, Vector3 goalLoc)
+        {
+            bool passable = Passable(loc, goalLoc);
+            int tileCost = -1;
+            if (passable)
+                tileCost = TileCost(loc, goalLoc);
+
+            return new TileData(passable, tileCost);
+        }
+
         public bool Passable(Vector3 loc)
         {
             bool occupied = Map[(int)loc.X, (int)loc.Y, (int)loc.Z].Item1;
