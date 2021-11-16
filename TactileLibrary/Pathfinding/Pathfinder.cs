@@ -256,24 +256,31 @@ namespace TactileLibrary.Pathfinding
 
             if (tileData.Passable)
             {
-                int move_cost = tileData.TileCost;
-                int g = move_cost + closed_list.get_g(parent);
-                if (mov < 0 || g <= mov * COST_FACTOR)
+                int g = tileData.TileCost + closed_list.get_g(parent);
+                // If using a limited move score
+                if (mov >= 0)
                 {
-                    int heuristic = Map.HeuristicPenalty(loc, target_loc, prevLoc);
-                    if (!dijkstras)
-                        heuristic += Map.Distance(loc, target_loc, use_euclidean_distance);
+                    // Return if this tile is too expensive to move into
+                    if (g > mov * COST_FACTOR)
+                        return;
+                    // If obstructed, g is set to the total move score
+                    else if (tileData.Obstructs)
+                        g = Math.Max(g, mov * COST_FACTOR);
+                }
 
-                    int f = g + heuristic;
-                    int on_list = open_list.search(loc);
-                    if (on_list > -1)
-                    {
-                        open_list.repoint(on_list, parent, f, g);
-                    }
-                    else
-                    {
-                        open_list.add_item(loc, parent, f, g, tileData.Passable);
-                    }
+                int heuristic = Map.HeuristicPenalty(loc, target_loc, prevLoc);
+                if (!dijkstras)
+                    heuristic += Map.Distance(loc, target_loc, use_euclidean_distance);
+
+                int f = g + heuristic;
+                int on_list = open_list.search(loc);
+                if (on_list > -1)
+                {
+                    open_list.repoint(on_list, parent, f, g);
+                }
+                else
+                {
+                    open_list.add_item(loc, parent, f, g, tileData.Passable);
                 }
             }
         }

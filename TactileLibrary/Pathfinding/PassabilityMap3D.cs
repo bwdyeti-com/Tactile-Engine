@@ -30,7 +30,7 @@ namespace TactileLibrary.Pathfinding
             if (passable)
                 tileCost = TileCost(loc, goalLoc);
 
-            return new TileData(passable, tileCost);
+            return new TileData(passable, tileCost, false);
         }
 
         public bool Passable(Vector3 loc)
