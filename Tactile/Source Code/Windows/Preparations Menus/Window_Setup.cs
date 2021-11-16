@@ -361,6 +361,7 @@ namespace Tactile
                     }
                 }
             Global.battalion.sort_by_deployed();
+            Global.game_map.clear_updated_move_ranges();
             Global.game_map.refresh_move_ranges();
         }
 

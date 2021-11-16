@@ -167,6 +167,7 @@ namespace Tactile.Menus.Preparations
             var pickUnitsMenu = sender as Window_Prep_PickUnits;
 
             var preparationsMenu = (Menus.ElementAt(1) as Window_Setup);
+            // Execute the deployment changes the player chose
             preparationsMenu.refresh_deployed_units(
                 pickUnitsMenu.unit_changes());
             preparationsMenu.refresh();
