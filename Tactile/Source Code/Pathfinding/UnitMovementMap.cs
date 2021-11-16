@@ -22,6 +22,7 @@ namespace Tactile.Pathfinding
 
         Dictionary<Vector2, int> MoveCosts;
         private Dictionary<Vector2, Unit_Passable> UnitLocs = new Dictionary<Vector2, Unit_Passable>(); // should maybe be an array?
+        private HashSet<Vector2> ObstructionSources = new HashSet<Vector2>();
         private HashSet<Vector2> Doors = new HashSet<Vector2>();
 
         private Game_Unit Unit { get { return Map.units[UnitId]; } }
@@ -57,17 +58,23 @@ namespace Tactile.Pathfinding
                 Vector2 loc = test_unit.pathfinding_loc;
                 if (test_unit != unit && !Map.is_off_map(loc))
                 {
+                    Unit_Passable pass = tile_unit_passability(unit, loc, test_unit);
 #if DEBUG
                     if (!Global.game_system.is_interpreter_running)
                         // if the location is already occupied, problems
                         Debug.Assert(!UnitLocs.ContainsKey(loc), string.Format(
                             "Two units share a location when trying to start pathfinding\n\n{0}\n{1}",
                             unit, test_unit));
-                    UnitLocs[loc] = tile_unit_passability(unit, loc, test_unit);
+                    UnitLocs[loc] = pass;
 #else
                     if (!UnitLocs.ContainsKey(loc))
-                        UnitLocs.Add(loc, tile_unit_passability(unit, loc, test_unit));
+                        UnitLocs.Add(loc, pass);
 #endif
+                    if (pass == Unit_Passable.Blocked && test_unit.HasZoneOfControl())
+                    {
+                        foreach (Vector2 adjacentLoc in AdjacentLocations(loc))
+                            ObstructionSources.Add(adjacentLoc);
+                    }
                 }
             }
 
@@ -190,7 +197,7 @@ namespace Tactile.Pathfinding
             if (passable)
                 tileCost = TileCost(loc, goalLoc);
 
-            return new TileData(passable, tileCost, false);
+            return new TileData(passable, tileCost, ObstructionSources.Contains(loc));
         }
 
         public bool Passable(Vector2 loc)
