@@ -198,8 +198,9 @@ namespace Tactile.Pathfinding
             int tileCost = -1;
             if (passable)
                 tileCost = TileCost(loc, goalLoc);
+            bool obstructed = Obstructed(loc, goalLoc);
 
-            return new TileData(passable, tileCost, ObstructionSources.Contains(loc));
+            return new TileData(passable, tileCost, obstructed);
         }
 
         public bool Passable(Vector2 loc)
@@ -279,6 +280,17 @@ namespace Tactile.Pathfinding
                 terr_cost += Math.Max(1, this.Unit.mov);
             return terr_cost * this.MoveCostFactor *
                 (Map.is_off_map(loc) ? OFF_MAP_PENALTY_MULT : 1);
+        }
+
+        public bool Obstructed(Vector2 loc)
+        {
+            return ObstructionSources.Contains(loc);
+        }
+        public bool Obstructed(Vector2 loc, Vector2 goalLoc)
+        {
+            if (loc == goalLoc)
+                return false;
+            return Obstructed(loc);
         }
 
         public IEnumerable<Vector2> AdjacentLocations(Vector2 loc)

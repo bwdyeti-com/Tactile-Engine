@@ -31,8 +31,9 @@ namespace TactileLibrary.Pathfinding
             int tileCost = -1;
             if (passable)
                 tileCost = TileCost(loc, goalLoc);
+            bool obstructed = Obstructed(loc, goalLoc);
 
-            return new TileData(passable, tileCost, false);
+            return new TileData(passable, tileCost, obstructed);
         }
 
         public bool Passable(Vector3 loc)
@@ -53,6 +54,15 @@ namespace TactileLibrary.Pathfinding
             if (!Passable(loc))
                 return -this.MoveCostFactor;
             return this.MoveCostFactor;
+        }
+
+        public bool Obstructed(Vector3 loc)
+        {
+            return false;
+        }
+        public bool Obstructed(Vector3 loc, Vector3 goalLoc)
+        {
+            return false;
         }
 
         public IEnumerable<Vector3> AdjacentLocations(Vector3 loc)

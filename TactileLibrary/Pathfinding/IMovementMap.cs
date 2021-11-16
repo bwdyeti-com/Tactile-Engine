@@ -17,6 +17,9 @@ namespace TactileLibrary.Pathfinding
 
         int TileCost(T loc, T goalLoc);
 
+        bool Obstructed(T loc);
+        bool Obstructed(T loc, T goalLoc);
+
         IEnumerable<T> AdjacentLocations(T loc);
 
         bool IsAdjacent(T current_loc, T target_loc);
