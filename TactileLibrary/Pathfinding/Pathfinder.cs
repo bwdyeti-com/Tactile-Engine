@@ -8,9 +8,6 @@ namespace TactileLibrary.Pathfinding
 {
     public class Pathfinder<T> where T : IEquatable<T>
     {
-        //@Debug: this should be a property of IMovementMap<>
-        public const int COST_FACTOR = 10;
-
         private IMovementMap<T> Map;
         private Func<bool> ReverseRouteWiggleChance;
         internal int RouteDistance { get; private set; }
@@ -69,7 +66,7 @@ namespace TactileLibrary.Pathfinding
             RouteDistance = 0;
             if (route_found)
             {
-                RouteDistance = closed_list.get_g(last_added) / COST_FACTOR;
+                RouteDistance = closed_list.get_g(last_added) / Map.MoveCostFactor;
                 return closed_list.get_route(last_added);
             }
             return null;
@@ -127,7 +124,7 @@ namespace TactileLibrary.Pathfinding
             RouteDistance = 0;
             if (route_found)
             {
-                RouteDistance = closed_list.get_g(last_added) / COST_FACTOR;
+                RouteDistance = closed_list.get_g(last_added) / Map.MoveCostFactor;
                 return closed_list.get_reverse_route(last_added, target_loc);
             }
             return null;
@@ -232,7 +229,7 @@ namespace TactileLibrary.Pathfinding
             RouteDistance = 0;
             if (route_found)
             {
-                return closed_list.get_g(last_added) / COST_FACTOR;
+                return closed_list.get_g(last_added) / Map.MoveCostFactor;
             }
             return new Maybe<int>();
         }
@@ -243,7 +240,7 @@ namespace TactileLibrary.Pathfinding
             
             return closed_list
                 .GetMoveCosts()
-                .ToDictionary(p => p.Key, p => p.Value / COST_FACTOR);
+                .ToDictionary(p => p.Key, p => p.Value / Map.MoveCostFactor);
         }
 
         private void check_tile(
@@ -261,11 +258,11 @@ namespace TactileLibrary.Pathfinding
                 if (mov >= 0)
                 {
                     // Return if this tile is too expensive to move into
-                    if (g > mov * COST_FACTOR)
+                    if (g > mov * Map.MoveCostFactor)
                         return;
                     // If obstructed, g is set to the total move score
                     else if (tileData.Obstructs)
-                        g = Math.Max(g, mov * COST_FACTOR);
+                        g = Math.Max(g, mov * Map.MoveCostFactor);
                 }
 
                 int heuristic = Map.HeuristicPenalty(loc, target_loc, prevLoc);
@@ -303,7 +300,7 @@ namespace TactileLibrary.Pathfinding
                 cost += Map.TileCost(targetLoc, goalLoc);
             }
 
-            return cost / COST_FACTOR;
+            return cost / Map.MoveCostFactor;
         }
     }
 }

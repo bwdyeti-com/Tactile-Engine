@@ -190,6 +190,8 @@ namespace Tactile.Pathfinding
             return result;
         }
 
+        public int MoveCostFactor { get { return 10; } }
+
         public TileData GetTileData(Vector2 loc, Vector2 goalLoc)
         {
             bool passable = Passable(loc, goalLoc);
@@ -251,7 +253,7 @@ namespace Tactile.Pathfinding
                     // If the goal should be forced passable
                     if (loc == goalLoc && ForceGoalPassable)
                     {
-                        cost = 10;
+                        cost = this.MoveCostFactor;
                     }
                     // If unit is off map and the tile is impassable,
                     // make it passable but costly so they can always
@@ -259,7 +261,7 @@ namespace Tactile.Pathfinding
                     else if (Map.is_off_map(this.Unit.loc) && Map.is_off_map(loc))
                     {
                         cost = MoveCosts[loc] =
-                            (this.Unit.mov * 2) * 10 * OFF_MAP_PENALTY_MULT;
+                            (this.Unit.mov * 2) * this.MoveCostFactor * OFF_MAP_PENALTY_MULT;
                     }
 
                 }
@@ -275,7 +277,7 @@ namespace Tactile.Pathfinding
             if (UnitLocs.ContainsKey(loc) &&
                     UnitLocs[loc] == Unit_Passable.PassableFullMoveEnemy)
                 terr_cost += Math.Max(1, this.Unit.mov);
-            return terr_cost * 10 *
+            return terr_cost * this.MoveCostFactor *
                 (Map.is_off_map(loc) ? OFF_MAP_PENALTY_MULT : 1);
         }
 
@@ -298,13 +300,13 @@ namespace Tactile.Pathfinding
             int heuristic = 0;
             if (Doors.Contains(loc) && TileCost(loc, goalLoc) < 0)
             {
-                heuristic = (this.Unit.mov + 1) * 10;
+                heuristic = (this.Unit.mov + 1) * this.MoveCostFactor;
             }
 
             // If fog and AI controlled and the unit can't see this tile
             if (Map.fow && Global.game_state.ai_active && !Map.fow_visibility[this.Unit.team].Contains(loc))
                 // Make the tile less desirable for the unit to cross
-                heuristic += this.Unit.mov * 10;
+                heuristic += this.Unit.mov * this.MoveCostFactor;
             return heuristic;
         }
 
@@ -317,11 +319,11 @@ namespace Tactile.Pathfinding
         }
         private int euclidean_dist(Vector2 loc, Vector2 targetLoc)
         {
-            return (int)(Math.Sqrt(Math.Pow(loc.X - targetLoc.X, 2) + Math.Pow(loc.Y - targetLoc.Y, 2)) * 10);
+            return (int)(Math.Sqrt(Math.Pow(loc.X - targetLoc.X, 2) + Math.Pow(loc.Y - targetLoc.Y, 2)) * this.MoveCostFactor);
         }
         private int manhatten_dist(Vector2 loc, Vector2 targetLoc)
         {
-            return (int)(Math.Abs(loc.X - targetLoc.X) + Math.Abs(loc.Y - targetLoc.Y)) * 10;
+            return (int)(Math.Abs(loc.X - targetLoc.X) + Math.Abs(loc.Y - targetLoc.Y)) * this.MoveCostFactor;
         }
 
         public bool RestrictToMap(Vector2 loc, Vector2 goalLoc, bool restrictToPlayable = true)
