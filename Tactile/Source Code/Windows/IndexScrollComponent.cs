@@ -7,9 +7,36 @@ namespace Tactile.Windows
     {
         private Vector2 OffsetTarget;
         private bool IndexedScroll = true;
+        private Rectangle Buffers = new Rectangle(1, 1, 2, 2);
 
         public IndexScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollDirections direction)
             : base(viewAreaSize, elementSize, direction) { }
+
+        public void SetBuffers(Rectangle buffers)
+        {
+            if (buffers.X < 1)
+            {
+                buffers.Width += 1 - buffers.X;
+                buffers.X = 1;
+            }
+            if (buffers.Width < 2)
+                buffers.Width = 2;
+
+            if (buffers.Y < 1)
+            {
+                buffers.Height += 1 - buffers.Y;
+                buffers.Y = 1;
+            }
+            if (buffers.Height < 2)
+                buffers.Height = 2;
+
+            Buffers = buffers;
+        }
+
+        private int LeftBuffer { get { return Buffers.X; } }
+        private int RightBuffer { get { return Buffers.Width - Buffers.X; } }
+        private int TopBuffer { get { return Buffers.Y; } }
+        private int BottomBuffer { get { return Buffers.Height - Buffers.Y; } }
 
         protected override void SetOffset(Vector2 offset)
         {
@@ -49,10 +76,9 @@ namespace Tactile.Windows
                     if (Input.ControlScheme == ControlSchemes.Buttons)
                     {
                         // Scroll to the active index
-                        int buffer = 1;
                         Vector2 index = this.ScrollIndex;
-                        float rightTarget = index.X + buffer - (int)ViewableElements.X;
-                        float leftTarget = index.X + 1 - buffer;
+                        float rightTarget = index.X + this.RightBuffer - (int)ViewableElements.X;
+                        float leftTarget = index.X + 1 - this.LeftBuffer;
                         if (rightTarget > TopIndex.X)
                         {
                             OffsetTarget.X = rightTarget;
@@ -136,10 +162,9 @@ namespace Tactile.Windows
                     if (Input.ControlScheme == ControlSchemes.Buttons)
                     {
                         // Scroll to the active index
-                        int buffer = 1;
                         Vector2 index = this.ScrollIndex;
-                        float downTarget = index.Y + buffer - (int)ViewableElements.Y;
-                        float upTarget = index.Y + 1 - buffer;
+                        float downTarget = index.Y + this.BottomBuffer - (int)ViewableElements.Y;
+                        float upTarget = index.Y + 1 - this.TopBuffer;
                         if (downTarget > TopIndex.Y)
                         {
                             OffsetTarget.Y = downTarget;
