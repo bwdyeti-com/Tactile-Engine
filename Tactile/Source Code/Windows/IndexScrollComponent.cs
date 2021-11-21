@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace Tactile.Windows
 {
-    class IndexScrollComponent :ScrollComponent
+    class IndexScrollComponent : ScrollComponent
     {
         private Vector2 OffsetTarget;
         private bool IndexedScroll = true;

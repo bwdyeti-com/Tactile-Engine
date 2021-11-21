@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Tactile.Windows.UserInterface;
 
 namespace Tactile.Windows
@@ -471,5 +472,15 @@ namespace Tactile.Windows
                 }
             }
         }
+
+#if DEBUG
+        public void Draw(SpriteBatch spriteBatch, Vector2 drawOffset = default(Vector2))
+        {
+            var texture = Global.Content.Load<Texture2D>(@"Graphics/White_Square");
+            Color color = new Color(0, 80, 80, 40);
+            spriteBatch.Draw(texture, this.loc, new Rectangle(0, 0, 16, 16),
+                color, 0f, this.offset, ViewAreaSize / new Vector2(16f), SpriteEffects.None, 0f);
+        }
+#endif
     }
 }
