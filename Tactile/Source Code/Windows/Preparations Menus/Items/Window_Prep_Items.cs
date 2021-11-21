@@ -93,17 +93,14 @@ namespace Tactile
         private Vector2 item_window_1_loc()
         {
             return new Vector2(
-                UnitWindow.loc.X + 4,
+                Config.WINDOW_WIDTH / 2 - 144,
                 ((Config.WINDOW_HEIGHT / 16) -
                     (Global.ActorConfig.NumItems + 1)) * 16 + 8);
         }
 
         private Vector2 item_window_2_loc()
         {
-            return new Vector2(
-                UnitWindow.loc.X + 148,
-                ((Config.WINDOW_HEIGHT / 16) -
-                    (Global.ActorConfig.NumItems + 1)) * 16 + 8);
+            return item_window_1_loc() + new Vector2(144, 0);
         }
 
         public override void refresh()
