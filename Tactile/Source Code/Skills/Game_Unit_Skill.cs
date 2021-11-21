@@ -2040,6 +2040,14 @@ namespace Tactile
             return false;
         }
 
+        public bool HasZoneOfControl()
+        {
+            // Skills: Obstruct
+            if (actor.has_skill("OBSTRUCT"))
+                return true;
+            return false;
+        }
+
         private bool can_rescue_skill()
         {
             // Skills: Drunk

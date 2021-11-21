@@ -22,6 +22,8 @@ namespace Tactile
         protected List<int> Updated_Move_Range_Units = new List<int>();
         protected List<int> Updated_Attack_Range_Units = new List<int>();
         protected List<int> Updated_Staff_Range_Units = new List<int>();
+        private int MoveArrowUnitId = -1;
+        private Pathfinding.UnitMovementMap MoveArrowMap;
         private object Move_Range_Lock = new object();
 
         #region Serialization
@@ -509,10 +511,28 @@ namespace Tactile
         {
             if (Global.game_temp.menu_call || Global.game_state.is_menuing ||
                 (get_scene_map() != null && ((Scene_Map)Global.scene).changing_formation)) return;
+
+            if (MoveArrowUnitId != Global.game_system.Selected_Unit_Id)
+            {
+                MoveArrowUnitId = Global.game_system.Selected_Unit_Id;
+                MoveArrowMap = null;
+            }
+
             if (Global.game_system.Selected_Unit_Id == -1)
+            {
                 Move_Arrow.Clear();
+                MoveArrowUnitId = -1;
+                MoveArrowMap = null;
+            }
             else
             {
+                // Generate a movement map for testing the move arrow
+                if (MoveArrowMap == null)
+                {
+                    MoveArrowMap = new Pathfinding.UnitMovementMap.Builder()
+                        .Build(Global.game_system.Selected_Unit_Id);
+                }
+
                 Game_Unit selected_unit = get_selected_unit();
                 int range = selected_unit.canto_mov;
                 // If the cursor is in the move range
@@ -549,7 +569,6 @@ namespace Tactile
                                 while (j >= i)
                                 {
                                     Move_Arrow_Data loc = Move_Arrow[j];
-                                    Selected_Move_Total -= selected_unit.move_cost(new Vector2(loc.X, loc.Y));
                                     if (Move_Arrow.Count >= 3)
                                         Move_Arrow[Move_Arrow.Count - 2].Frame =
                                             unfix_arrow_turn(Move_Arrow[Move_Arrow.Count - 1].Frame,
@@ -557,17 +576,29 @@ namespace Tactile
                                     Move_Arrow.pop();
                                     j--;
                                 }
+                                // Update move arrow cost
+                                Selected_Move_Total = 0;
+                                for (i = 1; i < Move_Arrow.Count; i++)
+                                {
+                                    Vector2 loc = new Vector2(Move_Arrow[i].X, Move_Arrow[i].Y);
+                                    Selected_Move_Total += MoveArrowMap.TileCost(
+                                        loc, loc) / MoveArrowMap.MoveCostFactor;
+                                    //@Debug: Shouldn't actually ever be true
+                                    // since you can't move past an obstructed tile
+                                    if (MoveArrowMap.Obstructed(loc))
+                                        Selected_Move_Total = Math.Max(Selected_Move_Total, range);
+                                }
                             }
                         }
 
+                        // Check if cursor tile is adjacent to the last move arrow tile
                         bool adjacent = Move_Arrow.Count == 1;
                         if (Move_Arrow.Count > 1)
                         {
-                            Vector2 test_loc = new Vector2(
+                            Vector2 prevLoc = new Vector2(
                                 Move_Arrow[Move_Arrow.Count - 1].X, Move_Arrow[Move_Arrow.Count - 1].Y);
-                            foreach (int[] test in new int[][] {
-                                new int[] { -1, 0 }, new int[] { 1, 0 }, new int[] { 0, -1 }, new int[] { 0, 1 } })
-                                if (test[0] + x == test_loc.X && test[1] + y == test_loc.Y)
+                            foreach (Vector2 test in MoveArrowMap.AdjacentLocations(Global.player.loc))
+                                if (test == prevLoc)
                                 {
                                     adjacent = true;
                                     break;
@@ -575,7 +606,12 @@ namespace Tactile
                         }
                         if (!adjacent)
                         { }
-                        Selected_Move_Total += selected_unit.move_cost(Global.player.loc);
+                        Selected_Move_Total += MoveArrowMap.TileCost(
+                            Global.player.loc, Global.player.loc) / MoveArrowMap.MoveCostFactor;
+                        if (MoveArrowMap.Obstructed(Global.player.loc))
+                            Selected_Move_Total = Math.Max(Selected_Move_Total, range);
+                        // If arrow is too long, or not adjacent
+                        // (Also happens for the first tile of the move arrow)
                         if (Selected_Move_Total > range || !adjacent)
                             reset_move_arrow(Global.player.loc, range);
                         else
@@ -598,12 +634,10 @@ namespace Tactile
             var move_arrow = new List<Move_Arrow_Data>(Move_Arrow);
 #endif
             Move_Arrow.Clear();
-            var map = new Pathfinding.UnitMovementMap.Builder()
-                .Build(Global.game_system.Selected_Unit_Id);
-            List<Vector2> route2 = map.convert_to_motions(
-                map.get_route(target_loc, range));
-            List<Vector2> route = map.convert_to_motions(
-                map.get_reverse_route(target_loc, range));
+            List<Vector2> route2 = MoveArrowMap.convert_to_motions(
+                MoveArrowMap.get_route(target_loc, range));
+            List<Vector2> route = MoveArrowMap.convert_to_motions(
+                MoveArrowMap.get_reverse_route(target_loc, range));
 
             Game_Unit selected_unit = get_selected_unit();
             Vector2 current_loc = selected_unit.loc;
@@ -636,7 +670,10 @@ namespace Tactile
             {
                 Vector2 dir = route.pop();
                 current_loc += dir;
-                Selected_Move_Total += selected_unit.move_cost(current_loc);
+                Selected_Move_Total += MoveArrowMap.TileCost(
+                    current_loc, target_loc) / MoveArrowMap.MoveCostFactor;
+                if (MoveArrowMap.Obstructed(current_loc))
+                    Selected_Move_Total = Math.Max(Selected_Move_Total, range);
                 Move_Arrow.Add(new Move_Arrow_Data((int)current_loc.X, (int)current_loc.Y, move_arrow_facing(dir)));
                 Move_Arrow[Move_Arrow.Count - 2].Frame =
                     fix_arrow_turn(Move_Arrow[Move_Arrow.Count - 1].Frame, Move_Arrow[Move_Arrow.Count - 2].Frame);
@@ -769,6 +806,7 @@ namespace Tactile
                 for (int i = 1; i < Move_Arrow.Count; i++)
                 {
                     Move_Arrow_Data loc = Move_Arrow[i];
+                    //@Yeti: this doesn't check obstruction and can cause issues
                     moveCost += selected_unit.move_cost(new Vector2(loc.X, loc.Y));
                 }
 

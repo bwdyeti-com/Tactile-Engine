@@ -22,6 +22,7 @@ namespace Tactile.Pathfinding
 
         Dictionary<Vector2, int> MoveCosts;
         private Dictionary<Vector2, Unit_Passable> UnitLocs = new Dictionary<Vector2, Unit_Passable>(); // should maybe be an array?
+        private HashSet<Vector2> ObstructionSources = new HashSet<Vector2>();
         private HashSet<Vector2> Doors = new HashSet<Vector2>();
 
         private Game_Unit Unit { get { return Map.units[UnitId]; } }
@@ -57,17 +58,23 @@ namespace Tactile.Pathfinding
                 Vector2 loc = test_unit.pathfinding_loc;
                 if (test_unit != unit && !Map.is_off_map(loc))
                 {
+                    Unit_Passable pass = tile_unit_passability(unit, loc, test_unit);
 #if DEBUG
                     if (!Global.game_system.is_interpreter_running)
                         // if the location is already occupied, problems
                         Debug.Assert(!UnitLocs.ContainsKey(loc), string.Format(
                             "Two units share a location when trying to start pathfinding\n\n{0}\n{1}",
                             unit, test_unit));
-                    UnitLocs[loc] = tile_unit_passability(unit, loc, test_unit);
+                    UnitLocs[loc] = pass;
 #else
                     if (!UnitLocs.ContainsKey(loc))
-                        UnitLocs.Add(loc, tile_unit_passability(unit, loc, test_unit));
+                        UnitLocs.Add(loc, pass);
 #endif
+                    if (pass == Unit_Passable.Blocked && test_unit.HasZoneOfControl())
+                    {
+                        foreach (Vector2 adjacentLoc in AdjacentLocations(loc))
+                            ObstructionSources.Add(adjacentLoc);
+                    }
                 }
             }
 
@@ -183,6 +190,19 @@ namespace Tactile.Pathfinding
             return result;
         }
 
+        public int MoveCostFactor { get { return 10; } }
+
+        public TileData GetTileData(Vector2 loc, Vector2 goalLoc)
+        {
+            bool passable = Passable(loc, goalLoc);
+            int tileCost = -1;
+            if (passable)
+                tileCost = TileCost(loc, goalLoc);
+            bool obstructed = Obstructed(loc, goalLoc);
+
+            return new TileData(passable, tileCost, obstructed);
+        }
+
         public bool Passable(Vector2 loc)
         {
             return terrain_cost(loc) >= 0;
@@ -234,7 +254,7 @@ namespace Tactile.Pathfinding
                     // If the goal should be forced passable
                     if (loc == goalLoc && ForceGoalPassable)
                     {
-                        cost = 10;
+                        cost = this.MoveCostFactor;
                     }
                     // If unit is off map and the tile is impassable,
                     // make it passable but costly so they can always
@@ -242,7 +262,7 @@ namespace Tactile.Pathfinding
                     else if (Map.is_off_map(this.Unit.loc) && Map.is_off_map(loc))
                     {
                         cost = MoveCosts[loc] =
-                            (this.Unit.mov * 2) * 10 * OFF_MAP_PENALTY_MULT;
+                            (this.Unit.mov * 2) * this.MoveCostFactor * OFF_MAP_PENALTY_MULT;
                     }
 
                 }
@@ -258,8 +278,19 @@ namespace Tactile.Pathfinding
             if (UnitLocs.ContainsKey(loc) &&
                     UnitLocs[loc] == Unit_Passable.PassableFullMoveEnemy)
                 terr_cost += Math.Max(1, this.Unit.mov);
-            return terr_cost * 10 *
+            return terr_cost * this.MoveCostFactor *
                 (Map.is_off_map(loc) ? OFF_MAP_PENALTY_MULT : 1);
+        }
+
+        public bool Obstructed(Vector2 loc)
+        {
+            return ObstructionSources.Contains(loc);
+        }
+        public bool Obstructed(Vector2 loc, Vector2 goalLoc)
+        {
+            if (loc == goalLoc)
+                return false;
+            return Obstructed(loc);
         }
 
         public IEnumerable<Vector2> AdjacentLocations(Vector2 loc)
@@ -281,13 +312,13 @@ namespace Tactile.Pathfinding
             int heuristic = 0;
             if (Doors.Contains(loc) && TileCost(loc, goalLoc) < 0)
             {
-                heuristic = (this.Unit.mov + 1) * 10;
+                heuristic = (this.Unit.mov + 1) * this.MoveCostFactor;
             }
 
             // If fog and AI controlled and the unit can't see this tile
             if (Map.fow && Global.game_state.ai_active && !Map.fow_visibility[this.Unit.team].Contains(loc))
                 // Make the tile less desirable for the unit to cross
-                heuristic += this.Unit.mov * 10;
+                heuristic += this.Unit.mov * this.MoveCostFactor;
             return heuristic;
         }
 
@@ -300,11 +331,11 @@ namespace Tactile.Pathfinding
         }
         private int euclidean_dist(Vector2 loc, Vector2 targetLoc)
         {
-            return (int)(Math.Sqrt(Math.Pow(loc.X - targetLoc.X, 2) + Math.Pow(loc.Y - targetLoc.Y, 2)) * 10);
+            return (int)(Math.Sqrt(Math.Pow(loc.X - targetLoc.X, 2) + Math.Pow(loc.Y - targetLoc.Y, 2)) * this.MoveCostFactor);
         }
         private int manhatten_dist(Vector2 loc, Vector2 targetLoc)
         {
-            return (int)(Math.Abs(loc.X - targetLoc.X) + Math.Abs(loc.Y - targetLoc.Y)) * 10;
+            return (int)(Math.Abs(loc.X - targetLoc.X) + Math.Abs(loc.Y - targetLoc.Y)) * this.MoveCostFactor;
         }
 
         public bool RestrictToMap(Vector2 loc, Vector2 goalLoc, bool restrictToPlayable = true)

@@ -8,9 +8,6 @@ namespace TactileLibrary.Pathfinding
 {
     public class Pathfinder<T> where T : IEquatable<T>
     {
-        //@Debug: this should be a property of IMovementMap<>
-        public const int COST_FACTOR = 10;
-
         private IMovementMap<T> Map;
         private Func<bool> ReverseRouteWiggleChance;
         internal int RouteDistance { get; private set; }
@@ -69,7 +66,7 @@ namespace TactileLibrary.Pathfinding
             RouteDistance = 0;
             if (route_found)
             {
-                RouteDistance = closed_list.get_g(last_added) / COST_FACTOR;
+                RouteDistance = closed_list.get_g(last_added) / Map.MoveCostFactor;
                 return closed_list.get_route(last_added);
             }
             return null;
@@ -119,6 +116,9 @@ namespace TactileLibrary.Pathfinding
                             continue;
                         if (Map.InvalidLocation(test_loc, target_loc, restrict_to_map))
                             continue;
+                        // Can't pathfind backwards through obstructed tiles
+                        if (Map.Obstructed(test_loc, target_loc))
+                            continue;
                         check_tile(test_loc, last_added, mov, target_loc,
                             open_list, closed_list);
                     }
@@ -127,7 +127,7 @@ namespace TactileLibrary.Pathfinding
             RouteDistance = 0;
             if (route_found)
             {
-                RouteDistance = closed_list.get_g(last_added) / COST_FACTOR;
+                RouteDistance = closed_list.get_g(last_added) / Map.MoveCostFactor;
                 return closed_list.get_reverse_route(last_added, target_loc);
             }
             return null;
@@ -232,7 +232,7 @@ namespace TactileLibrary.Pathfinding
             RouteDistance = 0;
             if (route_found)
             {
-                return closed_list.get_g(last_added) / COST_FACTOR;
+                return closed_list.get_g(last_added) / Map.MoveCostFactor;
             }
             return new Maybe<int>();
         }
@@ -243,7 +243,7 @@ namespace TactileLibrary.Pathfinding
             
             return closed_list
                 .GetMoveCosts()
-                .ToDictionary(p => p.Key, p => p.Value / COST_FACTOR);
+                .ToDictionary(p => p.Key, p => p.Value / Map.MoveCostFactor);
         }
 
         private void check_tile(
@@ -251,28 +251,36 @@ namespace TactileLibrary.Pathfinding
             OpenList<T> open_list, ClosedListRoute<T> closed_list, bool dijkstras = false, bool use_euclidean_distance = false)
         {
             T prevLoc = closed_list.loc(parent);
-            bool pass = Map.Passable(loc, target_loc);
 
-            if (pass)
+            var tileData = Map.GetTileData(loc, target_loc);
+
+            if (tileData.Passable)
             {
-                int move_cost = Map.TileCost(loc, target_loc);
-                int g = move_cost + closed_list.get_g(parent);
-                if (mov < 0 || g <= mov * COST_FACTOR)
+                int g = tileData.TileCost + closed_list.get_g(parent);
+                // If using a limited move score
+                if (mov >= 0)
                 {
-                    int heuristic = Map.HeuristicPenalty(loc, target_loc, prevLoc);
-                    if (!dijkstras)
-                        heuristic += Map.Distance(loc, target_loc, use_euclidean_distance);
+                    // Return if this tile is too expensive to move into
+                    if (g > mov * Map.MoveCostFactor)
+                        return;
+                    // If obstructed, g is set to the total move score
+                    else if (tileData.Obstructs)
+                        g = Math.Max(g, mov * Map.MoveCostFactor);
+                }
 
-                    int f = g + heuristic;
-                    int on_list = open_list.search(loc);
-                    if (on_list > -1)
-                    {
-                        open_list.repoint(on_list, parent, f, g);
-                    }
-                    else
-                    {
-                        open_list.add_item(loc, parent, f, g, pass);
-                    }
+                int heuristic = Map.HeuristicPenalty(loc, target_loc, prevLoc);
+                if (!dijkstras)
+                    heuristic += Map.Distance(loc, target_loc, use_euclidean_distance);
+
+                int f = g + heuristic;
+                int on_list = open_list.search(loc);
+                if (on_list > -1)
+                {
+                    open_list.repoint(on_list, parent, f, g);
+                }
+                else
+                {
+                    open_list.add_item(loc, parent, f, g, tileData.Passable);
                 }
             }
         }
@@ -295,7 +303,7 @@ namespace TactileLibrary.Pathfinding
                 cost += Map.TileCost(targetLoc, goalLoc);
             }
 
-            return cost / COST_FACTOR;
+            return cost / Map.MoveCostFactor;
         }
     }
 }
