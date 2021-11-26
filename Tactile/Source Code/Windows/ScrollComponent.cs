@@ -89,6 +89,16 @@ namespace Tactile.Windows
         public bool AtTop { get { return this.offset.Y <= this.MinOffset.Y; } }
         public bool AtBottom { get { return this.offset.Y >= this.MaxOffset.Y; } }
 
+        public virtual bool IsScrolling
+        {
+            get
+            {
+                Vector2 scrollElement = this.offset / ElementSize;
+                return ScrollSpeed.X != 0 || ScrollSpeed.Y != 0 ||
+                    scrollElement.X % 1 != 0 || scrollElement.Y % 1 != 0;
+            }
+        }
+
         /// <summary>
         /// Returns the distance in elements the index is outside of the visible area.
         /// </summary>
