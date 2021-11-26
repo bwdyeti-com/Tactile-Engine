@@ -22,6 +22,7 @@ namespace Tactile.Windows
         public int Index { get; private set; }
         protected Vector2 ScrollSpeed = Vector2.Zero;
         protected bool ScrollWheel = false;
+        protected bool ResolveToIndex = false;
 
         private float MaxScrollSpeed = 4;
         private float ScrollFriction = 0.95f;
@@ -52,6 +53,12 @@ namespace Tactile.Windows
                     result.X = 0;
                 if (!Direction.HasFlag(ScrollDirections.Vertical))
                     result.Y = 0;
+                // Ceil to element scale if resolving to index
+                if (ResolveToIndex)
+                {
+                    result.X = (float)Math.Ceiling(result.X / ElementSize.X) * ElementSize.X;
+                    result.Y = (float)Math.Ceiling(result.Y / ElementSize.Y) * ElementSize.Y;
+                }
                 return result;
             }
         }
@@ -150,6 +157,13 @@ namespace Tactile.Windows
             ScrollFriction = Math.Min(0.999f, scrollFriction);
         }
 
+        /// <summary>
+        /// Set if the scroll should always end up even with an index.
+        /// </summary>
+        public void SetResolveToIndex(bool value)
+        {
+            ResolveToIndex = value;
+        }
 
         protected virtual void SetOffset(Vector2 offset)
         {
@@ -273,6 +287,10 @@ namespace Tactile.Windows
                 gotUserInput |= UpdateHorizontalInput(active, maxSpeed);
             if (Direction.HasFlag(ScrollDirections.Vertical))
                 gotUserInput |= UpdateVerticalInput(active, maxSpeed);
+
+            // If the player didn't input anything, check for resolving the index
+            if (!gotUserInput)
+                UpdateResolvingIndex();
         }
 
         protected virtual bool UpdateHorizontalInput(bool active, float maxSpeed)
@@ -487,6 +505,161 @@ namespace Tactile.Windows
                     ScrollWheel = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Adjusts scrolling speed so that the scroll position will end up
+        /// aligned with an element once it stops moving.
+        /// </summary>
+        protected void UpdateResolvingIndex()
+        {
+            if (ResolveToIndex)
+            {
+                // If not moving and already resolved to an index
+                if (ScrollSpeed.LengthSquared() < 0.001f &&
+                        (this.offset.X / ElementSize.X) % 1 == 0 &&
+                        (this.offset.Y / ElementSize.Y) % 1 == 0)
+                    // Short circuit out early if we're all good
+                    return;
+
+                Vector2 absRemainingScroll = GetAbsRemainingScroll();
+                Vector2 remainingScroll = absRemainingScroll;
+                if (ScrollSpeed.X < 0)
+                    remainingScroll.X *= -1;
+                if (ScrollSpeed.Y < 0)
+                    remainingScroll.Y *= -1;
+
+                Vector2 resultOffset = Vector2.Clamp(this.offset + remainingScroll,
+                    this.MinOffset, this.MaxOffset);
+                Vector2 scrollElement = resultOffset / ElementSize;
+                // Not scrolling too fast, and still scrolling at all or misaligned
+                bool xScrollEnding = absRemainingScroll.X < ElementSize.X &&
+                    (absRemainingScroll.X > 0 || scrollElement.X % 1 != 0);
+                bool yScrollEnding = absRemainingScroll.Y < ElementSize.Y &&
+                    (absRemainingScroll.Y > 0 || scrollElement.Y % 1 != 0);
+
+                if (xScrollEnding || yScrollEnding)
+                {
+                    // Get the scroll we want to end up on
+                    Vector2 targetOffset = new Vector2(
+                        (float)Math.Round(scrollElement.X),
+                        (float)Math.Round(scrollElement.Y));
+                    targetOffset *= ElementSize;
+
+                    Vector2 targetDistance = targetOffset - this.offset;
+                    // If not going far enough, or going the wrong direction
+                    if (targetDistance.X > 0 ?
+                        targetDistance.X > remainingScroll.X : targetDistance.X < remainingScroll.X)
+                    {
+                        if (targetDistance.X > 0)
+                            ScrollSpeed.X = Math.Max(1, targetDistance.X / 4f);
+                        else
+                            ScrollSpeed.X = Math.Min(-1, targetDistance.X / 4f);
+                        remainingScroll.X = GetRemainingScroll().X;
+                    }
+                    if (targetDistance.Y > 0 ?
+                        targetDistance.Y > remainingScroll.Y : targetDistance.Y < remainingScroll.Y)
+                    {
+                        if (targetDistance.Y > 0)
+                            ScrollSpeed.Y = Math.Max(1, targetDistance.Y / 4f);
+                        else
+                            ScrollSpeed.Y = Math.Min(-1, targetDistance.Y / 4f);
+                        remainingScroll.Y = GetRemainingScroll().Y;
+                    }
+
+                    // If scrolling too far
+                    if (targetDistance.X > 0 ?
+                        targetDistance.X < remainingScroll.X : targetDistance.X > remainingScroll.X)
+                    {
+                        ScrollSpeed.X *= targetDistance.X / remainingScroll.X;
+                        if (Math.Abs(targetDistance.X) < 1)
+                            ScrollSpeed.X = targetDistance.X;
+                        else if (Math.Abs(ScrollSpeed.X) < 1)
+                            ScrollSpeed.X = targetDistance.X > 0 ? 1 : -1;
+                    }
+                    if (targetDistance.Y > 0 ?
+                        targetDistance.Y < remainingScroll.Y : targetDistance.Y > remainingScroll.Y)
+                    {
+                        float ratio = targetDistance.Y / remainingScroll.Y;
+                        ratio = (float)Math.Pow(ratio, 0.67f);
+                        ScrollSpeed.Y *= ratio;
+                        // If close enough, set to remaining distance
+                        if (Math.Abs(targetDistance.Y) < 1)
+                            ScrollSpeed.Y = targetDistance.Y;
+                        else if (Math.Abs(ScrollSpeed.Y) < 1)
+                            ScrollSpeed.Y = targetDistance.Y > 0 ? 1 : -1;
+                    }
+                }
+            }
+        }
+
+        private Vector2 GetAbsRemainingScroll()
+        {
+            if (Input.ControlScheme == ControlSchemes.Buttons)
+            {
+                return GetRemainingScroll(ScrollSpeed, false);
+            }
+            else if (Input.ControlScheme == ControlSchemes.Mouse)
+            {
+                if (ScrollWheel)
+                {
+                    float friction = (float)Math.Pow(ScrollFriction, 2f);
+                    if (Direction == ScrollDirections.Horizontal)
+                        return GetRemainingScroll(new Vector2(ScrollSpeed.X, 0), true, friction);
+                    else
+                        return GetRemainingScroll(new Vector2(0, ScrollSpeed.Y), true, friction);
+                }
+                else
+                {
+                    return GetRemainingScroll(ScrollSpeed, false);
+                }
+            }
+            else
+            {
+                return GetRemainingScroll(ScrollSpeed, true, ScrollFriction);
+            }
+        }
+        private Vector2 GetRemainingScroll()
+        {
+            Vector2 remainingScroll = GetAbsRemainingScroll();
+            if (ScrollSpeed.X < 0)
+                remainingScroll.X *= -1;
+            if (ScrollSpeed.Y < 0)
+                remainingScroll.Y *= -1;
+            return remainingScroll;
+        }
+
+        /// <summary>
+        /// Determines how much further scrolling will go.
+        /// Returns the absolute value of the result.
+        /// </summary>
+        /// <param name="speed">The current scroll speed.</param>
+        /// <param name="useFriction">Whether friction is used for deceleration.</param>
+        private static Vector2 GetRemainingScroll(Vector2 speed, bool useFriction, float friction = 0.5f)
+        {
+            Vector2 result = Vector2.Zero;
+            speed = new Vector2(Math.Abs(speed.X), Math.Abs(speed.Y));
+
+            if (useFriction)
+            {
+                if (speed.X > 0.1f)
+                {
+                    float steps = 1 + (float)Math.Max(0, Math.Log(1.0f / speed.X, friction));
+                    result.X = (float)(speed.X * (1 - Math.Pow(friction, steps)) / (1 - friction));
+                }
+                if (speed.Y > 0.1f)
+                {
+                    float steps = 1 + (float)Math.Max(0, Math.Log(1.0f / speed.Y, friction));
+                    result.Y = (float)(speed.Y * (1 - Math.Pow(friction, steps)) / (1 - friction));
+                }
+            }
+            else
+            {
+                result.X = ((speed.X + 1) * speed.X) / 2;
+                result.Y = ((speed.Y + 1) * speed.Y) / 2;
+            }
+
+            return result;
         }
 
 #if DEBUG
