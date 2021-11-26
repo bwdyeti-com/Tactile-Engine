@@ -256,13 +256,16 @@ namespace Tactile.Windows
 
         private void UpdateInput(bool active, float maxSpeed)
         {
+            // Called functions return true if the user input something that
+            // affects scroll position
+            bool gotUserInput = false;
             if (Direction.HasFlag(ScrollDirections.Horizontal))
-                UpdateHorizontalInput(active, maxSpeed);
+                gotUserInput |= UpdateHorizontalInput(active, maxSpeed);
             if (Direction.HasFlag(ScrollDirections.Vertical))
-                UpdateVerticalInput(active, maxSpeed);
+                gotUserInput |= UpdateVerticalInput(active, maxSpeed);
         }
 
-        protected virtual void UpdateHorizontalInput(bool active, float maxSpeed)
+        protected virtual bool UpdateHorizontalInput(bool active, float maxSpeed)
         {
             if (active)
             {
@@ -273,7 +276,7 @@ namespace Tactile.Windows
                         ScrollSpeed.X = 0;
                     if (ScrollSpeed.X > -maxSpeed)
                         ScrollSpeed.X--;
-                    return;
+                    return true;
                 }
                 else if (Global.Input.pressed(Inputs.Right))
                 {
@@ -281,20 +284,20 @@ namespace Tactile.Windows
                         ScrollSpeed.X = 0;
                     if (ScrollSpeed.X < maxSpeed)
                         ScrollSpeed.X++;
-                    return;
+                    return true;
                 }
                 // Mouse scroll wheel (if only horizontal scrolling is allowed)
                 else if (Direction == ScrollDirections.Horizontal && Global.Input.mouseScroll < 0)
                 {
                     ScrollSpeed.X += maxSpeed / 5;
                     ScrollWheel = true;
-                    return;
+                    return true;
                 }
                 else if (Direction == ScrollDirections.Horizontal && Global.Input.mouseScroll > 0)
                 {
                     ScrollSpeed.X += -maxSpeed / 5;
                     ScrollWheel = true;
-                    return;
+                    return true;
                 }
                 // Mouse
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
@@ -304,7 +307,7 @@ namespace Tactile.Windows
                     // If only horizontal
                     if (Direction == ScrollDirections.Horizontal)
                         ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     RightMouseOver != null && RightMouseOver.MouseOver())
@@ -313,18 +316,19 @@ namespace Tactile.Windows
                     // If only horizontal
                     if (Direction == ScrollDirections.Horizontal)
                         ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 // Touch gestures
                 else if (Global.Input.gesture_rectangle(
                     TouchGestures.HorizontalDrag, this.ViewAreaRectangle, false))
                 {
                     ScrollSpeed.X = -(int)Global.Input.horizontalDragVector.X;
-                    return;
+                    return true;
                 }
             }
 
             UpdateHorizontalScroll();
+            return false;
         }
         protected void UpdateHorizontalScroll()
         {
@@ -360,7 +364,7 @@ namespace Tactile.Windows
             }
         }
 
-        protected virtual void UpdateVerticalInput(bool active, float maxSpeed)
+        protected virtual bool UpdateVerticalInput(bool active, float maxSpeed)
         {
             if (active)
             {
@@ -371,7 +375,7 @@ namespace Tactile.Windows
                         ScrollSpeed.Y = 0;
                     if (ScrollSpeed.Y > -maxSpeed)
                         ScrollSpeed.Y--;
-                    return;
+                    return true;
                 }
                 else if (Global.Input.pressed(Inputs.Down))
                 {
@@ -379,20 +383,20 @@ namespace Tactile.Windows
                         ScrollSpeed.Y = 0;
                     if (ScrollSpeed.Y < maxSpeed)
                         ScrollSpeed.Y++;
-                    return;
+                    return true;
                 }
                 // Mouse scroll wheel
                 else if (Global.Input.mouseScroll < 0)
                 {
                     ScrollSpeed.Y += maxSpeed / 5;
                     ScrollWheel = true;
-                    return;
+                    return true;
                 }
                 else if (Global.Input.mouseScroll > 0)
                 {
                     ScrollSpeed.Y += -maxSpeed / 5;
                     ScrollWheel = true;
-                    return;
+                    return true;
                 }
                 // Mouse
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
@@ -400,28 +404,28 @@ namespace Tactile.Windows
                 {
                     ScrollSpeed.Y = -MaxScrollSpeed;
                     ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     DownMouseOver != null && DownMouseOver.MouseOver())
                 {
                     ScrollSpeed.Y = MaxScrollSpeed;
                     ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     Scrollbar != null && Scrollbar.UpHeld)
                 {
                     ScrollSpeed.Y = -MaxScrollSpeed;
                     ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     Scrollbar != null && Scrollbar.DownHeld)
                 {
                     ScrollSpeed.Y = MaxScrollSpeed;
                     ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     Scrollbar != null && Scrollbar.Scrubbing)
@@ -429,18 +433,19 @@ namespace Tactile.Windows
                     ScrollSpeed.Y = 0;
                     this.offset.Y = Scrollbar.ScrubPercent * (this.MaxOffset.Y - this.MinOffset.Y);
                     ScrollWheel = false;
-                    return;
+                    return true;
                 }
                 // Touch gestures
                 else if (Global.Input.gesture_rectangle(
                     TouchGestures.VerticalDrag, this.ViewAreaRectangle, false))
                 {
                     ScrollSpeed.Y = -(int)Global.Input.verticalDragVector.Y;
-                    return;
+                    return true;
                 }
             }
 
             UpdateVerticalScroll();
+            return false;
         }
         protected void UpdateVerticalScroll()
         {
