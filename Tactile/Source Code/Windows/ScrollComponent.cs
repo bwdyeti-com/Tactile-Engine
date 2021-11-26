@@ -133,10 +133,11 @@ namespace Tactile.Windows
         /// <summary>
         /// Set the parameters managing scroll speed.
         /// </summary>
+        /// <param name="scrollFriction">Multiplied by scroll speed as frition. Maximum of 0.999f.</param>
         public void SetScrollSpeeds(float maxScrollSpeed, float scrollFriction)
         {
             MaxScrollSpeed = maxScrollSpeed;
-            ScrollFriction = scrollFriction;
+            ScrollFriction = Math.Min(0.999f, scrollFriction);
         }
 
 
