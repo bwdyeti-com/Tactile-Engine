@@ -60,7 +60,7 @@ namespace Tactile
             Scroll = new ScrollComponent(
                 new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT),
                 new Vector2(Config.WINDOW_WIDTH, Window_Message.FontData.CharHeight),
-                ScrollDirections.Vertical);
+                ScrollAxes.Vertical);
             Scroll.SetScrollSpeeds(
                 Config.CONVO_BACKLOG_MAX_SCROLL_SPEED,
                 Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);

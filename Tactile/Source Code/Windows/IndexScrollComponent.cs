@@ -23,7 +23,7 @@ namespace Tactile.Windows
                 }
             }
         }
-        public IndexScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollDirections direction)
+        public IndexScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollAxes direction)
             : base(viewAreaSize, elementSize, direction) { }
 
         public void SetBuffers(Rectangle buffers)
@@ -106,13 +106,13 @@ namespace Tactile.Windows
                         IndexedScroll = true;
                     }
                     // Mouse scroll wheel (if only horizontal scrolling is allowed)
-                    if (Direction == ScrollDirections.Horizontal && Global.Input.mouseScroll < 0)
+                    if (Direction == ScrollAxes.Horizontal && Global.Input.mouseScroll < 0)
                     {
                         OffsetTarget.X++;
                         IndexedScroll = true;
                         ScrollWheel = true;
                     }
-                    else if (Direction == ScrollDirections.Horizontal && Global.Input.mouseScroll > 0)
+                    else if (Direction == ScrollAxes.Horizontal && Global.Input.mouseScroll > 0)
                     {
                         OffsetTarget.X--;
                         IndexedScroll = true;

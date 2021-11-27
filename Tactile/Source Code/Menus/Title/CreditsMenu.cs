@@ -78,7 +78,7 @@ namespace Tactile.Menus.Title
             Scroll = new ScrollComponent(
                 new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) - BASE_OFFSET * 2,
                 new Vector2(Config.WINDOW_WIDTH - (BASE_OFFSET.X * 2), charHeight),
-                ScrollDirections.Vertical);
+                ScrollAxes.Vertical);
             Scroll.SetScrollSpeeds(
                 MAX_SCROLL,
                 Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);

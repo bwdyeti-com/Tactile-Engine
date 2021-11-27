@@ -5,7 +5,7 @@ using Tactile.Windows.UserInterface;
 
 namespace Tactile.Windows
 {
-    enum ScrollDirections : byte
+    enum ScrollAxes : byte
     {
         Vertical =      1 << 0,
         Horizontal =    1 << 1,
@@ -16,7 +16,7 @@ namespace Tactile.Windows
     {
         private Vector2 ViewAreaSize;
         protected Vector2 ElementSize { get; private set; }
-        protected ScrollDirections Direction { get; private set; }
+        protected ScrollAxes Direction { get; private set; }
         protected Vector2 ElementLengths { get; private set; }
         protected Vector2 TopIndex { get; private set; }
         public int Index { get; private set; }
@@ -49,9 +49,9 @@ namespace Tactile.Windows
             {
                 Vector2 result = Vector2.Max(new Vector2(0, 0), this.ScrollAreaSize - ViewAreaSize);
                 // If necessary restrict to one axis
-                if (!Direction.HasFlag(ScrollDirections.Horizontal))
+                if (!Direction.HasFlag(ScrollAxes.Horizontal))
                     result.X = 0;
-                if (!Direction.HasFlag(ScrollDirections.Vertical))
+                if (!Direction.HasFlag(ScrollAxes.Vertical))
                     result.Y = 0;
                 // Ceil to element scale if resolving to index
                 if (ResolveToIndex)
@@ -81,7 +81,7 @@ namespace Tactile.Windows
             {
                 switch (Direction)
                 {
-                    case ScrollDirections.Horizontal:
+                    case ScrollAxes.Horizontal:
                         int rows = Math.Max(1, (int)ElementLengths.Y);
                         return new Vector2(Index / rows, Index % rows);
                     default:
@@ -131,7 +131,7 @@ namespace Tactile.Windows
             }
         }
 
-        public ScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollDirections direction)
+        public ScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollAxes direction)
         {
             ElementLengths = Vector2.One;
 
@@ -201,7 +201,7 @@ namespace Tactile.Windows
                 int indexOffset;
                 switch (Direction)
                 {
-                    case ScrollDirections.Horizontal:
+                    case ScrollAxes.Horizontal:
                         int rows = Math.Max(1, (int)ElementLengths.Y);
                         indexOffset = rows * ox + oy;
                         break;
@@ -283,9 +283,9 @@ namespace Tactile.Windows
             // Called functions return true if the user input something that
             // affects scroll position
             bool gotUserInput = false;
-            if (Direction.HasFlag(ScrollDirections.Horizontal))
+            if (Direction.HasFlag(ScrollAxes.Horizontal))
                 gotUserInput |= UpdateHorizontalInput(active, maxSpeed);
-            if (Direction.HasFlag(ScrollDirections.Vertical))
+            if (Direction.HasFlag(ScrollAxes.Vertical))
                 gotUserInput |= UpdateVerticalInput(active, maxSpeed);
 
             // If the player didn't input anything, check for resolving the index
@@ -315,13 +315,13 @@ namespace Tactile.Windows
                     return true;
                 }
                 // Mouse scroll wheel (if only horizontal scrolling is allowed)
-                else if (Direction == ScrollDirections.Horizontal && Global.Input.mouseScroll < 0)
+                else if (Direction == ScrollAxes.Horizontal && Global.Input.mouseScroll < 0)
                 {
                     ScrollSpeed.X += maxSpeed / 5;
                     ScrollWheel = true;
                     return true;
                 }
-                else if (Direction == ScrollDirections.Horizontal && Global.Input.mouseScroll > 0)
+                else if (Direction == ScrollAxes.Horizontal && Global.Input.mouseScroll > 0)
                 {
                     ScrollSpeed.X += -maxSpeed / 5;
                     ScrollWheel = true;
@@ -333,7 +333,7 @@ namespace Tactile.Windows
                 {
                     ScrollSpeed.X = -MaxScrollSpeed;
                     // If only horizontal
-                    if (Direction == ScrollDirections.Horizontal)
+                    if (Direction == ScrollAxes.Horizontal)
                         ScrollWheel = false;
                     return true;
                 }
@@ -342,7 +342,7 @@ namespace Tactile.Windows
                 {
                     ScrollSpeed.X = MaxScrollSpeed;
                     // If only horizontal
-                    if (Direction == ScrollDirections.Horizontal)
+                    if (Direction == ScrollAxes.Horizontal)
                         ScrollWheel = false;
                     return true;
                 }
@@ -370,7 +370,7 @@ namespace Tactile.Windows
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse)
                 {
-                    if (Direction == ScrollDirections.Horizontal && ScrollWheel)
+                    if (Direction == ScrollAxes.Horizontal && ScrollWheel)
                         ScrollSpeed.X *= (float)Math.Pow(
                             ScrollFriction, 2f);
                     else
@@ -386,7 +386,7 @@ namespace Tactile.Windows
                 {
                     ScrollSpeed.X = 0;
                     // If only horizontal
-                    if (Direction == ScrollDirections.Horizontal)
+                    if (Direction == ScrollAxes.Horizontal)
                         ScrollWheel = false;
                 }
             }
@@ -604,7 +604,7 @@ namespace Tactile.Windows
                 if (ScrollWheel)
                 {
                     float friction = (float)Math.Pow(ScrollFriction, 2f);
-                    if (Direction == ScrollDirections.Horizontal)
+                    if (Direction == ScrollAxes.Horizontal)
                         return GetRemainingScroll(new Vector2(ScrollSpeed.X, 0), true, friction);
                     else
                         return GetRemainingScroll(new Vector2(0, ScrollSpeed.Y), true, friction);

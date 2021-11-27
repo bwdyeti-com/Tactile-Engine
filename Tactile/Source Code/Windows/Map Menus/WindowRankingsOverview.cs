@@ -199,7 +199,7 @@ namespace Tactile.Windows.Map
             Scroll = new IndexScrollComponent(
                 new Vector2(Config.WINDOW_WIDTH - DATA_OFFSET.X * 2, ROWS * CharHeight),
                 new Vector2(COLUMN_WIDTH, CharHeight),
-                ScrollDirections.Horizontal);
+                ScrollAxes.Horizontal);
             Scroll.SetScrollSpeeds(
                 SCROLL_SPEED,
                 Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);
