@@ -96,13 +96,44 @@ namespace Tactile.Windows
         public bool AtTop { get { return this.offset.Y <= this.MinOffset.Y; } }
         public bool AtBottom { get { return this.offset.Y >= this.MaxOffset.Y; } }
 
-        public virtual bool IsScrolling
+        public bool IsScrolling
         {
             get
             {
-                Vector2 scrollElement = this.offset / ElementSize;
-                return ScrollSpeed.X != 0 || ScrollSpeed.Y != 0 ||
-                    scrollElement.X % 1 != 0 || scrollElement.Y % 1 != 0;
+                if (ResolveToIndex)
+                {
+                    Vector2 scrollElement = this.offset / ElementSize;
+                    Vector2 targetOffset = new Vector2(
+                        (float)Math.Round(scrollElement.X),
+                        (float)Math.Round(scrollElement.Y));
+
+                    if (scrollElement != targetOffset)
+                        return true;
+                }
+
+                return this.ScrollDirection != DirectionFlags.None;
+            }
+        }
+        /// <summary>
+        /// Returns the direction actively being scrolling in.
+        /// </summary>
+        public virtual DirectionFlags ScrollDirection
+        {
+            get
+            {
+                DirectionFlags result = DirectionFlags.None;
+
+                if (ScrollSpeed.X < 0 && !this.AtLeft)
+                    result |= DirectionFlags.Left;
+                else if (ScrollSpeed.X > 0 && !this.AtRight)
+                    result |= DirectionFlags.Right;
+
+                if (ScrollSpeed.Y < 0 && !this.AtTop)
+                    result |= DirectionFlags.Up;
+                else if (ScrollSpeed.Y > 0 && !this.AtBottom)
+                    result |= DirectionFlags.Down;
+
+                return result;
             }
         }
 

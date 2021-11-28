@@ -9,20 +9,34 @@ namespace Tactile.Windows
         private bool IndexedScroll = true;
         private Rectangle Buffers = new Rectangle(1, 1, 2, 2);
 
-        public override bool IsScrolling
+        public override DirectionFlags ScrollDirection
         {
             get
             {
                 if (IndexedScroll)
                 {
-                    return this.offset != OffsetTarget * ElementSize;
+                    DirectionFlags result = DirectionFlags.None;
+                    Vector2 target = OffsetTarget * ElementSize;
+
+                    if (this.offset.X > target.X && !this.AtLeft)
+                        result |= DirectionFlags.Left;
+                    else if (this.offset.X < target.X && !this.AtRight)
+                        result |= DirectionFlags.Right;
+
+                    if (this.offset.Y > target.Y && !this.AtTop)
+                        result |= DirectionFlags.Up;
+                    else if (this.offset.Y < target.Y && !this.AtBottom)
+                        result |= DirectionFlags.Down;
+
+                    return result;
                 }
                 else
                 {
-                    return base.IsScrolling;
+                    return base.ScrollDirection;
                 }
             }
         }
+
         public IndexScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollAxes direction)
             : base(viewAreaSize, elementSize, direction) { }
 
