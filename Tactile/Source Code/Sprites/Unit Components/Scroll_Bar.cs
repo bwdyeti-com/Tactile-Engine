@@ -14,6 +14,7 @@ namespace Tactile
         public bool DownHeld { get; private set; }
         public bool UpHeld { get; private set; }
         public bool Scrubbing { get; private set; }
+        public float ScrubPercent { get; private set; }
         protected int Scroll;
         protected bool Up_Arrow_Visible, Down_Arrow_Visible;
 
@@ -42,22 +43,6 @@ namespace Tactile
         }
 
         private int FillHeight { get { return Height * Items_At_Once / Max_Items; } }
-
-        public Maybe<float> ScrubPercent
-        {
-            get
-            {
-                if (!Scrubbing)
-                    return Maybe<float>.Nothing;
-
-                int height = this.BarRect.Height - this.FillHeight;
-                if (height <= 0)
-                    return 0f;
-
-                float percent = (Global.Input.mousePosition.Y - (this.FillHeight / 2 + this.BarRect.Y)) / (float)height;
-                return MathHelper.Clamp(percent, 0f, 1f);
-            }
-        }
         #endregion
 
         public void moving_up()
@@ -105,7 +90,11 @@ namespace Tactile
 
             Vector2 loc = (this.loc + this.draw_offset) - draw_offset;
             Rectangle up_arrow_rect = this.UpArrowRect;
+            up_arrow_rect.Offset((int)-draw_offset.X, (int)-draw_offset.Y);
             Rectangle down_arrow_rect = this.DownArrowRect;
+            down_arrow_rect.Offset((int)-draw_offset.X, (int)-draw_offset.Y);
+            Rectangle barRect = this.BarRect;
+            barRect.Offset((int)-draw_offset.X, (int)-draw_offset.Y);
 
             // Scrubbing
             if (Scrubbing)
@@ -117,10 +106,12 @@ namespace Tactile
                 }
             }
             else if (Global.Input.mouse_down_rectangle(
-                    MouseButtons.Left, this.BarRect, true))
+                    MouseButtons.Left, barRect, true))
             {
                 Scrubbing = true;
             }
+            if (Scrubbing)
+                RefreshScrubPercent(barRect);
 
             // Up Arrow clicked
             if (Global.Input.mouseScroll > 0 ||
@@ -162,6 +153,18 @@ namespace Tactile
                     TouchGestures.VerticalDrag, down_arrow_rect, false))
             {
                 DownHeld = true;
+            }
+        }
+
+        private void RefreshScrubPercent(Rectangle barRect)
+        {
+            int height = barRect.Height - this.FillHeight;
+            if (height <= 0)
+                ScrubPercent = 0f;
+            else
+            {
+                float percent = (Global.Input.mousePosition.Y - (this.FillHeight / 2 + barRect.Y)) / (float)height;
+                ScrubPercent = MathHelper.Clamp(percent, 0f, 1f);
             }
         }
 
