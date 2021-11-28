@@ -300,6 +300,18 @@ namespace Tactile.Windows
                 this.offset = this.IntOffset;
 
             UpdateTopIndex();
+
+            if (Scrollbar != null)
+            {
+                DirectionFlags dir = this.ScrollDirection;
+                if (Direction != ScrollAxes.Horizontal)
+                {
+                    if (dir.HasFlag(DirectionFlags.Up))
+                        Scrollbar.moving_up();
+                    else if (dir.HasFlag(DirectionFlags.Down))
+                        Scrollbar.moving_down();
+                }
+            }
         }
 
         private void UpdateTopIndex()
