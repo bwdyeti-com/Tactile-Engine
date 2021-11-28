@@ -87,11 +87,11 @@ namespace Tactile.Windows
                 ResetOffsetTarget();
         }
 
-        protected override bool UpdateHorizontalInput(bool active, float maxSpeed)
+        protected override bool UpdateHorizontalInput(bool active, float baseSpeed, float maxSpeed)
         {
             if (Input.ControlScheme == ControlSchemes.Touch)
             {
-                bool result = base.UpdateHorizontalInput(active, maxSpeed);
+                bool result = base.UpdateHorizontalInput(active, baseSpeed, maxSpeed);
                 IndexedScroll = false;
                 return result;
             }
@@ -136,7 +136,7 @@ namespace Tactile.Windows
                     else if (Input.ControlScheme == ControlSchemes.Mouse &&
                         LeftMouseOver != null && LeftMouseOver.MouseOver())
                     {
-                        ScrollSpeed.X = -maxSpeed / 5f;
+                        ScrollSpeed.X = -baseSpeed;
                         IndexedScroll = false;
                         ScrollWheel = false;
                         return true;
@@ -144,7 +144,7 @@ namespace Tactile.Windows
                     else if (Input.ControlScheme == ControlSchemes.Mouse &&
                         RightMouseOver != null && RightMouseOver.MouseOver())
                     {
-                        ScrollSpeed.X = maxSpeed / 5f;
+                        ScrollSpeed.X = baseSpeed;
                         IndexedScroll = false;
                         ScrollWheel = false;
                         return true;
@@ -176,11 +176,11 @@ namespace Tactile.Windows
             }
         }
 
-        protected override bool UpdateVerticalInput(bool active, float maxSpeed)
+        protected override bool UpdateVerticalInput(bool active, float baseSpeed, float maxSpeed)
         {
             if (Input.ControlScheme == ControlSchemes.Touch)
             {
-                bool result = base.UpdateVerticalInput(active, maxSpeed);
+                bool result = base.UpdateVerticalInput(active, baseSpeed, maxSpeed);
                 IndexedScroll = false;
                 return result;
             }
@@ -225,7 +225,7 @@ namespace Tactile.Windows
                     else if (Input.ControlScheme == ControlSchemes.Mouse &&
                         UpMouseOver != null && UpMouseOver.MouseOver())
                     {
-                        ScrollSpeed.Y = -maxSpeed / 5f;
+                        ScrollSpeed.Y = -baseSpeed;
                         IndexedScroll = false;
                         ScrollWheel = false;
                         return true;
@@ -233,7 +233,7 @@ namespace Tactile.Windows
                     else if (Input.ControlScheme == ControlSchemes.Mouse &&
                         DownMouseOver != null && DownMouseOver.MouseOver())
                     {
-                        ScrollSpeed.Y = maxSpeed / 5f;
+                        ScrollSpeed.Y = baseSpeed;
                         IndexedScroll = false;
                         ScrollWheel = false;
                         return true;

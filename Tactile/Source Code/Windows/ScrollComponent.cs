@@ -287,7 +287,7 @@ namespace Tactile.Windows
                     maxSpeed = Math.Max(maxSpeed, Config.WINDOW_HEIGHT);
             }
 
-            UpdateInput(active, maxSpeed);
+            UpdateInput(active, MaxScrollSpeed, maxSpeed);
 
             // Clamp to max speed
             ScrollSpeed.X = MathHelper.Clamp(ScrollSpeed.X, -maxSpeed, maxSpeed);
@@ -321,22 +321,22 @@ namespace Tactile.Windows
                 this.offset.Y / ElementSize.Y);
         }
 
-        private void UpdateInput(bool active, float maxSpeed)
+        private void UpdateInput(bool active, float baseSpeed, float maxSpeed)
         {
             // Called functions return true if the user input something that
             // affects scroll position
             bool gotUserInput = false;
             if (Direction.HasFlag(ScrollAxes.Horizontal))
-                gotUserInput |= UpdateHorizontalInput(active, maxSpeed);
+                gotUserInput |= UpdateHorizontalInput(active, baseSpeed, maxSpeed);
             if (Direction.HasFlag(ScrollAxes.Vertical))
-                gotUserInput |= UpdateVerticalInput(active, maxSpeed);
+                gotUserInput |= UpdateVerticalInput(active, baseSpeed, maxSpeed);
 
             // If the player didn't input anything, check for resolving the index
             if (!gotUserInput)
                 UpdateResolvingIndex();
         }
 
-        protected virtual bool UpdateHorizontalInput(bool active, float maxSpeed)
+        protected virtual bool UpdateHorizontalInput(bool active, float baseSpeed, float maxSpeed)
         {
             if (active)
             {
@@ -374,7 +374,7 @@ namespace Tactile.Windows
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     LeftMouseOver != null && LeftMouseOver.MouseOver())
                 {
-                    ScrollSpeed.X = -MaxScrollSpeed;
+                    ScrollSpeed.X = -baseSpeed;
                     // If only horizontal
                     if (Direction == ScrollAxes.Horizontal)
                         ScrollWheel = false;
@@ -383,7 +383,7 @@ namespace Tactile.Windows
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     RightMouseOver != null && RightMouseOver.MouseOver())
                 {
-                    ScrollSpeed.X = MaxScrollSpeed;
+                    ScrollSpeed.X = baseSpeed;
                     // If only horizontal
                     if (Direction == ScrollAxes.Horizontal)
                         ScrollWheel = false;
@@ -435,7 +435,7 @@ namespace Tactile.Windows
             }
         }
 
-        protected virtual bool UpdateVerticalInput(bool active, float maxSpeed)
+        protected virtual bool UpdateVerticalInput(bool active, float baseSpeed, float maxSpeed)
         {
             if (active)
             {
@@ -473,28 +473,28 @@ namespace Tactile.Windows
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     UpMouseOver != null && UpMouseOver.MouseOver())
                 {
-                    ScrollSpeed.Y = -MaxScrollSpeed;
+                    ScrollSpeed.Y = -baseSpeed;
                     ScrollWheel = false;
                     return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     DownMouseOver != null && DownMouseOver.MouseOver())
                 {
-                    ScrollSpeed.Y = MaxScrollSpeed;
+                    ScrollSpeed.Y = baseSpeed;
                     ScrollWheel = false;
                     return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     Scrollbar != null && Scrollbar.UpHeld)
                 {
-                    ScrollSpeed.Y = -MaxScrollSpeed;
+                    ScrollSpeed.Y = -baseSpeed;
                     ScrollWheel = false;
                     return true;
                 }
                 else if (Input.ControlScheme == ControlSchemes.Mouse &&
                     Scrollbar != null && Scrollbar.DownHeld)
                 {
-                    ScrollSpeed.Y = MaxScrollSpeed;
+                    ScrollSpeed.Y = baseSpeed;
                     ScrollWheel = false;
                     return true;
                 }
