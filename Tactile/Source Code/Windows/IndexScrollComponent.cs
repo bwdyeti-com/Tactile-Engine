@@ -254,6 +254,37 @@ namespace Tactile.Windows
                         ScrollWheel = false;
                         return true;
                     }
+                    else if (Input.ControlScheme == ControlSchemes.Mouse &&
+                        Scrollbar != null && Scrollbar.UpTriggered)
+                    {
+                        if (OffsetTarget.Y > 0)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move1);
+                            OffsetTarget.Y--;
+                            IndexedScroll = true;
+                            ScrollWheel = true;
+                        }
+                    }
+                    else if (Input.ControlScheme == ControlSchemes.Mouse &&
+                        Scrollbar != null && Scrollbar.DownTriggered)
+                    {
+                        if (OffsetTarget.Y < ElementLengths.Y - (int)ViewableElements.Y)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move1);
+                            OffsetTarget.Y++;
+                            IndexedScroll = true;
+                            ScrollWheel = true;
+                        }
+                    }
+                    else if (Input.ControlScheme == ControlSchemes.Mouse &&
+                        Scrollbar != null && Scrollbar.Scrubbing)
+                    {
+                        ScrollSpeed.Y = 0;
+                        this.offset.Y = Scrollbar.ScrubPercent * (this.MaxOffset.Y - this.MinOffset.Y);
+                        IndexedScroll = false;
+                        ScrollWheel = false;
+                        return true;
+                    }
                 }
 
                 if (IndexedScroll)
