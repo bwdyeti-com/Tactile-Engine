@@ -13,6 +13,8 @@ namespace Tactile
         protected bool Moving_Down, Moving_Up;
         public bool DownHeld { get; private set; }
         public bool UpHeld { get; private set; }
+        public bool DownTriggered { get; private set; }
+        public bool UpTriggered { get; private set; }
         public bool Scrubbing { get; private set; }
         public float ScrubPercent { get; private set; }
         protected int Scroll;
@@ -82,8 +84,13 @@ namespace Tactile
 
         public void update_input(Vector2 draw_offset = default(Vector2))
         {
+            bool downHeldLastTick = DownHeld;
+            bool upHeldLastTick = UpHeld;
+
             DownHeld = false;
             UpHeld = false;
+            DownTriggered = false;
+            UpTriggered = false;
 
             if (Input.ControlScheme == ControlSchemes.Buttons)
                 return;
@@ -131,6 +138,8 @@ namespace Tactile
                 Global.Input.gesture_rectangle(
                     TouchGestures.VerticalDrag, up_arrow_rect, false))
             {
+                if (!upHeldLastTick)
+                    UpTriggered = true;
                 UpHeld = true;
             }
 
@@ -152,6 +161,8 @@ namespace Tactile
                 Global.Input.gesture_rectangle(
                     TouchGestures.VerticalDrag, down_arrow_rect, false))
             {
+                if (!downHeldLastTick)
+                    DownTriggered = true;
                 DownHeld = true;
             }
         }
