@@ -77,9 +77,9 @@ namespace Tactile.Windows
             OffsetTarget = this.offset / ElementSize;
         }
 
-        public override void Update(bool active, int index = -1)
+        public override void Update(bool active, int index = -1, Vector2 drawOffset = default(Vector2))
         {
-            base.Update(active, index);
+            base.Update(active, index, drawOffset);
 
             if (!IndexedScroll || ScrollWheel)
                 FixIndex();
@@ -87,11 +87,11 @@ namespace Tactile.Windows
                 ResetOffsetTarget();
         }
 
-        protected override bool UpdateHorizontalInput(bool active, float baseSpeed, float maxSpeed)
+        protected override bool UpdateHorizontalInput(bool active, float baseSpeed, float maxSpeed, Vector2 drawOffset)
         {
             if (Input.ControlScheme == ControlSchemes.Touch)
             {
-                bool result = base.UpdateHorizontalInput(active, baseSpeed, maxSpeed);
+                bool result = base.UpdateHorizontalInput(active, baseSpeed, maxSpeed, drawOffset);
                 IndexedScroll = false;
                 return result;
             }
@@ -184,11 +184,11 @@ namespace Tactile.Windows
             }
         }
 
-        protected override bool UpdateVerticalInput(bool active, float baseSpeed, float maxSpeed)
+        protected override bool UpdateVerticalInput(bool active, float baseSpeed, float maxSpeed, Vector2 drawOffset)
         {
             if (Input.ControlScheme == ControlSchemes.Touch)
             {
-                bool result = base.UpdateVerticalInput(active, baseSpeed, maxSpeed);
+                bool result = base.UpdateVerticalInput(active, baseSpeed, maxSpeed, drawOffset);
                 IndexedScroll = false;
                 return result;
             }

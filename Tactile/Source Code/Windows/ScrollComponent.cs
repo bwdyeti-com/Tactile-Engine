@@ -63,14 +63,12 @@ namespace Tactile.Windows
             }
         }
 
-        private Rectangle ViewAreaRectangle
+        private Rectangle GetViewAreaRectangle(Vector2 drawOffset = default(Vector2))
         {
-            get
-            {
-                return new Rectangle(
-                    (int)this.loc.X, (int)this.loc.Y,
-                    (int)ViewAreaSize.X, (int)ViewAreaSize.Y);
-            }
+            Vector2 loc = this.loc - drawOffset;
+            return new Rectangle(
+                (int)loc.X, (int)loc.Y,
+                (int)ViewAreaSize.X, (int)ViewAreaSize.Y);
         }
 
         protected Vector2 ViewableElements { get { return ViewAreaSize / ElementSize; } }
@@ -267,7 +265,7 @@ namespace Tactile.Windows
             }
         }
 
-        public virtual void Update(bool active, int index = -1)
+        public virtual void Update(bool active, int index = -1, Vector2 drawOffset = default(Vector2))
         {
             if (index != -1)
                 Index = index;
@@ -287,7 +285,7 @@ namespace Tactile.Windows
                     maxSpeed = Math.Max(maxSpeed, Config.WINDOW_HEIGHT);
             }
 
-            UpdateInput(active, MaxScrollSpeed, maxSpeed);
+            UpdateInput(active, MaxScrollSpeed, maxSpeed, drawOffset);
 
             // Clamp to max speed
             ScrollSpeed.X = MathHelper.Clamp(ScrollSpeed.X, -maxSpeed, maxSpeed);
@@ -321,22 +319,22 @@ namespace Tactile.Windows
                 this.offset.Y / ElementSize.Y);
         }
 
-        private void UpdateInput(bool active, float baseSpeed, float maxSpeed)
+        private void UpdateInput(bool active, float baseSpeed, float maxSpeed, Vector2 drawOffset)
         {
             // Called functions return true if the user input something that
             // affects scroll position
             bool gotUserInput = false;
             if (Direction.HasFlag(ScrollAxes.Horizontal))
-                gotUserInput |= UpdateHorizontalInput(active, baseSpeed, maxSpeed);
+                gotUserInput |= UpdateHorizontalInput(active, baseSpeed, maxSpeed, drawOffset);
             if (Direction.HasFlag(ScrollAxes.Vertical))
-                gotUserInput |= UpdateVerticalInput(active, baseSpeed, maxSpeed);
+                gotUserInput |= UpdateVerticalInput(active, baseSpeed, maxSpeed, drawOffset);
 
             // If the player didn't input anything, check for resolving the index
             if (!gotUserInput)
                 UpdateResolvingIndex();
         }
 
-        protected virtual bool UpdateHorizontalInput(bool active, float baseSpeed, float maxSpeed)
+        protected virtual bool UpdateHorizontalInput(bool active, float baseSpeed, float maxSpeed, Vector2 drawOffset)
         {
             if (active)
             {
@@ -391,7 +389,7 @@ namespace Tactile.Windows
                 }
                 // Touch gestures
                 else if (Global.Input.gesture_rectangle(
-                    TouchGestures.HorizontalDrag, this.ViewAreaRectangle, false))
+                    TouchGestures.HorizontalDrag, GetViewAreaRectangle(drawOffset), false))
                 {
                     ScrollSpeed.X = -(int)Global.Input.horizontalDragVector.X;
                     return true;
@@ -435,7 +433,7 @@ namespace Tactile.Windows
             }
         }
 
-        protected virtual bool UpdateVerticalInput(bool active, float baseSpeed, float maxSpeed)
+        protected virtual bool UpdateVerticalInput(bool active, float baseSpeed, float maxSpeed, Vector2 drawOffset)
         {
             if (active)
             {
@@ -508,7 +506,7 @@ namespace Tactile.Windows
                 }
                 // Touch gestures
                 else if (Global.Input.gesture_rectangle(
-                    TouchGestures.VerticalDrag, this.ViewAreaRectangle, false))
+                    TouchGestures.VerticalDrag, GetViewAreaRectangle(drawOffset), false))
                 {
                     ScrollSpeed.Y = -(int)Global.Input.verticalDragVector.Y;
                     return true;
@@ -710,8 +708,8 @@ namespace Tactile.Windows
         {
             var texture = Global.Content.Load<Texture2D>(@"Graphics/White_Square");
             Color color = new Color(0, 80, 80, 40);
-            spriteBatch.Draw(texture, this.loc, new Rectangle(0, 0, 16, 16),
-                color, 0f, this.offset, ViewAreaSize / new Vector2(16f), SpriteEffects.None, 0f);
+            spriteBatch.Draw(texture, this.loc - drawOffset, new Rectangle(0, 0, 16, 16),
+                color, 0f, Vector2.Zero, ViewAreaSize / new Vector2(16f), SpriteEffects.None, 0f);
         }
 #endif
     }
