@@ -122,15 +122,23 @@ namespace Tactile.Windows
                     // Mouse scroll wheel (if only horizontal scrolling is allowed)
                     if (Direction == ScrollAxes.Horizontal && Global.Input.mouseScroll < 0)
                     {
-                        OffsetTarget.X++;
-                        IndexedScroll = true;
-                        ScrollWheel = true;
+                        if (OffsetTarget.X < ElementLengths.X - (int)ViewableElements.X)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move1);
+                            OffsetTarget.X++;
+                            IndexedScroll = true;
+                            ScrollWheel = true;
+                        }
                     }
                     else if (Direction == ScrollAxes.Horizontal && Global.Input.mouseScroll > 0)
                     {
-                        OffsetTarget.X--;
-                        IndexedScroll = true;
-                        ScrollWheel = true;
+                        if (OffsetTarget.X > 0)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move1);
+                            OffsetTarget.X--;
+                            IndexedScroll = true;
+                            ScrollWheel = true;
+                        }
                     }
                     // Mouse
                     else if (Input.ControlScheme == ControlSchemes.Mouse &&
@@ -211,15 +219,23 @@ namespace Tactile.Windows
                     // Mouse scroll wheel
                     if (Global.Input.mouseScroll < 0)
                     {
-                        OffsetTarget.Y++;
-                        IndexedScroll = true;
-                        ScrollWheel = true;
+                        if (OffsetTarget.Y < ElementLengths.Y - (int)ViewableElements.Y)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move1);
+                            OffsetTarget.Y++;
+                            IndexedScroll = true;
+                            ScrollWheel = true;
+                        }
                     }
                     else if (Global.Input.mouseScroll > 0)
                     {
-                        OffsetTarget.Y--;
-                        IndexedScroll = true;
-                        ScrollWheel = true;
+                        if (OffsetTarget.Y > 0)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move1);
+                            OffsetTarget.Y--;
+                            IndexedScroll = true;
+                            ScrollWheel = true;
+                        }
                     }
                     // Mouse
                     else if (Input.ControlScheme == ControlSchemes.Mouse &&
