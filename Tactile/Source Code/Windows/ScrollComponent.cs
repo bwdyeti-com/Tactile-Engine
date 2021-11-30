@@ -23,6 +23,7 @@ namespace Tactile.Windows
         protected Vector2 ScrollSpeed = Vector2.Zero;
         protected bool ScrollWheel = false;
         protected bool ResolveToIndex = false;
+        protected Rectangle Buffers = new Rectangle(1, 1, 2, 2);
 
         private float MaxScrollSpeed = 4;
         private float ScrollFriction = 0.95f;
@@ -94,6 +95,11 @@ namespace Tactile.Windows
         public bool AtTop { get { return this.offset.Y <= this.MinOffset.Y; } }
         public bool AtBottom { get { return this.offset.Y >= this.MaxOffset.Y; } }
 
+        protected int LeftBuffer { get { return Buffers.X; } }
+        protected int RightBuffer { get { return Buffers.Width - Buffers.X; } }
+        protected int TopBuffer { get { return Buffers.Y; } }
+        protected int BottomBuffer { get { return Buffers.Height - Buffers.Y; } }
+
         public bool IsScrolling
         {
             get
@@ -145,16 +151,16 @@ namespace Tactile.Windows
                 Vector2 index = this.ScrollIndex;
 
                 float ox = 0;
-                if (TopIndex.X > index.X)
-                    ox = TopIndex.X - index.X;
-                else if (TopIndex.X + ViewableElements.X < index.X + 1)
-                    ox = (TopIndex.X + ViewableElements.X) - (index.X + 1);
+                if (TopIndex.X > (index.X + 1 - this.LeftBuffer))
+                    ox = TopIndex.X - (index.X + 1 - this.LeftBuffer);
+                else if (TopIndex.X + ViewableElements.X < index.X + this.RightBuffer)
+                    ox = (TopIndex.X + ViewableElements.X) - (index.X + this.RightBuffer);
 
                 float oy = 0;
-                if (TopIndex.Y > index.Y)
-                    oy = TopIndex.Y - index.Y;
-                else if (TopIndex.Y + ViewableElements.Y < index.Y + 1)
-                    oy = (TopIndex.Y + ViewableElements.Y) - (index.Y + 1);
+                if (TopIndex.Y > (index.Y + 1 - this.TopBuffer))
+                    oy = TopIndex.Y - (index.Y + 1 - this.TopBuffer);
+                else if (TopIndex.Y + ViewableElements.Y < index.Y + this.BottomBuffer)
+                    oy = (TopIndex.Y + ViewableElements.Y) - (index.Y + this.BottomBuffer);
 
                 return new Vector2(ox, oy);
             }
@@ -192,6 +198,27 @@ namespace Tactile.Windows
         public void SetResolveToIndex(bool value)
         {
             ResolveToIndex = value;
+        }
+
+        public void SetBuffers(Rectangle buffers)
+        {
+            if (buffers.X < 1)
+            {
+                buffers.Width += 1 - buffers.X;
+                buffers.X = 1;
+            }
+            if (buffers.Width < 2)
+                buffers.Width = 2;
+
+            if (buffers.Y < 1)
+            {
+                buffers.Height += 1 - buffers.Y;
+                buffers.Y = 1;
+            }
+            if (buffers.Height < 2)
+                buffers.Height = 2;
+
+            Buffers = buffers;
         }
 
         protected virtual void SetOffset(Vector2 offset)

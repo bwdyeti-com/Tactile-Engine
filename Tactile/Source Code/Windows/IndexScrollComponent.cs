@@ -7,7 +7,6 @@ namespace Tactile.Windows
     {
         private Vector2 OffsetTarget;
         private bool IndexedScroll = true;
-        private Rectangle Buffers = new Rectangle(1, 1, 2, 2);
 
         public override DirectionFlags ScrollDirection
         {
@@ -39,32 +38,6 @@ namespace Tactile.Windows
 
         public IndexScrollComponent(Vector2 viewAreaSize, Vector2 elementSize, ScrollAxes direction)
             : base(viewAreaSize, elementSize, direction) { }
-
-        public void SetBuffers(Rectangle buffers)
-        {
-            if (buffers.X < 1)
-            {
-                buffers.Width += 1 - buffers.X;
-                buffers.X = 1;
-            }
-            if (buffers.Width < 2)
-                buffers.Width = 2;
-
-            if (buffers.Y < 1)
-            {
-                buffers.Height += 1 - buffers.Y;
-                buffers.Y = 1;
-            }
-            if (buffers.Height < 2)
-                buffers.Height = 2;
-
-            Buffers = buffers;
-        }
-
-        private int LeftBuffer { get { return Buffers.X; } }
-        private int RightBuffer { get { return Buffers.Width - Buffers.X; } }
-        private int TopBuffer { get { return Buffers.Y; } }
-        private int BottomBuffer { get { return Buffers.Height - Buffers.Y; } }
 
         protected override void SetOffset(Vector2 offset)
         {
