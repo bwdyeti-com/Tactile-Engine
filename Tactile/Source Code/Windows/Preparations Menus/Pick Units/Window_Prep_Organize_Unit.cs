@@ -33,14 +33,6 @@ namespace Tactile
 
         protected override int Width { get { return unit_spacing() * this.Columns + 8 + 16; } }
 
-        protected override Rectangle Unit_Scissor_Rect
-        {
-            get
-            {
-                Vector2 loc = this.loc + ScissorRectOffset;
-                return new Rectangle((int)loc.X, (int)loc.Y, this.Width, this.Height - 4);
-            }
-        }
         protected override Vector2 ScissorRectOffset { get { return new Vector2(-8, 4); } }
 
         protected override Vector2 ScrollbarLoc { get { return new Vector2(this.Width + 2 - 16, 12); } }

@@ -90,7 +90,7 @@ namespace Tactile.Windows.Preparations
             get
             {
                 Vector2 loc = this.loc + ScissorRectOffset;
-                return new Rectangle((int)loc.X, (int)loc.Y, this.Width, this.Height - 8);
+                return new Rectangle((int)loc.X, (int)loc.Y, this.Width, this.VisibleRows * this.RowSize);
             }
         }
         protected virtual Vector2 ScissorRectOffset { get { return new Vector2(0, 4); } }
