@@ -252,9 +252,14 @@ namespace Tactile
             UnitWindow.update(active && this.ready_for_inputs && (Trading || !Unit_Selected));
         }
 
-        public virtual bool select_unit()
+        public virtual bool select_unit(bool resetSelect = true)
         {
             Unit_Selected = true;
+            if (resetSelect)
+            {
+                UnitWindow.set_selected_loc();
+                UnitWindow.ResetTradeIndex();
+            }
             OnUnitSelected(new EventArgs());
             Item_Window_1.ShowHeader();
             return true;
@@ -262,6 +267,7 @@ namespace Tactile
 
         public virtual void cancel_unit_selection()
         {
+            UnitWindow.refresh_scroll(true);
             Item_Window_1.HideHeader();
             Unit_Selected = false;
         }
@@ -374,7 +380,7 @@ namespace Tactile
         {
             Trading = false;
             UnitWindow.trading = false;
-            select_unit();
+            select_unit(false);
             refresh();
         }
 
