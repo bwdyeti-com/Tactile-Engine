@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tactile.Windows;
 
 namespace Tactile
 {
@@ -110,6 +111,12 @@ namespace Tactile
                     x = -1;
                 offset.X = -x;
             }
+        }
+
+        public void draw(SpriteBatch sprite_batch, IndexScrollComponent scroll, Vector2 draw_offset = default(Vector2))
+        {
+            Vector2 scrollOffset = scroll.ClampOffset(this.loc);
+            base.draw(sprite_batch, draw_offset - scrollOffset);
         }
     }
 }

@@ -284,5 +284,38 @@ namespace Tactile.Windows
                 return IndexedScroll;
             }
         }
+
+        public Vector2 ClampOffset(Vector2 objectLoc)
+        {
+            Vector2 result = -this.IntOffset;
+            Vector2 offsetTarget = OffsetTarget;
+            if (!IndexedScroll)
+                offsetTarget = this.offset / ElementSize;
+
+            Vector2 viewable = new Vector2(
+                (int)this.ViewableElements.X, (int)this.ViewableElements.Y);
+            Vector2 offsetElements = ElementLengths - viewable;
+            Vector2 target = (offsetTarget - this.ViewableElements) * ElementSize;
+
+            // Clamp horizontally
+            bool atLeft = offsetTarget.X >= offsetElements.X;
+            float left = (viewable.X - (atLeft ? 1 : this.LeftBuffer)) * ElementSize.X;
+            result.X = Math.Min(result.X, left - objectLoc.X);
+
+            bool atRight = offsetTarget.X <= 0;
+            float right = (atRight ? 0 : this.RightBuffer - 1) * ElementSize.X;
+            result.X = Math.Max(result.X, right - objectLoc.X);
+
+            // Clamp vertically
+            bool atBottom = offsetTarget.Y >= offsetElements.Y;
+            float bottom = (viewable.Y - (atBottom ? 1 : this.BottomBuffer)) * ElementSize.Y;
+            result.Y = Math.Min(result.Y, bottom - objectLoc.Y);
+
+            bool atTop = offsetTarget.Y <= 0;
+            float top = (atTop ? 0 : this.TopBuffer - 1) * ElementSize.Y;
+            result.Y = Math.Max(result.Y, top - objectLoc.Y);
+
+            return result;
+        }
     }
 }
