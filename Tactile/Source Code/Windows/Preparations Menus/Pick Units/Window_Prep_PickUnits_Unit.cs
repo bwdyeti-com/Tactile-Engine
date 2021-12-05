@@ -85,14 +85,7 @@ namespace Tactile
 
             Rows = (int)Math.Ceiling(Global.battalion.actors.Count / (float)this.Columns);
             // Scrollbar
-            if (Rows > this.VisibleRows)
-            {
-                Scrollbar = new Scroll_Bar(this.VisibleRows * this.RowSize - 16, Rows, this.VisibleRows, 0);
-                Scrollbar.loc = this.ScrollbarLoc;
-
-                Scrollbar.UpArrowClicked += Scrollbar_UpArrowClicked;
-                Scrollbar.DownArrowClicked += Scrollbar_DownArrowClicked;
-            }
+            CreateScrollbar();
             // Unit Header
             Unit_Header = new Pick_Units_Header(this.Width + 8);
             Unit_Header.loc = new Vector2(-8, -20);
@@ -171,7 +164,7 @@ namespace Tactile
         
         protected override Vector2 unit_offset()
         {
-            return new Vector2(-12, 0);
+            return new Vector2(8, 0);
         }
 
         protected override int unit_spacing()
@@ -198,21 +191,21 @@ namespace Tactile
 
         protected override void draw_units(SpriteBatch spriteBatch)
         {
-            Vector2 offset = this.loc + draw_vector() - Offset;
-
             base.draw_units(spriteBatch);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            // Draw talk icons
+            Vector2 offset = this.loc + draw_vector() - Scroll.IntOffset;
 
             // Get the range of indices that are completely visible
-            int count = (ROWS - (Offset.Y == Scroll * this.RowSize ? 0 : 1)) * COLUMNS;
-            int start = (Scroll + (Offset.Y <= Scroll * this.RowSize ? 0 : 1)) * COLUMNS;
-            List<int> indices = Enumerable.Range(start, count).ToList();
+            int firstRow = (int)(Scroll.IntOffset.Y / this.RowSize) + (Scroll.IsScrolling ? 1 : 0);
+            int rows = this.VisibleRows - (Scroll.IsScrolling ? 1 : 0);
+            List<int> indices = Enumerable.Range(firstRow * this.Columns, rows * this.Columns).ToList();
 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             foreach (int index in indices.Intersect(TalkIndices))
             {
-                int ox = (index % COLUMNS) * unit_spacing();
-                int oy = (index / COLUMNS) * ROW_SIZE;
+                int ox = (index % this.Columns) * unit_spacing();
+                int oy = (index / this.Columns) * ROW_SIZE;
                 TalkIcon.draw(spriteBatch, -(offset + new Vector2(ox, oy)));
             }
             spriteBatch.End();

@@ -37,8 +37,6 @@ namespace Tactile
                     }
                     this.index = index;
                     refresh_scroll(false);
-                    update_cursor();
-                    UnitCursor.move_to_target_loc();
                 }
                 else
                 {

@@ -49,14 +49,7 @@ namespace Tactile
 
             Rows = (int)Math.Ceiling(Global.battalion.actors.Count / (float)this.Columns);
             // Scrollbar
-            if (Rows > this.VisibleRows)
-            {
-                Scrollbar = new Scroll_Bar(this.VisibleRows * this.RowSize - 16, Rows, this.VisibleRows, 0);
-                Scrollbar.loc = this.ScrollbarLoc;
-
-                Scrollbar.UpArrowClicked += Scrollbar_UpArrowClicked;
-                Scrollbar.DownArrowClicked += Scrollbar_DownArrowClicked;
-            }
+            CreateScrollbar();
             // Unit Header
             Unit_Header = new Pick_Units_Header(this.Width + 8);
             Unit_Header.loc = new Vector2(-8, -20);
@@ -68,7 +61,7 @@ namespace Tactile
         
         protected override Vector2 unit_offset()
         {
-            return new Vector2(-12 + 8, 0);
+            return new Vector2(8 + 8, 0);
         }
 
         protected override int unit_spacing()
@@ -92,8 +85,6 @@ namespace Tactile
                 }
 
                 refresh_scroll(false);
-                update_cursor();
-                UnitCursor.move_to_target_loc();
             }
         }
 
@@ -111,7 +102,7 @@ namespace Tactile
             Vector2 offset = this.loc + draw_vector();
 
             if (UnitSelected)
-                Selected_Cursor.draw(sprite_batch, Offset - offset);
+                Selected_Cursor.draw(sprite_batch, Scroll.IntOffset - offset);
         }
         #endregion
     }
