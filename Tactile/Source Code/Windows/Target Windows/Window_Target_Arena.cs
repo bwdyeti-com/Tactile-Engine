@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -22,7 +23,11 @@ namespace Tactile.Windows.Target
         {
             this.index = index;
             Temp_Index = this.index;
+
+            Global.game_system.In_Arena = true;
             initialize_images();
+            Global.game_system.In_Arena = false;
+
             refresh();
         }
 
@@ -46,7 +51,19 @@ namespace Tactile.Windows.Target
 
         protected override List<int?> get_combat_stats(int unit_id, int target_id, int distance)
         {
-            return Combat.combat_stats(unit_id, target_id, distance, null, true);
+            var stats =  Combat.combat_stats(unit_id, target_id, distance, null, true);
+            // Minimum damage
+            if (stats[1] != null)
+                stats[1] = Math.Max(Arena_Combat_Round_Data.MINIMUM_DMG, (int)stats[1]);
+            if (stats[5] != null)
+                stats[5] = Math.Max(Arena_Combat_Round_Data.MINIMUM_DMG, (int)stats[5]);
+            // Minimum hit
+            if (stats[0] != null)
+                stats[0] = Math.Max(Arena_Combat_Round_Data.MINIMUM_HIT, (int)stats[0]);
+            if (stats[4] != null)
+                stats[4] = Math.Max(Arena_Combat_Round_Data.MINIMUM_HIT, (int)stats[4]);
+
+            return stats;
         }
 
         protected override bool can_counter(Game_Unit unit, Game_Unit target, TactileLibrary.Data_Weapon weapon, int distance)
