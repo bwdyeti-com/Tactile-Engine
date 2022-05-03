@@ -73,7 +73,7 @@ namespace Tactile.Menus.Worldmap
 
                 var text = new TextSprite();
                 text.SetFont(Config.UI_FONT, Global.Content, "White");
-                text.text = chapter(i).Id;
+                text.text = GetListName(i);
                 var node = new MapSpriteUINode("", text, 56);
                 refresh_map_sprite(node, i);
                 node.loc = new Vector2(x, y);
@@ -297,7 +297,7 @@ namespace Tactile.Menus.Worldmap
                 PreviousChapterIndices[ProgressionIds[index]] =
                     (PreviousChapterIndices[ProgressionIds[index]] + count + move) % count;
 
-                (Items.ActiveNode as TextUINode).set_text(chapter(index).Id);
+                (Items.ActiveNode as TextUINode).set_text(GetListName(index));
                 refresh_map_sprite(Items.ActiveNode as MapSpriteUINode, index);
 
                 var arrows = move < 0 ? LeftArrows : RightArrows;
@@ -308,6 +308,11 @@ namespace Tactile.Menus.Worldmap
                 OnPreviousChapterChanged(new EventArgs());
 
             }
+        }
+
+        private string GetListName(int index)
+        {
+            return chapter(index).ListName;
         }
 
         private int refresh_map_sprite(MapSpriteUINode node, int index)
