@@ -182,6 +182,7 @@ namespace Tactile
         private static HashSet<GestureSample> Gestures = new HashSet<GestureSample>();
 #if TOUCH_EMULATION
         private static MouseState LastMouseTouchState;
+        private static bool TouchSwitchPressed = false;
 #endif
 #endif
 
@@ -243,11 +244,11 @@ namespace Tactile
         static Input()
         {
             ControlScheme = ControlSchemes.Buttons;
-#if TOUCH_EMULATION || __MOBILE__
+#if __MOBILE__ || TOUCH_EMULATION
             ControlScheme = ControlSchemes.Touch;
 #endif
 
-#if TOUCH_EMULATION || __MOBILE__
+#if __MOBILE__ || TOUCH_EMULATION
             TouchPanel.EnableMouseTouchPoint = true;
             TouchPanel.EnableMouseGestures = true;
 
@@ -287,19 +288,38 @@ namespace Tactile
             LastMouseState = MouseState;
             MouseState = Mouse.GetState();
 #if TOUCH_EMULATION
-            //The TouchPanel needs to know the time for when touches arrive
-            TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
+            // Press a button to switch between mouse and touch
+            bool touchSwitchButton =
+                key_state.IsKeyDown(Keys.LeftControl) &&
+                key_state.IsKeyDown(Keys.Tab);
+            if (touchSwitchButton && !TouchSwitchPressed)
+            {
+                bool touchWithMouse = !TouchPanel.EnableMouseTouchPoint;
 
-            Vector2 posThisFrame = new Vector2(MouseState.X, MouseState.Y);
-            Vector2 posLastFrame = new Vector2(LastMouseTouchState.X, LastMouseTouchState.Y);
+                TouchPanel.EnableMouseTouchPoint = touchWithMouse;
+                TouchPanel.EnableMouseGestures = touchWithMouse;
+                ControlScheme = touchWithMouse ? ControlSchemes.Touch : ControlSchemes.Mouse;
+                ControlSchemeSwitched = true;
+            }
+            TouchSwitchPressed = touchSwitchButton;
 
-            simulate_touch(MouseState.LeftButton, LastMouseTouchState.LeftButton,
-                posThisFrame, posLastFrame, false);
-            simulate_touch(MouseState.RightButton, LastMouseTouchState.RightButton,
-                posThisFrame, posLastFrame, true);
+            // If mouse is emulating touch controls
+            if (TouchPanel.EnableMouseTouchPoint)
+            {
+                //The TouchPanel needs to know the time for when touches arrive
+                TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
 
-            LastMouseTouchState = MouseState;
-            MouseState = new MouseState();
+                Vector2 posThisFrame = new Vector2(MouseState.X, MouseState.Y);
+                Vector2 posLastFrame = new Vector2(LastMouseTouchState.X, LastMouseTouchState.Y);
+
+                simulate_touch(MouseState.LeftButton, LastMouseTouchState.LeftButton,
+                    posThisFrame, posLastFrame, false);
+                simulate_touch(MouseState.RightButton, LastMouseTouchState.RightButton,
+                    posThisFrame, posLastFrame, true);
+
+                LastMouseTouchState = MouseState;
+                MouseState = new MouseState();
+            }
 #endif
 
             ControlSchemeSwitched = false;
@@ -776,7 +796,7 @@ namespace Tactile
         /// </summary>
         internal static void ResetDoubleTap()
         {
-#if TOUCH_EMULATION || __MOBILE__
+#if __MOBILE__ || TOUCH_EMULATION
             TouchPanel.ResetDoubleTap();
 #endif
         }
