@@ -496,7 +496,7 @@ namespace Tactile
 
             StatusNodes[page].Update(!input ? ControlSet.None :
                 (Help_Window != null ?
-                    ControlSet.Movement : (ControlSet.Mouse | ControlSet.Touch)));
+                    ControlSet.Movement : ControlSet.Pointing));
 
             if (input)
             {

@@ -10,11 +10,14 @@ namespace Tactile.Windows.UserInterface
         Buttons = 1 << 0,
         MouseMove = 1 << 1,
         MouseButtons = 1 << 2,
-        Touch = 1 << 3,
+        TouchMove = 1 << 3,
+        TouchButtons = 1 << 4,
         Mouse = MouseMove | MouseButtons,
-        Movement = Buttons | MouseMove | Touch,
+        Touch = TouchMove | TouchButtons,
+        Pointing = Mouse | Touch,
+        Movement = Buttons | MouseMove | TouchMove,
         All = Buttons | Mouse | Touch,
-        Disabled = 1 << 4
+        Disabled = 1 << 5
     }
 
     interface IUIObject

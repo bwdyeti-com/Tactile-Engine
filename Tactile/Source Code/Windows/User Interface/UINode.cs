@@ -133,49 +133,51 @@ namespace Tactile.Windows.UserInterface
             ControlSet input,
             Vector2 draw_offset) where T : UINode
         {
-            if (input.HasEnumFlag(ControlSet.Touch))
+            // Tap
+            if (input.HasEnumFlag(ControlSet.TouchButtons) &&
+                Global.Input.gesture_rectangle(TouchGestures.Tap, OnScreenBounds(draw_offset)))
             {
-                if (Global.Input.gesture_rectangle(
-                    TouchGestures.Tap, OnScreenBounds(draw_offset)))
-                {
-                    if (nodes != null)
-                        nodes.TouchMove(this as T, TouchGestures.Tap);
-                    TouchTriggers.Add(TouchGestures.Tap);
-                }
-                else if (Global.Input.gesture_rectangle(
-                    TouchGestures.LongPress, OnScreenBounds(draw_offset)))
-                {
-                    if (nodes != null)
-                        nodes.TouchMove(this as T, TouchGestures.LongPress);
-                    TouchTriggers.Add(TouchGestures.LongPress);
-                }
-                else if (Global.Input.touch_rectangle(
+                if (nodes != null)
+                    nodes.TouchMove(this as T, TouchGestures.Tap);
+                TouchTriggers.Add(TouchGestures.Tap);
+            }
+            // Long Press
+            else if (input.HasEnumFlag(ControlSet.TouchButtons) &&
+                Global.Input.gesture_rectangle(TouchGestures.LongPress, OnScreenBounds(draw_offset)))
+            {
+                if (nodes != null)
+                    nodes.TouchMove(this as T, TouchGestures.LongPress);
+                TouchTriggers.Add(TouchGestures.LongPress);
+            }
+            // Movement from pressing
+            else if (input.HasEnumFlag(ControlSet.TouchMove) &&
+                Global.Input.touch_rectangle(
                     Services.Input.InputStates.Pressed,
                     OnScreenBounds(draw_offset),
                     false))
-                {
-                    if (nodes != null)
-                        nodes.TouchMove(this as T, TouchGestures.ShortPress);
-                    mouse_click_graphic();
-                }
+            {
+                if (nodes != null)
+                    nodes.TouchMove(this as T, TouchGestures.ShortPress);
+                mouse_click_graphic();
+            }
 
-                if (IsSlider)
+            // Slider
+            if (IsSlider && input.HasEnumFlag(ControlSet.TouchButtons))
+            {
+                if (!Global.Input.touch_pressed(false))
+                    TouchPressing = false;
+                else
                 {
-                    if (!Global.Input.touch_pressed(false))
-                        TouchPressing = false;
-                    else
+                    bool pressed = OnScreenBounds(draw_offset).Contains(
+                        (int)Global.Input.touchPressPosition.X,
+                        (int)Global.Input.touchPressPosition.Y);
+                    if (pressed && Global.Input.touch_triggered(false))
+                        TouchPressing = true;
+
+                    if (pressed && TouchPressing)
                     {
-                        bool pressed = OnScreenBounds(draw_offset).Contains(
-                            (int)Global.Input.touchPressPosition.X,
-                            (int)Global.Input.touchPressPosition.Y);
-                        if (pressed && Global.Input.touch_triggered(false))
-                            TouchPressing = true;
-
-                        if (pressed && TouchPressing)
-                        {
-                            TouchTriggers.Add(TouchGestures.Scrubbing);
-                            SliderValue = slide(Global.Input.touchPressPosition, draw_offset);
-                        }
+                        TouchTriggers.Add(TouchGestures.Scrubbing);
+                        SliderValue = slide(Global.Input.touchPressPosition, draw_offset);
                     }
                 }
             }
