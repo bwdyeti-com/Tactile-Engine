@@ -221,6 +221,7 @@
     <Compile Include="Source Code\Sprites\Status Components\Page 1\ConvoyItemNothing.cs" />
     <Compile Include="Source Code\Sprites\Sparks\WeaponTriangleHelpReaverTypes.cs" />
     <Compile Include="Source Code\Sprites\Status Components\Page 1\DiscardItem.cs" />
+    <Compile Include="Source Code\Sprites\Unit Components\UnitScreenRow.cs" />
     <Compile Include="Source Code\Sprites\WeaponTriangleHelpSet.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\UnitScreenConfig.cs" />
     <Compile Include="Source Code\Static Classes\Global_IO.cs" />
@@ -350,6 +351,8 @@
     <Compile Include="Source Code\Windows\User Interface\Command\Config\SliderUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ConfigTextUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\SupportViewerUINode.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Map\PrepItemsUnitUINode.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Map\UnitHeaderUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Difficulty_Info_Panel.cs" />
     <Compile Include="Source Code\Sprites\Title\Game_Updated_Banner.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\MainMenuChoicePanel.cs" />
