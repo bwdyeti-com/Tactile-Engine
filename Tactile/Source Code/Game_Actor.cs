@@ -3949,6 +3949,14 @@ namespace Tactile
                     (value + ((int)Constants.Animation_Modes.Map + 1)) % ((int)Constants.Animation_Modes.Map + 1);
             }
         }
+        public string IndividualAnimationName
+        {
+            get
+            {
+                return Constants.OptionsConfig.OPTIONS_DATA[
+                  (int)Constants.Options.Animation_Mode].Options[this.individual_animation].Name;
+            }
+        }
 
         #region Status Effects
         /// <summary>

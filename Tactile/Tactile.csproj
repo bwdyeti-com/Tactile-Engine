@@ -222,6 +222,7 @@
     <Compile Include="Source Code\Sprites\Sparks\WeaponTriangleHelpReaverTypes.cs" />
     <Compile Include="Source Code\Sprites\Status Components\Page 1\DiscardItem.cs" />
     <Compile Include="Source Code\Sprites\WeaponTriangleHelpSet.cs" />
+    <Compile Include="Source Code\Static Classes\Config Data\UnitScreenConfig.cs" />
     <Compile Include="Source Code\Static Classes\Global_IO.cs" />
     <Compile Include="Source Code\Scenes\SceneContentLoad.cs" />
     <Compile Include="Source Code\Scenes\SceneInitialLoad.cs" />
