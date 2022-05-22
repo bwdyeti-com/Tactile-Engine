@@ -185,12 +185,29 @@ namespace Tactile.Windows.UserInterface
 
         private void UpdateButtons<T>(ControlSet input) where T : UINode
         {
-            if (input.HasEnumFlag(ControlSet.Buttons))
-                foreach (Inputs key in this.ValidInputs)
-                    if (Global.Input.triggered(key))
-                    {
-                        Triggers.Add(key);
-                    }
+            foreach (Inputs key in this.ValidInputs)
+                switch (key)
+                {
+                    // Movement
+                    case Inputs.Down:
+                    case Inputs.Left:
+                    case Inputs.Right:
+                    case Inputs.Up:
+                        if (input.HasEnumFlag(ControlSet.PadMove))
+                            if (Global.Input.triggered(key))
+                            {
+                                Triggers.Add(key);
+                            }
+                        break;
+                    // Buttons
+                    default:
+                        if (input.HasEnumFlag(ControlSet.PadButtons))
+                            if (Global.Input.triggered(key))
+                            {
+                                Triggers.Add(key);
+                            }
+                        break;
+                }
         }
 
         private bool update_mouse_input(ref bool mouseDown, MouseButtons button,

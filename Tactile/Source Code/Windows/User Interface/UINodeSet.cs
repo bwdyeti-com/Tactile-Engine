@@ -102,7 +102,7 @@ namespace Tactile.Windows.UserInterface
         public void Update(ControlSet input,
             Vector2 draw_offset = default(Vector2))
         {
-            if (input.HasEnumFlag(ControlSet.Buttons))
+            if (input.HasEnumFlag(ControlSet.PadMove))
                 update_input();
             foreach (var node in Nodes)
                 node.Update(this, input, draw_offset);

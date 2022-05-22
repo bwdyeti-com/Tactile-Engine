@@ -7,17 +7,23 @@ namespace Tactile.Windows.UserInterface
     enum ControlSet : byte
     {
         None = 0,
-        Buttons = 1 << 0,
-        MouseMove = 1 << 1,
-        MouseButtons = 1 << 2,
-        TouchMove = 1 << 3,
-        TouchButtons = 1 << 4,
+        PadMove = 1 << 0,
+        PadButtons = 1 << 1,
+        MouseMove = 1 << 2,
+        MouseButtons = 1 << 3,
+        TouchMove = 1 << 4,
+        TouchButtons = 1 << 5,
+
+        Pad = PadMove | PadButtons,
         Mouse = MouseMove | MouseButtons,
         Touch = TouchMove | TouchButtons,
+
         Pointing = Mouse | Touch,
-        Movement = Buttons | MouseMove | TouchMove,
-        All = Buttons | Mouse | Touch,
-        Disabled = 1 << 5
+        Movement = PadMove | MouseMove | TouchMove,
+
+        All = Pad | Mouse | Touch,
+
+        Disabled = 1 << 7
     }
 
     interface IUIObject
