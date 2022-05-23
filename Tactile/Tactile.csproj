@@ -509,15 +509,7 @@
     <Compile Include="Source Code\Sprites\Title\Title_Background.cs" />
     <Compile Include="Source Code\Sprites\Turn_Change_Effect.cs" />
     <Compile Include="Source Code\Sprites\Unit Components\Scroll_Bar.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\SoloAnim_Page.cs" />
     <Compile Include="Source Code\Sprites\Unit Components\Unit_Line_Cursor.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_1.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_2.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_3.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_4.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_5.cs" />
-    <Compile Include="Source Code\Sprites\Unit Components\Unit_Page_6.cs" />
     <Compile Include="Source Code\Sprites\Unit Components\Unit_Window_Inventory.cs" />
     <Compile Include="Source Code\Sprites\Weather\Rain_Handler.cs" />
     <Compile Include="Source Code\Sprites\Weather\Snow_Handler.cs" />
