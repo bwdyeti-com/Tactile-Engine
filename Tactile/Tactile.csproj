@@ -347,6 +347,7 @@
     <Compile Include="Source Code\Windows\ScrollComponent.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Placeable.cs" />
     <Compile Include="Source Code\Windows\Title\WindowSupportViewerActorList.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Command\Config\ConfigLabeledUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\GamepadRemapUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\KeyRemapUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\SliderUINode.cs" />

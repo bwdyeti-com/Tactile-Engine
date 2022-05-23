@@ -22,10 +22,6 @@ namespace Tactile.Windows.UserInterface.Command.Config
             GaugeMin = gaugeMin;
             GaugeMax = gaugeMax;
 
-            Text = new TextSprite();
-            Text.SetFont(Tactile.Config.UI_FONT, Global.Content, "White");
-            Text.text = str;
-
             Bar = new Slider();
             Bar.offset = new Vector2(-120 - 2, -8);
             Bar.bar_width = gaugeWidth;

@@ -6,9 +6,8 @@ using Tactile.Graphics.Help;
 
 namespace Tactile.Windows.UserInterface.Command.Config
 {
-    class GamepadRemapUINode : ConfigUINode
+    class GamepadRemapUINode : ConfigLabeledUINode
     {
-        private TextSprite Text;
         private Button_Description Value;
         private Inputs Input;
 
@@ -17,16 +16,13 @@ namespace Tactile.Windows.UserInterface.Command.Config
                 Inputs input,
                 string str,
                 int width)
-            : base(helpLabel)
+            : base(helpLabel, str)
         {
             Input = input;
 
             RefreshButton();
 
-            Text = new TextSprite();
-            Text.SetFont(Tactile.Config.UI_FONT, Global.Content, "White");
             Text.draw_offset = new Vector2(8, 0);
-            Text.text = str;
 
             Size = new Vector2(width, 16);
         }
@@ -42,33 +38,35 @@ namespace Tactile.Windows.UserInterface.Command.Config
             Value = buttonIcon;
         }
 
+        protected override void set_label_color(string color) { }
+
         internal override void set_text_color(string color) { }
 
         protected override void update_graphics(bool activeNode)
         {
-            Text.update();
+            base.update_graphics(activeNode);
             Value.Update();
         }
 
         protected override void mouse_off_graphic()
         {
-            Text.tint = Color.White;
+            base.mouse_off_graphic();
             Value.tint = Color.White;
         }
         protected override void mouse_highlight_graphic()
         {
-            Text.tint = Tactile.Config.MOUSE_OVER_ELEMENT_COLOR;
+            base.mouse_highlight_graphic();
             Value.tint = Tactile.Config.MOUSE_OVER_ELEMENT_COLOR;
         }
         protected override void mouse_click_graphic()
         {
-            Text.tint = Tactile.Config.MOUSE_PRESSED_ELEMENT_COLOR;
+            base.mouse_click_graphic();
             Value.tint = Tactile.Config.MOUSE_PRESSED_ELEMENT_COLOR;
         }
 
         public override void Draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
-            Text.draw(sprite_batch, draw_offset - (loc + draw_vector()));
+            base.Draw(sprite_batch, draw_offset);
             Value.Draw(sprite_batch, draw_offset - (loc + draw_vector()));
         }
     }
