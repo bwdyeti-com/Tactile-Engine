@@ -8,6 +8,8 @@ namespace Tactile.Windows
         private Vector2 OffsetTarget;
         private bool IndexedScroll = true;
 
+        public Vector2 Target { get { return OffsetTarget; } }
+
         public override DirectionFlags ScrollDirection
         {
             get
