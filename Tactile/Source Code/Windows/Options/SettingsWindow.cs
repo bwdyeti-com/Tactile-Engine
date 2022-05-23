@@ -82,7 +82,7 @@ namespace Tactile.Windows.Options
                     (Items[index] as GamepadRemapUINode).RefreshButton();
                     break;
                 case ConfigTypes.SubSettings:
-                    (Items[index] as ButtonUINode).set_description(settings.Value<String>(index));
+                    // Nothing to update for submenus
                     break;
             }
 
@@ -134,7 +134,6 @@ namespace Tactile.Windows.Options
                     node = new ToggleboxUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Button:
-                case ConfigTypes.SubSettings:
                 default:
                     node = new ButtonUINode("", str, "", this.column_width);
                     break;
@@ -158,6 +157,9 @@ namespace Tactile.Windows.Options
                         label = str.Split('\n')[1];
 
                     node = new GamepadRemapUINode("", input, label, this.column_width);
+                    break;
+                case ConfigTypes.SubSettings:
+                    node = new SubmenuUINode("", str, this.column_width);
                     break;
             }
             node.loc = item_loc(index);
