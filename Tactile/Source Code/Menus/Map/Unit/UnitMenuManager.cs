@@ -1284,10 +1284,12 @@ namespace Tactile.Menus.Map.Unit
                 // Lock in unit movement
                 unit.moved();
                 Global.game_map.remove_updated_move_range(unit.id);
-                Global.game_state.call_shop_suspend();
                 // If not entering the arena
                 if (!Global.game_system.In_Arena)
                 {
+                    // Skip this when entering the arena
+                    Global.game_state.call_shop_suspend();
+
                     if (!unit.has_canto() || unit.full_move())
                         unit.start_wait();
                     Global.game_map.clear_move_range();
@@ -1336,7 +1338,7 @@ namespace Tactile.Menus.Map.Unit
             if (unit.is_dead)
             {
                 unit.gladiator = true;
-                Global.game_state.call_shop_suspend();
+                Global.game_state.CleanupArena();
             }
             // Otherwise shop is just closing
             else
@@ -1344,11 +1346,9 @@ namespace Tactile.Menus.Map.Unit
                 // Lock in unit movement
                 unit.moved();
                 Global.game_map.remove_updated_move_range(unit.id);
-                // Doesn't actually suspend, just does other cleanup //@Debug
-                Global.game_state.call_shop_suspend();
+                Global.game_state.CleanupArena();
 
                 Global.game_map.clear_move_range();
-                Global.game_temp.menuing = false;
             }
 
             // Close shop menu

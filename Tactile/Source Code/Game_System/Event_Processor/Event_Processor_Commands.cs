@@ -1654,29 +1654,60 @@ namespace Tactile
             return true;
         }
 
-        // Class Change
+        // 51: Class Change
         private bool command_class_change()
         {
-            // Value[0] = id is for a unit, or for an actor
-            // Value[1] = id
-            // Value[2] = new class id
-            // Value[3] = promote or class change
             Game_Actor actor;
-            get_actor(command.Value[0], command.Value[1], out actor);
-            if (actor != null)
+            switch (command.Value[0])
             {
-                if (process_bool(command.Value[3]))
-                    actor.quick_promotion(process_number(command.Value[2]));
-                else
-                {
-                    throw new NotImplementedException();
-                    actor.class_id = process_number(command.Value[2]);
-                }
-                foreach (Game_Unit unit in Global.game_map.units.Values)
-                    if (unit.actor == actor)
-                        unit.refresh_sprite();
-                // Move ranges will need to be updated
-                unit_moved = true;
+                case "Promotion":
+                    // Value[0] = "Promotion"
+                    // Value[1] = id is for a unit, or for an actor
+                    // Value[2] = id
+                    // Value[3] = index in promotion array (optional)
+                    get_actor(command.Value[1], command.Value[2], out actor);
+                    if (actor != null)
+                    {
+                        int promotionIndex = command.Value.Length >= 4 ?
+                            process_number(command.Value[3]) : 0;
+                        if (promotionIndex < actor.actor_class.Promotion.Count)
+                        {
+                            int promotionId = actor.actor_class.Promotion
+                                .Keys
+                                .OrderBy(x => x)
+                                .ElementAt(promotionIndex);
+
+                            actor.quick_promotion(promotionId);
+                            foreach (Game_Unit unit in Global.game_map.units.Values)
+                                if (unit.actor == actor)
+                                    unit.refresh_sprite();
+                            // Move ranges will need to be updated
+                            unit_moved = true;
+                        }
+                    }
+                    break;
+                default:
+                    // Value[0] = id is for a unit, or for an actor
+                    // Value[1] = id
+                    // Value[2] = new class id
+                    // Value[3] = promote or class change
+                    get_actor(command.Value[0], command.Value[1], out actor);
+                    if (actor != null)
+                    {
+                        if (process_bool(command.Value[3]))
+                            actor.quick_promotion(process_number(command.Value[2]));
+                        else
+                        {
+                            throw new NotImplementedException();
+                            actor.class_id = process_number(command.Value[2]);
+                        }
+                        foreach (Game_Unit unit in Global.game_map.units.Values)
+                            if (unit.actor == actor)
+                                unit.refresh_sprite();
+                        // Move ranges will need to be updated
+                        unit_moved = true;
+                    }
+                    break;
             }
             Index++;
             return true;
