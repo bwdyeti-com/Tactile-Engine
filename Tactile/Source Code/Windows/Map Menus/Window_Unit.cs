@@ -967,7 +967,7 @@ namespace Tactile.Windows.Map
                             CancelButton.consume_trigger(MouseButtons.Left) ||
                             CancelButton.consume_trigger(TouchGestures.Tap))
                         {
-                            if (Preparations)
+                            if (Preparations && PickUnits_Window != null)
                                 PickUnits_Window.actor_id = HeaderActive ? Global.game_map.units[Team[0]].actor.id : unit.actor.id;
                             Unit_Selected = false;
                             Global.game_system.play_se(System_Sounds.Cancel);

@@ -60,7 +60,7 @@ namespace Tactile.Windows.Map
 
         protected override bool DeterminePreparations()
         {
-            return Global.game_system.home_base;
+            return false;
         }
 
         protected override void refresh_banner_text()
