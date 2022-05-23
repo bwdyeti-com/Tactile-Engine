@@ -64,7 +64,7 @@ namespace Tactile.Windows.Options
             switch (type)
             {
                 case ConfigTypes.OnOffSwitch:
-                    (Items[index] as ConfigTextUINode).set_text(settings.ValueString(index));
+                    (Items[index] as ToggleboxUINode).SetValue((bool)settings.ValueObject(index));
                     break;
                 case ConfigTypes.Number:
                     (Items[index] as NumberUINode).set_text(settings.ValueString(index));
@@ -131,7 +131,7 @@ namespace Tactile.Windows.Options
                     node = new SliderUINode("", str, this.column_width, min, max, 48);
                     break;
                 case ConfigTypes.OnOffSwitch:
-                    node = new ConfigTextUINode("", str, this.column_width);
+                    node = new ToggleboxUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Button:
                 case ConfigTypes.SubSettings:
