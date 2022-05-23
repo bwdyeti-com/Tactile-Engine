@@ -55,7 +55,7 @@ namespace Tactile
             Unit_Header.loc = new Vector2(-8, -20);
             // Cursor
             Selected_Cursor = new Hand_Cursor();
-            Selected_Cursor.loc = cursor_loc() + new Vector2(8, 4);
+            Selected_Cursor.draw_offset = new Vector2(-12, 0);
             Selected_Cursor.tint = new Color(192, 192, 192, 255);
         }
         
