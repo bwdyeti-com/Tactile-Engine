@@ -10,7 +10,7 @@ namespace Tactile.Options
         public ConfigTypes Type { get; private set; }
         public string FormatString { get; private set; }
         private readonly int[] _DependentSettings;
-        public Range<int> Range { get; private set; }
+        public IntRange Range { get; private set; }
         public bool UpdateBeforeConfirming { get; private set; }
 
         public int[] DependentSettings { get { return _DependentSettings == null ? null : _DependentSettings.ToArray(); } }
@@ -34,7 +34,7 @@ namespace Tactile.Options
             Type = type;
             FormatString = formatString;
             _DependentSettings = dependentSettings;
-            Range = new Range<int>(rangeMin, rangeMax);
+            Range = new IntRange(rangeMin, rangeMax);
             UpdateBeforeConfirming = updateBeforeConfirming;
         }
 
@@ -83,7 +83,7 @@ namespace Tactile.Options
 
         public abstract object GetDefaultValue(int offset);
 
-        public abstract void SetValue(ref object setting, object value, Func<Range<int>> rangeCallback, int offset);
+        public abstract void SetValue(ref object setting, object value, Func<IntRange> rangeCallback, int offset);
     }
 
     class SettingsData<T> : SettingsData
@@ -117,7 +117,7 @@ namespace Tactile.Options
             return DefaultValue;
         }
 
-        public override void SetValue(ref object setting, object value, Func<Range<int>> rangeCallback, int offset)
+        public override void SetValue(ref object setting, object value, Func<IntRange> rangeCallback, int offset)
         {
             if (rangeCallback != null)
             {
@@ -142,7 +142,7 @@ namespace Tactile.Options
             setting = (T)value;
         }
 
-        protected int ClampRange(Range<int> range, int value)
+        protected int ClampRange(IntRange range, int value)
         {
             return Math.Min(range.Maximum,
                 Math.Max(range.Minimum, value));
@@ -186,7 +186,7 @@ namespace Tactile.Options
             return DefaultValue[offset];
         }
 
-        public override void SetValue(ref object setting, object value, Func<Range<int>> rangeCallback, int offset)
+        public override void SetValue(ref object setting, object value, Func<IntRange> rangeCallback, int offset)
         {
             if (rangeCallback != null)
             {
@@ -215,7 +215,7 @@ namespace Tactile.Options
             settingArray[offset] = (T)value;
         }
 
-        protected int ClampRange(Range<int> range, int value)
+        protected int ClampRange(IntRange range, int value)
         {
             return Math.Min(range.Maximum,
                 Math.Max(range.Minimum, value));

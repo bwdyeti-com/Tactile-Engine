@@ -115,7 +115,7 @@ namespace Tactile.Options
         /// Throws an exception if the setting is not numeric.
         /// </summary>
         /// <param name="index">The index of the setting.</param>
-        Range<int> ValueRange(int index);
+        IntRange ValueRange(int index);
 
         /// <summary>
         /// Gets interval step a setting changes by.

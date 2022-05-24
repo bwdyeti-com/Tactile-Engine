@@ -226,16 +226,16 @@ namespace Tactile.Options
             }
         }
 
-        public override Range<int> ValueRange(Tuple<int, int> entry)
+        public override IntRange ValueRange(Tuple<int, int> entry)
         {
             switch (entry.Item1)
             {
                 case (int)GraphicsSetting.Zoom:
-                    return new Range<int>(
+                    return new IntRange(
                         ZoomMin.OrIfNothing(1),
                         ZoomMax.OrIfNothing(2));
                 case (int)GraphicsSetting.MonitorIndex:
-                    return new Range<int>(0, 0);
+                    return new IntRange(0, 0);
             }
 
             return base.ValueRange(entry);

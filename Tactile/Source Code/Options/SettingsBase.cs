@@ -366,11 +366,11 @@ namespace Tactile.Options
             SetValue(index, other.ValueObject(index));
         }
 
-        public Range<int> ValueRange(int index)
+        public IntRange ValueRange(int index)
         {
             return ValueRange(GetEntryIndex(index));
         }
-        public virtual Range<int> ValueRange(Tuple<int, int> entry)
+        public virtual IntRange ValueRange(Tuple<int, int> entry)
         {
             switch (SettingType(entry))
             {
@@ -387,7 +387,7 @@ namespace Tactile.Options
                     this.GetType().Name, SettingLabel(entry), entry));
 #endif
 
-            return new Range<int>(0, 0);
+            return new IntRange(0, 0);
         }
 
         public virtual int ValueInterval(int index)
