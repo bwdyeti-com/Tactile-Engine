@@ -51,6 +51,12 @@ namespace Tactile.Options
         IEnumerable<int> DependentSettings(int index);
 
         /// <summary>
+        /// Returns the desired menu width of the setting's options.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
+        int SettingWidth(int index);
+
+        /// <summary>
         /// Returns true if the given setting, when changed in an options menu,
         /// should preview the new value even before confirming.
         /// </summary>

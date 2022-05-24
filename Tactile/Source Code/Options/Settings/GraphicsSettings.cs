@@ -54,16 +54,21 @@ namespace Tactile.Options
                 SettingsData.Create("Window Mode", ConfigTypes.List, (int)WindowMode.Windowed,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
                     rangeMin: (int)WindowMode.Windowed,
-                    rangeMax: (int)WindowMode.Fullscreen),
+                    rangeMax: (int)WindowMode.Fullscreen,
+                    width: 48),
                 SettingsData.Create("Zoom", ConfigTypes.List,
-                    Rendering.GameRenderer.ZOOM),
+                    Rendering.GameRenderer.ZOOM,
+                    formatString: "{0}x",
+                    width: 24),
 #else
                 new NullSettingsData(),
                 new NullSettingsData(),
 #endif
                 SettingsData.Create("Stereoscopic 3D", ConfigTypes.List, 0,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
-                    formatString: "On ({0})", rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL),
+                    formatString: "On ({0})",
+                    rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL,
+                    width: 40),
                 SettingsData.Create("  Red-Cyan (3D)", ConfigTypes.OnOffSwitch, false),
 #if !__MOBILE__
                 //@Yeti: hide this setting for now, until it's supporting

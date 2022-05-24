@@ -396,7 +396,9 @@ namespace Tactile.Windows.Options
                 Math.Min(index, maxIndex) * 16);
 
             var settingListWindow = new Window_Command_Scrollbar(
-                subMenuLocation, 80, LIST_SUBMENU_ROWS,
+                subMenuLocation,
+                Settings.SettingWidth(index) + 32,
+                LIST_SUBMENU_ROWS,
                 strs);
             settingListWindow.immediate_index =
                 Settings.Value<int>(index) - Settings.ValueRange(index).Minimum;

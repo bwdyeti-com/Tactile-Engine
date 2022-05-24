@@ -274,6 +274,12 @@ namespace Tactile.Options
             yield break;
         }
 
+        public int SettingWidth(int index)
+        {
+            var entry = GetEntryIndex(index);
+            return _Data[entry.Item1].Width;
+        }
+
         public bool SettingUpdatesBeforeConfirm(int index)
         {
             var entry = GetEntryIndex(index);
