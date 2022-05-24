@@ -232,8 +232,7 @@ namespace Tactile.Windows.Options
                     if (selected)
                     {
                         OpenSettingList = true;
-                        SelectedSettingCursor.force_loc(UICursor.loc);
-                        selected = false;
+                        SelectedSettingCursor.visible = false;
                     }
                     break;
                 case ConfigTypes.OnOffSwitch:
@@ -402,23 +401,34 @@ namespace Tactile.Windows.Options
             settingListWindow.immediate_index =
                 Settings.Value<int>(index) - Settings.ValueRange(index).Minimum;
             settingListWindow.refresh_scroll();
+            settingListWindow.current_cursor_loc = this.loc + UICursor.loc +
+                new Vector2(0, settingListWindow.scroll * 16);
             return settingListWindow;
         }
+
         public bool SelectSettingListItem(int settingIndex)
         {
             // Correct the index to the value
             int settingValue = settingIndex + Settings.ValueRange(index).Minimum;
 
-            Settings.ConfirmSetting(this.index, settingValue);
-            Input.ResetDoubleTap();
-            SelectedSettingCursor.force_loc(UICursor.loc);
+            TempSelectedSettings.SetValue(this.index, settingValue);
+            ConfirmSetting();
 
-            RefreshCurrentValue(Settings);
-            UICursor.force_loc(SelectedSettingCursor.loc);
             UICursor.update();
+            UICursor.move_to_target_loc();
+            SelectedSettingCursor.visible = true;
 
             return true;
         }
+
+        public void CloseSettingList()
+        {
+            SelectedSettingCursor.visible = true;
+            CancelSetting();
+            UICursor.update();
+            UICursor.move_to_target_loc();
+        }
+
         public void ClearSettingList()
         {
             OpenSettingList = false;

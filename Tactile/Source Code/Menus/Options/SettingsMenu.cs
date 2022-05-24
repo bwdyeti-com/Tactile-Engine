@@ -94,7 +94,7 @@ namespace Tactile.Menus.Options
                 {
                     UpdateGamepadRemap(settingsWindow, cancel);
                 }
-                else
+                else if (active)
                 {
                     if (cancel ||
                         Global.Input.triggered(Inputs.B))
@@ -225,7 +225,16 @@ namespace Tactile.Menus.Options
         public bool SelectSettingListItem(int settingIndex)
         {
             var settingsWindow = Window as SettingsWindow;
-            return settingsWindow.SelectSettingListItem(settingIndex);
+            bool result = settingsWindow.SelectSettingListItem(settingIndex);
+            if (result)
+                MenuSettingSelected = false;
+            return result;
+        }
+        public void CloseSettingList()
+        {
+            var settingsWindow = Window as SettingsWindow;
+            MenuSettingSelected = false;
+            settingsWindow.CloseSettingList();
         }
 
         private void IgnoreInputs()

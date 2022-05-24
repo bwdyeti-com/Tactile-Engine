@@ -189,6 +189,9 @@ namespace Tactile.Menus.Map
         void SettingListCommandMenu_Canceled(object sender, EventArgs e)
         {
             RemoveTopMenu();
+
+            var settingsMenu = (Menus.ElementAt(0) as SettingsMenu);
+            settingsMenu.CloseSettingList();
         }
 
         void settingsMenu_Canceled(object sender, EventArgs e)
