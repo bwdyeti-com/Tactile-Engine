@@ -51,24 +51,24 @@ namespace Tactile.Options
             return new List<SettingsData>
             {
 #if !__MOBILE__
-                SettingsData.Create("Window Mode", ConfigTypes.Number, (int)WindowMode.Windowed,
+                SettingsData.Create("Window Mode", ConfigTypes.List, (int)WindowMode.Windowed,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
                     rangeMin: (int)WindowMode.Windowed,
                     rangeMax: (int)WindowMode.Fullscreen),
-                SettingsData.Create("Zoom", ConfigTypes.Number,
+                SettingsData.Create("Zoom", ConfigTypes.List,
                     Rendering.GameRenderer.ZOOM),
 #else
                 new NullSettingsData(),
                 new NullSettingsData(),
 #endif
-                SettingsData.Create("Stereoscopic 3D", ConfigTypes.Number, 0,
+                SettingsData.Create("Stereoscopic 3D", ConfigTypes.List, 0,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
                     formatString: "On ({0})", rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL),
                 SettingsData.Create("  Red-Cyan (3D)", ConfigTypes.OnOffSwitch, false),
 #if !__MOBILE__
                 //@Yeti: hide this setting for now, until it's supporting
                 new NullSettingsData(),
-                //SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
+                //SettingsData.Create("Monitor Index", ConfigTypes.List, Maybe<int>.Nothing),
                 SettingsData.Create("Minimize When Inactive", ConfigTypes.OnOffSwitch, false)
 #else
                 new NullSettingsData(),

@@ -299,7 +299,7 @@ namespace Tactile.Options
                 case ConfigTypes.OnOffSwitch:
                     result = (bool)ValueObject(index);
                     return (T)result;
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     result = (int)ValueObject(index);
                     return (T)result;
@@ -331,7 +331,7 @@ namespace Tactile.Options
                 case ConfigTypes.OnOffSwitch:
                     bool value = Value<bool>(index);
                     return value ? "On" : "Off";
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     int intValue = Value<int>(index);
                     return string.Format(FormatString(index), intValue);
@@ -361,7 +361,7 @@ namespace Tactile.Options
         {
             switch (SettingType(entry))
             {
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     return _Data[entry.Item1].Range;
             }
@@ -381,7 +381,7 @@ namespace Tactile.Options
         {
             switch (SettingType(index))
             {
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     return 1;
             }

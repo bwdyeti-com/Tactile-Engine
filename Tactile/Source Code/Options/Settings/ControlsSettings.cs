@@ -52,7 +52,7 @@ namespace Tactile.Options
                 //@Debug: Need percent sign % in the font
                 SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 20,
                     formatString: "{0}%", rangeMin: 10, rangeMax: 80),
-                SettingsData.Create("Button Icons", ConfigTypes.Number, (int)ButtonIcons.Xbox360,
+                SettingsData.Create("Button Icons", ConfigTypes.List, (int)ButtonIcons.Xbox360,
                     rangeMin: 0, rangeMax: 1),
                 SettingsData.Create("Keyboard Controls", ConfigTypes.SubSettings, ""),
                 SettingsData.Create("Gamepad Controls", ConfigTypes.SubSettings, ""),

@@ -4,7 +4,7 @@ using TactileLibrary;
 
 namespace Tactile.Options
 {
-    enum ConfigTypes { None, Number, Slider, OnOffSwitch, Button, Keyboard, Gamepad, SubSettings }
+    enum ConfigTypes { None, List, Slider, OnOffSwitch, Button, Keyboard, Gamepad, SubSettings }
 
     interface ISettings : ICloneable
     {

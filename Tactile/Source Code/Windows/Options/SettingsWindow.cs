@@ -66,7 +66,7 @@ namespace Tactile.Windows.Options
                 case ConfigTypes.OnOffSwitch:
                     (Items[index] as ToggleboxUINode).SetValue((bool)settings.ValueObject(index));
                     break;
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                     (Items[index] as NumberUINode).set_text(settings.ValueString(index));
                     break;
                 case ConfigTypes.Slider:
@@ -121,7 +121,7 @@ namespace Tactile.Windows.Options
             CommandUINode node;
             switch (type)
             {
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                     node = new NumberUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Slider:
@@ -401,7 +401,7 @@ namespace Tactile.Windows.Options
                 var settings = TempSelectedSettings;
                 switch (settings.SettingType(this.index))
                 {
-                    case ConfigTypes.Number:
+                    case ConfigTypes.List:
                     case ConfigTypes.Slider:
                         int value = settings.Value<int>(index);
                         settings.ConfirmSetting(
