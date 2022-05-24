@@ -6,20 +6,23 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Tactile.Graphics.Text;
 using Tactile.Options;
+using Tactile.Windows.Command;
 using Tactile.Windows.UserInterface.Command;
 using Tactile.Windows.UserInterface.Command.Config;
 
 namespace Tactile.Windows.Options
 {
-    class SettingsWindow : Command.Window_Command_Scrollbar
+    class SettingsWindow : Window_Command_Scrollbar
     {
         const int VALUE_OFFSET = 120;
         const int ROWS = 9;
+        const int LIST_SUBMENU_ROWS = 6;
 
         private ISettings Settings;
         private bool SettingSelected;
         private ISettings TempSelectedSettings, TempOriginalSettings;
         public bool OpenSubMenu { get; private set; }
+        public bool OpenSettingList { get; private set; }
 
         private Hand_Cursor SelectedSettingCursor;
 
@@ -225,10 +228,19 @@ namespace Tactile.Windows.Options
         {
             switch (Settings.SettingType(this.index))
             {
+                case ConfigTypes.List:
+                    if (selected)
+                    {
+                        OpenSettingList = true;
+                        SelectedSettingCursor.force_loc(UICursor.loc);
+                        selected = false;
+                    }
+                    break;
                 case ConfigTypes.OnOffSwitch:
                     bool flag = Settings.Value<bool>(index);
                     Settings.ConfirmSetting(this.index, !flag);
                     Input.ResetDoubleTap();
+                    SelectedSettingCursor.force_loc(UICursor.loc);
                     selected = false;
                     break;
                 case ConfigTypes.Button:
@@ -241,6 +253,9 @@ namespace Tactile.Windows.Options
                         selected = false;
                     }
                     break;
+                case ConfigTypes.Keyboard:
+                case ConfigTypes.Gamepad:
+                    break;
                 case ConfigTypes.SubSettings:
                     if (selected)
                     {
@@ -248,9 +263,6 @@ namespace Tactile.Windows.Options
                         SelectedSettingCursor.force_loc(UICursor.loc);
                         selected = false;
                     }
-                    break;
-                case ConfigTypes.Keyboard:
-                case ConfigTypes.Gamepad:
                     break;
                 default:
                     Items[this.index].set_text_color(selected ? "Green" : "White");
@@ -365,6 +377,51 @@ namespace Tactile.Windows.Options
         public void ClearSubMenu()
         {
             OpenSubMenu = false;
+        }
+
+        public Window_Command GetSettingListWindow()
+        {
+            return GetSettingListWindow(this.index);
+        }
+        private Window_Command GetSettingListWindow(int index)
+        {
+            int maxIndex = (int)Math.Ceiling((Config.WINDOW_HEIGHT - this.loc.Y) / 16) - (LIST_SUBMENU_ROWS+ 2);
+
+            // Get names for values from the settings
+            List<string> strs = Settings.ValueRange(index).Enumerate()
+                .Select(x => Settings.ValueString(index, x))
+                .ToList();
+
+            Vector2 subMenuLocation = this.loc + new Vector2(
+                120,
+                Math.Min(index, maxIndex) * 16);
+
+            var settingListWindow = new Window_Command_Scrollbar(
+                subMenuLocation, 80, LIST_SUBMENU_ROWS,
+                strs);
+            settingListWindow.immediate_index =
+                Settings.Value<int>(index) - Settings.ValueRange(index).Minimum;
+            settingListWindow.refresh_scroll();
+            return settingListWindow;
+        }
+        public bool SelectSettingListItem(int settingIndex)
+        {
+            // Correct the index to the value
+            int settingValue = settingIndex + Settings.ValueRange(index).Minimum;
+
+            Settings.ConfirmSetting(this.index, settingValue);
+            Input.ResetDoubleTap();
+            SelectedSettingCursor.force_loc(UICursor.loc);
+
+            RefreshCurrentValue(Settings);
+            UICursor.force_loc(SelectedSettingCursor.loc);
+            UICursor.update();
+
+            return true;
+        }
+        public void ClearSettingList()
+        {
+            OpenSettingList = false;
         }
 
         protected override void update_ui(bool input)

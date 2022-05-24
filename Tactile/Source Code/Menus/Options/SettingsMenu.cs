@@ -35,6 +35,13 @@ namespace Tactile.Menus.Options
                 OpenSubMenu(this, e);
         }
 
+        public event EventHandler<EventArgs> OpenSettingList;
+        private void OnOpenSettingList(EventArgs e)
+        {
+            if (OpenSettingList != null)
+                OpenSettingList(this, e);
+        }
+
         protected override void Activate()
         {
             base.Activate();
@@ -126,6 +133,11 @@ namespace Tactile.Menus.Options
                 Window.visible = false;
                 settingsWindow.ClearSubMenu();
             }
+            else if (active && settingsWindow.OpenSettingList)
+            {
+                OnOpenSettingList(new EventArgs());
+                settingsWindow.ClearSettingList();
+            }
         }
 
         private void UpdateKeyboardRemap(SettingsWindow settingsWindow, bool cancel)
@@ -203,6 +215,17 @@ namespace Tactile.Menus.Options
         {
             var settingsWindow = Window as SettingsWindow;
             return settingsWindow.GetSubSettings();
+        }
+
+        public Windows.Command.Window_Command GetSettingListWindow()
+        {
+            var settingsWindow = Window as SettingsWindow;
+            return settingsWindow.GetSettingListWindow();
+        }
+        public bool SelectSettingListItem(int settingIndex)
+        {
+            var settingsWindow = Window as SettingsWindow;
+            return settingsWindow.SelectSettingListItem(settingIndex);
         }
 
         private void IgnoreInputs()
