@@ -35,11 +35,11 @@ namespace Tactile.Windows.UserInterface.Command.Config
             Value.SetColor(Global.Content, color);
         }
 
-        internal void set_value(int value)
+        internal virtual void set_value(int value)
         {
             Value.text = value.ToString();
         }
-        internal void set_text(string text)
+        internal virtual void set_text(string text)
         {
             Value.text = text;
         }

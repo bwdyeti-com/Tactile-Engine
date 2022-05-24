@@ -350,6 +350,7 @@
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ConfigLabeledUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\GamepadRemapUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\KeyRemapUINode.cs" />
+    <Compile Include="Source Code\Windows\User Interface\Command\Config\ListUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\SubmenuUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ToggleboxUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\SliderUINode.cs" />

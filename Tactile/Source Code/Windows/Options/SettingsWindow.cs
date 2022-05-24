@@ -70,7 +70,7 @@ namespace Tactile.Windows.Options
                     (Items[index] as ToggleboxUINode).SetValue((bool)settings.ValueObject(index));
                     break;
                 case ConfigTypes.List:
-                    (Items[index] as NumberUINode).set_text(settings.ValueString(index));
+                    (Items[index] as ListUINode).set_text(settings.ValueString(index));
                     break;
                 case ConfigTypes.Slider:
                     (Items[index] as SliderUINode).set_value(settings.Value<int>(index), settings.ValueString(index));
@@ -125,7 +125,7 @@ namespace Tactile.Windows.Options
             switch (type)
             {
                 case ConfigTypes.List:
-                    node = new NumberUINode("", str, this.column_width);
+                    node = new ListUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Slider:
                     var range = Settings.ValueRange(index);
@@ -392,7 +392,7 @@ namespace Tactile.Windows.Options
                 .ToList();
 
             Vector2 subMenuLocation = this.loc + new Vector2(
-                120,
+                120 + 8,
                 Math.Min(index, maxIndex) * 16);
 
             var settingListWindow = new Window_Command_Scrollbar(
