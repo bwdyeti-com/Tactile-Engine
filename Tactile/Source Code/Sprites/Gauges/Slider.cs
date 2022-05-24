@@ -12,12 +12,11 @@ namespace Tactile.Graphics.Gauges
             ThumbTexture = Global.Content.Load<Texture2D>(@"Graphics/Windowskins/UIButtons");
         }
 
-        bool wah = false;
         public override void draw_fill(SpriteBatch sprite_batch, Vector2 draw_offset)
         {
             base.draw_fill(sprite_batch, draw_offset);
 
-            if (visible && wah)
+            if (visible)
                 if (ThumbTexture != null)
                 {
                     sprite_batch.Draw(ThumbTexture, (loc + draw_vector()) - draw_offset +
