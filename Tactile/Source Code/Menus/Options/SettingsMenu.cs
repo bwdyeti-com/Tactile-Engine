@@ -85,32 +85,35 @@ namespace Tactile.Menus.Options
             // Setting selected
             if (MenuSettingSelected)
             {
-                // Input remapping
-                if (settingsWindow.KeyboardRemapSetting)
+                if (active)
                 {
-                    UpdateKeyboardRemap(settingsWindow, cancel);
-                }
-                else if (settingsWindow.GamepadRemapSetting)
-                {
-                    UpdateGamepadRemap(settingsWindow, cancel);
-                }
-                else if (active)
-                {
-                    if (cancel ||
-                        Global.Input.triggered(Inputs.B))
+                    // Input remapping
+                    if (settingsWindow.KeyboardRemapSetting)
                     {
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        MenuSettingSelected = false;
-                        settingsWindow.CancelSetting();
+                        UpdateKeyboardRemap(settingsWindow, cancel);
                     }
-                    else if (Global.Input.KeyPressed(Keys.Enter) ||
-                        Global.Input.triggered(Inputs.A) ||
-                        Global.Input.triggered(Inputs.Start))
+                    else if (settingsWindow.GamepadRemapSetting)
                     {
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        MenuSettingSelected = false;
-                        IgnoreInputs();
-                        settingsWindow.ConfirmSetting();
+                        UpdateGamepadRemap(settingsWindow, cancel);
+                    }
+                    else
+                    {
+                        if (cancel ||
+                            Global.Input.triggered(Inputs.B))
+                        {
+                            Global.game_system.play_se(System_Sounds.Cancel);
+                            MenuSettingSelected = false;
+                            settingsWindow.CancelSetting();
+                        }
+                        else if (Global.Input.KeyPressed(Keys.Enter) ||
+                            Global.Input.triggered(Inputs.A) ||
+                            Global.Input.triggered(Inputs.Start))
+                        {
+                            Global.game_system.play_se(System_Sounds.Confirm);
+                            MenuSettingSelected = false;
+                            IgnoreInputs();
+                            settingsWindow.ConfirmSetting();
+                        }
                     }
                 }
             }

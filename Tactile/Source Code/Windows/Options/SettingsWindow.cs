@@ -470,7 +470,6 @@ namespace Tactile.Windows.Options
                 var settings = TempSelectedSettings;
                 switch (settings.SettingType(this.index))
                 {
-                    case ConfigTypes.List:
                     case ConfigTypes.Slider:
                         int value = settings.Value<int>(index);
                         settings.ConfirmSetting(
@@ -478,16 +477,6 @@ namespace Tactile.Windows.Options
                             value + settings.ValueInterval(this.index) * (right ? 1 : -1));
                         if (value != settings.Value<int>(index))
                         {
-                            valueChanged = true;
-                            // Menu move sound
-                            Global.game_system.play_se(System_Sounds.Menu_Move2);
-                        }
-                        break;
-                    case ConfigTypes.OnOffSwitch:
-                        bool flag = settings.Value<bool>(index);
-                        if (!flag == right)
-                        {
-                            settings.ConfirmSetting(this.index, !flag);
                             valueChanged = true;
                             // Menu move sound
                             Global.game_system.play_se(System_Sounds.Menu_Move2);
