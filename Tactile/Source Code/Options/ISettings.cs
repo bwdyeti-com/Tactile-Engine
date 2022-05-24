@@ -89,6 +89,12 @@ namespace Tactile.Options
         /// </summary>
         /// <param name="index">The index of the setting.</param>
         string ValueString(int index);
+        /// <summary>
+        /// Gets a string representing a setting's value.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
+        /// <param name="value">The value of the setting.</param>
+        string ValueString(int index, object value);
 
         /// <summary>
         /// Changes the value of a setting.

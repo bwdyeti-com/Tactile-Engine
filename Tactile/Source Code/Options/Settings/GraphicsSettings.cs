@@ -159,26 +159,38 @@ namespace Tactile.Options
 
             switch (entry.Item1)
             {
+                case (int)GraphicsSetting.Anaglyph:
+                    return ValueString(index, this.AnaglyphMode);
+            }
+
+            return base.ValueString(index);
+        }
+        public override string ValueString(int index, object value)
+        {
+            var entry = GetEntryIndex(index);
+
+            switch (entry.Item1)
+            {
                 case (int)GraphicsSetting.Fullscreen:
                     // Show enum name
-                    switch(_Fullscreen)
+                    switch((int)value)
                     {
-                        case WindowMode.Windowed:
+                        case (int)WindowMode.Windowed:
                             return "Windowed";
-                        case WindowMode.Fullscreen:
+                        case (int)WindowMode.Fullscreen:
                         default:
                             return "Fullscreen";
                     }
                 case (int)GraphicsSetting.Stereoscopic:
                     // Don't show value if 0
-                    if (_StereoscopicLevel == 0)
+                    if ((int)value == 0)
                         return "Off";
                     break;
                 case (int)GraphicsSetting.Anaglyph:
-                    return this.AnaglyphMode ? "On" : "Off";
+                    return (bool)value ? "On" : "Off";
             }
 
-            return base.ValueString(index);
+            return base.ValueString(index, value);
         }
 
         public override void SetValue(Tuple<int, int> entry, object value)

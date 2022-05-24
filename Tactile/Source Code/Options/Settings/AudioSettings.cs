@@ -106,7 +106,7 @@ namespace Tactile.Options
             }
         }
         
-        public override string ValueString(int index)
+        public override string ValueString(int index, object value)
         {
             var entry = GetEntryIndex(index);
 
@@ -116,11 +116,11 @@ namespace Tactile.Options
                 case (int)AudioSetting.MusicVolume:
                 case (int)AudioSetting.SoundVolume:
                     // Volume values are multiples of 10
-                    int optionIndex = Value<int>(index) * 10;
+                    int optionIndex = (int)value * 10;
                     return string.Format(FormatString(index), optionIndex);
             }
 
-            return base.ValueString(index);
+            return base.ValueString(index, value);
         }
 
         public override void SetValue(Tuple<int, int> entry, object value)

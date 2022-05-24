@@ -329,15 +329,28 @@ namespace Tactile.Options
             switch (type)
             {
                 case ConfigTypes.OnOffSwitch:
-                    bool value = Value<bool>(index);
-                    return value ? "On" : "Off";
+                    return ValueString(index, Value<bool>(index));
                 case ConfigTypes.List:
                 case ConfigTypes.Slider:
-                    int intValue = Value<int>(index);
-                    return string.Format(FormatString(index), intValue);
+                    return ValueString(index, Value<int>(index));
                 case ConfigTypes.Keyboard:
-                    Keys keyValue = Value<Keys>(index);
-                    return keyValue.ToString(); ;
+                    return ValueString(index, Value<Keys>(index));
+            }
+
+            return "";
+        }
+        public virtual string ValueString(int index, object value)
+        {
+            ConfigTypes type = SettingType(index);
+            switch (type)
+            {
+                case ConfigTypes.OnOffSwitch:
+                    return (bool)value ? "On" : "Off";
+                case ConfigTypes.List:
+                case ConfigTypes.Slider:
+                    return string.Format(FormatString(index), (int)value);
+                case ConfigTypes.Keyboard:
+                    return ((Keys)value).ToString();
             }
 
             return "";

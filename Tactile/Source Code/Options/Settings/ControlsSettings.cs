@@ -126,7 +126,7 @@ namespace Tactile.Options
             }
         }
 
-        public override string ValueString(int index)
+        public override string ValueString(int index, object value)
         {
             var entry = GetEntryIndex(index);
 
@@ -134,7 +134,7 @@ namespace Tactile.Options
             {
                 case (int)ControlsSetting.IconSet:
                     // System names
-                    switch (Value<int>(index))
+                    switch ((int)value)
                     {
                         case 0:
                         default:
@@ -144,7 +144,7 @@ namespace Tactile.Options
                     }
             }
 
-            return base.ValueString(index);
+            return base.ValueString(index, value);
         }
 
         public override void SetValue(Tuple<int, int> entry, object value)
