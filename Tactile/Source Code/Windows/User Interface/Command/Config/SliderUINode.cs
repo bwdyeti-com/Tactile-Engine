@@ -10,6 +10,8 @@ namespace Tactile.Windows.UserInterface.Command.Config
         private Slider Bar;
         private int GaugeMin, GaugeMax;
 
+        protected override bool IsSlider { get { return true; } }
+
         internal SliderUINode(
                 string helpLabel,
                 string str,
@@ -48,6 +50,12 @@ namespace Tactile.Windows.UserInterface.Command.Config
         {
             base.update_graphics(activeNode);
             Bar.update();
+        }
+
+        protected override float slide(Vector2 inputPosition, Vector2 drawOffset)
+        {
+            Vector2 slider_position = (inputPosition - HitBoxLoc(drawOffset + Bar.offset - Bar.draw_offset));
+            return (slider_position.X - 2) / (Bar.bar_width - 2);
         }
 
         protected override void mouse_off_graphic()

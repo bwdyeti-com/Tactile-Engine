@@ -302,6 +302,38 @@ namespace Tactile.Windows.Options
             SelectSetting(false);
         }
 
+        public bool ScrubbingSetting()
+        {
+            switch (Settings.SettingType(this.index))
+            {
+                case ConfigTypes.Slider:
+                    var sliderIndex = Items.consume_triggered(TouchGestures.Scrubbing);
+                    if (sliderIndex.IsSomething)
+                    {
+                        int min = Settings.ValueRange(this.index).Minimum;
+                        int range = Settings.ValueRange(this.index).Maximum - min;
+                        float value = Items.ActiveNode.SliderValue;
+                        value = value * range;
+                        int setting = min + (int)Math.Round(value / Settings.ValueInterval(this.index)) * Settings.ValueInterval(this.index);
+
+                        Settings.ConfirmSetting(this.index, setting);
+                        Input.ResetDoubleTap();
+                        RefreshCurrentValue(Settings);
+
+                        return true;
+                    }
+
+                    // This will block pointing from selecting sliders
+                    if (SelectedIndex.IsSomething && SelectedIndex.Control != ControlSchemes.Buttons)
+                    {
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
+        }
+
         public void ConfirmSetting()
         {
             if (TempSelectedSettings != null)

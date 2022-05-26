@@ -124,6 +124,10 @@ namespace Tactile.Menus.Options
                 {
                     Cancel();
                 }
+                else if (settingsWindow.IsSettingEnabled() && settingsWindow.ScrubbingSetting())
+                {
+                    //
+                }
                 else if (Window.is_selected() || Global.Input.KeyPressed(Keys.Enter))
                 {
                     SelectItem(true);
