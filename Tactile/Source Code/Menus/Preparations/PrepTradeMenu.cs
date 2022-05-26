@@ -104,7 +104,7 @@ namespace Tactile.Windows
             R_Button.stereoscopic = Config.PREPTRADE_NAMES_DEPTH;
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
             return Trade_Window.selected_index();
         }
@@ -114,7 +114,7 @@ namespace Tactile.Windows
             return Trade_Window.is_selected();
         }
 
-        public Maybe<int> help_index()
+        public ConsumedInput help_index()
         {
             return Trade_Window.help_index();
         }

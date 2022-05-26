@@ -506,7 +506,7 @@ namespace Tactile.Menus.Map.Unit
         {
             get
             {
-                return IndexRedirect[Window.selected_index().ValueOrDefault];
+                return IndexRedirect[Window.selected_index().Index];
             }
         }
 

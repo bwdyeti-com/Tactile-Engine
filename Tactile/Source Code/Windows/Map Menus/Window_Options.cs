@@ -346,7 +346,6 @@ namespace Tactile.Windows.Map
 
         protected override void update_input(bool active)
         {
-
             bool input = active && this.ready_for_inputs;
 
             update_node_location(input);
@@ -374,7 +373,7 @@ namespace Tactile.Windows.Map
                 bool soloanim_node_clicked = false;
                 if (settings_index.IsSomething)
                 {
-                    var node = SettingsNodes[settings_index];
+                    var node = SettingsNodes[settings_index.Index];
                     jump_to_option(SettingsNodes.ActiveNode);
 
                     byte setting = setting_from_node(node);
@@ -392,7 +391,7 @@ namespace Tactile.Windows.Map
                 var slider_index = SettingsNodes.consume_triggered(TouchGestures.Scrubbing);
                 if (slider_index.IsSomething)
                 {
-                    var node = SettingsNodes[slider_index];
+                    var node = SettingsNodes[slider_index.Index];
                     jump_to_option(SettingsNodes.ActiveNode);
 
                     byte setting = setting_from_node(node);

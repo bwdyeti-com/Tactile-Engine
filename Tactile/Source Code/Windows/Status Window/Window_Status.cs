@@ -512,7 +512,7 @@ namespace Tactile
 
                     if (help_index.IsSomething)
                     {
-                        Help_Index = StatusNodes[page][help_index].HelpLabel;
+                        Help_Index = StatusNodes[page][help_index.Index].HelpLabel;
                         open_help();
                     }
                 }

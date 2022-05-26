@@ -232,7 +232,7 @@ namespace Tactile.Menus.Worldmap
                 var selected = Items.consume_triggered(
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 // Select event if on Confirm
-                if (selected.IsSomething && selected == ValidPreviousChapters.Count)
+                if (selected.IsSomething && selected.Index == ValidPreviousChapters.Count)
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     OnSelected(new EventArgs());

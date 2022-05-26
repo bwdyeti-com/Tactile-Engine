@@ -37,10 +37,12 @@ namespace Tactile.Windows.UserInterface.Command
 
             if (input)
             {
-                if (Global.Input.triggered(Inputs.A) ||
-                        Global.Input.mouse_click(MouseButtons.Left) ||
-                        Global.Input.gesture_triggered(TouchGestures.Tap))
-                    SelectedIndex = 0;
+                if (Global.Input.triggered(Inputs.A))
+                    SelectedIndex = new ConsumedInput(ControlSchemes.Buttons, 0);
+                else if (Global.Input.mouse_click(MouseButtons.Left))
+                    SelectedIndex = new ConsumedInput(ControlSchemes.Mouse, 0);
+                else if (Global.Input.gesture_triggered(TouchGestures.Tap))
+                    SelectedIndex = new ConsumedInput(ControlSchemes.Touch, 0);
 
                 if (Global.Input.triggered(Inputs.B))
                     Canceled = true;

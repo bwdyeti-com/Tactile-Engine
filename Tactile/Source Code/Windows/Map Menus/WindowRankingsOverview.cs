@@ -249,7 +249,7 @@ namespace Tactile.Windows.Map
 
                 if (selected.IsSomething)
                 {
-                    DetailedRanking = new Window_Ranking(Rankings[selected].Value);
+                    DetailedRanking = new Window_Ranking(Rankings[selected.Index].Value);
                 }
                 else if (Global.Input.triggered(Inputs.B) || cancel_button_triggered)
                 {

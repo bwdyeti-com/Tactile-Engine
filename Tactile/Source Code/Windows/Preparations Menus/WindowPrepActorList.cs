@@ -315,7 +315,7 @@ namespace Tactile.Windows.Preparations
         }
         #endregion
 
-        public Maybe<int> consume_triggered(
+        public ConsumedInput consume_triggered(
             Inputs input, MouseButtons button, TouchGestures gesture)
         {
             return UnitNodes.consume_triggered(input, button, gesture);

@@ -183,7 +183,7 @@ namespace Tactile.Menus.Preparations
             var itemCommandMenu = (sender as ItemsCommandMenu);
             var itemsMenu = (Menus.ElementAt(1) as Window_Prep_Items);
 
-            itemsMenu.CommandSelection(itemCommandMenu.SelectedIndex);
+            itemsMenu.CommandSelection(itemCommandMenu.SelectedIndex.Index);
             
             itemCommandMenu.Refresh();
         }
@@ -541,7 +541,7 @@ namespace Tactile.Menus.Preparations
             var selected = promotionConfirmMenu.SelectedIndex;
             menu_Closed(sender, e);
 
-            switch (selected)
+            switch (selected.Index)
             {
                 // Change
                 case 0:
@@ -695,7 +695,7 @@ namespace Tactile.Menus.Preparations
             var settingListCommandMenu = sender as CommandMenu;
             var settingsMenu = (Menus.ElementAt(1) as SettingsMenu);
 
-            int settingIndex = settingListCommandMenu.SelectedIndex.ValueOrDefault;
+            int settingIndex = settingListCommandMenu.SelectedIndex.Index;
             if (settingsMenu.SelectSettingListItem(settingIndex))
             {
                 Global.game_system.play_se(System_Sounds.Confirm);

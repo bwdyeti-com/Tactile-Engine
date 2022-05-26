@@ -277,7 +277,7 @@ namespace Tactile
                     Global.Input.triggered(Inputs.Start))
                 {
                     if (selected.IsSomething)
-                        ChangeSelection(selected);
+                        ChangeSelection(selected.Index);
                     OnSelected(new EventArgs());
                 }
                 else if (Global.Input.triggered(Inputs.B))

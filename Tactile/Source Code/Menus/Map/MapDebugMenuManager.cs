@@ -26,18 +26,18 @@ namespace Tactile.Menus.Map
             Game_Unit unit = Global.game_map.get_unit(Global.player.loc);
             // Buzz on options that require a unit
             if (unit == null)
-            switch ((DebugMenuOptions)(sender as CommandMenu).SelectedIndex.ValueOrDefault)
-            {
-                case DebugMenuOptions.RefreshUnit:
-                case DebugMenuOptions.DeleteUnit:
-                case DebugMenuOptions.Heal:
-                case DebugMenuOptions.MaxSupport:
-                case DebugMenuOptions.LevelUp:
-                    Global.game_system.play_se(System_Sounds.Buzzer);
-                    return;
-            }
+                switch ((DebugMenuOptions)(sender as CommandMenu).SelectedIndex.Index)
+                {
+                    case DebugMenuOptions.RefreshUnit:
+                    case DebugMenuOptions.DeleteUnit:
+                    case DebugMenuOptions.Heal:
+                    case DebugMenuOptions.MaxSupport:
+                    case DebugMenuOptions.LevelUp:
+                        Global.game_system.play_se(System_Sounds.Buzzer);
+                        return;
+                }
 
-            switch ((DebugMenuOptions)(sender as CommandMenu).SelectedIndex.ValueOrDefault)
+            switch ((DebugMenuOptions)(sender as CommandMenu).SelectedIndex.Index)
             {
                 case DebugMenuOptions.RefreshUnit:
                     Global.game_system.play_se(System_Sounds.Confirm);

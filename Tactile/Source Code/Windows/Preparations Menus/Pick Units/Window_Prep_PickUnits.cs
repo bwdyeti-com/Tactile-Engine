@@ -124,7 +124,7 @@ namespace Tactile.Windows.Map
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (selected_index.IsSomething)
                 {
-                    switch_unit(selected_index);
+                    switch_unit(selected_index.Index);
                     return;
                 }
 

@@ -505,7 +505,7 @@ namespace Tactile
             }
             else if (Window.is_selected())
             {
-                int index = Window.selected_index();
+                int index = Window.selected_index().Index;
                 Window.index = index;
 
                 if (Window.is_help_active)

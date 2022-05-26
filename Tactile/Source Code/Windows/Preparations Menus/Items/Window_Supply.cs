@@ -344,9 +344,9 @@ namespace Tactile.Windows.Map.Items
         public void trade()
         {
             Supply_Command_Window selected_option;
-            if (Command_Window.selected_index() == 0)
+            if (Command_Window.selected_index().Index == 0)
                 selected_option = Supply_Command_Window.Give;
-            else if (Command_Window.selected_index() == 1)
+            else if (Command_Window.selected_index().Index == 1)
             {
                 if (this.restock_blocked)
                     selected_option = Supply_Command_Window.Take;

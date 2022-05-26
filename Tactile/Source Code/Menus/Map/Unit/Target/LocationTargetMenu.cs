@@ -10,7 +10,7 @@ namespace Tactile.Menus.Map.Unit.Target
 
         public Vector2 SelectedLoc
         {
-            get { return Window.targets[Window.selected_index()]; }
+            get { return Window.targets[Window.selected_index().Index]; }
         }
 
         public Vector2 Target { get { return Window.target; } }

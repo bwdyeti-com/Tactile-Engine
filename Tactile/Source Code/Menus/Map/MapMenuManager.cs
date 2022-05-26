@@ -176,7 +176,7 @@ namespace Tactile.Menus.Map
             var settingListCommandMenu = sender as CommandMenu;
             var settingsMenu = (Menus.ElementAt(1) as SettingsMenu);
 
-            int settingIndex = settingListCommandMenu.SelectedIndex.ValueOrDefault;
+            int settingIndex = settingListCommandMenu.SelectedIndex.Index;
             if (settingsMenu.SelectSettingListItem(settingIndex))
             {
                 Global.game_system.play_se(System_Sounds.Confirm);

@@ -380,7 +380,7 @@ namespace Tactile
             return actor.can_take(item_data);
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
             return CommandWindow.selected_index();
         }

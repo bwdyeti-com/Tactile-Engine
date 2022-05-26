@@ -356,6 +356,7 @@
     <Compile Include="Source Code\Windows\User Interface\Command\Config\SliderUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\Config\ConfigTextUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Command\SupportViewerUINode.cs" />
+    <Compile Include="Source Code\ConsumedInput.cs" />
     <Compile Include="Source Code\Windows\User Interface\Map\PrepItemsUnitUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Map\UnitHeaderUINode.cs" />
     <Compile Include="Source Code\Windows\User Interface\Title\Difficulty_Info_Panel.cs" />

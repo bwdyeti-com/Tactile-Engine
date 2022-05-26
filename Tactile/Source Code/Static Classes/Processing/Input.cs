@@ -68,7 +68,7 @@ namespace Tactile
         UpLeft =        Up | Left,
         UpRight =       Up | Right,
     }
-    enum ControlSchemes { Buttons, Mouse, Touch }
+    enum ControlSchemes { None, Buttons, Mouse, Touch }
 
     public class Input
     {

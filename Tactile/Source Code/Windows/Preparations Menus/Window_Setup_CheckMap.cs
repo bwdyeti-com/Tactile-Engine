@@ -109,7 +109,7 @@ namespace Tactile.Windows
                 if (SelectedIndex.IsSomething)
                     return SelectedIndex.ValueOrDefault;
                 return (PrepCheckMapResults)Command_Window
-                    .selected_index().ValueOrDefault;
+                    .selected_index().Index;
             }
         }
 

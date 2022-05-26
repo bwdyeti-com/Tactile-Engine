@@ -196,7 +196,7 @@ namespace Tactile.Menus.Preparations
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (selectedIndex.IsSomething)
                 {
-                    SelectUnit(selectedIndex);
+                    SelectUnit(selectedIndex.Index);
                     return;
                 }
 

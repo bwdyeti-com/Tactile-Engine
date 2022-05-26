@@ -93,7 +93,7 @@ namespace Tactile.Windows.Map
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (selected_index.IsSomething)
                 {
-                    select_unit(selected_index); //Debug
+                    select_unit(selected_index.Index); //Debug
                     return;
                 }
 

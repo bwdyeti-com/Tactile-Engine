@@ -918,8 +918,8 @@ namespace Tactile.Windows.Map
                     {
                         Global.game_system.play_se(System_Sounds.Confirm);
                         int key = 0;
-                        if (sortIndex > 0)
-                            key = PageKeys[this.page][sortIndex - 1].Index + 1;
+                        if (sortIndex.Index > 0)
+                            key = PageKeys[this.page][sortIndex.Index - 1].Index + 1;
                         if (this.sort == key)
                         {
                             sort_up = !sort_up;

@@ -25,7 +25,7 @@ namespace Tactile.Menus
 
         public Vector2 SelectedOptionLoc
         {
-            get { return this.WindowLoc + new Vector2(0, 24 + this.SelectedIndex * 16); }
+            get { return this.WindowLoc + new Vector2(0, 24 + this.SelectedIndex.Index * 16); }
         }
 
         public Vector2 CurrentCursorLoc { get { return Window.current_cursor_loc; } }
@@ -42,7 +42,7 @@ namespace Tactile.Menus
             Window.set_text_color(index, color);
         }
 
-        public Maybe<int> SelectedIndex
+        public ConsumedInput SelectedIndex
         {
             get
             {

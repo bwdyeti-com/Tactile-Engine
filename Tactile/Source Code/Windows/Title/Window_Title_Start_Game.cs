@@ -336,7 +336,7 @@ namespace Tactile
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (file_index.IsSomething)
                 {
-                    int file_id = file_index + 1 + Page * Config.SAVES_PER_PAGE;
+                    int file_id = file_index.Index + 1 + Page * Config.SAVES_PER_PAGE;
                     if (this.file_id != file_id)
                         this.file_id = file_id;
 
