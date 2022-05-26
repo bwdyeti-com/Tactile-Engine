@@ -299,10 +299,16 @@ namespace Tactile.Windows.UserInterface
             return loc;
         }
 
-        protected virtual float slide(Vector2 inputPosition, Vector2 drawOffset)
+        public virtual Rectangle SliderBounds(Vector2 drawOffset)
         {
-            Vector2 slide_position = (inputPosition - HitBoxLoc(drawOffset));
-            Vector2 slider_area = Size;
+            return OnScreenBounds(drawOffset);
+        }
+
+        protected float slide(Vector2 inputPosition, Vector2 drawOffset)
+        {
+            Rectangle bounds = SliderBounds(drawOffset);
+            Vector2 slide_position = (inputPosition - new Vector2(bounds.X, bounds.Y));
+            Vector2 slider_area = new Vector2(bounds.Width, bounds.Height);
             return slide_position.X / slider_area.X;
         }
 

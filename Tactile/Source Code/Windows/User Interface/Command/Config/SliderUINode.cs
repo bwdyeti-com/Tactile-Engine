@@ -52,10 +52,12 @@ namespace Tactile.Windows.UserInterface.Command.Config
             Bar.update();
         }
 
-        protected override float slide(Vector2 inputPosition, Vector2 drawOffset)
+        public override Rectangle SliderBounds(Vector2 drawOffset)
         {
-            Vector2 slider_position = (inputPosition - HitBoxLoc(drawOffset + Bar.offset - Bar.draw_offset));
-            return (slider_position.X - 2) / (Bar.bar_width - 2);
+            Vector2 loc = HitBoxLoc(drawOffset + new Vector2(Bar.offset.X - (Bar.draw_offset.X + 2), 0));
+            return new Rectangle(
+                (int)loc.X, (int)loc.Y,
+                (int)Bar.bar_width - 2, (int)Size.Y);
         }
 
         protected override void mouse_off_graphic()
