@@ -319,6 +319,11 @@ namespace Tactile.Windows.Options
                         int setting = min + (int)Math.Round(
                             value / Settings.ValueInterval(sliderIndex.Index)) *
                             Settings.ValueInterval(sliderIndex.Index);
+                        setting = Math.Max(Math.Min(setting, max), min);
+                        if (Settings.Value<int>(sliderIndex.Index) != setting)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        }
 
                         Settings.ConfirmSetting(sliderIndex.Index, setting);
                         Input.ResetDoubleTap();
