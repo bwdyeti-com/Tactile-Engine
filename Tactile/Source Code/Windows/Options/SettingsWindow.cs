@@ -304,25 +304,33 @@ namespace Tactile.Windows.Options
 
         public bool ScrubbingSetting()
         {
+            var sliderIndex = Items.consume_triggered(TouchGestures.Scrubbing);
+            if (sliderIndex.IsSomething)
+            {
+                switch (Settings.SettingType(sliderIndex.Index))
+                {
+                    case ConfigTypes.Slider:
+                        int min = Settings.ValueRange(sliderIndex.Index).Minimum;
+                        int max = Settings.ValueRange(sliderIndex.Index).Maximum;
+                        int range = max - min;
+
+                        float value = Items[sliderIndex.Index].SliderValue;
+                        value = value * range;
+                        int setting = min + (int)Math.Round(
+                            value / Settings.ValueInterval(sliderIndex.Index)) *
+                            Settings.ValueInterval(sliderIndex.Index);
+
+                        Settings.ConfirmSetting(sliderIndex.Index, setting);
+                        Input.ResetDoubleTap();
+                        RefreshItemValues();
+
+                        return true;
+                }
+            }
+
             switch (Settings.SettingType(this.index))
             {
                 case ConfigTypes.Slider:
-                    var sliderIndex = Items.consume_triggered(TouchGestures.Scrubbing);
-                    if (sliderIndex.IsSomething)
-                    {
-                        int min = Settings.ValueRange(this.index).Minimum;
-                        int range = Settings.ValueRange(this.index).Maximum - min;
-                        float value = Items.ActiveNode.SliderValue;
-                        value = value * range;
-                        int setting = min + (int)Math.Round(value / Settings.ValueInterval(this.index)) * Settings.ValueInterval(this.index);
-
-                        Settings.ConfirmSetting(this.index, setting);
-                        Input.ResetDoubleTap();
-                        RefreshCurrentValue(Settings);
-
-                        return true;
-                    }
-
                     // This will block pointing from selecting sliders
                     if (SelectedIndex.IsSomething && SelectedIndex.Control != ControlSchemes.Buttons)
                     {

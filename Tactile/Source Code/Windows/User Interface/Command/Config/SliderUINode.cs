@@ -57,7 +57,7 @@ namespace Tactile.Windows.UserInterface.Command.Config
             Vector2 loc = HitBoxLoc(drawOffset + new Vector2(Bar.offset.X - (Bar.draw_offset.X + 2), 0));
             return new Rectangle(
                 (int)loc.X, (int)loc.Y,
-                (int)Bar.bar_width - 2, (int)Size.Y);
+                (int)Bar.bar_width, (int)Size.Y);
         }
 
         protected override void mouse_off_graphic()

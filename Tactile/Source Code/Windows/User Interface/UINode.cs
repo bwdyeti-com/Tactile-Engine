@@ -10,7 +10,7 @@ namespace Tactile.Windows.UserInterface
     abstract class UINode : Stereoscopic_Graphic_Object, IUIObject
     {
         internal Vector2 Size;
-        private bool LeftMouseDown, RightMouseDown, TouchPressing;
+        private bool LeftMouseDown, RightMouseDown, ScrubbingSlider;
         private HashSet<Inputs> Triggers = new HashSet<Inputs>();
         private HashSet<MouseButtons> MouseTriggers = new HashSet<MouseButtons>();
         private HashSet<TouchGestures> TouchTriggers = new HashSet<TouchGestures>();
@@ -117,15 +117,26 @@ namespace Tactile.Windows.UserInterface
                 }
             }
 
-            if (input.HasEnumFlag(ControlSet.Mouse))
-                if (IsSlider && LeftMouseDown &&
-                    OnScreenBounds(draw_offset).Contains(
-                        (int)Global.Input.mousePosition.X,
-                        (int)Global.Input.mousePosition.Y))
+            // Slider
+            if (this.IsSlider && input.HasEnumFlag(ControlSet.Mouse))
+            {
+                if (!Global.Input.mouse_pressed(MouseButtons.Left, false))
+                    ScrubbingSlider = false;
+                else
                 {
-                    TouchTriggers.Add(TouchGestures.Scrubbing);
-                    SliderValue = slide(Global.Input.mousePosition, draw_offset);
+                    bool pressed = SliderBounds(draw_offset).Contains(
+                        (int)Global.Input.mousePosition.X,
+                        (int)Global.Input.mousePosition.Y);
+                    if (pressed && Global.Input.mouse_triggered(MouseButtons.Left, false))
+                        ScrubbingSlider = true;
+
+                    if (ScrubbingSlider)
+                    {
+                        TouchTriggers.Add(TouchGestures.Scrubbing);
+                        SliderValue = slide(Global.Input.mousePosition, draw_offset);
+                    }
                 }
+            }
         }
 
         private void UpdateTouch<T>(
@@ -162,19 +173,19 @@ namespace Tactile.Windows.UserInterface
             }
 
             // Slider
-            if (IsSlider && input.HasEnumFlag(ControlSet.TouchButtons))
+            if (this.IsSlider && input.HasEnumFlag(ControlSet.TouchButtons))
             {
                 if (!Global.Input.touch_pressed(false))
-                    TouchPressing = false;
+                    ScrubbingSlider = false;
                 else
                 {
-                    bool pressed = OnScreenBounds(draw_offset).Contains(
+                    bool pressed = SliderBounds(draw_offset).Contains(
                         (int)Global.Input.touchPressPosition.X,
                         (int)Global.Input.touchPressPosition.Y);
                     if (pressed && Global.Input.touch_triggered(false))
-                        TouchPressing = true;
+                        ScrubbingSlider = true;
 
-                    if (pressed && TouchPressing)
+                    if (ScrubbingSlider)
                     {
                         TouchTriggers.Add(TouchGestures.Scrubbing);
                         SliderValue = slide(Global.Input.touchPressPosition, draw_offset);

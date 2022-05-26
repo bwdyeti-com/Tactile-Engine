@@ -506,7 +506,7 @@ namespace Tactile.Windows.Map
             {
                 var option_data = this.active_option_data;
                 int range = option_data.GaugeMax - option_data.GaugeMin;
-                float value = (SettingsNodes.ActiveNode as SettingGaugeUINode).SliderValue;
+                float value = (node as SettingGaugeUINode).SliderValue;
                 value = value * range;
                 int setting = (int)Math.Round(value / option_data.GaugeInterval) * option_data.GaugeInterval;
                 setting += option_data.GaugeMin;
