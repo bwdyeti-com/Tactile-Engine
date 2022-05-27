@@ -632,7 +632,6 @@
     <Compile Include="Source Code\Windows\Preparations Menus\Items\WindowItemManagement.cs" />
     <Compile Include="Source Code\Windows\Preparations Menus\Items\Window_Supply_Items.cs" />
     <Compile Include="Source Code\Windows\Status Window\Window_Status.cs" />
-    <Compile Include="Source Code\Windows\Status Window\Window_Status_Help.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Combat.cs" />
     <Compile Include="Source Code\Windows\Target Windows\Window_Target_Dance.cs" />
