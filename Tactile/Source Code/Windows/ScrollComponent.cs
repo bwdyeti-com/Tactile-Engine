@@ -150,17 +150,29 @@ namespace Tactile.Windows
             {
                 Vector2 index = this.ScrollIndex;
 
+                int left = this.LeftBuffer;
+                int right = this.RightBuffer;
+                int top = this.TopBuffer;
+                int bottom = this.BottomBuffer;
+                if (Input.ControlScheme == ControlSchemes.Touch)
+                {
+                    left = 1;
+                    right = 1;
+                    top = 1;
+                    bottom = 1;
+                }
+
                 float ox = 0;
-                if (TopIndex.X > (index.X + 1 - this.LeftBuffer))
-                    ox = TopIndex.X - (index.X + 1 - this.LeftBuffer);
-                else if (TopIndex.X + ViewableElements.X < index.X + this.RightBuffer)
-                    ox = (TopIndex.X + ViewableElements.X) - (index.X + this.RightBuffer);
+                if (TopIndex.X > (index.X + 1 - left))
+                    ox = TopIndex.X - (index.X + 1 - left);
+                else if (TopIndex.X + ViewableElements.X < index.X + right)
+                    ox = (TopIndex.X + ViewableElements.X) - (index.X + right);
 
                 float oy = 0;
-                if (TopIndex.Y > (index.Y + 1 - this.TopBuffer))
-                    oy = TopIndex.Y - (index.Y + 1 - this.TopBuffer);
-                else if (TopIndex.Y + ViewableElements.Y < index.Y + this.BottomBuffer)
-                    oy = (TopIndex.Y + ViewableElements.Y) - (index.Y + this.BottomBuffer);
+                if (TopIndex.Y > (index.Y + 1 - top))
+                    oy = TopIndex.Y - (index.Y + 1 - top);
+                else if (TopIndex.Y + ViewableElements.Y < index.Y + bottom)
+                    oy = (TopIndex.Y + ViewableElements.Y) - (index.Y + bottom);
 
                 return new Vector2(ox, oy);
             }
