@@ -108,6 +108,7 @@
     <Compile Include="Source Code\Debug Monitor\DebugMonitorPage.cs" />
     <Compile Include="Source Code\Extensions\SymbolExtensions.cs" />
     <Compile Include="Source Code\GameLoop.cs" />
+    <Compile Include="Source Code\Menus\Options\TitleSettingsTopMenu.cs" />
     <Compile Include="Source Code\Menus\SpriteMenu.cs" />
     <Compile Include="Source Code\Menus\Options\GameplaySettingsTopMenu.cs" />
     <Compile Include="Source Code\Menus\Options\SettingsMenu.cs" />

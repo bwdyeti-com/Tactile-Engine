@@ -197,7 +197,7 @@ at any time from the options menu.");
                     break;
                 case Main_Menu_Selections.Options:
                     Global.game_system.play_se(System_Sounds.Confirm);
-                    var settingsTopMenu = new SettingsTopMenu();
+                    var settingsTopMenu = new TitleSettingsTopMenu();
                     settingsTopMenu.Selected += SettingsTopMenu_Selected;
                     settingsTopMenu.Closed += menu_Closed;
                     settingsTopMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
