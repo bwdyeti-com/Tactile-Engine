@@ -90,6 +90,8 @@ namespace Tactile.Windows.Preparations
 
         protected virtual Vector2 ScrollbarLoc { get { return new Vector2(this.Width - 16, 12); } }
 
+        protected virtual bool TouchMoveBlocked { get { return false; } }
+
         protected abstract int Columns { get; }
         protected abstract int VisibleRows { get; }
         protected abstract int RowSize { get; }
@@ -327,7 +329,11 @@ namespace Tactile.Windows.Preparations
         private void update_node_location(bool active)
         {
             int old_index = this.index;
-            UnitNodes.Update(active, visible_indexes_range(false).Enumerate(),
+            // Disable touch move if needed
+            ControlSet control = !active ? ControlSet.None :
+                (!this.TouchMoveBlocked ? ControlSet.All :
+                ControlSet.All & ~ControlSet.TouchMove);
+            UnitNodes.Update(control, visible_indexes_range(false).Enumerate(),
                 Scroll.IntOffset - (this.loc + draw_offset));
             if (old_index != this.index)
             {

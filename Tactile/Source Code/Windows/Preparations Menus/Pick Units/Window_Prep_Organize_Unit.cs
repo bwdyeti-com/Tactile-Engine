@@ -37,6 +37,8 @@ namespace Tactile
 
         protected override Vector2 ScrollbarLoc { get { return new Vector2(this.Width + 2 - 16, 12); } }
 
+        protected override bool TouchMoveBlocked { get { return UnitSelected; } }
+
         protected override void initialize_sprites()
         {
             // Window
