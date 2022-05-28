@@ -148,7 +148,7 @@ namespace Tactile.Windows.UserInterface
             if (input.HasEnumFlag(ControlSet.TouchButtons) &&
                 Global.Input.gesture_rectangle(TouchGestures.Tap, OnScreenBounds(draw_offset)))
             {
-                if (nodes != null)
+                if (nodes != null && input.HasEnumFlag(ControlSet.TouchMove))
                     nodes.TouchMove(this as T, TouchGestures.Tap);
                 TouchTriggers.Add(TouchGestures.Tap);
             }
@@ -156,7 +156,7 @@ namespace Tactile.Windows.UserInterface
             else if (input.HasEnumFlag(ControlSet.TouchButtons) &&
                 Global.Input.gesture_rectangle(TouchGestures.LongPress, OnScreenBounds(draw_offset)))
             {
-                if (nodes != null)
+                if (nodes != null && input.HasEnumFlag(ControlSet.TouchMove))
                     nodes.TouchMove(this as T, TouchGestures.LongPress);
                 TouchTriggers.Add(TouchGestures.LongPress);
             }
