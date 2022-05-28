@@ -7,6 +7,8 @@ namespace Tactile.Windows.Map
 {
     class Window_Prep_Organize : Window_Prep_Unit_Overview
     {
+        // If true swaps the two selected units;
+        // otherwise inserts the first selected unit into the target location
         internal const bool SWAP = false;
 
         private int SelectedUnit = -1;
@@ -102,8 +104,11 @@ namespace Tactile.Windows.Map
                     Inputs.R, MouseButtons.Right, TouchGestures.LongPress);
                 if (status_index.IsSomething)
                 {
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    OnStatus(new EventArgs());
+                    if (status_index.Index == Unit_Window.index)
+                    {
+                        Global.game_system.play_se(System_Sounds.Confirm);
+                        OnStatus(new EventArgs());
+                    }
                 }
             }
         }
