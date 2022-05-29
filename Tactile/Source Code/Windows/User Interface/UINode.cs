@@ -40,7 +40,12 @@ namespace Tactile.Windows.UserInterface
         internal void Update(bool input,
             Vector2 draw_offset = default(Vector2))
         {
-            Update((UINodeSet<UINode>)null, input ? ControlSet.All : ControlSet.None, draw_offset);
+            Update(input ? ControlSet.All : ControlSet.None, draw_offset);
+        }
+        internal void Update(ControlSet input,
+            Vector2 draw_offset = default(Vector2))
+        {
+            Update((UINodeSet<UINode>)null, input, draw_offset);
         }
         internal void Update<T>(UINodeSet<T> nodes, bool input,
             Vector2 draw_offset = default(Vector2)) where T : UINode
