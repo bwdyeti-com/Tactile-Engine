@@ -92,6 +92,8 @@ namespace Tactile
         }
         #endregion
 
+        protected override bool CursorSelected { get { return base.CursorSelected || Trading; } }
+
         protected override bool map_sprite_ready(int index)
         {
             bool ready = base.map_sprite_ready(index);

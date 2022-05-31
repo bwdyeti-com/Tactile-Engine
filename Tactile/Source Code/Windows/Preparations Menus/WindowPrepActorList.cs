@@ -92,6 +92,8 @@ namespace Tactile.Windows.Preparations
 
         protected virtual bool TouchMoveBlocked { get { return false; } }
 
+        protected virtual bool CursorSelected { get { return !Active; } }
+
         protected abstract int Columns { get; }
         protected abstract int VisibleRows { get; }
         protected abstract int RowSize { get; }
@@ -426,7 +428,7 @@ namespace Tactile.Windows.Preparations
         {
             Vector2 offset = this.loc + draw_vector();
 
-            if (!Active)
+            if (this.CursorSelected)
                 Selected_Cursor.draw(sprite_batch, Scroll.IntOffset - offset);
         }
         #endregion
