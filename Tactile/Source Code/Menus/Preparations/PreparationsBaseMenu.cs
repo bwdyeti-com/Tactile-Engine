@@ -71,7 +71,7 @@ namespace Tactile.Menus.Preparations
             // Choose Unit Window
             ChooseUnitWindow = new WindowPanel(Global.Content.Load<Texture2D>(
                 @"Graphics\Windowskins\Preparations_Item_Options_Window"));
-            ChooseUnitWindow.loc = new Vector2(Config.WINDOW_WIDTH - 120, Config.WINDOW_HEIGHT - 80);
+            ChooseUnitWindow.loc = new Vector2(Config.WINDOW_WIDTH - 120, Config.WINDOW_HEIGHT - 84);
             ChooseUnitWindow.width = 80;
             ChooseUnitWindow.height = 40;
             ChooseUnitWindow.stereoscopic = Config.PREPITEM_WINDOW_DEPTH;
