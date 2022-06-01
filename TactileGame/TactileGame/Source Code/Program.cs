@@ -137,9 +137,27 @@ namespace TactileGame
         {
             using (Game1 game = new Game1(args))
             {
+#if WINDOWS
+                SquareWindowCorners(game.Window.Handle);
+#endif
+
                 game.Run();
             }
         }
+
+#if WINDOWS
+        private static void SquareWindowCorners(IntPtr hWnd)
+        {
+            try
+            {
+                // Do not round window corners on Windows 11 etc
+                var attribute = DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE;
+                var preference = DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DONOTROUND;
+                NativeMethods.DwmSetWindowAttribute(hWnd, attribute, ref preference, sizeof(uint));
+            }
+            catch (Exception ex) { }
+        }
+#endif
 
 #if LOGGING
         static void MyHandler(object sender, UnhandledExceptionEventArgs args)
