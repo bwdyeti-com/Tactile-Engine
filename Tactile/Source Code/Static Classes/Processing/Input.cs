@@ -551,7 +551,11 @@ namespace Tactile
         private static void update_controller_active(KeyboardState key_state, GamePadState controller_state)
         {
             bool active = Controller_Active;
-            bool keys_pressed = key_state.GetPressedKeys().Length > 0;
+            //@Yeti: it's possible for this to contain only Keys.None???
+            var pressedKeys = key_state.GetPressedKeys()
+                .Where(x => x != Keys.None)
+                .ToArray();
+            bool keys_pressed = pressedKeys.Length > 0;
             bool buttons_pressed = controller_pressed(controller_state);
 
             if (keys_pressed != buttons_pressed)
@@ -580,7 +584,11 @@ namespace Tactile
 
         private static bool key_pressed(KeyboardState keyState)
         {
-            return keyState.GetPressedKeys().Length > 0;
+            //@Yeti: it's possible for this to contain only Keys.None???
+            var pressed = keyState.GetPressedKeys()
+                .Where(x => x != Keys.None)
+                .ToArray();
+            return pressed.Any();
         }
         private static bool controller_pressed(GamePadState controllerState)
         {
