@@ -50,7 +50,7 @@ namespace Tactile.Menus
             }
         }
 
-        protected void CreateCancelButton(IHasCancelButton menu)
+        protected virtual void CreateCancelButton(IHasCancelButton menu)
         {
             if (menu != null && menu.HasCancelButton)
             {
