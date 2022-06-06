@@ -64,7 +64,7 @@ namespace Tactile
             SupportStatsWindow = new Prep_Support_Stats_Window(Global.game_map.last_added_unit);
             SupportStatsWindow.loc = new Vector2(12, Config.WINDOW_HEIGHT - 76);
             SupportListWindow = new Prep_Support_List_Window(Global.game_map.last_added_unit.actor);
-            SupportListWindow.loc = new Vector2(Config.WINDOW_WIDTH - 164, Config.WINDOW_HEIGHT - 100);
+            SupportListWindow.loc = new Vector2(Config.WINDOW_WIDTH - 164, Config.WINDOW_HEIGHT - 104);
 
             Global.game_map.completely_remove_unit(Global.game_map.last_added_unit.id);
         }
