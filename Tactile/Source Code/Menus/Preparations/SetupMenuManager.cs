@@ -377,7 +377,7 @@ namespace Tactile.Menus.Preparations
             useConfirmWindow.add_choice("Yes", new Vector2(24, 12));
             useConfirmWindow.add_choice("No", new Vector2(64, 12));
             useConfirmWindow.size = new Vector2(136, 40);
-            useConfirmWindow.loc = new Vector2(Config.WINDOW_WIDTH - 156, Config.WINDOW_HEIGHT - 60);
+            useConfirmWindow.loc = new Vector2(Config.WINDOW_WIDTH - 156, Config.WINDOW_HEIGHT - 68);
             useConfirmWindow.index = 1;
             useConfirmWindow.current_cursor_loc = cursorLoc;
 

@@ -28,7 +28,7 @@ namespace Tactile.Menus.Preparations
             Stats_Info_Bg = new Sprite();
             Stats_Info_Bg.texture = Global.Content.Load<Texture2D>(
                 @"Graphics\White_Square");
-            Stats_Info_Bg.dest_rect = new Rectangle(Config.WINDOW_WIDTH - 160, Config.WINDOW_HEIGHT - 58, 160, 52);
+            Stats_Info_Bg.dest_rect = new Rectangle(Config.WINDOW_WIDTH - 160, Config.WINDOW_HEIGHT - 66, 160, 52);
             Stats_Info_Bg.tint = new Color(0f, 0f, 0f, 0.5f);
 
             RButton = Button_Description.button(Inputs.R,
@@ -56,7 +56,7 @@ namespace Tactile.Menus.Preparations
             Global.game_map.add_actor_unit(Constants.Team.PLAYER_TEAM, Config.OFF_MAP, ActorId, "");
 
             Stats_Window = new Prep_Stats_Window(Global.game_map.last_added_unit);
-            Stats_Window.loc = new Vector2(Config.WINDOW_WIDTH - 160, Config.WINDOW_HEIGHT - 136);
+            Stats_Window.loc = new Vector2(Config.WINDOW_WIDTH - 160, Config.WINDOW_HEIGHT - 144);
 
             if (createPopup)
             {
@@ -64,7 +64,7 @@ namespace Tactile.Menus.Preparations
                     item.Id, !item.is_weapon, Global.game_map.last_added_unit, -1, true);
                 Stats_Popup.loc = new Vector2(
                     (Config.WINDOW_WIDTH - 80) - Stats_Popup.width / 2,
-                    Config.WINDOW_HEIGHT - 56);
+                    Config.WINDOW_HEIGHT - 64);
                 Stats_Popup.stereoscopic = Config.PREPITEM_WINDOW_DEPTH;
             }
 
@@ -196,7 +196,9 @@ namespace Tactile.Menus.Preparations
                 this.Actor.items[inventoryTarget].Id,
                 this.Actor.items[inventoryTarget].is_item,
                 128);
-            Stats_Popup.loc = new Vector2((Config.WINDOW_WIDTH - 80) - Stats_Popup.width / 2, Config.WINDOW_HEIGHT - 56);
+            Stats_Popup.loc = new Vector2(
+                (Config.WINDOW_WIDTH - 80) - Stats_Popup.width / 2,
+                Config.WINDOW_HEIGHT - 64);
             Stats_Popup.stereoscopic = Config.PREPITEM_WINDOW_DEPTH;
         }
 
