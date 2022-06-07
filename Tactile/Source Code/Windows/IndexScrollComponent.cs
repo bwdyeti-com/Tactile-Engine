@@ -56,9 +56,10 @@ namespace Tactile.Windows
         {
             base.Update(active, index, drawOffset);
 
-            if (!IndexedScroll || ScrollWheel)
+            bool notIndexed = !IndexedScroll && active;
+            if (notIndexed || ScrollWheel)
                 FixIndex();
-            if (!IndexedScroll)
+            if (notIndexed)
                 ResetOffsetTarget();
         }
 
