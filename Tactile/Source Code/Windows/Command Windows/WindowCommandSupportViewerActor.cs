@@ -71,13 +71,12 @@ namespace Tactile.Windows.Command
             List<string> strs = GetNames();
             initialize(loc, 8 + 16, strs);
             Window_Img.color_override = 0;
-            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
 
             int width = WIDTH - 16;
             this.text_offset = new Vector2(width - (this.ColumnCount + 1) * 8, 0);
             set_columns(this.ColumnCount);
             this.size_offset = new Vector2(width - this.text_area_width, Size_Offset.Y);
-            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
+            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 4);
 
             initialize_scrollbar();
             if (Scrollbar != null)

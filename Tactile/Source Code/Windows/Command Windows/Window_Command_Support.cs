@@ -36,7 +36,7 @@ namespace Tactile.Windows.Command
 
             initialize(loc, WIDTH, strs);
             Bar_Offset = new Vector2(0, 0);
-            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 8);
+            Window_Img.set_lines(LINES, (int)Size_Offset.Y + 4);
         }
 
         protected override void set_default_offsets(int width)
