@@ -33,11 +33,14 @@ namespace Tactile.Windows.Command
                 int total = 0, remaining = 0;
                 foreach (var tuple in this.SupportPartners)
                 {
-                    total += Global.data_supports[tuple.Item1].MaxLevel;
-                    if (Global.progress.recruitedActors.Contains(tuple.Item2) &&
-                        Global.progress.supports.ContainsKey(tuple.Item1))
+                    if (Global.data_supports.ContainsKey(tuple.Item1))
                     {
-                        remaining += Global.progress.supports[tuple.Item1];
+                        total += Global.data_supports[tuple.Item1].MaxLevel;
+                        if (Global.progress.recruitedActors.Contains(tuple.Item2) &&
+                            Global.progress.supports.ContainsKey(tuple.Item1))
+                        {
+                            remaining += Global.progress.supports[tuple.Item1];
+                        }
                     }
                 }
 
@@ -143,7 +146,8 @@ namespace Tactile.Windows.Command
             int rank = 0;
             SupportViewerState state = SupportViewerState.Disabled;
             bool fieldBaseDifference = false;
-            if (Global.progress.recruitedActors.Contains(tuple.Item2))
+            if (Global.progress.recruitedActors.Contains(tuple.Item2) &&
+                Global.data_supports.ContainsKey(tuple.Item1))
             {
                 var otherActor = Global.data_actors[tuple.Item2];
                 if (Global.data_supports[tuple.Item1].Supports[lvl].ValidSupport)
