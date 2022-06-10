@@ -7,7 +7,8 @@ namespace Tactile.Menus.Preparations
 {
     class ManageItemsCommandMenu : ItemsCommandMenu
     {
-        public ManageItemsCommandMenu(int actorId) : base(actorId) { }
+        public ManageItemsCommandMenu(int actorId, IHasCancelButton menu = null)
+            : base(actorId, menu) { }
 
         protected override Window_Command NewWindow()
         {

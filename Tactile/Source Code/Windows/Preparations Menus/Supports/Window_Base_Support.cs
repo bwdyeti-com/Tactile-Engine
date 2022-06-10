@@ -230,9 +230,17 @@ namespace Tactile
         }
         #endregion
 
-        protected override void draw_window(SpriteBatch sprite_batch)
+        protected override void DrawHelpButtons(SpriteBatch spriteBatch)
         {
-            base.draw_window(sprite_batch);
+            if (Active)
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                RButton.Draw(spriteBatch);
+
+                if (CancelButton != null)
+                    CancelButton.Draw(spriteBatch);
+                spriteBatch.End();
+            }
         }
 
         protected override void DrawStatsWindow(SpriteBatch spriteBatch)
@@ -243,7 +251,7 @@ namespace Tactile
                 SupportStatsWindow.draw(spriteBatch);
                 spriteBatch.End();
             }
-            if (SupportListWindow != null)
+            if (SupportListWindow != null && Active)
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 SupportListWindow.draw(spriteBatch);

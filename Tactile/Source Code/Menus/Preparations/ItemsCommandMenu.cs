@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tactile.Graphics.Help;
 using Tactile.Windows.Command;
 
 namespace Tactile.Menus.Preparations
@@ -11,10 +12,10 @@ namespace Tactile.Menus.Preparations
 
         public Game_Actor actor { get { return Global.game_actors[ActorId]; } }
         
-        public ItemsCommandMenu(int actorId)
+        public ItemsCommandMenu(int actorId, IHasCancelButton menu = null)
         {
             Window = NewWindow();
-            CreateCancelButton(null);
+            CreateCancelButton(menu);
 
             ActorId = actorId;
             Refresh();
@@ -55,6 +56,19 @@ namespace Tactile.Menus.Preparations
             commandWindow.stereoscopic = Config.PREPITEM_WINDOW_DEPTH;
 
             return commandWindow;
+        }
+
+        protected override void CreateCancelButton(IHasCancelButton menu)
+        {
+            if (menu != null && menu.HasCancelButton)
+            {
+                CancelButton = Button_Description.button(
+                    Inputs.B,
+                    menu.CancelButtonLoc);
+                CancelButton.description = "Cancel";
+                CancelButton.offset = new Vector2(-1, -1);
+                CancelButton.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
+            }
         }
 
         public virtual void Refresh()

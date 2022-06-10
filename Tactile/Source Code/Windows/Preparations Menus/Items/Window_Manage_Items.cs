@@ -13,7 +13,7 @@ namespace Tactile
     {
         public override ItemsCommandMenu GetCommandMenu()
         {
-            return new ManageItemsCommandMenu(ActorId);
+            return new ManageItemsCommandMenu(ActorId, this);
         }
 
         public override void CommandSelection(Maybe<int> selectedIndex)
