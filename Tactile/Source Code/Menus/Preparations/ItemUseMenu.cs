@@ -34,10 +34,12 @@ namespace Tactile.Menus.Preparations
             RButton = Button_Description.button(Inputs.R,
                 Global.Content.Load<Texture2D>(
                     @"Graphics\Windowskins\Preparations_Screen"),
-                new Rectangle(126, 122, 24, 16));
-            RButton.loc = new Vector2(216, 172) + new Vector2(60, -16);
-            RButton.offset = new Vector2(-1, -1);
+                new Rectangle(126, 122, 24, 16),
+                216);
             RButton.stereoscopic = Config.PREPITEM_FUNDS_DEPTH;
+
+            if (CancelButton == null)
+                CreateCancelButton(216 + 48, Config.MAPCOMMAND_WINDOW_DEPTH);
         }
 
         private void CreateItemWindow(int actorId, Vector2 loc)
@@ -248,7 +250,7 @@ namespace Tactile.Menus.Preparations
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             Stats_Window.draw(spriteBatch);
             if (!Window.is_help_active)
-                RButton.Draw(spriteBatch, -new Vector2(0, 20));
+                RButton.Draw(spriteBatch);
             spriteBatch.End();
 
             itemWindow.draw_help(spriteBatch);
