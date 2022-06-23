@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tactile.Graphics.Help;
 using Tactile.Graphics.Map;
 using Tactile.Graphics.Text;
 using Tactile.Graphics.Windows;
@@ -39,6 +40,8 @@ namespace Tactile.Windows.Map
         private Character_Sprite Map_Sprite;
         private Miniface Face;
         private Page_Arrow Left_Page_Arrow, Right_Page_Arrow;
+
+        private Button_Description CancelButton;
 
         #region Accessors
         private Vector2 target_page_loc { get { return new Vector2(page == 0 ? 0 : 128, 0); } }
@@ -367,8 +370,18 @@ namespace Tactile.Windows.Map
             Right_Page_Arrow.mirrored = true;
             Right_Page_Arrow.stereoscopic = Config.DATA_BANNER_DEPTH;
 
+            CreateCancelButton();
+
             refresh_rank();
             set_images();
+        }
+
+        private void CreateCancelButton()
+        {
+            CancelButton = Button_Description.button(Inputs.B,
+                new Vector2(Config.WINDOW_WIDTH - 56, 8));
+            CancelButton.description = "Cancel";
+            CancelButton.stereoscopic = Config.UNIT_ARROWS_DEPTH;
         }
 
         private void refresh_rank()
@@ -501,6 +514,8 @@ namespace Tactile.Windows.Map
             Counter.update();
             Left_Page_Arrow.update();
             Right_Page_Arrow.update();
+            // Cancel button
+            CancelButton.Update(active && this.ready_for_inputs);
 
             base.UpdateMenu(active);
 
@@ -517,6 +532,15 @@ namespace Tactile.Windows.Map
                 ChangingPageTime++;
                 if (PageLoc.X == target_page_loc.X)
                     ChangingPage = false;
+            }
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (Input.ControlSchemeSwitched)
+            {
+                if (CancelButton != null)
+                    CreateCancelButton();
             }
         }
 
@@ -559,7 +583,9 @@ namespace Tactile.Windows.Map
                     }
                 }
                 else if (Global.Input.triggered(Inputs.B) ||
-                    Global.Input.gesture_triggered(TouchGestures.LongPress)) //Debug
+                    Global.Input.gesture_triggered(TouchGestures.LongPress) ||
+                    CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap)) //Debug
                 {
                     Global.game_system.play_se(System_Sounds.Cancel);
                     close();
@@ -636,6 +662,7 @@ namespace Tactile.Windows.Map
             // Banner
             BannerBg.draw(sprite_batch);
             Banner.draw(sprite_batch);
+            CancelButton.Draw(sprite_batch);
 
             // Page Arrows
             if (page == 0 || ChangingPage)
