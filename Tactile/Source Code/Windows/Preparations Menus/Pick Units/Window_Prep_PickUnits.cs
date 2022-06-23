@@ -81,13 +81,13 @@ namespace Tactile.Windows.Map
 
             Start = Button_Description.button(Inputs.Start,
                 Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen"), new Rectangle(142, 41, 32, 16));
-            Start.loc = Backing_2.loc + new Vector2(32, 0 - 1);
-            Start.offset = new Vector2(0, -1);
+            Start.loc = Backing_2.loc + new Vector2(32, 0 - 2);
+            Start.offset = new Vector2((int)(Start.Size.X / 8) - 8, -1);
             Start.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
 
             Select = Button_Description.button(Inputs.Select,
                 Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen"), new Rectangle(150, 73, 48, 16));
-            Select.loc = Backing_2.loc + new Vector2(24, 16 - 1);
+            Select.loc = Backing_2.loc + new Vector2(24, 16 - 2);
             Select.offset = new Vector2(-12, -1);
             Select.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
         }
@@ -96,6 +96,9 @@ namespace Tactile.Windows.Map
         protected override void update_input(bool active)
         {
             bool input = active && this.ready;
+
+            Start.Update(input);
+            Select.Update(input);
 
             if (input)
             {
@@ -106,13 +109,17 @@ namespace Tactile.Windows.Map
                     close();
                     return;
                 }
-                else if (Global.Input.triggered(Inputs.Start))
+                else if (Global.Input.triggered(Inputs.Start) ||
+                    Start.consume_trigger(MouseButtons.Left) ||
+                    Start.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     close(true);
                     return;
                 }
-                else if (Global.Input.triggered(Inputs.Select))
+                else if (Global.Input.triggered(Inputs.Select) ||
+                    Select.consume_trigger(MouseButtons.Left) ||
+                    Select.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     OnUnit(new EventArgs());
