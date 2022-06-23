@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Map;
@@ -432,7 +433,17 @@ namespace Tactile.Windows.Map
             }
             int leader_id = -1;
             if (Groups.Count > 0)
-                leader_id = Global.game_map.team_leaders[Groups[Index].Key];
+            {
+                int team = Groups[Index].Key;
+                leader_id = Global.game_map.team_leaders[team];
+                // If there's no player leader, use the first battalion member
+                if (leader_id == -1 && team == Constants.Team.PLAYER_TEAM &&
+                        Global.battalion.actors.Any())
+                {
+                    int actorId = Global.battalion.actors[0];
+                    leader_id = Global.game_map.get_unit_id_from_actor(actorId);
+                }
+            }
             if (leader_id == -1 || Global.game_map.unit_defeated(leader_id) ||
                 Global.game_map.unit_escaped(leader_id))
             {
