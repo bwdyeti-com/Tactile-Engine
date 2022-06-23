@@ -618,6 +618,15 @@ namespace Tactile.Menus.Preparations
         }
         #endregion
 
+        #region Data
+        protected void AddDataMenu()
+        {
+            var dataMenu = new Window_Data();
+            dataMenu.Closed += optionsMenu_Closed;
+            AddMenu(dataMenu);
+        }
+        #endregion
+
         #region Options
         // Open options menu
         protected void AddOptionsMenu(bool soloAnimAllowed = true)
