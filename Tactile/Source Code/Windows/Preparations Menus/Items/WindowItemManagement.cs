@@ -22,7 +22,7 @@ namespace Tactile.Windows.Map.Items
         protected Window_Supply_Items Supply_Window;
         protected Window_Command_Item_Convoy_Take Item_Selection_Window;
         protected Sprite Stock_Banner;
-        protected Button_Description R_Button;
+        protected Button_Description CancelButton, R_Button;
 
         protected Prep_Items_Help_Footer HelpFooter;
 
@@ -118,11 +118,12 @@ namespace Tactile.Windows.Map.Items
 
         protected virtual void refresh_input_help()
         {
-            /*R_Button = new Sprite();
-            R_Button.texture = Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen");
-            R_Button.loc = new Vector2(280, 176);
-            R_Button.src_rect = new Rectangle(104, 120, 40, 16);
-            R_Button.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;*/
+            CancelButton = Button_Description.button(Inputs.B, new Vector2(176 + 4, 8));
+            CancelButton.description = "Cancel";
+            CancelButton.offset = new Vector2((int)(CancelButton.Size.X * 0.275f), 0);
+            CancelButton.loc += new Vector2(12, 0);
+            CancelButton.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;
+
             R_Button = Button_Description.button(Inputs.R,
                 Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen"), new Rectangle(126, 122, 24, 16));
             R_Button.loc = new Vector2(276, 176);
@@ -186,6 +187,9 @@ namespace Tactile.Windows.Map.Items
 
         protected virtual void update_ui(bool active)
         {
+            if (CancelButton != null)
+                CancelButton.Update(active);
+
             update_item_window();
 
             var supply = Supply_Window.can_take ?
@@ -279,6 +283,9 @@ namespace Tactile.Windows.Map.Items
         protected override void draw_window(SpriteBatch sprite_batch)
         {
             draw_header(sprite_batch);
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            CancelButton.Draw(sprite_batch);
+            sprite_batch.End();
 
             draw_command_windows(sprite_batch);
             if (Item_Selection_Window != null)
@@ -292,7 +299,6 @@ namespace Tactile.Windows.Map.Items
             Supply_Window.draw_help(sprite_batch);
 
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            //Command_Window.draw(sprite_batch); //Debug
             Supply_Window.draw_cursor(sprite_batch);
             Item_Window.draw_cursor(sprite_batch);
             R_Button.Draw(sprite_batch);
