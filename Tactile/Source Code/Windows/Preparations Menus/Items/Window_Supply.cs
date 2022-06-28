@@ -203,7 +203,7 @@ namespace Tactile.Windows.Map.Items
             base.UpdateMenu(active && this.ready);
             Convoy_Text.update();
         }
-        protected override void update_item_window()
+        protected override void UpdateItemWindow()
         {
             int item_index = Item_Window.index;
             Item_Window.update(Giving || Restocking);

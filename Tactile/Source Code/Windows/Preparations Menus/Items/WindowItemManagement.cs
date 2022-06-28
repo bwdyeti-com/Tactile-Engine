@@ -190,24 +190,28 @@ namespace Tactile.Windows.Map.Items
             if (CancelButton != null)
                 CancelButton.Update(active);
 
-            update_item_window();
-
-            var supply = Supply_Window.can_take ?
-                Supply_Window.active_item.get_item() : null;
-            Supply_Window.update(active);
-            if (supply != (Supply_Window.can_take ? Supply_Window.active_item.get_item() : null))
-            {
-                supply_window_index_changed();
-            }
+            UpdateItemWindow();
+            UpdateSupplyWindow(active);
         }
 
-        protected virtual void update_item_window()
+        protected virtual void UpdateItemWindow()
         {
             int item_index = Item_Window.index;
             Item_Window.update();
             if (item_index != Item_Window.index)
             {
                 item_window_index_changed();
+            }
+        }
+
+        protected virtual void UpdateSupplyWindow(bool active)
+        {
+            var supply = Supply_Window.can_take ?
+                Supply_Window.active_item.get_item() : null;
+            Supply_Window.update(active);
+            if (supply != (Supply_Window.can_take ? Supply_Window.active_item.get_item() : null))
+            {
+                supply_window_index_changed();
             }
         }
 
