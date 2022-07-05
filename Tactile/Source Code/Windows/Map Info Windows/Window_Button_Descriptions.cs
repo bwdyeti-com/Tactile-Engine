@@ -106,58 +106,78 @@ namespace Tactile.Windows.Map.Info
         protected void refresh()
         {
             Buttons = new List<Button_Description>();
-            int button_x = this.buttons_base_x;
+            int buttonX = this.buttons_base_x;
             switch (Mode)
             {
                 case Button_Description_Mode.Normal:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Next Unit";
-                    //base_x += 68; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.Select, button_x));
-                    Buttons[Buttons.Count - 1].description = "Menu";
+                    Buttons.Add(EnemyRangeButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(NextUnitButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(MenuButton(buttonX));
                     break;
                 case Button_Description_Mode.Unit_Highlighted:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.R, button_x));
-                    Buttons[Buttons.Count - 1].description = "Info";
-                    //base_x += 44; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Next Unit";
-                    //base_x += 68; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.Select, button_x));
-                    Buttons[Buttons.Count - 1].description = "Menu";
+                    Buttons.Add(EnemyRangeButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(StatusButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(NextUnitButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(MenuButton(buttonX));
                     break;
                 case Button_Description_Mode.Unit_Selected:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.R, button_x));
-                    Buttons[Buttons.Count - 1].description = "Info";
-                    //base_x += 44; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Reset Arrow";
+                    Buttons.Add(EnemyRangeButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(StatusButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(ResetArrowButton(buttonX));
                     break;
                 case Button_Description_Mode.Unit_Selected_Blank:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Reset Arrow";
+                    Buttons.Add(EnemyRangeButton(buttonX));
+                    NextButtonX(ref buttonX);
+                    Buttons.Add(ResetArrowButton(buttonX));
                     break;
             }
+        }
+
+        private static Button_Description EnemyRangeButton(int x)
+        {
+            var button = Button_Description.button(Inputs.X, x);
+            button.description = "Enemy Range";
+
+            return button;
+        }
+
+        private static Button_Description StatusButton(int x)
+        {
+            var button = Button_Description.button(Inputs.R, x);
+            button.description = "Info";
+
+            return button;
+        }
+
+        private static Button_Description NextUnitButton(int x)
+        {
+            var button = Button_Description.button(Inputs.L, x);
+            button.description = "Next Unit";
+
+            return button;
+        }
+
+        private static Button_Description MenuButton(int x)
+        {
+            var button = Button_Description.button(Inputs.Select, x);
+            button.description = "Menu";
+
+            return button;
+        }
+
+        private static Button_Description ResetArrowButton(int x)
+        {
+            var button = Button_Description.button(Inputs.L, x);
+            button.description = "Reset Arrow";
+
+            return button;
         }
 
         private int buttons_base_x
@@ -199,6 +219,11 @@ namespace Tactile.Windows.Map.Info
                 }
                 return base_x;
             }
+        }
+
+        private void NextButtonX(ref int x)
+        {
+            x =  next_button_x(x, Buttons[Buttons.Count - 1].width);
         }
 
         private int next_button_x(int x, int previousButtonWidth)
