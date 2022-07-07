@@ -7,6 +7,8 @@ using Tactile.Graphics.Help;
 using Tactile.Graphics.Map;
 using Tactile.Graphics.Text;
 using Tactile.Graphics.Windows;
+using Tactile.Windows.UserInterface;
+using Tactile.Windows.UserInterface.Map;
 
 namespace Tactile.Windows.Map
 {
@@ -20,16 +22,16 @@ namespace Tactile.Windows.Map
         private int ChangingPageTime = 0;
         private Vector2 PageLoc;
         private List<KeyValuePair<int, int>> Groups = new List<KeyValuePair<int, int>>();
+
         new private Data_Team_Cursor Cursor;
+        private UINodeSet<DataTeamUINode> TeamNodes;
         private TextSprite Banner;
         private Sprite BannerBg, UnitBg, FileBg;
         private Sprite Objective_Window, Game_Data_Window;
         private Data_Ranking_Window RankingWindow;
-        private List<Data_Team_Window> Team_Windows = new List<Data_Team_Window>();
         private Sprite Objective_Label, Defeat_Label, Turn_Label, Funds_Label, Gold_G, Lv_Label, Hp_Label, Hp_Slash, RatingLabel;
         private Play_Time_Counter Counter;
         private Item_Display LeaderWeapon;
-        private List<TextSprite> Group_Names = new List<TextSprite>(), Group_Counts = new List<TextSprite>();
         private TextSprite Victory_Text, Loss_Text, FileLabel, RankingLabel,
             TurnsRankLabel, CombatRankLabel, ExpRankLabel;
         private RightAdjustedText Turn, Funds, FileNumber;
@@ -120,6 +122,7 @@ namespace Tactile.Windows.Map
             Game_Data_Window.src_rect = new Rectangle(104, 96, 112, 72);
             Game_Data_Window.stereoscopic = Config.DATA_DATA_DEPTH;
             // Team Windows/Text
+            List<DataTeamUINode> nodes = new List<DataTeamUINode>();
             int y = 0;
             for (int i = 1; i <= Constants.Team.NUM_TEAMS; i++)
                 if (Global.game_map.teams[i].Count > 0)
@@ -136,25 +139,23 @@ namespace Tactile.Windows.Map
                         group_sizes[Global.game_map.units[id].group]++;
                     }
                     Groups.Add(new KeyValuePair<int, int>(i, groups.Count));
-                    Team_Windows.Add(new Data_Team_Window(i, group_sizes.Count));
-                    Team_Windows[Team_Windows.Count - 1].loc = TEAM_WINDOW_LOC + new Vector2(0, 0 + y);
-                    Team_Windows[Team_Windows.Count - 1].stereoscopic = Config.DATA_TEAMS_DEPTH;
+
                     groups.Sort();
-                    for (int j = 0; j < groups.Count; j++)
-                    {
-                        Group_Names.Add(new TextSprite());
-                        Group_Names[Group_Names.Count - 1].loc = TEAM_WINDOW_LOC + new Vector2(4, y + 12 + j * 16);
-                        Group_Names[Group_Names.Count - 1].SetFont(Config.UI_FONT, Global.Content, "White");
-                        Group_Names[Group_Names.Count - 1].text = Global.game_map.group_name(i, groups[j]);
-                        Group_Names[Group_Names.Count - 1].stereoscopic = Config.DATA_TEAMS_DEPTH;
-                        Group_Counts.Add(new RightAdjustedText());
-                        Group_Counts[Group_Names.Count - 1].loc = TEAM_WINDOW_LOC + new Vector2(112, y + 12 + j * 16);
-                        Group_Counts[Group_Names.Count - 1].SetFont(Config.UI_FONT, Global.Content, "Blue");
-                        Group_Counts[Group_Names.Count - 1].text = group_sizes[groups[j]].ToString();
-                        Group_Counts[Group_Names.Count - 1].stereoscopic = Config.DATA_TEAMS_DEPTH;
-                    }
+
+                    var groupNames = groups.Select(x => Global.game_map.group_name(i, x)).ToList();
+                    var groupCounts = groups.Select(x => group_sizes[x]).ToList();
+
+                    var newNode = new DataTeamUINode(i, groupNames, groupCounts);
+                    newNode.loc = TEAM_WINDOW_LOC + new Vector2(0, 0 + y);
+                    newNode.stereoscopic = Config.DATA_TEAMS_DEPTH;
+                    nodes.Add(newNode);
+
                     y += (group_sizes.Count + 1) * 16;
                 }
+
+            TeamNodes = new UINodeSet<DataTeamUINode>(nodes);
+            TeamNodes.CursorMoveSound = System_Sounds.Menu_Move1;
+            TeamNodes.SoundOnMouseMove = true;
             // Game Data Window
             RankingWindow = new Data_Ranking_Window();
             RankingWindow.loc = new Vector2(320, 32);
@@ -365,10 +366,12 @@ namespace Tactile.Windows.Map
             Left_Page_Arrow = new Page_Arrow();
             Left_Page_Arrow.loc = new Vector2(4, 72);
             Left_Page_Arrow.stereoscopic = Config.DATA_BANNER_DEPTH;
+            Left_Page_Arrow.ArrowClicked += Left_Page_Arrow_ArrowClicked;
             Right_Page_Arrow = new Page_Arrow();
             Right_Page_Arrow.loc = new Vector2(Config.WINDOW_WIDTH - 4, 72);
             Right_Page_Arrow.mirrored = true;
             Right_Page_Arrow.stereoscopic = Config.DATA_BANNER_DEPTH;
+            Right_Page_Arrow.ArrowClicked += Right_Page_Arrow_ArrowClicked;
 
             CreateCancelButton();
 
@@ -434,20 +437,20 @@ namespace Tactile.Windows.Map
 
         private void set_images()
         {
-            if (Team_Windows.Count == 0)
+            if (!TeamNodes.Any())
             {
                 Cursor.loc = TEAM_WINDOW_LOC;
                 Cursor.height = 8;
             }
             else
             {
-                Cursor.loc = Team_Windows[Index].loc;
-                Cursor.height = (Groups[Index].Value + 1) * 16 + 8;
+                Cursor.loc = TeamNodes.ActiveNode.loc;
+                Cursor.height = (int)TeamNodes.ActiveNode.Size.Y + 8;
             }
             int leader_id = -1;
             if (Groups.Count > 0)
             {
-                int team = Groups[Index].Key;
+                int team = Groups[TeamNodes.ActiveNodeIndex].Key;
                 leader_id = Global.game_map.team_leaders[team];
                 // If there's no player leader, use the first battalion member
                 if (leader_id == -1 && team == Constants.Team.PLAYER_TEAM &&
@@ -514,6 +517,14 @@ namespace Tactile.Windows.Map
             Counter.update();
             Left_Page_Arrow.update();
             Right_Page_Arrow.update();
+
+            int index = TeamNodes.ActiveNodeIndex;
+            TeamNodes.Update(active && this.ready_for_inputs && page == 0, PageLoc);
+            if (index != TeamNodes.ActiveNodeIndex)
+            {
+                set_images();
+            }
+
             // Cancel button
             CancelButton.Update(active && this.ready_for_inputs);
 
@@ -521,6 +532,7 @@ namespace Tactile.Windows.Map
 
             if (ChangingPage)
             {
+
                 (PageLoc.X < target_page_loc.X ? Right_Page_Arrow : Left_Page_Arrow).twirling_update();
                 float distance = Math.Abs(PageLoc.X - target_page_loc.X) / 2;
                 distance = MathHelper.Clamp(MathHelper.Lerp(0, distance, ChangingPageTime / 12f), 0, distance);
@@ -533,6 +545,9 @@ namespace Tactile.Windows.Map
                 if (PageLoc.X == target_page_loc.X)
                     ChangingPage = false;
             }
+
+            Left_Page_Arrow.visible = ChangingPage || page > 0;
+            Right_Page_Arrow.visible = ChangingPage || page < 1;
         }
 
         protected override void UpdateAncillary()
@@ -546,8 +561,13 @@ namespace Tactile.Windows.Map
 
         protected override void update_input(bool active)
         {
-            if (active && this.ready_for_inputs)
+            bool input = active && this.ready_for_inputs;
+            if (input)
             {
+                Left_Page_Arrow.UpdateInput();
+                Right_Page_Arrow.UpdateInput();
+
+                /*
                 if (Global.Input.repeated(Inputs.Down))
                 {
                     if (Index < Groups.Count - 1 && page == 0)
@@ -564,23 +584,16 @@ namespace Tactile.Windows.Map
                         move_up();
                     }
                 }
-                else if (Global.Input.triggered(Inputs.Left) ||
+                else */
+                if (Global.Input.triggered(Inputs.Left) ||
                     Global.Input.gesture_triggered(TouchGestures.SwipeRight)) //Debug
                 {
-                    if (page > 0)
-                    {
-                        Global.game_system.play_se(System_Sounds.Status_Page_Change);
-                        page_left();
-                    }
+                    page_left();
                 }
                 else if (Global.Input.triggered(Inputs.Right) ||
                     Global.Input.gesture_triggered(TouchGestures.SwipeLeft)) //Debug
                 {
-                    if (page < 1)
-                    {
-                        Global.game_system.play_se(System_Sounds.Status_Page_Change);
-                        page_right();
-                    }
+                    page_right();
                 }
                 else if (Global.Input.triggered(Inputs.B) ||
                     Global.Input.gesture_triggered(TouchGestures.LongPress) ||
@@ -593,6 +606,15 @@ namespace Tactile.Windows.Map
             }
         }
 
+        private void Left_Page_Arrow_ArrowClicked(object sender, EventArgs e)
+        {
+            page_left();
+        }
+        private void Right_Page_Arrow_ArrowClicked(object sender, EventArgs e)
+        {
+            page_right();
+        }
+
         protected override void close()
         {
             base.close();
@@ -600,30 +622,26 @@ namespace Tactile.Windows.Map
         #endregion
 
         #region Movement
-        private void move_down()
-        {
-            Index++;
-            set_images();
-        }
-
-        private void move_up()
-        {
-            Index--;
-            set_images();
-        }
-
         private void page_left()
         {
-            page--;
-            ChangingPage = true;
-            ChangingPageTime = 0;
+            if (page > 0)
+            {
+                Global.game_system.play_se(System_Sounds.Status_Page_Change);
+                page--;
+                ChangingPage = true;
+                ChangingPageTime = 0;
+            }
         }
 
         private void page_right()
         {
-            page++;
-            ChangingPage = true;
-            ChangingPageTime = 0;
+            if (page < 1)
+            {
+                Global.game_system.play_se(System_Sounds.Status_Page_Change);
+                page++;
+                ChangingPage = true;
+                ChangingPageTime = 0;
+            }
         }
         #endregion
 
@@ -736,23 +754,10 @@ namespace Tactile.Windows.Map
                 background_shader.CurrentTechnique = background_shader.Techniques["Technique2"];
                 background_shader.Parameters["color_shift"].SetValue(new Color(255, 255, 255, 32).ToVector4());
             }
-            for (int i = 0; i < Team_Windows.Count; i++)
-            {
-                if (i == Index)
-                    sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, null, background_shader);
-                else
-                    sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                Team_Windows[i].draw(sprite_batch, offset);
-                sprite_batch.End();
-            }
+
+            TeamNodes.Draw(sprite_batch, offset);
 
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            // Data
-            foreach (TextSprite name in Group_Names)
-                name.draw(sprite_batch, offset);
-            foreach (TextSprite count in Group_Counts)
-                count.draw(sprite_batch, offset);
-
             Cursor.draw(sprite_batch, offset);
             sprite_batch.End();
         }

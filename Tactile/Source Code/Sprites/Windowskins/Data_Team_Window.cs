@@ -7,7 +7,7 @@ namespace Tactile
     class Data_Team_Window : Sprite
     {
         public readonly static string FILENAME = @"Graphics/Windowskins/Data_Screen";
-        const int WIDTH = 120;
+        public const int WIDTH = 120;
 
         public int Height = 0;
         public bool small = false;
