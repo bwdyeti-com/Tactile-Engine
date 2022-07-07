@@ -110,74 +110,69 @@ namespace Tactile.Windows.Map.Info
             switch (Mode)
             {
                 case Button_Description_Mode.Normal:
-                    Buttons.Add(EnemyRangeButton(buttonX));
+                    AddEnemyRangeButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(NextUnitButton(buttonX));
+                    AddNextUnitButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(MenuButton(buttonX));
+                    AddMenuButton(buttonX);
                     break;
                 case Button_Description_Mode.Unit_Highlighted:
-                    Buttons.Add(EnemyRangeButton(buttonX));
+                    AddEnemyRangeButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(StatusButton(buttonX));
+                    AddStatusButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(NextUnitButton(buttonX));
+                    AddNextUnitButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(MenuButton(buttonX));
+                    AddMenuButton(buttonX);
                     break;
                 case Button_Description_Mode.Unit_Selected:
-                    Buttons.Add(EnemyRangeButton(buttonX));
+                    AddEnemyRangeButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(StatusButton(buttonX));
+                    AddStatusButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(ResetArrowButton(buttonX));
+                    AddResetArrowButton(buttonX);
                     break;
                 case Button_Description_Mode.Unit_Selected_Blank:
-                    Buttons.Add(EnemyRangeButton(buttonX));
+                    AddEnemyRangeButton(buttonX);
                     NextButtonX(ref buttonX);
-                    Buttons.Add(ResetArrowButton(buttonX));
+                    AddResetArrowButton(buttonX);
                     break;
             }
         }
 
-        private static Button_Description EnemyRangeButton(int x)
+        private void AddEnemyRangeButton(int x)
         {
             var button = Button_Description.button(Inputs.X, x);
             button.description = "Enemy Range";
-
-            return button;
+            Buttons.Add(button);
         }
 
-        private static Button_Description StatusButton(int x)
+        private void AddStatusButton(int x)
         {
             var button = Button_Description.button(Inputs.R, x);
             button.description = "Info";
-
-            return button;
+            Buttons.Add(button);
         }
 
-        private static Button_Description NextUnitButton(int x)
+        private void AddNextUnitButton(int x)
         {
             var button = Button_Description.button(Inputs.L, x);
             button.description = "Next Unit";
-
-            return button;
+            Buttons.Add(button);
         }
 
-        private static Button_Description MenuButton(int x)
+        private void AddMenuButton(int x)
         {
             var button = Button_Description.button(Inputs.Select, x);
             button.description = "Menu";
-
-            return button;
+            Buttons.Add(button);
         }
 
-        private static Button_Description ResetArrowButton(int x)
+        private void AddResetArrowButton(int x)
         {
             var button = Button_Description.button(Inputs.L, x);
             button.description = "Reset Arrow";
-
-            return button;
+            Buttons.Add(button);
         }
 
         private int buttons_base_x
