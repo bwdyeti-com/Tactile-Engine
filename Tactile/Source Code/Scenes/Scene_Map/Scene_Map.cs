@@ -648,7 +648,6 @@ namespace Tactile
 
         public override void update_data()
         {
-            base.update_data();
             Global.player.update();
             Global.game_state.update();
             update_info_windows();
@@ -959,7 +958,6 @@ namespace Tactile
 
         public override void update_sprites()
         {
-            base.update_sprites();
             // Cursor
             Player.update_anim();
             Global.player.update_sprite(Player_Sprite);

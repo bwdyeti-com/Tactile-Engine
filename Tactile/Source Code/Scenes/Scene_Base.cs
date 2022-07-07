@@ -171,6 +171,8 @@ namespace Tactile
             return false;
         }
 
+        //@Yeti: either this shouldn't be virtual and use update_data() and
+        // update_sprites(), or remove those
         public virtual void update()
         {
             update_data();

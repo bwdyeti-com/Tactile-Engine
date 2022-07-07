@@ -104,8 +104,6 @@ vitae libero semper laoreet.";
 
         public override void update_data()
         {
-            base.update_data();
-
             LoadTimer = (LoadTimer + 1) % 60;
 
 
