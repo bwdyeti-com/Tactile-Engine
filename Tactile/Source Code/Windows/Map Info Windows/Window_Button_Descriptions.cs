@@ -1,11 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Help;
-using Tactile.Graphics.Text;
 
 namespace Tactile.Windows.Map.Info
 {
     enum Button_Description_Mode { Normal, Unit_Highlighted, Unit_Selected, Unit_Selected_Blank }
+    [Flags]
+    enum MapHelpButtonInputs
+    {
+        None =              0,
+        Pressed =           1 << 0,
+    }
+
     class Window_Button_Descriptions : Stereoscopic_Graphic_Object
     {
         protected Button_Description_Mode Mode = Button_Description_Mode.Normal;
@@ -14,6 +22,42 @@ namespace Tactile.Windows.Map.Info
         public Window_Button_Descriptions()
         {
             refresh();
+        }
+
+        public void UpdateInputs()
+        {
+            bool input = Global.game_state.is_button_description_ready;
+            bool nothingPressed = true;
+            // Remove all flags other than pressed
+            Global.game_temp.MapHelpInput =
+                Global.game_temp.MapHelpInput & MapHelpButtonInputs.Pressed;
+
+            // Check inputs on the buttons
+            for (int i = 0; i < Buttons.Count; i++)
+            {
+                Buttons[i].Update(input);
+
+                // Button was pressed
+                if (Buttons[i].consume_trigger(TouchGestures.Tap))
+                {
+                    Global.game_temp.MapHelpInput = MapHelpButtonInputs.Pressed;
+                    nothingPressed = false;
+                }
+                // If the button is interacted with, block the player from
+                // moving around on the map/etc by setting pressed
+                else if (input && Buttons[i].OnScreenBounds(Vector2.Zero).Contains(
+                        (int)Global.Input.touchPressPosition.X,
+                        (int)Global.Input.touchPressPosition.Y) &&
+                    Global.Input.touch_pressed(false))
+                {
+                    Global.game_temp.MapHelpInput = MapHelpButtonInputs.Pressed;
+                    nothingPressed = false;
+                }
+            }
+
+            // If no inputs and not pressing, remove pressed flag
+            if (nothingPressed && !Global.Input.touch_pressed(false))
+                Global.game_temp.MapHelpInput = MapHelpButtonInputs.None;
         }
 
         public void update()

@@ -648,6 +648,7 @@ namespace Tactile
 
         public override void update_data()
         {
+            UpdateInfoWindowInputs();
             Global.player.update();
             Global.game_state.update();
             update_info_windows();

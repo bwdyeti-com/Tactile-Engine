@@ -350,6 +350,9 @@ namespace Tactile
 
         protected void normal_input_handling(Game_Unit selected_unit, Game_Unit highlighted_unit, Game_Unit status_unit, bool selected_moving)
         {
+            bool touchBlocked = Global.game_temp.MapHelpInput.HasFlag(
+                Windows.Map.Info.MapHelpButtonInputs.Pressed);
+
             // Unit selected
             if (Global.game_system.Selected_Unit_Id != -1)
             {
@@ -387,7 +390,7 @@ namespace Tactile
                     }
                 }
                 // Screen tap
-                else if (Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
+                else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
                 {
                     // Move unit
                     Vector2 tap_loc = Global.Input.gesture_loc(TouchGestures.TapNoDouble);
@@ -488,7 +491,7 @@ namespace Tactile
             }
 
             // Screen tap
-            else if (Global.Input.gesture_triggered(TouchGestures.Tap, false))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.Tap, false))
             {
                 // Select unit
                 if (move_to_touch_location(TouchGestures.Tap))
@@ -508,7 +511,7 @@ namespace Tactile
                 }
             }
             // Screen tap (confirming no double tap)
-            else if (Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
             {
                 // Select unit
                 if (move_to_touch_location(TouchGestures.TapNoDouble))
@@ -526,7 +529,7 @@ namespace Tactile
                 }
             }
             // Double tap
-            else if (Global.Input.gesture_triggered(TouchGestures.DoubleTap))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.DoubleTap))
             {
                 if (move_to_touch_location(TouchGestures.DoubleTap))
                 {
@@ -540,7 +543,7 @@ namespace Tactile
                 }
             }
             // Long Press
-            else if (Global.Input.gesture_triggered(TouchGestures.LongPress))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.LongPress))
             {
                 // Select unit
                 if (move_to_touch_location(TouchGestures.LongPress))
@@ -560,7 +563,7 @@ namespace Tactile
                 }
             }
             // Pinch In
-            else if (Global.Input.gesture_triggered(TouchGestures.PinchIn))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.PinchIn))
             {
                 Global.game_map.open_minimap(highlighted_unit);
             }
@@ -587,6 +590,9 @@ namespace Tactile
 
         protected void preparations_input_handling(Game_Unit selected_unit, Game_Unit highlighted_unit, Game_Unit status_unit, bool selected_moving)
         {
+            bool touchBlocked = Global.game_temp.MapHelpInput.HasFlag(
+                Windows.Map.Info.MapHelpButtonInputs.Pressed);
+
             // B button
             if (Global.game_system.Selected_Unit_Id != -1 && !is_menuing)
             {
@@ -700,7 +706,7 @@ namespace Tactile
             }
             
             // Screen tap
-            else if (Global.Input.gesture_triggered(TouchGestures.Tap, false))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.Tap, false))
             {
                 // Select unit
                 if (move_to_touch_location(TouchGestures.Tap))
@@ -720,7 +726,7 @@ namespace Tactile
                 }
             }
             // Screen tap (confirming no double tap)
-            else if (Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
             {
                 // Select unit
                 if (move_to_touch_location(TouchGestures.TapNoDouble))
@@ -763,7 +769,7 @@ namespace Tactile
                 }
             }
             // Double tap
-            else if (Global.Input.gesture_triggered(TouchGestures.DoubleTap))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.DoubleTap))
             {
                 if (move_to_touch_location(TouchGestures.DoubleTap))
                 {
@@ -777,7 +783,7 @@ namespace Tactile
                 }
             }
             // Long Press
-            else if (Global.Input.gesture_triggered(TouchGestures.LongPress))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.LongPress))
             {
                 // Select unit
                 if (move_to_touch_location(TouchGestures.LongPress))
@@ -797,7 +803,7 @@ namespace Tactile
                 }
             }
             // Pinch In
-            else if (Global.Input.gesture_triggered(TouchGestures.PinchIn))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.PinchIn))
             {
                 Global.game_map.open_minimap(highlighted_unit);
             }
@@ -805,6 +811,9 @@ namespace Tactile
 
         protected void formation_input_handling(Game_Unit selected_unit, Game_Unit highlighted_unit, Game_Unit status_unit, bool selected_moving)
         {
+            bool touchBlocked = Global.game_temp.MapHelpInput.HasFlag(
+                Windows.Map.Info.MapHelpButtonInputs.Pressed);
+
             // B button
             if (Global.Input.triggered(Inputs.B) ||
                 Global.Input.mouse_triggered(MouseButtons.Right))
@@ -841,7 +850,7 @@ namespace Tactile
             }
 
             // Screen tap
-            else if (Global.Input.gesture_triggered(TouchGestures.Tap, false))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.Tap, false))
             {
                 if (move_to_touch_location(TouchGestures.Tap))
                 {
@@ -858,7 +867,7 @@ namespace Tactile
                 }
             }
             // Screen tap (confirming no double tap)
-            else if (Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.TapNoDouble))
             {
                 if (move_to_touch_location(TouchGestures.TapNoDouble))
                 {
@@ -878,7 +887,7 @@ namespace Tactile
                 }
             }
             // Double tap
-            else if (Global.Input.gesture_triggered(TouchGestures.DoubleTap))
+            else if (!touchBlocked && Global.Input.gesture_triggered(TouchGestures.DoubleTap))
             {
                 if (move_to_touch_location(TouchGestures.DoubleTap))
                 {
