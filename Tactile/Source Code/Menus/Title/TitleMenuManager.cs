@@ -197,7 +197,7 @@ at any time from the options menu.");
                     break;
                 case Main_Menu_Selections.Options:
                     Global.game_system.play_se(System_Sounds.Confirm);
-                    var settingsTopMenu = new SettingsTopMenu();
+                    var settingsTopMenu = new TitleSettingsTopMenu();
                     settingsTopMenu.Selected += SettingsTopMenu_Selected;
                     settingsTopMenu.Closed += menu_Closed;
                     settingsTopMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
@@ -279,6 +279,7 @@ at any time from the options menu.");
             SettingsMenu settingsMenu;
             settingsMenu = new SettingsMenu(settings, parent);
             settingsMenu.OpenSubMenu += SettingsMenu_OpenSubMenu;
+            settingsMenu.OpenSettingList += SettingsMenu_OpenSettingList;
             settingsMenu.Canceled += settingsMenu_Canceled;
             AddMenu(settingsMenu);
         }
@@ -288,6 +289,40 @@ at any time from the options menu.");
             var parentMenu = (sender as SettingsMenu);
             var settings = parentMenu.GetSubSettings();
             OpenSettingsMenu(settings, parentMenu);
+        }
+
+        private void SettingsMenu_OpenSettingList(object sender, EventArgs e)
+        {
+            var parentMenu = (sender as SettingsMenu);
+            var settingListWindow = parentMenu.GetSettingListWindow();
+
+            var settingListCommandMenu = new CommandMenu(settingListWindow, parentMenu);
+            settingListCommandMenu.Selected += SettingListCommandMenu_Selected;
+            settingListCommandMenu.Canceled += SettingListCommandMenu_Canceled;
+            AddMenu(settingListCommandMenu);
+        }
+
+        void SettingListCommandMenu_Selected(object sender, EventArgs e)
+        {
+            var settingListCommandMenu = sender as CommandMenu;
+            var settingsMenu = (Menus.ElementAt(1) as SettingsMenu);
+
+            int settingIndex = settingListCommandMenu.SelectedIndex.Index;
+            if (settingsMenu.SelectSettingListItem(settingIndex))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+                RemoveTopMenu();
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
+        void SettingListCommandMenu_Canceled(object sender, EventArgs e)
+        {
+            RemoveTopMenu();
+
+            var settingsMenu = (Menus.ElementAt(0) as SettingsMenu);
+            settingsMenu.CloseSettingList();
         }
 
         void settingsMenu_Canceled(object sender, EventArgs e)

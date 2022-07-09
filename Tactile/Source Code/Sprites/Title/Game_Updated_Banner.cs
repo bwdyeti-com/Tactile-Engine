@@ -133,6 +133,13 @@ namespace Tactile
                 (int)loc.X, (int)loc.Y, Config.WINDOW_WIDTH, HEIGHT);
         }
 
+        public bool MouseOver(Vector2 drawOffset = default(Vector2))
+        {
+            Rectangle objectRect = OnScreenBounds(drawOffset);
+            return Global.Input.mouse_in_rectangle(
+                objectRect, loc - drawOffset, this.offset, this.angle, mirrored);
+        }
+
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
             Rectangle scissor_rect = new Rectangle(

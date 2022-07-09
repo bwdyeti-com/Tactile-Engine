@@ -8,7 +8,6 @@ using Tactile.Graphics.Help;
 using Tactile.Menus;
 using Tactile.Windows.UserInterface;
 using Tactile.Windows.UserInterface.Title;
-using TactileLibrary;
 
 namespace Tactile
 {
@@ -144,12 +143,12 @@ namespace Tactile
             Right_Page_Arrow.stereoscopic = Config.TITLE_MENU_DEPTH - 1;
             Right_Page_Arrow.ArrowClicked += Right_Page_Arrow_ArrowClicked;
 
-            create_cancel_button();
+            CreateCancelButton();
 
             this.file_id = fileId;
         }
 
-        private void create_cancel_button()
+        private void CreateCancelButton()
         {
             CancelButton = Button_Description.button(Inputs.B,
                 Config.WINDOW_WIDTH - 64);
@@ -264,6 +263,15 @@ namespace Tactile
                 update_move_darken();
         }
 
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton();
+            }
+        }
+
         private void update_move_darken()
         {
             for (int i = 0; i < Panels.Length; i++)
@@ -336,7 +344,7 @@ namespace Tactile
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (file_index.IsSomething)
                 {
-                    int file_id = file_index + 1 + Page * Config.SAVES_PER_PAGE;
+                    int file_id = file_index.Index + 1 + Page * Config.SAVES_PER_PAGE;
                     if (this.file_id != file_id)
                         this.file_id = file_id;
 

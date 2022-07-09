@@ -331,7 +331,7 @@ namespace Tactile.Windows.Command.Items
             }
 
             Help_Window = new Window_Help();
-            Help_Window.set_item(this.items(Index_Redirect[HelpIndex]), actor());
+            Help_Window.set_item(this.items(Index_Redirect[HelpIndex.Index]), actor());
             Help_Window.loc = loc + item_loc(this.index);
             update_help_loc();
             Global.game_system.play_se(System_Sounds.Help_Open);

@@ -19,8 +19,7 @@ namespace Tactile.Windows.Map
         protected bool[] Unit_Deployed_Flags;
         protected List<int> Units_To_Deploy = new List<int>(), Units_To_UnDeploy = new List<int>();
 
-        protected TextSprite Goal;
-        protected Button_Description R_Button, Start;
+        protected Button_Description CancelButton, R_Button, Start;
         protected Sprite Backing_2;
 
         public bool pressed_start { get { return Pressed_Start; } }
@@ -61,18 +60,16 @@ namespace Tactile.Windows.Map
             Backing_2.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
 
             base.initialize_sprites();
-
-            // Goal
-            Goal = new TextSprite();
-            Goal.loc = Backing_1.loc + new Vector2(48, 0);
-            Goal.SetFont(Config.UI_FONT, Global.Content, "White");
-            Goal.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
-            Goal.text = Global.game_system.Objective_Text;
-            Goal.offset = new Vector2(Font_Data.text_width(Goal.text) / 2, 0);
         }
 
         protected override void refresh_input_help()
         {
+            CancelButton = Button_Description.button(Inputs.B,
+                Backing_1.loc + new Vector2(32, 0 - 2));
+            CancelButton.description = "Cancel";
+            CancelButton.offset = new Vector2(2, -1);
+            CancelButton.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
+
             R_Button = Button_Description.button(Inputs.R,
                 Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen"), new Rectangle(126, 122, 24, 16));
             R_Button.loc = Backing_1.loc + new Vector2(32, 16 - 4);
@@ -81,13 +78,13 @@ namespace Tactile.Windows.Map
 
             Start = Button_Description.button(Inputs.Start,
                 Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen"), new Rectangle(142, 41, 32, 16));
-            Start.loc = Backing_2.loc + new Vector2(32, 0 - 1);
-            Start.offset = new Vector2(0, -1);
+            Start.loc = Backing_2.loc + new Vector2(32, 0 - 2);
+            Start.offset = new Vector2((int)(Start.Size.X / 8) - 8, -1);
             Start.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
 
             Select = Button_Description.button(Inputs.Select,
                 Global.Content.Load<Texture2D>(@"Graphics/Windowskins/Preparations_Screen"), new Rectangle(150, 73, 48, 16));
-            Select.loc = Backing_2.loc + new Vector2(24, 16 - 1);
+            Select.loc = Backing_2.loc + new Vector2(24, 16 - 2);
             Select.offset = new Vector2(-12, -1);
             Select.stereoscopic = Config.PREPUNIT_INPUTHELP_DEPTH;
         }
@@ -97,22 +94,32 @@ namespace Tactile.Windows.Map
         {
             bool input = active && this.ready;
 
+            CancelButton.Update(input);
+            Start.Update(input);
+            Select.Update(input);
+
             if (input)
             {
                 // Close this window
-                if (Global.Input.triggered(Inputs.B))
+                if (Global.Input.triggered(Inputs.B) ||
+                    CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Cancel);
                     close();
                     return;
                 }
-                else if (Global.Input.triggered(Inputs.Start))
+                else if (Global.Input.triggered(Inputs.Start) ||
+                    Start.consume_trigger(MouseButtons.Left) ||
+                    Start.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     close(true);
                     return;
                 }
-                else if (Global.Input.triggered(Inputs.Select))
+                else if (Global.Input.triggered(Inputs.Select) ||
+                    Select.consume_trigger(MouseButtons.Left) ||
+                    Select.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
                     OnUnit(new EventArgs());
@@ -124,7 +131,7 @@ namespace Tactile.Windows.Map
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (selected_index.IsSomething)
                 {
-                    switch_unit(selected_index);
+                    switch_unit(selected_index.Index);
                     return;
                 }
 
@@ -270,7 +277,7 @@ namespace Tactile.Windows.Map
             Backing_2.draw(sprite_batch);
             base.draw_info(sprite_batch);
 
-            Goal.draw(sprite_batch);
+            CancelButton.Draw(sprite_batch);
             R_Button.Draw(sprite_batch);
             Start.Draw(sprite_batch);
         }

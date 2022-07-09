@@ -44,7 +44,7 @@ namespace Tactile
             set { CommandWindow.index = value; }
         }
 
-        internal virtual Maybe<int> selected_index { get { return CommandWindow.selected_index(); } }
+        internal virtual ConsumedInput selected_index { get { return CommandWindow.selected_index(); } }
 
         internal bool start_ui_button_pressed
         {
@@ -370,7 +370,7 @@ namespace Tactile
             get
             {
                 return CommandWindow
-                    .selected_index().ValueOrDefault;
+                    .selected_index().Index;
             }
         }
 

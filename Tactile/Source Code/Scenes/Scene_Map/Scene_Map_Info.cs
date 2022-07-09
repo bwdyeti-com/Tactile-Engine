@@ -89,7 +89,13 @@ namespace Tactile
             }
         }
 
-        protected void update_info_windows()
+        private void UpdateInfoWindowInputs()
+        {
+            if (Button_Info != null)
+                Button_Info.UpdateInputs();
+        }
+
+        private void update_info_windows()
         {
             if (Unit_Info != null)
                 Unit_Info.update();
@@ -133,7 +139,7 @@ namespace Tactile
                     window.go_offscreen();
         }
 
-        protected void draw_info_windows(SpriteBatch sprite_batch)
+        private void draw_info_windows(SpriteBatch sprite_batch)
         {
             if (Button_Info != null)
                 Button_Info.draw(sprite_batch);

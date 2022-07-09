@@ -263,7 +263,7 @@ namespace Tactile.Menus.Worldmap
 
         public ChapterCommands SelectedChapterCommand()
         {
-            return ActiveChapterCommands[ChapterCommandWindow.selected_index()];
+            return ActiveChapterCommands[ChapterCommandWindow.selected_index().Index];
         }
 
         private void CloseChapterCommands()

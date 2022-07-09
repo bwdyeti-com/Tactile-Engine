@@ -1,19 +1,70 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Help;
-using Tactile.Graphics.Text;
 
 namespace Tactile.Windows.Map.Info
 {
     enum Button_Description_Mode { Normal, Unit_Highlighted, Unit_Selected, Unit_Selected_Blank }
+    [Flags]
+    enum MapHelpButtonInputs
+    {
+        None =              0,
+        Pressed =           1 << 0,
+        EnemyRange =        1 << 1,
+        Status =            1 << 2,
+        NextUnit =          1 << 3,
+        Menu =              1 << 4,
+        ResetArrow =        1 << 5,
+    }
+
     class Window_Button_Descriptions : Stereoscopic_Graphic_Object
     {
         protected Button_Description_Mode Mode = Button_Description_Mode.Normal;
         protected List<Button_Description> Buttons;
+        private List<MapHelpButtonInputs> ButtonInputs;
 
         public Window_Button_Descriptions()
         {
             refresh();
+        }
+
+        public void UpdateInputs()
+        {
+            bool input = Global.game_state.is_button_description_ready;
+            bool nothingPressed = true;
+            // Remove all flags other than pressed
+            Global.game_temp.MapHelpInput =
+                Global.game_temp.MapHelpInput & MapHelpButtonInputs.Pressed;
+
+            // Check inputs on the buttons
+            for (int i = 0; i < Buttons.Count; i++)
+            {
+                Buttons[i].Update(input);
+
+                // Button was pressed
+                if (Buttons[i].consume_trigger(TouchGestures.Tap))
+                {
+                    Global.game_temp.MapHelpInput =
+                        MapHelpButtonInputs.Pressed | ButtonInputs[i];
+                    nothingPressed = false;
+                }
+                // If the button is interacted with, block the player from
+                // moving around on the map/etc by setting pressed
+                else if (input && Buttons[i].OnScreenBounds(Vector2.Zero).Contains(
+                        (int)Global.Input.touchPressPosition.X,
+                        (int)Global.Input.touchPressPosition.Y) &&
+                    Global.Input.touch_pressed(false))
+                {
+                    Global.game_temp.MapHelpInput = MapHelpButtonInputs.Pressed;
+                    nothingPressed = false;
+                }
+            }
+
+            // If no inputs and not pressing, remove pressed flag
+            if (nothingPressed && !Global.Input.touch_pressed(false))
+                Global.game_temp.MapHelpInput = MapHelpButtonInputs.None;
         }
 
         public void update()
@@ -106,58 +157,80 @@ namespace Tactile.Windows.Map.Info
         protected void refresh()
         {
             Buttons = new List<Button_Description>();
-            int button_x = this.buttons_base_x;
+            ButtonInputs = new List<MapHelpButtonInputs>();
+
+            int buttonX = this.buttons_base_x;
             switch (Mode)
             {
                 case Button_Description_Mode.Normal:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Next Unit";
-                    //base_x += 68; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.Select, button_x));
-                    Buttons[Buttons.Count - 1].description = "Menu";
+                    AddEnemyRangeButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddNextUnitButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddMenuButton(buttonX);
                     break;
                 case Button_Description_Mode.Unit_Highlighted:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.R, button_x));
-                    Buttons[Buttons.Count - 1].description = "Info";
-                    //base_x += 44; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Next Unit";
-                    //base_x += 68; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.Select, button_x));
-                    Buttons[Buttons.Count - 1].description = "Menu";
+                    AddEnemyRangeButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddStatusButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddNextUnitButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddMenuButton(buttonX);
                     break;
                 case Button_Description_Mode.Unit_Selected:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.R, button_x));
-                    Buttons[Buttons.Count - 1].description = "Info";
-                    //base_x += 44; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Reset Arrow";
+                    AddEnemyRangeButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddStatusButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddResetArrowButton(buttonX);
                     break;
                 case Button_Description_Mode.Unit_Selected_Blank:
-                    Buttons.Add(Button_Description.button(Inputs.X, button_x));
-                    Buttons[Buttons.Count - 1].description = "Enemy Range";
-                    //base_x += 80; //Debug
-                    button_x = next_button_x(button_x, Buttons[Buttons.Count - 1].width);
-                    Buttons.Add(Button_Description.button(Inputs.L, button_x));
-                    Buttons[Buttons.Count - 1].description = "Reset Arrow";
+                    AddEnemyRangeButton(buttonX);
+                    NextButtonX(ref buttonX);
+                    AddResetArrowButton(buttonX);
                     break;
             }
+        }
+
+        private void AddEnemyRangeButton(int x)
+        {
+            var button = Button_Description.button(Inputs.X, x);
+            button.description = "Enemy Range";
+            Buttons.Add(button);
+            ButtonInputs.Add(MapHelpButtonInputs.EnemyRange);
+        }
+
+        private void AddStatusButton(int x)
+        {
+            var button = Button_Description.button(Inputs.R, x);
+            button.description = "Info";
+            Buttons.Add(button);
+            ButtonInputs.Add(MapHelpButtonInputs.Status);
+        }
+
+        private void AddNextUnitButton(int x)
+        {
+            var button = Button_Description.button(Inputs.L, x);
+            button.description = "Next Unit";
+            Buttons.Add(button);
+            ButtonInputs.Add(MapHelpButtonInputs.NextUnit);
+        }
+
+        private void AddMenuButton(int x)
+        {
+            var button = Button_Description.button(Inputs.Select, x);
+            button.description = "Menu";
+            Buttons.Add(button);
+            ButtonInputs.Add(MapHelpButtonInputs.Menu);
+        }
+
+        private void AddResetArrowButton(int x)
+        {
+            var button = Button_Description.button(Inputs.L, x);
+            button.description = "Reset Arrow";
+            Buttons.Add(button);
+            ButtonInputs.Add(MapHelpButtonInputs.ResetArrow);
         }
 
         private int buttons_base_x
@@ -199,6 +272,11 @@ namespace Tactile.Windows.Map.Info
                 }
                 return base_x;
             }
+        }
+
+        private void NextButtonX(ref int x)
+        {
+            x =  next_button_x(x, Buttons[Buttons.Count - 1].width);
         }
 
         private int next_button_x(int x, int previousButtonWidth)

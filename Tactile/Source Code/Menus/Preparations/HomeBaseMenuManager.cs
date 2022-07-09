@@ -163,7 +163,7 @@ namespace Tactile.Menus.Preparations
         {
             var manageMenu = sender as CommandMenu;
 
-            switch ((HomeBaseManageChoices)manageMenu.SelectedIndex.ValueOrDefault)
+            switch ((HomeBaseManageChoices)manageMenu.SelectedIndex.Index)
             {
                 case HomeBaseManageChoices.Organize:
                     Global.game_system.play_se(System_Sounds.Confirm);

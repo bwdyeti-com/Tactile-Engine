@@ -30,7 +30,8 @@ namespace Tactile.Windows.Command
         protected UINodeSet<CommandUINode> Items;
         protected UICursor<CommandUINode> UICursor;
 
-        protected int SelectedIndex = -1, HelpIndex = -1;
+        protected ConsumedInput SelectedIndex;
+        protected ConsumedInput HelpIndex;
         private bool Canceled; 
 
         protected bool Manual_Cursor_Draw = false, Manual_Help_Draw = false;
@@ -285,28 +286,24 @@ namespace Tactile.Windows.Command
             }
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
-            if (SelectedIndex < 0)
-                return Maybe<int>.Nothing;
             return SelectedIndex;
         }
 
         public bool is_selected()
         {
-            return SelectedIndex >= 0;
+            return SelectedIndex.IsSomething;
         }
 
-        public Maybe<int> help_index()
+        public ConsumedInput help_index()
         {
-            if (HelpIndex < 0)
-                return Maybe<int>.Nothing;
             return HelpIndex;
         }
 
         public bool getting_help()
         {
-            return HelpIndex >= 0;
+            return HelpIndex.IsSomething;
         }
 
         public bool is_canceled()
@@ -316,8 +313,8 @@ namespace Tactile.Windows.Command
 
         public void reset_selected()
         {
-            SelectedIndex = -1;
-            HelpIndex = -1;
+            SelectedIndex = new ConsumedInput();
+            HelpIndex = new ConsumedInput();
             Canceled = false;
         }
 
@@ -350,17 +347,15 @@ namespace Tactile.Windows.Command
 
             if (input)
             {
-                var selected = Items.consume_triggered(
+                ConsumedInput selected = Items.consume_triggered(
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
-                var help = Items.consume_triggered(
+                ConsumedInput help = Items.consume_triggered(
                     Inputs.R, MouseButtons.Right, TouchGestures.LongPress);
 
                 if (!is_help_active)
                 {
-                    if (selected.IsSomething)
-                        SelectedIndex = selected;
-                    if (help.IsSomething)
-                        HelpIndex = help;
+                    SelectedIndex = selected;
+                    HelpIndex = help;
                 }
 
                 if (Global.Input.triggered(Inputs.B))

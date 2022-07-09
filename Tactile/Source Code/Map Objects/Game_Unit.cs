@@ -578,7 +578,7 @@ namespace Tactile
 
         public bool is_mov_capped()
         {
-            return (base_mov >= actor.mov_cap);
+            return (this.base_mov + actor.mov_plus >= actor.mov_cap);
         }
 
         public int canto_mov

@@ -35,6 +35,9 @@ namespace Tactile.Windows.UserInterface.Preparations
             MapSprite.draw_offset = new Vector2(8, 16);
             MapSprite.mirrored = Constants.Team.flipped_map_sprite(Constants.Team.PLAYER_TEAM);
 
+            MapSprite.frame = Global.game_system.unit_anim_idle_frame;
+            MapSprite.update();
+
             GlowingLine = new Unit_Line_Cursor(64);
             GlowingLine.draw_offset = new Vector2(0, 8);
             GlowingLine.visible = false;

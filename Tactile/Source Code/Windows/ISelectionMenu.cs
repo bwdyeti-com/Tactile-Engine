@@ -4,7 +4,7 @@ namespace Tactile.Windows
 {
     interface ISelectionMenu
     {
-        Maybe<int> selected_index();
+        ConsumedInput selected_index();
 
         bool is_selected();
 

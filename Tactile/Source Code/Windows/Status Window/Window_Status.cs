@@ -496,7 +496,7 @@ namespace Tactile
 
             StatusNodes[page].Update(!input ? ControlSet.None :
                 (Help_Window != null ?
-                    ControlSet.Movement : (ControlSet.Mouse | ControlSet.Touch)));
+                    ControlSet.Movement | ControlSet.TouchButtons : ControlSet.Pointing));
 
             if (input)
             {
@@ -512,7 +512,7 @@ namespace Tactile
 
                     if (help_index.IsSomething)
                     {
-                        Help_Index = StatusNodes[page][help_index].HelpLabel;
+                        Help_Index = StatusNodes[page][help_index.Index].HelpLabel;
                         open_help();
                     }
                 }

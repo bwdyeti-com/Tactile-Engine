@@ -89,7 +89,7 @@ namespace Tactile.Menus.Map
             get
             {
                 if (Window.is_selected())
-                    return (Unit_Editor_Options)Window.selected_index().ValueOrDefault;
+                    return (Unit_Editor_Options)Window.selected_index().Index;
                 return Unit_Editor_Options.None;
             }
         }
@@ -99,7 +99,7 @@ namespace Tactile.Menus.Map
             get
             {
                 return Window.loc + new Vector2(0,
-                    (Window.selected_index().ValueOrDefault -
+                    (Window.selected_index().Index -
                         (Window as Window_Command_Scrollbar).scroll) * 16);
             }
         }
@@ -119,7 +119,7 @@ namespace Tactile.Menus.Map
             }
             else if (Window.is_selected())
             {
-                switch ((Unit_Editor_Options)Window.selected_index().ValueOrDefault)
+                switch ((Unit_Editor_Options)Window.selected_index().Index)
                 {
                     case Unit_Editor_Options.Unit:
 

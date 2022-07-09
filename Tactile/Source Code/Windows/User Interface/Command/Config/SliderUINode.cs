@@ -1,13 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Text;
+using Tactile.Graphics.Gauges;
 
 namespace Tactile.Windows.UserInterface.Command.Config
 {
     class SliderUINode : NumberUINode
     {
-        private Stat_Bar Bar;
+        private Slider Bar;
         private int GaugeMin, GaugeMax;
+
+        protected override bool IsSlider { get { return true; } }
 
         internal SliderUINode(
                 string helpLabel,
@@ -21,11 +24,7 @@ namespace Tactile.Windows.UserInterface.Command.Config
             GaugeMin = gaugeMin;
             GaugeMax = gaugeMax;
 
-            Text = new TextSprite();
-            Text.SetFont(Tactile.Config.UI_FONT, Global.Content, "White");
-            Text.text = str;
-
-            Bar = new Stat_Bar();
+            Bar = new Slider();
             Bar.offset = new Vector2(-120 - 2, -8);
             Bar.bar_width = gaugeWidth;
 
@@ -51,6 +50,14 @@ namespace Tactile.Windows.UserInterface.Command.Config
         {
             base.update_graphics(activeNode);
             Bar.update();
+        }
+
+        public override Rectangle SliderBounds(Vector2 drawOffset)
+        {
+            Vector2 loc = HitBoxLoc(drawOffset + new Vector2(Bar.offset.X - (Bar.draw_offset.X + 2), 0));
+            return new Rectangle(
+                (int)loc.X, (int)loc.Y,
+                (int)Bar.bar_width, (int)Size.Y);
         }
 
         protected override void mouse_off_graphic()

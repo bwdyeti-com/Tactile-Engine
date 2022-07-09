@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Tactile.Graphics;
-using Tactile.Graphics.Text;
-using Tactile.Graphics.Windows;
+using Tactile.Graphics.Help;
 using Tactile.Menus;
-using Tactile.Menus.Title;
-using Tactile.Windows.Command;
 using Tactile.Windows.UserInterface;
-using Tactile.Windows.UserInterface.Command;
 using Tactile.Windows.UserInterface.Title;
 
 namespace Tactile
@@ -40,6 +34,8 @@ namespace Tactile
         private Suspend_Info_Panel SuspendPanel;
         private StartGame_Info_Panel StartGamePanel;
         private Game_Updated_Banner GameUpdated;
+
+        private Button_Description CancelButton;
 
         #region Accessors
         public override bool HidesParent { get { return DataDisplayed; } }
@@ -73,9 +69,19 @@ namespace Tactile
 
             MenuChoices.Add(new MainMenuChoicePanel("QUIT"));
 
+            CreateCancelButton();
+
             initialize_game_update_banner(true);
 
             RefreshMenuChoices();
+        }
+
+        private void CreateCancelButton()
+        {
+            CancelButton = Button_Description.button(Inputs.B,
+                Config.WINDOW_WIDTH - 64);
+            CancelButton.description = "Cancel";
+            CancelButton.stereoscopic = Config.TITLE_MENU_DEPTH;
         }
 
         private void initialize_game_update_banner(bool startOpened)
@@ -264,6 +270,8 @@ namespace Tactile
                 ChangeSelection(ChoiceNodes.ActiveNodeIndex);
             }
 
+            CancelButton.Update(active);
+
             if (active)
             {
                 if (GameUpdated == null)
@@ -277,14 +285,25 @@ namespace Tactile
                     Global.Input.triggered(Inputs.Start))
                 {
                     if (selected.IsSomething)
-                        ChangeSelection(selected);
+                        ChangeSelection(selected.Index);
                     OnSelected(new EventArgs());
                 }
-                else if (Global.Input.triggered(Inputs.B))
+                else if (Global.Input.triggered(Inputs.B) ||
+                    CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Cancel);
                     OnCanceled(new EventArgs());
                 }
+            }
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton();
             }
         }
 
@@ -376,6 +395,10 @@ namespace Tactile
 
                     sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                     ChoiceNodes.Draw(sprite_batch);
+                    sprite_batch.End();
+
+                    sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                    CancelButton.Draw(sprite_batch);
                     sprite_batch.End();
                 }
             }

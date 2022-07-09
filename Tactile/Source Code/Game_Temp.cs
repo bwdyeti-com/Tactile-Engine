@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Tactile.Windows.Map.Info;
 using TactileLibrary;
-using System;
 
 namespace Tactile
 {
@@ -11,6 +11,7 @@ namespace Tactile
         public int dying_unit_id = -1;
         public string message_text = null;
         public bool boss_theme = false;
+        public MapHelpButtonInputs MapHelpInput;
         // Menu Calls
         public bool menuing = false;
         public bool discard_menuing = false;

@@ -851,7 +851,7 @@ namespace Tactile.Menus.Map.Unit
             var selected = promotionConfirmMenu.SelectedIndex;
             menu_Closed(sender, e);
 
-            switch (selected)
+            switch (selected.Index)
             {
                 // Change
                 case 0:
@@ -984,7 +984,7 @@ namespace Tactile.Menus.Map.Unit
             var unitMenu = (Menus.ElementAt(1) as UnitCommandMenu);
             Game_Unit unit = itemMenu.Unit;
             
-            switch (selected)
+            switch (selected.Index)
             {
                 // Yes
                 case 0:
@@ -1669,7 +1669,7 @@ namespace Tactile.Menus.Map.Unit
             var unitMenu = (Menus.ElementAt(1) as UnitCommandMenu);
             Game_Unit unit = Global.game_map.units[unitMenu.UnitId];
 
-            switch (constructMenu.SelectedIndex)
+            switch (constructMenu.SelectedIndex.Index)
             {
                 // Assemble
                 case 0:

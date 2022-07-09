@@ -4,7 +4,7 @@ using TactileLibrary;
 
 namespace Tactile.Options
 {
-    enum ConfigTypes { None, Number, Slider, OnOffSwitch, Button, Keyboard, Gamepad, SubSettings }
+    enum ConfigTypes { None, List, Slider, OnOffSwitch, Button, Keyboard, Gamepad, SubSettings }
 
     interface ISettings : ICloneable
     {
@@ -51,6 +51,12 @@ namespace Tactile.Options
         IEnumerable<int> DependentSettings(int index);
 
         /// <summary>
+        /// Returns the desired menu width of the setting's options.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
+        int SettingWidth(int index);
+
+        /// <summary>
         /// Returns true if the given setting, when changed in an options menu,
         /// should preview the new value even before confirming.
         /// </summary>
@@ -89,6 +95,12 @@ namespace Tactile.Options
         /// </summary>
         /// <param name="index">The index of the setting.</param>
         string ValueString(int index);
+        /// <summary>
+        /// Gets a string representing a setting's value.
+        /// </summary>
+        /// <param name="index">The index of the setting.</param>
+        /// <param name="value">The value of the setting.</param>
+        string ValueString(int index, object value);
 
         /// <summary>
         /// Changes the value of a setting.
@@ -109,7 +121,7 @@ namespace Tactile.Options
         /// Throws an exception if the setting is not numeric.
         /// </summary>
         /// <param name="index">The index of the setting.</param>
-        Range<int> ValueRange(int index);
+        IntRange ValueRange(int index);
 
         /// <summary>
         /// Gets interval step a setting changes by.

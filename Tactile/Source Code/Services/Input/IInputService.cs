@@ -111,6 +111,7 @@ namespace Tactile.Services.Input
         Vector2 touchPressPosition { get; }
         Vector2 touchReleasePosition { get; }
         Vector2 freeDragVector { get; }
+        Vector2 horizontalDragVector { get; }
         Vector2 verticalDragVector { get; }
 
         bool any_positional_gesture { get; }

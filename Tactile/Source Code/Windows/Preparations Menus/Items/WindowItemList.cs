@@ -13,7 +13,6 @@ namespace Tactile.Windows.Map.Items
     {
         private bool Giving = false;
         private bool HardSwitch = false;
-        //protected Window_Command Command_Window; //Debug
         private Face_Sprite Face;
         private Sprite Nameplate;
         private TextSprite Name;
@@ -91,8 +90,10 @@ namespace Tactile.Windows.Map.Items
         protected override void refresh_input_help()
         {
             base.refresh_input_help();
-            SwitchButton = Button_Description.button(Inputs.X, new Vector2(176, 8));
+            SwitchButton = Button_Description.button(Inputs.X, new Vector2(176 - 48, 8));
             SwitchButton.description = "Switch";
+            SwitchButton.offset = new Vector2((int)(SwitchButton.Size.X * 0.275f), 0);
+            SwitchButton.loc += new Vector2(12, 0);
             SwitchButton.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;
         }
 
@@ -209,16 +210,21 @@ namespace Tactile.Windows.Map.Items
 
         private void update_unit_inventory(bool active)
         {
+            bool cancel =
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap) ||
+                Item_Window.is_canceled();
+
             if (active)
             {
                 if (is_help_active)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                         close_help();
                 }
                 else if (giving)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         close();
@@ -237,14 +243,19 @@ namespace Tactile.Windows.Map.Items
             {
                 if (selecting_take)
                 {
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Item_Selection_Window.is_canceled();
+
                     if (is_help_active)
                     {
-                        if (Item_Selection_Window.is_canceled())
+                        if (cancel)
                             close_help();
                     }
                     else
                     {
-                        if (Item_Selection_Window.is_canceled())
+                        if (cancel)
                         {
                             Global.game_system.play_se(System_Sounds.Cancel);
                             cancel_selecting_take();
@@ -257,14 +268,19 @@ namespace Tactile.Windows.Map.Items
                 }
                 else if (taking)
                 {
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Supply_Window.is_canceled();
+
                     if (is_help_active)
                     {
-                        if (Supply_Window.is_canceled())
+                        if (cancel)
                             close_help();
                     }
                     else
                     {
-                        if (Supply_Window.is_canceled())
+                        if (cancel)
                         {
                             Global.game_system.play_se(System_Sounds.Cancel);
                             close();

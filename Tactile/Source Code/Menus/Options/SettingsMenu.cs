@@ -35,6 +35,13 @@ namespace Tactile.Menus.Options
                 OpenSubMenu(this, e);
         }
 
+        public event EventHandler<EventArgs> OpenSettingList;
+        private void OnOpenSettingList(EventArgs e)
+        {
+            if (OpenSettingList != null)
+                OpenSettingList(this, e);
+        }
+
         protected override void Activate()
         {
             base.Activate();
@@ -78,32 +85,35 @@ namespace Tactile.Menus.Options
             // Setting selected
             if (MenuSettingSelected)
             {
-                // Input remapping
-                if (settingsWindow.KeyboardRemapSetting)
+                if (active)
                 {
-                    UpdateKeyboardRemap(settingsWindow, cancel);
-                }
-                else if (settingsWindow.GamepadRemapSetting)
-                {
-                    UpdateGamepadRemap(settingsWindow, cancel);
-                }
-                else
-                {
-                    if (cancel ||
-                        Global.Input.triggered(Inputs.B))
+                    // Input remapping
+                    if (settingsWindow.KeyboardRemapSetting)
                     {
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                        MenuSettingSelected = false;
-                        settingsWindow.CancelSetting();
+                        UpdateKeyboardRemap(settingsWindow, cancel);
                     }
-                    else if (Global.Input.KeyPressed(Keys.Enter) ||
-                        Global.Input.triggered(Inputs.A) ||
-                        Global.Input.triggered(Inputs.Start))
+                    else if (settingsWindow.GamepadRemapSetting)
                     {
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        MenuSettingSelected = false;
-                        IgnoreInputs();
-                        settingsWindow.ConfirmSetting();
+                        UpdateGamepadRemap(settingsWindow, cancel);
+                    }
+                    else
+                    {
+                        if (cancel ||
+                            Global.Input.triggered(Inputs.B))
+                        {
+                            Global.game_system.play_se(System_Sounds.Cancel);
+                            MenuSettingSelected = false;
+                            settingsWindow.CancelSetting();
+                        }
+                        else if (Global.Input.KeyPressed(Keys.Enter) ||
+                            Global.Input.triggered(Inputs.A) ||
+                            Global.Input.triggered(Inputs.Start))
+                        {
+                            Global.game_system.play_se(System_Sounds.Confirm);
+                            MenuSettingSelected = false;
+                            IgnoreInputs();
+                            settingsWindow.ConfirmSetting();
+                        }
                     }
                 }
             }
@@ -113,6 +123,10 @@ namespace Tactile.Menus.Options
                 if (cancel)
                 {
                     Cancel();
+                }
+                else if (settingsWindow.IsSettingEnabled() && settingsWindow.ScrubbingSetting())
+                {
+                    //
                 }
                 else if (Window.is_selected() || Global.Input.KeyPressed(Keys.Enter))
                 {
@@ -125,6 +139,11 @@ namespace Tactile.Menus.Options
                 OnOpenSubMenu(new EventArgs());
                 Window.visible = false;
                 settingsWindow.ClearSubMenu();
+            }
+            else if (active && settingsWindow.OpenSettingList)
+            {
+                OnOpenSettingList(new EventArgs());
+                settingsWindow.ClearSettingList();
             }
         }
 
@@ -205,6 +224,26 @@ namespace Tactile.Menus.Options
             return settingsWindow.GetSubSettings();
         }
 
+        public Windows.Command.Window_Command GetSettingListWindow()
+        {
+            var settingsWindow = Window as SettingsWindow;
+            return settingsWindow.GetSettingListWindow();
+        }
+        public bool SelectSettingListItem(int settingIndex)
+        {
+            var settingsWindow = Window as SettingsWindow;
+            bool result = settingsWindow.SelectSettingListItem(settingIndex);
+            if (result)
+                MenuSettingSelected = false;
+            return result;
+        }
+        public void CloseSettingList()
+        {
+            var settingsWindow = Window as SettingsWindow;
+            MenuSettingSelected = false;
+            settingsWindow.CloseSettingList();
+        }
+
         private void IgnoreInputs()
         {
             IgnoreInput = 1;
@@ -221,7 +260,7 @@ namespace Tactile.Menus.Options
                 MenuSettingSelected = settingsWindow.SelectSetting(true);
 
                 // If a setting is not selected (presumably because a button
-                // was pressed), ignore inputs temporarily
+                // or submenu was pressed), ignore inputs temporarily
                 if (!MenuSettingSelected)
                     IgnoreInputs();
             }

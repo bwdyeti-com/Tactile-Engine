@@ -20,6 +20,6 @@ namespace Tactile.Options
             return null;
         }
 
-        public override void SetValue(ref object setting, object value, Func<Range<int>> rangeCallback, int offset) { }
+        public override void SetValue(ref object setting, object value, Func<IntRange> rangeCallback, int offset) { }
     }
 }

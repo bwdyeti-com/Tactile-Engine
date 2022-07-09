@@ -1,6 +1,7 @@
 ﻿using System;   
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using TactileLibrary;
 
 namespace Tactile
 {
@@ -12,6 +13,10 @@ namespace Tactile
         protected bool Moving_Down, Moving_Up;
         public bool DownHeld { get; private set; }
         public bool UpHeld { get; private set; }
+        public bool DownTriggered { get; private set; }
+        public bool UpTriggered { get; private set; }
+        public bool Scrubbing { get; private set; }
+        public float ScrubPercent { get; private set; }
         protected int Scroll;
         protected bool Up_Arrow_Visible, Down_Arrow_Visible;
 
@@ -35,9 +40,11 @@ namespace Tactile
                 Up_Arrow_Visible = value > 0;
                 Down_Arrow_Visible = value < (Max_Items - Items_At_Once);
                 value = Math.Min(value, Max_Items - Items_At_Once);
-                Scroll = value * (Height - (Height * Items_At_Once / Max_Items)) / (Max_Items - Items_At_Once);
+                Scroll = value * (Height - (this.FillHeight)) / (Max_Items - Items_At_Once);
             }
         }
+
+        private int FillHeight { get { return Height * Items_At_Once / Max_Items; } }
         #endregion
 
         public void moving_up()
@@ -62,19 +69,56 @@ namespace Tactile
         internal EventHandler UpArrowClicked;
         internal EventHandler DownArrowClicked;
 
+        private Rectangle UpArrowRect
+        {
+            get { return new Rectangle((int)loc.X, (int)loc.Y - 9, 8, 8); }
+        }
+        private Rectangle DownArrowRect
+        {
+            get { return new Rectangle((int)loc.X, (int)loc.Y + Height + 2, 8, 8); }
+        }
+        private Rectangle BarRect
+        {
+            get { return new Rectangle((int)loc.X, (int)loc.Y, 8, Height); }
+        }
+
         public void update_input(Vector2 draw_offset = default(Vector2))
         {
+            bool downHeldLastTick = DownHeld;
+            bool upHeldLastTick = UpHeld;
+
             DownHeld = false;
             UpHeld = false;
+            DownTriggered = false;
+            UpTriggered = false;
 
             if (Input.ControlScheme == ControlSchemes.Buttons)
                 return;
 
             Vector2 loc = (this.loc + this.draw_offset) - draw_offset;
-            Rectangle up_arrow_rect = new Rectangle(
-                (int)loc.X, (int)loc.Y - 9, 8, 8);
-            Rectangle down_arrow_rect = new Rectangle(
-                (int)loc.X, (int)loc.Y + Height + 2, 8, 8);
+            Rectangle up_arrow_rect = this.UpArrowRect;
+            up_arrow_rect.Offset((int)-draw_offset.X, (int)-draw_offset.Y);
+            Rectangle down_arrow_rect = this.DownArrowRect;
+            down_arrow_rect.Offset((int)-draw_offset.X, (int)-draw_offset.Y);
+            Rectangle barRect = this.BarRect;
+            barRect.Offset((int)-draw_offset.X, (int)-draw_offset.Y);
+
+            // Scrubbing
+            if (Scrubbing)
+            {
+                if (!Global.Input.mouse_pressed(MouseButtons.Left, false) ||
+                    Input.ControlScheme != ControlSchemes.Mouse)
+                {
+                    Scrubbing = false;
+                }
+            }
+            else if (Global.Input.mouse_down_rectangle(
+                    MouseButtons.Left, barRect, true))
+            {
+                Scrubbing = true;
+            }
+            if (Scrubbing)
+                RefreshScrubPercent(barRect);
 
             // Up Arrow clicked
             if (Global.Input.mouseScroll > 0 ||
@@ -94,6 +138,8 @@ namespace Tactile
                 Global.Input.gesture_rectangle(
                     TouchGestures.VerticalDrag, up_arrow_rect, false))
             {
+                if (!upHeldLastTick)
+                    UpTriggered = true;
                 UpHeld = true;
             }
 
@@ -115,7 +161,21 @@ namespace Tactile
                 Global.Input.gesture_rectangle(
                     TouchGestures.VerticalDrag, down_arrow_rect, false))
             {
+                if (!downHeldLastTick)
+                    DownTriggered = true;
                 DownHeld = true;
+            }
+        }
+
+        private void RefreshScrubPercent(Rectangle barRect)
+        {
+            int height = barRect.Height - this.FillHeight;
+            if (height <= 0)
+                ScrubPercent = 0f;
+            else
+            {
+                float percent = (Global.Input.mousePosition.Y - (this.FillHeight / 2 + barRect.Y)) / (float)height;
+                ScrubPercent = MathHelper.Clamp(percent, 0f, 1f);
             }
         }
 
@@ -142,7 +202,7 @@ namespace Tactile
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     // Fill
                     y = 0;
-                    while (y < Height * Items_At_Once / Max_Items)
+                    while (y < this.FillHeight)
                     {
                         sprite_batch.Draw(texture, (this.loc + draw_vector() + new Vector2(0, y + Scroll)) - draw_offset,
                             new Rectangle(0, 3, 8, 1), tint, angle, offset, scale,

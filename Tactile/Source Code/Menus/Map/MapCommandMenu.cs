@@ -110,7 +110,7 @@ namespace Tactile.Menus.Map
             get
             {
                 if (Window.is_selected())
-                    return (Map_Menu_Options)Window.selected_index().ValueOrDefault;
+                    return (Map_Menu_Options)Window.selected_index().Index;
                 return Map_Menu_Options.None;
             }
         }
@@ -132,7 +132,7 @@ namespace Tactile.Menus.Map
             }
             else if (Window.is_selected())
             {
-                switch ((Map_Menu_Options)Window.selected_index().ValueOrDefault)
+                switch ((Map_Menu_Options)Window.selected_index().Index)
                 {
                     case Map_Menu_Options.Unit:
                         SelectItem(true);

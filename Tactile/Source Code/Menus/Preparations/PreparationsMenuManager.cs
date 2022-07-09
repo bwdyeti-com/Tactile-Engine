@@ -212,6 +212,10 @@ namespace Tactile.Menus.Preparations
                     Global.game_system.play_se(System_Sounds.Confirm);
                     checkMapMenu.HideToChangeFormation();
                     break;
+                case PrepCheckMapResults.Data:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    AddDataMenu();
+                    break;
                 case PrepCheckMapResults.Options:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     AddOptionsMenu();
