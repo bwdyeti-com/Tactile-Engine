@@ -43,9 +43,7 @@ namespace Tactile
         {
             get
             {
-                if (Anim_Index >= Ids.Count)
-                    return -1;
-                return Ids[Anim_Index];
+                return GetAnimationId(Anim_Index);
             }
         }
 
@@ -89,7 +87,7 @@ namespace Tactile
                 int offset = 0;
                 if (Ids.Count <= Anim_Index + 1)
                 {
-                    int? brighten_offest = On_Hit.SPELL_BRIGHTEN_OFFSET(id);
+                    int? brighten_offest = On_Hit.SPELL_BRIGHTEN_OFFSET(this.id);
                     if (brighten_offest != null)
                         offset = (int)brighten_offest + 1; // the +1 fixed Purge, but whatever calls this might be the one that's wrong? //Debug
                 }
@@ -185,6 +183,13 @@ namespace Tactile
             return result;
         }
 
+        private int GetAnimationId(int index)
+        {
+            if (index >= Ids.Count || index < 0)
+                return -1;
+            return Ids[index];
+        }
+
         public override void update()
         {
             Frame_Timer++;
@@ -211,41 +216,40 @@ namespace Tactile
                 // New Frame
                 if (Frame_Timer >= Data.current_frame(Frame).time && Data.current_frame(Frame).time >= 0)
                 {
+                    // Next frame
                     int current_frame = Frame;
                     Frame = Data.next_frame(Frame);
-                    // If looped past the end
+
+                    // If frame looped over
                     if (Frame <= current_frame)
                     {
-                        // If the playing animation doesn't loop
-                        if (!Data.loop)
+                        // If this is the last animation in this set
+                        if (Anim_Index >= Ids.Count - 1)
                         {
-                            // And we're not freezing on the last frame
-                            if (!Flags.HasFlag(AnimationFlag.Repeat) || Ids.Count > Anim_Index + 1)
+                            // If this animation set continues until external input
+                            if (Flags.HasFlag(AnimationFlag.Repeat))
                             {
-                                // Then either we go to the next animation
-                                if (Ids.Count > Anim_Index + 1)
+                                bool looped = TryLoop();
+
+                                // If not looped, hold on the last frame
+                                if (!looped)
                                 {
-                                    Frame_Timer = 0;
-                                    next_animation();
-                                    return;
-                                }
-                                // Or we're finished
-                                else
-                                {
-                                    Finished = true; //Sprite needs to dispose? //Yeti
+                                    Frame = current_frame;
                                     return;
                                 }
                             }
-                            // If we are freezing on the last frame
-                            else if (Ids.Count == 1)
+                            else
                             {
-                                Frame = current_frame;
-                                return;
+                                Finished = true; //Sprite needs to dispose? //Yeti
+                                TryLoop();
                             }
                         }
+                        // Else go to the next animation
                         else
                         {
                             Frame_Timer = 0;
+                            next_animation();
+                            return;
                         }
                     }
                     else
@@ -313,9 +317,9 @@ namespace Tactile
             while (Anim_Index < Ids.Count)
             {
                 Anim_Index++;
-                if (Global.data_animations.ContainsKey(id))
+                if (Global.data_animations.ContainsKey(this.id))
                 {
-                    Data = Global.data_animations[id];
+                    Data = Global.data_animations[this.id];
                     if (Use_Animation_Texture)
                     {
                         // Uses the texture from the first animation in the animation list
@@ -356,6 +360,38 @@ namespace Tactile
             Frame_Timer = 0;
             Anim_Timer = 0;
             update_sounds();
+        }
+
+        /// <summary>
+        /// Return to the start of this animation set's loop, if it has one
+        /// </summary>
+        protected bool TryLoop()
+        {
+            int lastId = GetAnimationId(Ids.Count - 1);
+            // If the last animation is missing
+            if (!Global.data_animations.ContainsKey(lastId))
+                return false;
+            // If the last animation doesn't loop, there's no loop
+            if (!Global.data_animations[lastId].loop)
+                return false;
+
+            // Find the last animation that loops
+            int loopIndex = Ids.Count - 1;
+            for (int i = Ids.Count - 2; i >= 0; i++)
+            {
+                int id = GetAnimationId(i);
+                if (Global.data_animations.ContainsKey(id) &&
+                        Global.data_animations[id].loop)
+                    loopIndex = i;
+                else
+                    break;
+            }
+
+            // Move to the first loop animation
+            Anim_Index = loopIndex - 1;
+            next_animation();
+
+            return true;
         }
 
         #region Draw
