@@ -8,6 +8,17 @@ using TactileBattleFrameDataExtension;
 
 namespace Tactile
 {
+    [Flags]
+    enum AnimationFlag
+    {
+        None =      0,
+        Reverse =   1 << 0,
+        Repeat =    1 << 1,
+        Dmg =       1 << 2,
+        NoHit =     1 << 3,
+        Kill =      1 << 4,
+    }
+
     class Battle_Animation : Sprite
     {
         string Filename;
@@ -15,19 +26,17 @@ namespace Tactile
         int Frame = 0;
         List<int> Ids;
         int Anim_Index = -1;
-        bool Reverse;
         Battle_Animation_Data Data;
         int Shake = 0;
         bool Finished = false;
-        bool Repeat;
         int Duration, Max_Duration, Anim_Timer;
         int Opacity = 255;
         Color[] Palette = new Color[Palette_Handler.PALETTE_SIZE];
         bool Palette_Used = false, Use_Animation_Texture = false;
 
         new public int blend_mode = 0;
-        protected int terrain_sound_tag = 0;
-        public bool dmg, hit, kill;
+        private int terrain_sound_tag = 0;
+        private AnimationFlag Flags;
 
         #region Accessors
         public int id
@@ -93,29 +102,32 @@ namespace Tactile
         public bool palette_used { get { return Palette_Used; } }
         #endregion
 
-        public Battle_Animation(string filename, Texture2D texture, List<int> ids, bool reverse = false, bool repeat = false) :
-            this(filename, texture, ids, reverse, repeat, false, true, false) { }
-        public Battle_Animation(string filename, Texture2D texture, List<int> ids, bool reverse, bool repeat,
-            bool dmg, bool hit, bool kill)
+        public Battle_Animation(string filename, Texture2D texture, List<int> ids, AnimationFlag flags)
         {
-            this.dmg = dmg;
-            this.hit = hit;
-            this.kill = kill;
-            initialize(filename, texture, ids, reverse, repeat);
+            Flags = flags;
+
+            initialize(filename, texture, ids);
         }
-        public Battle_Animation(string filename, Texture2D texture, List<int> ids, bool reverse, bool repeat,
-            bool dmg, bool hit, bool kill, int terrain_sound_tag)
+        public Battle_Animation(string filename, Texture2D texture, List<int> ids, AnimationFlag flags, int terrain_sound_tag)
         {
-            this.dmg = dmg;
-            this.hit = hit;
-            this.kill = kill;
+            Flags = flags;
             this.terrain_sound_tag = terrain_sound_tag;
-            initialize(filename, texture, ids, reverse, repeat);
+
+            initialize(filename, texture, ids);
+        }
+        public Battle_Animation(string filename, Texture2D texture, List<int> ids,
+            Battle_Animation flagSource, bool repeat)
+        {
+            Flags = flagSource.Flags;
+            Flags &= ~AnimationFlag.Repeat;
+            Flags |= repeat ? AnimationFlag.Repeat : AnimationFlag.None;
+
+            initialize(filename, texture, ids);
         }
 
-        protected void initialize(string filename, Texture2D texture, List<int> ids, bool reverse, bool repeat)
+        protected void initialize(string filename, Texture2D texture, List<int> ids)
         {
-            Ids =  remove_missing_anims(ids);
+            Ids = remove_missing_anims(ids);
             if (Ids.Count <= 0)
             {
                 if (ids.Count > 0)
@@ -123,6 +135,7 @@ namespace Tactile
                 else
                     throw new IndexOutOfRangeException("Animation with no ids started");
             }
+
             string[] str_ary;
             if (filename != null)
             {
@@ -135,8 +148,7 @@ namespace Tactile
             // Else if no texture given
             else
                 Use_Animation_Texture = true;
-            Reverse = reverse;
-            Repeat = repeat;
+
             Anim_Index = -1;
             Max_Duration = Duration = total_duration(Ids) + 1;
             next_animation();
@@ -208,7 +220,7 @@ namespace Tactile
                         if (!Data.loop)
                         {
                             // And we're not freezing on the last frame
-                            if (!Repeat || Ids.Count > Anim_Index + 1)
+                            if (!Flags.HasFlag(AnimationFlag.Repeat) || Ids.Count > Anim_Index + 1)
                             {
                                 // Then either we go to the next animation
                                 if (Ids.Count > Anim_Index + 1)
@@ -273,11 +285,11 @@ namespace Tactile
                 }
                 else if (new string[] { "Hit1", "Hit2", "Hit3" }.Contains(name)) // This should check for any hit sounds //Debug
                 {
-                    if (kill)
+                    if (Flags.HasFlag(AnimationFlag.Kill))
                         Global.Audio.play_se("Battle Sounds", "Hit_Kill");
-                    else if (!hit)
+                    else if (Flags.HasFlag(AnimationFlag.NoHit))
                         Global.Audio.play_se("Battle Sounds", "Miss");
-                    else if (!dmg)
+                    else if (!Flags.HasFlag(AnimationFlag.Dmg))
                         Global.Audio.play_se("Battle Sounds", "Hit_NoDamage");
                     else
                         Global.Audio.play_se("Battle Sounds", name);
@@ -288,7 +300,7 @@ namespace Tactile
                 }
                 else if (name == "Critical")
                 {
-                    if (dmg)
+                    if (Flags.HasFlag(AnimationFlag.Dmg))
                         Global.Audio.play_se("Battle Sounds", name);
                 }
                 else
@@ -372,7 +384,7 @@ namespace Tactile
                                     texture, Global.frame_data.ContainsKey(Filename) ? Global.frame_data[Filename] : null, sprite_batch,
                                     Data, Frame, Frame_Timer,
                                     loc + draw_vector() - draw_offset, matrix, offset, scale * scale_mod,
-                                    mirrored, Reverse, Opacity, blend_mode, tint))
+                                    mirrored, Flags.HasFlag(AnimationFlag.Reverse), Opacity, blend_mode, tint))
                                 yield return render;
                     }
                 }
@@ -403,7 +415,7 @@ namespace Tactile
                                     texture, Global.frame_data.ContainsKey(Filename) ? Global.frame_data[Filename] : null, sprite_batch,
                                     Data, Frame, Frame_Timer,
                                     loc + draw_vector() - draw_offset, matrix, offset, scale * scale_mod,
-                                    mirrored, Reverse, Opacity, blend_mode, tint))
+                                    mirrored, Flags.HasFlag(AnimationFlag.Reverse), Opacity, blend_mode, tint))
                                 yield return render;
                     }
                 }
