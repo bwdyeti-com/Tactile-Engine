@@ -95,6 +95,7 @@
     <Compile Include="Source Code\Static Classes\Config Data\Terrain_Data.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Weapon_Triangle.cs" />
     <Compile Include="Source Code\World_Map_Chapter.cs" />
+    <Compile Include="UnitScreenData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
