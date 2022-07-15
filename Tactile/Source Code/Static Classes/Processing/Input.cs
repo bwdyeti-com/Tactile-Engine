@@ -837,11 +837,46 @@ namespace Tactile
                     return ButtonState.Released;
             }
         }
+
+        /// <summary>
+        /// Maps a vector from screen space scale to world space scale.
+        /// X and Y will be converted to int before scaling.
+        /// </summary>
+        internal static Vector2 MouseWorldScale(int x, int y)
+        {
+            float scaledX = x / ScreenScaleZoom.X;
+            float scaledY = y / ScreenScaleZoom.Y;
+
+            return new Vector2((int)scaledX, (int)scaledY);
+        }
+        internal static Vector2 MouseWorldScale(Vector2 loc)
+        {
+            return MouseWorldScale((int)loc.X, (int)loc.Y);
+        }
+
         internal static Vector2 mouse_world_loc(int x, int y)
         {
-            return new Vector2(
-                (int)(x / ScreenScaleZoom.X),
-                (int)(y / ScreenScaleZoom.Y));
+            Vector2 scaled = MouseWorldScale(x, y);
+
+            if (ControlScheme == ControlSchemes.Touch)
+            {
+                // Pillarboxed
+                if (ScreenScaleZoom.X >= ScreenScaleZoom.Y)
+                {
+                    float aspectCorrection = ScreenScaleZoom.X / ScreenScaleZoom.Y;
+                    scaled.X *= aspectCorrection;
+                    scaled.X -= Config.WINDOW_WIDTH * (aspectCorrection - 1) / 2;
+                }
+                // Letterboxed
+                else
+                {
+                    float aspectCorrection = ScreenScaleZoom.Y / ScreenScaleZoom.X;
+                    scaled.Y *= aspectCorrection;
+                    scaled.Y -= Config.WINDOW_HEIGHT * (aspectCorrection - 1) / 2;
+                }
+            }
+
+            return new Vector2((int)scaled.X, (int)scaled.Y);
         }
         /// <summary>
         /// Maps a Vector2 from screen space to world space.

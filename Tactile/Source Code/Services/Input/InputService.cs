@@ -246,13 +246,13 @@ namespace Tactile.Services.Input
                 case TouchGestures.Pinch:
                     Vector2 sample_position =
                         sample.Position - sample.Position2;
-                    sample_position = Tactile.Input.mouse_world_loc(sample_position);
+                    sample_position = Tactile.Input.MouseWorldScale(sample_position);
 
                     Vector2 sample_delta_position =
                         (sample.Position + sample.Delta) -
                         (sample.Position2 + sample.Delta2);
                     sample_delta_position =
-                        Tactile.Input.mouse_world_loc(sample_delta_position);
+                        Tactile.Input.MouseWorldScale(sample_delta_position);
 
                     float length =
                         sample_delta_position.LengthSquared() -
@@ -712,7 +712,7 @@ namespace Tactile.Services.Input
             {
                 if (!Gestures.ContainsKey(TouchGestures.FreeDrag))
                     return Vector2.Zero;
-                return Tactile.Input.mouse_world_loc(
+                return Tactile.Input.MouseWorldScale(
                     (int)Gestures[TouchGestures.FreeDrag].Delta.X,
                     (int)Gestures[TouchGestures.FreeDrag].Delta.Y);
             }
@@ -723,7 +723,7 @@ namespace Tactile.Services.Input
             {
                 if (!Gestures.ContainsKey(TouchGestures.HorizontalDrag))
                     return Vector2.Zero;
-                return Tactile.Input.mouse_world_loc(
+                return Tactile.Input.MouseWorldScale(
                     (int)Gestures[TouchGestures.HorizontalDrag].Delta.X,
                     (int)Gestures[TouchGestures.HorizontalDrag].Delta.Y);
             }
@@ -734,7 +734,7 @@ namespace Tactile.Services.Input
             {
                 if (!Gestures.ContainsKey(TouchGestures.VerticalDrag))
                     return Vector2.Zero;
-                return Tactile.Input.mouse_world_loc(
+                return Tactile.Input.MouseWorldScale(
                     (int)Gestures[TouchGestures.VerticalDrag].Delta.X,
                     (int)Gestures[TouchGestures.VerticalDrag].Delta.Y);
             }
