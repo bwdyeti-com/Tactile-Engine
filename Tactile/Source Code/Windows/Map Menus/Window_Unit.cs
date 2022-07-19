@@ -1306,9 +1306,10 @@ namespace Tactile.Windows.Map
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, Scissor_State);
 
             var range = VisibleIndexesRange();
-            UnitNodes.Draw(sprite_batch,
-                range.Enumerate(),
-                Scroll.IntOffset);
+            if (range.IsValid())
+                UnitNodes.Draw(sprite_batch,
+                    range.Enumerate(),
+                    Scroll.IntOffset);
 
             sprite_batch.End();
         }

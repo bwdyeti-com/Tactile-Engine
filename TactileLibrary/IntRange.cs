@@ -12,7 +12,7 @@ namespace TactileLibrary
         {
             if (!IsValid())
                 throw new ArgumentOutOfRangeException(
-                    "Range is invalid for enumeration, maximum must be greater than minimum");
+                    "Range is invalid for enumeration, maximum must be greater than or equal to minimum");
             return Enumerable.Range(Minimum, (Maximum - Minimum) + 1);
         }
     }
