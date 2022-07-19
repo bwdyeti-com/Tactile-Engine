@@ -42,7 +42,7 @@ namespace Tactile
                         { '*', new int[] { 10,  2,  6 }},
                         { '+', new int[] { 11,  2,  6 }},
                         { ',', new int[] { 12,  2,  2 }},
-                        { '-', new int[] { 13,  2,  4 }},
+                        { '-', new int[] { 13, 16,  8 }},
                         { '.', new int[] { 14,  2,  2 }},
                         { '/', new int[] { 15,  2,  6 }},
 
@@ -153,8 +153,8 @@ namespace Tactile
                         { '*', new int[] { 10,  2,  6 }},
                         { '+', new int[] { 11,  2,  6 }},
                         { ',', new int[] { 12,  2,  2 }},
-                        { '-', new int[] { 13, 16,  8 }},
-                        //{ '-', new int[] { 13,  2,  4 }},
+                        { '-', new int[] { 14, 16,  8 }},
+                        //{ '-', new int[] { 13, 16,  8 }},
                         { '.', new int[] { 14,  2,  2 }},
                         { '/', new int[] { 15,  2,  6 }},
 
@@ -253,7 +253,7 @@ namespace Tactile
                     new Dictionary<char, int[]> {
                         { ' ', new int[] {  0,  2,  3 }},
                         { '+', new int[] { 11,  2,  6 }},
-                        { '-', new int[] { 13,  2,  4 }},
+                        { '-', new int[] { 13, 16,  8 }},
                         { '.', new int[] { 14,  2,  2 }},
                         { ':', new int[] { 10,  3,  2 }},
 
