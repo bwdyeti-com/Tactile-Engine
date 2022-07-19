@@ -1023,6 +1023,7 @@ namespace Tactile.Windows.Map
             if (skipFirstLine)
                 min += (Scroll.IsScrolling ? 0 : 1);
             int max = scrollOffset + Rows_At_Once + (Scroll.IsScrolling ? 0 : -1);
+            max = Math.Min(max, UnitNodes.Count - 1);
             return new TactileLibrary.IntRange(min, max);
         }
 
