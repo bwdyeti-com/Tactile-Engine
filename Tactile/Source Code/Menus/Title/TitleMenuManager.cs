@@ -355,6 +355,14 @@ at any time from the options menu.");
                     supportsMenu.Closed += menu_Closed;
                     supportsMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
                     break;
+                case ExtrasSelections.Community:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+
+                    var communityMenu = new CommunityMenu(extrasMenu);
+                    communityMenu.Selected += CommunityMenu_Selected;
+                    communityMenu.Closed += menu_Closed;
+                    communityMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+                    break;
                 case ExtrasSelections.Credits:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     var creditsMenu = new CreditsMenu();
@@ -376,6 +384,15 @@ at any time from the options menu.");
             supportActorMenu.FieldBaseSwitched += SupportActorMenu_FieldBaseSwitched;
             supportActorMenu.Closed += menu_Closed;
             supportActorMenu.AddToManager(new MenuCallbackEventArgs(this.AddMenu, this.menu_Closed));
+        }
+
+        private void CommunityMenu_Selected(object sender, EventArgs e)
+        {
+            var communityMenu = sender as CommunityMenu;
+
+            Global.game_system.play_se(System_Sounds.Confirm);
+            MenuHandler.TitleOpenCommunityLink(communityMenu.Index);
+
         }
 
         private void SupportActorMenu_FieldBaseSwitched(object sender, EventArgs e)
@@ -656,6 +673,7 @@ at any time from the options menu.");
         void TitleTestBattle(int distance);
 #endif
         void TitleSupportConvo(string supportKey, int level, bool atBase, string background);
+        void TitleOpenCommunityLink(int index);
         void TitleOpenFullCredits();
         void TitleQuit();
     }
