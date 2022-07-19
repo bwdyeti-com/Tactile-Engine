@@ -194,8 +194,7 @@ namespace Tactile
             }
 #endif
 
-            System.Diagnostics.Process.Start(
-                string.Format("http://{0}", CommunityMenu.COMMUNITY_ENTRIES[index].Url));
+            GameLoop.OpenHyperlink(CommunityMenu.COMMUNITY_ENTRIES[index].Url);
         }
 
         public void TitleOpenFullCredits()
@@ -209,9 +208,8 @@ namespace Tactile
                 Global.save_config = true;
             }
 #endif
-            
-            System.Diagnostics.Process.Start(
-                string.Format("http://{0}", Constants.Credits.FULL_CREDITS_LINK));
+
+            GameLoop.OpenHyperlink(Constants.Credits.FULL_CREDITS_LINK);
         }
 
         public void TitleQuit()
