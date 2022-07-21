@@ -15,6 +15,7 @@ namespace Tactile
 
         private bool SkipButtonsOnScreen = false;
         private Button_Description SkipButton, SceneButton;
+        private TouchPanelEdge SkipHelpButton, BacklogHelpButton;
         private Vector2 SkipButtonOffset;
         private int TimeSinceSkipInteraction = 0;
         private bool _EventSkip;
@@ -27,6 +28,16 @@ namespace Tactile
                 Config.WINDOW_WIDTH - 40);
             SkipButton.description = "Skip";
             SkipButton.stereoscopic = Config.CONVO_TEXT_DEPTH;
+
+            SkipHelpButton = new TouchPanelEdge();
+            SkipHelpButton.loc = new Vector2(
+                Config.WINDOW_WIDTH - 64, Config.WINDOW_HEIGHT);
+            SkipHelpButton.stereoscopic = Config.CONVO_TEXT_DEPTH;
+
+            BacklogHelpButton = new TouchPanelEdge();
+            BacklogHelpButton.loc = new Vector2(0, 20);
+            BacklogHelpButton.Rotate(true);
+            BacklogHelpButton.stereoscopic = Config.CONVO_TEXT_DEPTH;
 
             if (has_convo_scene_button)
             {
@@ -206,6 +217,15 @@ namespace Tactile
 
             if (SkipButton != null)
             {
+                // If skip button isn't active or
+                // the message window isn't waiting, hide touch edges
+                if (!skip_button_active ||
+                        (Message_Window != null && Message_Window.active && !Message_Window.wait))
+                    ResetTouchEdges();
+
+                SkipHelpButton.update();
+                BacklogHelpButton.update();
+
                 // Bring buttons onscreen if needed
                 if (!SkipButtonsOnScreen)
                 {
@@ -213,8 +233,11 @@ namespace Tactile
                     if (skip_button_active &&
                         Global.Input.gesture_triggered(TouchGestures.SwipeUp))
                     {
+                        // Move buttons onscreen
                         SkipButtonsOnScreen = true;
                         TimeSinceSkipInteraction = 0;
+
+                        ResetTouchEdges();
                     }
                 }
                 // Move buttons offscreen if needed
@@ -229,7 +252,10 @@ namespace Tactile
                         (skip_button_active &&
                             Global.Input.gesture_triggered(TouchGestures.SwipeDown)))
                     {
+                        // Move buttons offscreen
                         SkipButtonsOnScreen = false;
+
+                        ResetTouchEdges();
                     }
                 }
 
@@ -277,6 +303,12 @@ namespace Tactile
                 }
             }
         }
+
+        private void ResetTouchEdges()
+        {
+            SkipHelpButton.Reset();
+            BacklogHelpButton.Reset();
+        }
         #endregion
 
         #region Draw
@@ -304,6 +336,13 @@ namespace Tactile
             if (SkipButton != null && Input.ControlScheme == ControlSchemes.Touch)
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                if (!SkipButtonsOnScreen)
+                {
+                    SkipHelpButton.draw(spriteBatch);
+                    if (Message_Window != null && Message_Window.active)
+                        BacklogHelpButton.draw(spriteBatch);
+                }
+
                 SkipButton.Draw(spriteBatch, -SkipButtonOffset);
                 if (SceneButton != null)
                     SceneButton.Draw(spriteBatch, -SkipButtonOffset);

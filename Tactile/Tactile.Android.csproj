@@ -228,6 +228,7 @@
     <Compile Include="Source Code\Sprites\Status Components\Page 1\ConvoyItemNothing.cs" />
     <Compile Include="Source Code\Sprites\Sparks\WeaponTriangleHelpReaverTypes.cs" />
     <Compile Include="Source Code\Sprites\Status Components\Page 1\DiscardItem.cs" />
+    <Compile Include="Source Code\Sprites\TouchPanelEdge.cs" />
     <Compile Include="Source Code\Sprites\Unit Components\UnitScreenRow.cs" />
     <Compile Include="Source Code\Sprites\WeaponTriangleHelpSet.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\UnitScreenConfig.cs" />
