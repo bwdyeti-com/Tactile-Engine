@@ -88,6 +88,14 @@ namespace Tactile.Metrics
             return Gameplay.query_string();
         }
 
+        internal string ExceptionGameInfo()
+        {
+            string result = string.Format(
+                "chapter={0}\r\ndifficulty={1}\r\nstyle={2}\r\nturn={3}",
+                Chapter, (int)Difficulty, (int)Style, RankTurns);
+            return result;
+        }
+
         public static string UserIdentifier
         {
             get

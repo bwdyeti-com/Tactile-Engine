@@ -1,3 +1,4 @@
+using System;
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
@@ -18,6 +19,11 @@ namespace Android_MonoGame_Test
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
+
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException +=
+                new UnhandledExceptionEventHandler(TactileGame.ExceptionLogger.Handler);
+
             var g = new TactileGame.Game1(new string[0]);
             SetContentView((View)g.Services.GetService(typeof(View)));
             g.Run();

@@ -6,20 +6,16 @@ using System.Linq;
 
 namespace TactileGame
 {
-    enum OperatingSystems { Windows, OSX, Android, Linux }
-
-    class Metrics_Handler : Tactile.IMetricsService
+    class ExceptionSender : Tactile.IMetricsService
     {
-        readonly internal static string PRIVATE_KEY = "put the private key from your php file here, compeltely random characters is most secure!";
-        readonly static string ADD_SCORE_URL = "http://put.yoursite.herethough/yourgame/ranking_analytics.php?"; // The question mark lets you pass variables in, okay
+        readonly static string SEND_EXCEPTION_URL = "http://put.yoursite.herethough/yourgame/log_exception.php?"; // The question mark lets you pass variables in, okay
         
         const int REMOTE_RESPONSE_LENGTH_LIMIT = 256;
 
         public TactileLibrary.Maybe<bool> send_data(string query, string post)
         {
             string identifier = Tactile.Metrics.Metrics_Data.UserIdentifier;
-            string hash = hashString(identifier + PRIVATE_KEY);
-            string region = System.Globalization.RegionInfo.CurrentRegion.Name;
+            string hash = hashString(identifier + Metrics_Handler.PRIVATE_KEY);
 #if WINDOWS
             int system = (int)OperatingSystems.Windows;
 #elif MONOMAC
@@ -27,30 +23,16 @@ namespace TactileGame
 #elif __ANDROID__
             int system = (int)OperatingSystems.Android;
 #endif
-            string version = Tactile.Global.RUNNING_VERSION.ToString();
 
             string result = NetConnection.webPost(
-                ADD_SCORE_URL + string.Format(
-                    "identifier={0}&{1}&version={5}&region={2}&system={3}&hash={4}",
-                    identifier, query, region, system, hash, version), post,
+                SEND_EXCEPTION_URL + string.Format(
+                    "identifier={0}&system={1}&hash={2}",
+                    identifier, system, hash), post,
                     responseLengthLimit: REMOTE_RESPONSE_LENGTH_LIMIT);
 
             if (string.IsNullOrEmpty(result))
                 return default(TactileLibrary.Maybe<bool>);
             return result.Split('\n').Last() == "Success";
-        }
-
-        double[] prefixAverages1(int[] X, int n)
-        {
-            double[] A = new double[n];
-            for(int i  = 0; i < n; i++)
-            {
-                int s = 0;
-                for(int j = 0; j < i; j++)
-                    s+= X[j];
-                A[i] = s / (i + 1);
-            }
-            return A;
         }
 
         private static string hashString(string _value)
@@ -65,7 +47,7 @@ namespace TactileGame
 
         public bool test_connection()
         {
-            return NetConnection.test_connection_dns(ADD_SCORE_URL);
+            return NetConnection.test_connection_dns(SEND_EXCEPTION_URL);
         }
     }
 }
