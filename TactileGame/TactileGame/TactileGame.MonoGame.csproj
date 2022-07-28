@@ -99,6 +99,7 @@
     </Compile>
     <Compile Include="Source Code\Debug Monitor\GraphicsDeviceService.cs" />
     <Compile Include="Source Code\Debug Monitor\ServiceContainer.cs" />
+    <Compile Include="Source Code\ExceptionHandler.cs" />
     <Compile Include="Source Code\Fullscreen.cs" />
     <Compile Include="Source Code\MobileFullscreen.cs" />
     <Compile Include="Source Code\NetConnection.cs" />

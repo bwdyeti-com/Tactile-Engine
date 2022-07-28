@@ -9,9 +9,6 @@ using Android.OS;
 using Android.Views;
 #else
 using System;
-#if LOGGING
-using System.IO;
-#endif
 #endif
 
 namespace TactileGame
@@ -103,8 +100,6 @@ namespace TactileGame
 #if WINDOWS || XBOX
     static class Program
     {
-        private const int ERROR_EDITOR = 0x74;
-
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -122,7 +117,8 @@ namespace TactileGame
             {
 #if LOGGING
                 AppDomain currentDomain = AppDomain.CurrentDomain;
-                currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
+                currentDomain.UnhandledException +=
+                    new UnhandledExceptionEventHandler(ExceptionLogger.Handler);
                 /*if (File.Exists("temp.log"))
                 {
                     File.Copy("temp.log", "exception.log", true);
@@ -156,34 +152,6 @@ namespace TactileGame
                 NativeMethods.DwmSetWindowAttribute(hWnd, attribute, ref preference, sizeof(uint));
             }
             catch (Exception ex) { }
-        }
-#endif
-
-#if LOGGING
-        static void MyHandler(object sender, UnhandledExceptionEventArgs args)
-        {
-            Exception e = (Exception)args.ExceptionObject;
-            // print out the exception stack trace to a log
-            using (StreamWriter writer = new StreamWriter("exception.log", true))
-            {
-                writer.Write(string.Format("{0}\r\n{1}\r\n\r\n",
-                    DateTime.Now.ToString(), e.ToString()));
-            }
-
-#if DEBUG
-            // Probably running from the editor, which would like to report exceptions
-            if (Tactile.Global.OutputEditorException)
-            {
-                Environment.ExitCode = ERROR_EDITOR;
-
-                // Save to a log that the Tactile Editor can read
-                using (StreamWriter writer = new StreamWriter("EditorException.log", false))
-                {
-                    writer.Write(string.Format("{0}\r\n{1}\r\n\r\n",
-                        DateTime.Now.ToString(), e.ToString()));
-                }
-            }
-#endif
         }
 #endif
 
