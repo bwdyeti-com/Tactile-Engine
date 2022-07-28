@@ -36,7 +36,7 @@ namespace Tactile
 #endif
         const int HYPER_SPEED_MULT = 15;
 
-#if WINDOWS || MONOMAC
+#if WINDOWS || MONOMAC || __MOBILE__
         const bool METRICS_ENABLED = Config.METRICS_ENABLED;
 #else
         const bool METRICS_ENABLED = false;
