@@ -2514,20 +2514,61 @@ namespace Tactile
         // 94: Add Unit Seek Loc
         private bool command_add_unit_seek()
         {
-            // Value[0] = unit id
-            // Value[1] = x
-            // Value[2] = y
-            int id = process_unit_id(command.Value[0]);
-            Game_Unit unit = null;
-            if (id == -1)
-                if (Global.game_map.last_added_unit != null)
-                    unit = Global.game_map.last_added_unit;
-            if (Global.game_map.units.ContainsKey(id))
-                unit = Global.game_map.units[id];
-            if (unit != null)
+            int id;
+            Game_Unit unit;
+
+            switch (command.Value[0])
             {
-                Global.game_map.add_unit_seek(unit.id, process_number(command.Value[1]), process_number(command.Value[2]));
+                case "Seek Unit":
+                    // Value[0] = "Seek Unit"
+                    // Value[1] = unit id
+                    // Value[2] = target id
+                    id = process_unit_id(command.Value[1]);
+                    unit = null;
+                    if (id == -1)
+                    {
+                        if (Global.game_map.last_added_unit != null)
+                            unit = Global.game_map.last_added_unit;
+                    }
+                    else if (Global.game_map.units.ContainsKey(id))
+                        unit = Global.game_map.units[id];
+
+                    id = process_unit_id(command.Value[2]);
+                    Game_Unit target = null;
+                    if (id == -1)
+                    {
+                        if (Global.game_map.last_added_unit != null)
+                            target = Global.game_map.last_added_unit;
+                    }
+                    else if (Global.game_map.units.ContainsKey(id))
+                        target = Global.game_map.units[id];
+
+                    if (unit != null && unit != null && unit != target)
+                    {
+                        Global.game_map.AddUnitSeek(unit.id, target.id);
+                    }
+                    break;
+                default:
+                    // Value[0] = unit id
+                    // Value[1] = x
+                    // Value[2] = y
+                    id = process_unit_id(command.Value[0]);
+                    unit = null;
+                    if (id == -1)
+                    {
+                        if (Global.game_map.last_added_unit != null)
+                            unit = Global.game_map.last_added_unit;
+                    }
+                    else if (Global.game_map.units.ContainsKey(id))
+                        unit = Global.game_map.units[id];
+
+                    if (unit != null)
+                    {
+                        Global.game_map.add_unit_seek(unit.id, process_number(command.Value[1]), process_number(command.Value[2]));
+                    }
+                    break;
             }
+
             Index++;
             return true;
         }
