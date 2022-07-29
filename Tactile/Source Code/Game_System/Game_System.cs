@@ -1013,16 +1013,20 @@ namespace Tactile
 
         public void update()
         {
+            const int MAX_TICKS = 100 * 60 * 60 * Config.FRAME_RATE;
+
             Total_Play_Time++;
             // If past 99:59:59
-            if (Total_Play_Time >= 100 * 60 * 60 * Config.FRAME_RATE)
+            if (Total_Play_Time >= MAX_TICKS)
                 // Lock time
                 Total_Play_Time -= Config.FRAME_RATE;
+
             Chapter_Play_Time++;
             // If past 99:59:59
-            if (Chapter_Play_Time >= 100 * 60 * 60 * Config.FRAME_RATE)
+            if (Chapter_Play_Time >= MAX_TICKS)
                 // Lock time
                 Chapter_Play_Time -= Config.FRAME_RATE;
+
             update_timers();
             update_victory();
             update_events();
