@@ -587,6 +587,10 @@ namespace Tactile
             //@Yeti: it's possible for this to contain only Keys.None???
             var pressed = keyState.GetPressedKeys()
                 .Where(x => x != Keys.None)
+#if __MOBILE__
+                // Ignore volume buttons, etc on mobile
+                .Where(x => x != Keys.VolumeDown && x != Keys.VolumeUp)
+#endif
                 .ToArray();
             return pressed.Any();
         }
