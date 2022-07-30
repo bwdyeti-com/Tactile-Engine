@@ -3707,10 +3707,12 @@ namespace Tactile
 
         protected override Vector2 real_loc_on_map()
         {
-            if (!is_rescued)
-                return Real_Loc;
-            Game_Unit rescuer = Global.game_map.units[Rescued];
-            return rescuer.real_loc;
+            if (this.is_rescued)
+            {
+                Game_Unit rescuer = Global.game_map.units[Rescued];
+                return rescuer.real_loc;
+            }
+            return Real_Loc;
         }
         /// <summary>
         /// Returns the location of this unit on the map.
@@ -3719,10 +3721,12 @@ namespace Tactile
         /// </summary>
         public override Vector2 loc_on_map()
         {
-            if (!is_rescued)
-                return Loc;
-            Game_Unit rescuer = Global.game_map.units[Rescued];
-            return rescuer.loc;
+            if (this.is_rescued)
+            {
+                Game_Unit rescuer = Global.game_map.units[Rescued];
+                return rescuer.loc;
+            }
+            return Loc;
         }
         #endregion
 

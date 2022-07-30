@@ -2653,21 +2653,29 @@ namespace Tactile
             List<LocationDistance> targetLocs,
             bool ignoreUnits = false)
         {
+            find_tile_near_talk(unit, target.loc_on_map(), targetLocs, ignoreUnits);
+        }
+        private static void find_tile_near_talk(
+            Game_Unit unit,
+            Vector2 target,
+            List<LocationDistance> targetLocs,
+            bool ignoreUnits = false)
+        {
             // Check if the unit can move to any tiles adjacent to the other unit
             foreach (Vector2 offset in new Vector2[] { new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0) })
             {
                 // Check if an ally is blocking the tile though //Debug
-                //if (!Global.game_map.is_off_map(target.loc + offset) && !Global.game_map.is_blocked(target.loc + offset, unit.id))
+                //if (!Global.game_map.is_off_map(target + offset) && !Global.game_map.is_blocked(target + offset, unit.id))
                 // Don't worry about the tile being blocked, we're just trying to move closer
-                if (!Global.game_map.is_off_map(target.loc + offset))
+                if (!Global.game_map.is_off_map(target + offset))
                 {
                     Pathfind.ignore_units = ignoreUnits;
-                    Maybe<int> distance_test = Pathfind.get_distance(target.loc + offset, unit.id, -1, false);
+                    Maybe<int> distance_test = Pathfind.get_distance(target + offset, unit.id, -1, false);
                     // If the tile can be reached ever
                     if (distance_test.IsSomething)
                     {
                         // Pathfind as close to it as possible
-                        Maybe<Vector2> target_loc = path_to_target(unit, target.loc + offset, offensive: false);
+                        Maybe<Vector2> target_loc = path_to_target(unit, target + offset, offensive: false);
                         if (target_loc.IsSomething)
                             targetLocs.Add(new LocationDistance(target_loc, distance_test));
                     }
@@ -2739,7 +2747,7 @@ namespace Tactile
                     {
                         // See if this actually moves closer
                         targetLocs.Sort(delegate (LocationDistance a, LocationDistance b) { return a.dist - b.dist; });
-                        canMoveCloser = LocCloserThanCurrent(unit, target.loc, targetLocs[0].loc);
+                        canMoveCloser = LocCloserThanCurrent(unit, target.loc_on_map(), targetLocs[0].loc);
                     }
                     else
                     {
@@ -2749,7 +2757,7 @@ namespace Tactile
                         {
                             // See if this actually moves closer
                             targetLocs.Sort(delegate (LocationDistance a, LocationDistance b) { return a.dist - b.dist; });
-                            canMoveCloser = LocCloserThanCurrent(unit, target.loc, targetLocs[0].loc, true);
+                            canMoveCloser = LocCloserThanCurrent(unit, target.loc_on_map(), targetLocs[0].loc, true);
                         }
                     }
 
