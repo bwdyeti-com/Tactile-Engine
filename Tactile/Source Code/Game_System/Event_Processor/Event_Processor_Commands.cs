@@ -3724,7 +3724,7 @@ namespace Tactile
 #if DEBUG
                     result = Global.game_map.units.ContainsKey(process_unit_id(command.Value[1], ignore_error: true));
 #else
-                        result = Global.game_map.units.ContainsKey(process_unit_id(command.Value[1]));
+                    result = Global.game_map.units.ContainsKey(process_unit_id(command.Value[1]));
 #endif
                     break;
                 case "Actor has Unit":
