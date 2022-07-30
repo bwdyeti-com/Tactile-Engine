@@ -50,7 +50,7 @@ namespace Tactile
                     {
                         if (unit.average_stat_hue_shown)
                             return unit.actor.stat_color(stat_label);
-                        return Color.White;
+                        return Game_Actor.StatLabelBaseTint;
                     };
                 }
 

@@ -204,8 +204,7 @@ namespace Tactile
                 {
                     if (unit.average_stat_hue_shown)
                         return unit.actor.stat_color(Stat_Labels.Hp);
-
-                    return Color.White;
+                    return Game_Actor.StatLabelBaseTint;
                 };
             }
             TopPanelNodes.Add(new StatusHpUINode(
