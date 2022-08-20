@@ -342,9 +342,9 @@ namespace Tactile
             create_action_promotion_spark(loc);
         }
 
-        protected override void create_wlvl_popup(int weapon, int newRank)
+        protected override void create_wlvl_popup(int weaponType, int newRank)
         {
-            WLvl_Popup = new Weapon_Level_Popup(weapon, newRank);
+            WLvl_Popup = new Weapon_Level_Popup(weaponType, newRank);
             WLvl_Popup.loc = new Vector2((Config.WINDOW_WIDTH - WLvl_Popup.Width) / 2, 64);
         }
 

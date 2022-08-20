@@ -266,9 +266,9 @@ namespace Tactile
             return WLvl_Calling || WLvling_Up;
         }
 
-        protected virtual void create_wlvl_popup(int weapon, int newRank)
+        protected virtual void create_wlvl_popup(int weaponType, int newRank)
         {
-            WLvl_Popup = new Weapon_Level_Popup(weapon, newRank, false);
+            WLvl_Popup = new Weapon_Level_Popup(weaponType, newRank, false);
             WLvl_Popup.loc = new Vector2((Config.WINDOW_WIDTH - WLvl_Popup.Width) / 2, 80);
         }
 
