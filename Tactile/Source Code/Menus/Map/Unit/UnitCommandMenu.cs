@@ -442,6 +442,14 @@ namespace Tactile.Menus.Map.Unit
 
             return true;
         }
+        private static bool CantoCancelIrreversible(Canto_Records canto)
+        {
+            // Skills: Dash
+            if (canto.HasEnumFlag(Canto_Records.Dash))
+                return false;
+
+            return canto != Canto_Records.Horse && canto.HasEnumFlag(Canto_Records.Horse);
+        }
 
         public bool CantoAllowsTrade()
         {
@@ -496,8 +504,11 @@ namespace Tactile.Menus.Map.Unit
             if (active)
             {
                 // If right clicked or tapped on nothing in particular
-                cancel |= Global.Input.mouse_click(MouseButtons.Right) ||
-                    Global.Input.gesture_triggered(TouchGestures.Tap);
+                cancel |= Global.Input.mouse_click(MouseButtons.Right);
+                // Only check for tapping on nothing if canceling won't lock the
+                // player out of options
+                if (!CantoCancelIrreversible(Canto))
+                    cancel |= Global.Input.gesture_triggered(TouchGestures.Tap);
             }
             return cancel;
         }
