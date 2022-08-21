@@ -353,6 +353,12 @@ namespace Tactile
         {
             bool touchBlocked = Global.game_temp.MapHelpInput.HasFlag(
                 MapHelpButtonInputs.Pressed);
+            bool cancelArrow = Global.game_temp.MapHelpInput.HasFlag(
+                    MapHelpButtonInputs.ResetArrow) &&
+                Input.ControlScheme == ControlSchemes.Touch;
+            bool resetArrow = Global.game_temp.MapHelpInput.HasFlag(
+                    MapHelpButtonInputs.ResetArrow) &&
+                Input.ControlScheme != ControlSchemes.Touch;
 
             // Unit selected
             if (Global.game_system.Selected_Unit_Id != -1)
@@ -369,7 +375,8 @@ namespace Tactile
                 // B button
                 else if (Global.Input.triggered(Inputs.B) ||
                     ((status_unit == null || status_unit == selected_unit) &&
-                        Global.Input.mouse_triggered(MouseButtons.Right)))
+                        Global.Input.mouse_triggered(MouseButtons.Right)) ||
+                    cancelArrow)
                 {
                     // Clear enemy move range
                     if (!selected_unit.is_active_team || selected_unit.unselectable) //Multi
@@ -489,7 +496,7 @@ namespace Tactile
                     Global.Input.triggered(Inputs.L) :
                     Global.Input.repeated(Inputs.L)) ||
                 Global.game_temp.MapHelpInput.HasFlag(MapHelpButtonInputs.NextUnit) ||
-                Global.game_temp.MapHelpInput.HasFlag(MapHelpButtonInputs.ResetArrow)) //Debug
+                resetArrow) //Debug
             {
 #if DEBUG
                 System.Diagnostics.Debug.Assert(!selected_moving); // how would this ever though //Debug
@@ -599,6 +606,12 @@ namespace Tactile
         {
             bool touchBlocked = Global.game_temp.MapHelpInput.HasFlag(
                 MapHelpButtonInputs.Pressed);
+            bool cancelArrow = Global.game_temp.MapHelpInput.HasFlag(
+                    MapHelpButtonInputs.ResetArrow) &&
+                Input.ControlScheme == ControlSchemes.Touch;
+            bool resetArrow = Global.game_temp.MapHelpInput.HasFlag(
+                    MapHelpButtonInputs.ResetArrow) &&
+                Input.ControlScheme != ControlSchemes.Touch;
 
             // B button
             if (Global.game_system.Selected_Unit_Id != -1 && !is_menuing)
@@ -609,7 +622,8 @@ namespace Tactile
                 {
                     if (Global.Input.triggered(Inputs.B) ||
                         ((status_unit == null || status_unit == selected_unit) &&
-                            Global.Input.mouse_triggered(MouseButtons.Right)))
+                            Global.Input.mouse_triggered(MouseButtons.Right)) ||
+                        cancelArrow)
                     {
                         Global.game_map.deselect_unit();
                         return;
@@ -714,7 +728,7 @@ namespace Tactile
                     Global.Input.triggered(Inputs.L) :
                     Global.Input.repeated(Inputs.L)) ||
                 Global.game_temp.MapHelpInput.HasFlag(MapHelpButtonInputs.NextUnit) ||
-                Global.game_temp.MapHelpInput.HasFlag(MapHelpButtonInputs.ResetArrow)) //Debug
+                resetArrow) //Debug
             {
                 Global.game_map.next_unit(highlighted_unit, selected_moving);
             }

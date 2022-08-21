@@ -228,7 +228,10 @@ namespace Tactile.Windows.Map.Info
         private void AddResetArrowButton(int x)
         {
             var button = Button_Description.button(Inputs.L, x);
-            button.description = "Reset Arrow";
+            if (Input.ControlScheme == ControlSchemes.Touch)
+                button.description = "Cancel";
+            else
+                button.description = "Reset Arrow";
             Buttons.Add(button);
             ButtonInputs.Add(MapHelpButtonInputs.ResetArrow);
         }
