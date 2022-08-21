@@ -90,11 +90,14 @@ namespace Tactile.Windows.Map.Items
         protected override void refresh_input_help()
         {
             base.refresh_input_help();
-            SwitchButton = Button_Description.button(Inputs.X, new Vector2(176 - 48, 8));
-            SwitchButton.description = "Switch";
-            SwitchButton.offset = new Vector2((int)(SwitchButton.Size.X * 0.275f), 0);
-            SwitchButton.loc += new Vector2(12, 0);
-            SwitchButton.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;
+            if (Global.battalion.has_convoy)
+            {
+                SwitchButton = Button_Description.button(Inputs.X, new Vector2(176 - 48, 8));
+                SwitchButton.description = "Switch";
+                SwitchButton.offset = new Vector2((int)(SwitchButton.Size.X * 0.275f), 0);
+                SwitchButton.loc += new Vector2(12, 0);
+                SwitchButton.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;
+            }
         }
 
         protected override void initialize_supply_window()
@@ -134,7 +137,8 @@ namespace Tactile.Windows.Map.Items
 
         protected override void UpdateMenu(bool active)
         {
-            SwitchButton.Update(active);
+            if (SwitchButton != null)
+                SwitchButton.Update(active);
             base.UpdateMenu(active && this.ready);
             Face.update();
         }
@@ -142,18 +146,19 @@ namespace Tactile.Windows.Map.Items
         protected override void update_ui(bool active)
         {
             if (active)
-            {
-                if (Global.Input.triggered(Inputs.X) ||
-                    SwitchButton.consume_trigger(MouseButtons.Left) ||
-                    SwitchButton.consume_trigger(TouchGestures.Tap))
+                if (Global.battalion.has_convoy)
                 {
-                    Global.game_system.play_se(System_Sounds.Menu_Move2);
-                    switch_giving();
-                    HardSwitch = this.giving;
-                    Supply_Window.show_type_icon();
-                    return;
+                    if (Global.Input.triggered(Inputs.X) ||
+                        SwitchButton.consume_trigger(MouseButtons.Left) ||
+                        SwitchButton.consume_trigger(TouchGestures.Tap))
+                    {
+                        Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        switch_giving();
+                        HardSwitch = this.giving;
+                        Supply_Window.show_type_icon();
+                        return;
+                    }
                 }
-            }
 
             if (active && this.taking && this.can_give)
             {
@@ -462,7 +467,8 @@ namespace Tactile.Windows.Map.Items
 
             Stock_Banner.draw(sprite_batch);
             Owner.draw_multicolored(sprite_batch);
-            SwitchButton.Draw(sprite_batch);
+            if (SwitchButton != null)
+                SwitchButton.Draw(sprite_batch);
             sprite_batch.End();
 
             Face.draw(sprite_batch);
