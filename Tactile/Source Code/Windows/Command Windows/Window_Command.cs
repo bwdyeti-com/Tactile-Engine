@@ -122,6 +122,11 @@ namespace Tactile.Windows.Command
             get { return (int)(this.column_width + Text_Offset.X * 2); }
         }
 
+        public Vector2 size
+        {
+            get { return new Vector2(Window_Img.width, Window_Img.height); }
+        }
+
         public bool small_window
         {
             get { return Window_Img.small; }
