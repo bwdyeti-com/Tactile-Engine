@@ -34,8 +34,14 @@ namespace Tactile.Windows.Map.Items
 
         public bool ready { get { return Supply_Window.ready && this.ready_for_inputs; } }
 
-        public bool is_help_active { get { return Item_Window.is_help_active || Supply_Window.is_help_active ||
-            (Item_Selection_Window != null && Item_Selection_Window.is_help_active); } }
+        public bool is_help_active
+        {
+            get
+            {
+                return Item_Window.is_help_active || Supply_Window.is_help_active ||
+                    (Item_Selection_Window != null && Item_Selection_Window.is_help_active);
+            }
+        }
 
         protected Vector2 item_window_loc
         {

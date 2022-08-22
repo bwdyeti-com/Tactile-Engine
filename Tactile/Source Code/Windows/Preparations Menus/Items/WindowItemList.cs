@@ -185,7 +185,7 @@ namespace Tactile.Windows.Map.Items
 
             // Switch between windows if the user uses pointing controls on
             // the inactive one
-            if (active && !this.selecting_take)
+            if (active && !this.selecting_take && !this.is_help_active)
             {
                 //@Debug: there's a better way to do this by passing
                 // ControlSet flags into the Item and Supply windows
