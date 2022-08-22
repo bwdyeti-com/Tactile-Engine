@@ -2033,7 +2033,7 @@ namespace Tactile
                         continue;
                     var unit = Global.game_map.units[id];
                     // If not visible to the player, skip
-                    if (!unit.visible_by() || unit.is_rescued)
+                    if (unit.is_rescued || !unit.visible_by())
                         continue;
                     if (!unit.sprite_moving)
                         Map_Sprites[id].draw_status(sprite_batch, Status_Sprites, Global.game_map.display_loc, camera.matrix);

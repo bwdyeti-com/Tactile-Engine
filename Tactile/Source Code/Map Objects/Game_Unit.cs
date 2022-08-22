@@ -1246,6 +1246,9 @@ namespace Tactile
                 return true;
             if (!is_attackable_team(team))
                 return true;
+            // If the unit is rescued, use the rescuer's visibility
+            if (this.is_rescued)
+                return this.rescuer_unit.visible_by(team);
             if (!Global.game_map.fow_visibility[team].Contains(Loc))
             {
                 // If the unit is moving and their last location in their move route was visible, check what tile they're closer to
