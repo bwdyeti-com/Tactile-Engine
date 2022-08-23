@@ -177,6 +177,11 @@ namespace Tactile
             RefreshActorBonuses(commandWindow);
         }
 
+        public void ResetActorBonuses()
+        {
+            SupportStatsWindow.set_images(Global.game_actors[this.ActorId]);
+        }
+
         private void RefreshActorBonuses(Window_Command_Support commandWindow)
         {
             int targetId = commandWindow.TargetId;
@@ -226,7 +231,7 @@ namespace Tactile
             StartingSupport = false;
             ReturningFromSupport = true;
             
-            SupportStatsWindow.set_images(Global.game_actors[this.ActorId]);
+            ResetActorBonuses();
         }
         #endregion
 
