@@ -7,6 +7,8 @@ namespace Tactile
 {
     class Exp_Gauge : Sprite
     {
+        const int HEIGHT = 24;
+
         int Timer = 0;
         const int TIMER_MAX = 8;
         int Exp;
@@ -36,9 +38,9 @@ namespace Tactile
         public Rectangle scissor_rect()
         {
             if (Retracting)
-                return new Rectangle(0, (int)loc.Y + 12 - ((TIMER_MAX - Timer) * 2), 320, (TIMER_MAX - Timer) * 4);
+                return new Rectangle(0, (int)loc.Y + HEIGHT / 2 - ((TIMER_MAX - Timer) * 2), 320, (TIMER_MAX - Timer) * 4);
             else
-                return new Rectangle(0, (int)loc.Y + 12 - (Timer * 2), 320, Timer * 4);
+                return new Rectangle(0, (int)loc.Y + HEIGHT / 2 - (Timer * 2), 320, Timer * 4);
         }
 
         public void skip_appear()
@@ -68,7 +70,7 @@ namespace Tactile
                     if (mirrored) offset.X = src_rect.Width - offset.X;
                     // Window
                     sprite_batch.Draw(texture, (this.loc + draw_vector()) - draw_offset,
-                        new Rectangle(0, 0, 136, 24), tint, angle, offset, scale,
+                        new Rectangle(0, 0, 136, HEIGHT), tint, angle, offset, scale,
                         mirrored ? SpriteEffects.FlipHorizontally : SpriteEffects.None, Z);
                     // Counter
                     Exp_Counter.loc = this.loc + new Vector2(24, 8);
