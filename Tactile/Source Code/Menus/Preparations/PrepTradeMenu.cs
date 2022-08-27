@@ -185,6 +185,8 @@ namespace Tactile.Windows
 
         protected override void update_input(bool active)
         {
+            active &= !_Closing;
+
             if (CancelButton != null)
                 CancelButton.Update(active);
             bool cancel = CanceledTriggered(active);
