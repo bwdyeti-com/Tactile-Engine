@@ -31,19 +31,28 @@ namespace Tactile.Menus.Preparations
                 new Vector2(Config.WINDOW_WIDTH - 128, Config.WINDOW_HEIGHT - 108),
                 56,
                 strs);
+            // Trade
             if (Global.battalion.actors.Count <= 1)
                 commandWindow.set_text_color(0, "Grey");
+            // List
             if (Global.battalion.actors.Count <= 1 &&
                     !Global.battalion.has_convoy)
                 commandWindow.set_text_color(1, "Grey");
+            // Convoy only options
             if (!Global.battalion.has_convoy)
             {
                 commandWindow.set_text_color(2, "Grey");
                 commandWindow.set_text_color(6, "Grey");
                 commandWindow.set_text_color(7, "Grey");
             }
-            else if (Global.game_battalions.active_convoy_shop == null)
-                commandWindow.set_text_color(7, "Grey");
+            else
+            {
+                // Shop
+                if (Global.game_battalions.active_convoy_shop != null)
+                    commandWindow.set_text_color(7, "Green");
+                else
+                    commandWindow.set_text_color(7, "Grey");
+            }
             commandWindow.size_offset = new Vector2(0, -8);
             commandWindow.text_offset = new Vector2(0, -4);
             commandWindow.glow_width = 56 - 8;
