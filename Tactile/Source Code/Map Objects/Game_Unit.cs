@@ -4189,6 +4189,8 @@ namespace Tactile
             if (Constants.Gameplay.MASTERIES_CHARGE_AT_TURN_END)
                 if (charge_skills)
                     charge_masteries(MASTERY_RATE_NEW_TURN);
+            //@Yeti: This should be somewhere different? or refresh_unit()
+            // shouldn't call this function
             if (!Constants.Support.PLAYER_SUPPORT_ONLY || is_player_team)
                 // This inherently only allows gaining support points with members of the same team for efficiency
                 foreach (int unit_id in Global.game_map.teams[Team])
@@ -4221,11 +4223,17 @@ namespace Tactile
             else
             {
                 end_turn(false);
-                Moved_So_Far = 0;
-                Turn_Start_Loc = Prev_Loc = Loc;
-                Temp_Moved = 0;
-                Blocked = false;
             }
+
+            RefreshMovement();
+        }
+
+        public void RefreshMovement()
+        {
+            Moved_So_Far = 0;
+            Turn_Start_Loc = Prev_Loc = Loc;
+            Temp_Moved = 0;
+            Blocked = false;
         }
 
         public void new_turn()
@@ -4243,11 +4251,10 @@ namespace Tactile
                 else
                     Stat_Bonuses[i] = Math.Max(0, Stat_Bonuses[i] - 1);
             }
+
             refresh_hp(0);
-            Moved_So_Far = 0;
-            Turn_Start_Loc = Prev_Loc = Loc;
-            Temp_Moved = 0;
-            Blocked = false;
+            RefreshMovement();
+
             Attack_Targets_This_Turn.Clear();
             Ai_Wants_Rescue = false;
             if (!Constants.Support.PLAYER_SUPPORT_ONLY || is_player_team)

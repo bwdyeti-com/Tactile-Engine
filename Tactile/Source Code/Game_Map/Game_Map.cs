@@ -1708,6 +1708,7 @@ namespace Tactile
                     unit.change_team(team);
                     if (!unit.is_attackable_team(team_turn))
                         remove_enemy_attack_range(id);
+                    unit.refresh_unit();
                     unit.refresh_sprite();
                     unit.queue_move_range_update();
                 }
