@@ -87,10 +87,9 @@ namespace Tactile
             MetricsHandler = metricsHandler;
             UpdateChecker = updateChecker;
 
-#if WINDOWS || MONOMAC
             if (METRICS_ENABLED)
                 Global.metrics_allowed = true;
-#endif
+
             if (Config.UPDATE_CHECK_ENABLED)
                 Global.update_check_allowed = true;
 
