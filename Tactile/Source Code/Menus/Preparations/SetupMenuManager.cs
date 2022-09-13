@@ -183,7 +183,7 @@ namespace Tactile.Menus.Preparations
             var itemCommandMenu = (sender as ItemsCommandMenu);
             var itemsMenu = (Menus.ElementAt(1) as Window_Prep_Items);
 
-            itemsMenu.CommandSelection(itemCommandMenu.SelectedIndex);
+            itemsMenu.CommandSelection(itemCommandMenu.SelectedIndex.Index);
             
             itemCommandMenu.Refresh();
         }
@@ -377,7 +377,7 @@ namespace Tactile.Menus.Preparations
             useConfirmWindow.add_choice("Yes", new Vector2(24, 12));
             useConfirmWindow.add_choice("No", new Vector2(64, 12));
             useConfirmWindow.size = new Vector2(136, 40);
-            useConfirmWindow.loc = new Vector2(Config.WINDOW_WIDTH - 156, Config.WINDOW_HEIGHT - 60);
+            useConfirmWindow.loc = new Vector2(Config.WINDOW_WIDTH - 156, Config.WINDOW_HEIGHT - 68);
             useConfirmWindow.index = 1;
             useConfirmWindow.current_cursor_loc = cursorLoc;
 
@@ -541,7 +541,7 @@ namespace Tactile.Menus.Preparations
             var selected = promotionConfirmMenu.SelectedIndex;
             menu_Closed(sender, e);
 
-            switch (selected)
+            switch (selected.Index)
             {
                 // Change
                 case 0:
@@ -618,6 +618,15 @@ namespace Tactile.Menus.Preparations
         }
         #endregion
 
+        #region Data
+        protected void AddDataMenu()
+        {
+            var dataMenu = new Window_Data();
+            dataMenu.Closed += optionsMenu_Closed;
+            AddMenu(dataMenu);
+        }
+        #endregion
+
         #region Options
         // Open options menu
         protected void AddOptionsMenu(bool soloAnimAllowed = true)
@@ -667,6 +676,7 @@ namespace Tactile.Menus.Preparations
             SettingsMenu settingsMenu;
             settingsMenu = new SettingsMenu(settings, parent);
             settingsMenu.OpenSubMenu += SettingsMenu_OpenSubMenu;
+            settingsMenu.OpenSettingList += SettingsMenu_OpenSettingList;
             settingsMenu.Canceled += settingsMenu_Canceled;
             AddMenu(settingsMenu);
         }
@@ -676,6 +686,40 @@ namespace Tactile.Menus.Preparations
             var parentMenu = (sender as SettingsMenu);
             var settings = parentMenu.GetSubSettings();
             OpenSettingsMenu(settings, parentMenu);
+        }
+
+        private void SettingsMenu_OpenSettingList(object sender, EventArgs e)
+        {
+            var parentMenu = (sender as SettingsMenu);
+            var settingListWindow = parentMenu.GetSettingListWindow();
+
+            var settingListCommandMenu = new CommandMenu(settingListWindow, parentMenu);
+            settingListCommandMenu.Selected += SettingListCommandMenu_Selected;
+            settingListCommandMenu.Canceled += SettingListCommandMenu_Canceled;
+            AddMenu(settingListCommandMenu);
+        }
+
+        void SettingListCommandMenu_Selected(object sender, EventArgs e)
+        {
+            var settingListCommandMenu = sender as CommandMenu;
+            var settingsMenu = (Menus.ElementAt(1) as SettingsMenu);
+
+            int settingIndex = settingListCommandMenu.SelectedIndex.Index;
+            if (settingsMenu.SelectSettingListItem(settingIndex))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+                RemoveTopMenu();
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
+        void SettingListCommandMenu_Canceled(object sender, EventArgs e)
+        {
+            RemoveTopMenu();
+
+            var settingsMenu = (Menus.ElementAt(0) as SettingsMenu);
+            settingsMenu.CloseSettingList();
         }
 
         void settingsMenu_Canceled(object sender, EventArgs e)

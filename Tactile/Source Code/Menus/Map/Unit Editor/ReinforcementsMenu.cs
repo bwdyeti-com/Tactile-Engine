@@ -67,13 +67,13 @@ namespace Tactile.Menus.Map
             }
             else if (Window.is_selected())
             {
-                if (Window.selected_index() == 0)
+                if (Window.selected_index().Index == 0)
                     Global.game_system.play_se(System_Sounds.Buzzer);
                 else
                 {
                     if (ReinforcementData.Count == 0)
                     {
-                        switch (Window.selected_index())
+                        switch (Window.selected_index().Index)
                         {
                             case 0:
                             case 3:
@@ -84,7 +84,7 @@ namespace Tactile.Menus.Map
                     
                     Window.greyed_cursor = true;
                     Window.active = false;
-                    Window.index = Window.selected_index();
+                    Window.index = Window.selected_index().Index;
                     SelectItem(true);
                 }
             }

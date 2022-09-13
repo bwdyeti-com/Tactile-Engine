@@ -97,7 +97,7 @@ namespace Tactile.Menus.Title
                 if (styleIndex.IsSomething)
                 {
                     Global.game_system.play_se(System_Sounds.Confirm);
-                    DifficultyNodes.set_active_node(DifficultyNodes[styleIndex]);
+                    DifficultyNodes.set_active_node(DifficultyNodes[styleIndex.Index]);
                     OnSelected(new EventArgs());
                 }
                 else if (Global.Input.triggered(Inputs.B) ||

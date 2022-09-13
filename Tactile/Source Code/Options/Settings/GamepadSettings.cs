@@ -32,15 +32,16 @@ namespace Tactile.Options
                         "L\nNext Unit", "R\nStatus", "Start\nSkip/Map", "Select\nMenu" },
                     ConfigTypes.Gamepad,
                     new Buttons[] { Buttons.DPadDown, Buttons.DPadLeft, Buttons.DPadRight, Buttons.DPadUp,
+                    Buttons.A,
 #if __ANDROID__
             Buttons.Back,
 #else
-            Buttons.A,
+            Buttons.B,
 #endif
-                        Buttons.B, Buttons.X, Buttons.Y,
+                        Buttons.X, Buttons.Y,
                         Buttons.LeftShoulder, Buttons.RightShoulder, Buttons.Start,
 #if __ANDROID__
-            Buttons.A
+            Buttons.B
 #else
             Buttons.Back
 #endif

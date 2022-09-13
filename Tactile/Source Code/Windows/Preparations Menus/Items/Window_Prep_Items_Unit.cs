@@ -18,6 +18,7 @@ namespace Tactile
         const int ROW_SIZE = 16;
         
         private bool Trading = false;
+        private int TradeUnitIndex;
         
         #region Accessors
         public bool trading
@@ -27,22 +28,29 @@ namespace Tactile
                 Trading = value;
                 if (Trading)
                 {
-                    int index = this.index + 1;
-                    if (index >= Global.battalion.actors.Count)
-                        index = Math.Max(0, index - 2);
+                    int index = TradeUnitIndex;
+                    if (index == Selected_Unit_Index)
+                    {
+                        index = Selected_Unit_Index + 1;
+                        if (index >= Global.battalion.actors.Count)
+                            index = Math.Max(0, index - 2);
+                    }
                     this.index = index;
+                    refresh_scroll(false);
                 }
                 else
                 {
+                    ResetTradeIndex();
                     ResetToSelectedIndex();
                 }
-
-                refresh_scroll(false);
-                update_cursor();
-                UnitCursor.move_to_target_loc();
             }
         }
         #endregion
+
+        public void ResetTradeIndex()
+        {
+            TradeUnitIndex = this.index;
+        }
         
         #region WindowPrepActorList Abstract
         protected override int Columns { get { return COLUMNS; } }
@@ -83,6 +91,8 @@ namespace Tactile
             refresh_font(i, forced);
         }
         #endregion
+
+        protected override bool CursorSelected { get { return base.CursorSelected || Trading; } }
 
         protected override bool map_sprite_ready(int index)
         {

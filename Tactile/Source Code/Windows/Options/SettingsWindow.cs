@@ -6,20 +6,23 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Tactile.Graphics.Text;
 using Tactile.Options;
+using Tactile.Windows.Command;
 using Tactile.Windows.UserInterface.Command;
 using Tactile.Windows.UserInterface.Command.Config;
 
 namespace Tactile.Windows.Options
 {
-    class SettingsWindow : Command.Window_Command_Scrollbar
+    class SettingsWindow : Window_Command_Scrollbar
     {
         const int VALUE_OFFSET = 120;
         const int ROWS = 9;
+        const int LIST_SUBMENU_ROWS = 6;
 
         private ISettings Settings;
         private bool SettingSelected;
         private ISettings TempSelectedSettings, TempOriginalSettings;
         public bool OpenSubMenu { get; private set; }
+        public bool OpenSettingList { get; private set; }
 
         private Hand_Cursor SelectedSettingCursor;
 
@@ -64,10 +67,10 @@ namespace Tactile.Windows.Options
             switch (type)
             {
                 case ConfigTypes.OnOffSwitch:
-                    (Items[index] as ConfigTextUINode).set_text(settings.ValueString(index));
+                    (Items[index] as ToggleboxUINode).SetValue((bool)settings.ValueObject(index));
                     break;
-                case ConfigTypes.Number:
-                    (Items[index] as NumberUINode).set_text(settings.ValueString(index));
+                case ConfigTypes.List:
+                    (Items[index] as ListUINode).set_text(settings.ValueString(index));
                     break;
                 case ConfigTypes.Slider:
                     (Items[index] as SliderUINode).set_value(settings.Value<int>(index), settings.ValueString(index));
@@ -82,7 +85,7 @@ namespace Tactile.Windows.Options
                     (Items[index] as GamepadRemapUINode).RefreshButton();
                     break;
                 case ConfigTypes.SubSettings:
-                    (Items[index] as ButtonUINode).set_description(settings.Value<String>(index));
+                    // Nothing to update for submenus
                     break;
             }
 
@@ -121,8 +124,8 @@ namespace Tactile.Windows.Options
             CommandUINode node;
             switch (type)
             {
-                case ConfigTypes.Number:
-                    node = new NumberUINode("", str, this.column_width);
+                case ConfigTypes.List:
+                    node = new ListUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Slider:
                     var range = Settings.ValueRange(index);
@@ -131,10 +134,9 @@ namespace Tactile.Windows.Options
                     node = new SliderUINode("", str, this.column_width, min, max, 48);
                     break;
                 case ConfigTypes.OnOffSwitch:
-                    node = new ConfigTextUINode("", str, this.column_width);
+                    node = new ToggleboxUINode("", str, this.column_width);
                     break;
                 case ConfigTypes.Button:
-                case ConfigTypes.SubSettings:
                 default:
                     node = new ButtonUINode("", str, "", this.column_width);
                     break;
@@ -158,6 +160,9 @@ namespace Tactile.Windows.Options
                         label = str.Split('\n')[1];
 
                     node = new GamepadRemapUINode("", input, label, this.column_width);
+                    break;
+                case ConfigTypes.SubSettings:
+                    node = new SubmenuUINode("", str, this.column_width);
                     break;
             }
             node.loc = item_loc(index);
@@ -223,6 +228,20 @@ namespace Tactile.Windows.Options
         {
             switch (Settings.SettingType(this.index))
             {
+                case ConfigTypes.List:
+                    if (selected)
+                    {
+                        OpenSettingList = true;
+                        SelectedSettingCursor.visible = false;
+                    }
+                    break;
+                case ConfigTypes.OnOffSwitch:
+                    bool flag = Settings.Value<bool>(index);
+                    Settings.ConfirmSetting(this.index, !flag);
+                    Input.ResetDoubleTap();
+                    SelectedSettingCursor.force_loc(UICursor.loc);
+                    selected = false;
+                    break;
                 case ConfigTypes.Button:
                     // Simply execute the button's operation
                     if (selected)
@@ -233,6 +252,9 @@ namespace Tactile.Windows.Options
                         selected = false;
                     }
                     break;
+                case ConfigTypes.Keyboard:
+                case ConfigTypes.Gamepad:
+                    break;
                 case ConfigTypes.SubSettings:
                     if (selected)
                     {
@@ -241,9 +263,6 @@ namespace Tactile.Windows.Options
                         selected = false;
                     }
                     break;
-                case ConfigTypes.Keyboard:
-                case ConfigTypes.Gamepad:
-                    break;
                 default:
                     Items[this.index].set_text_color(selected ? "Green" : "White");
                     break;
@@ -251,6 +270,7 @@ namespace Tactile.Windows.Options
             SettingSelected = selected;
             Greyed_Cursor = SettingSelected;
 
+            // If a setting is selected (not a button or submenu, and didn't fail)
             if (SettingSelected)
             {
                 TempSelectedSettings = (ISettings)Settings.Clone();
@@ -280,6 +300,51 @@ namespace Tactile.Windows.Options
             }
 
             SelectSetting(false);
+        }
+
+        public bool ScrubbingSetting()
+        {
+            var sliderIndex = Items.consume_triggered(TouchGestures.Scrubbing);
+            if (sliderIndex.IsSomething)
+            {
+                switch (Settings.SettingType(sliderIndex.Index))
+                {
+                    case ConfigTypes.Slider:
+                        int min = Settings.ValueRange(sliderIndex.Index).Minimum;
+                        int max = Settings.ValueRange(sliderIndex.Index).Maximum;
+                        int range = max - min;
+
+                        float value = Items[sliderIndex.Index].SliderValue;
+                        value = value * range;
+                        int setting = min + (int)Math.Round(
+                            value / Settings.ValueInterval(sliderIndex.Index)) *
+                            Settings.ValueInterval(sliderIndex.Index);
+                        setting = Math.Max(Math.Min(setting, max), min);
+                        if (Settings.Value<int>(sliderIndex.Index) != setting)
+                        {
+                            Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        }
+
+                        Settings.ConfirmSetting(sliderIndex.Index, setting);
+                        Input.ResetDoubleTap();
+                        RefreshItemValues();
+
+                        return true;
+                }
+            }
+
+            switch (Settings.SettingType(this.index))
+            {
+                case ConfigTypes.Slider:
+                    // This will block pointing from selecting sliders
+                    if (SelectedIndex.IsSomething && SelectedIndex.Control != ControlSchemes.Buttons)
+                    {
+                        return true;
+                    }
+                    break;
+            }
+
+            return false;
         }
 
         public void ConfirmSetting()
@@ -358,6 +423,64 @@ namespace Tactile.Windows.Options
             OpenSubMenu = false;
         }
 
+        public Window_Command GetSettingListWindow()
+        {
+            return GetSettingListWindow(this.index);
+        }
+        private Window_Command GetSettingListWindow(int index)
+        {
+            int maxIndex = (int)Math.Ceiling((Config.WINDOW_HEIGHT - this.loc.Y) / 16) - (LIST_SUBMENU_ROWS+ 2);
+
+            // Get names for values from the settings
+            List<string> strs = Settings.ValueRange(index).Enumerate()
+                .Select(x => Settings.ValueString(index, x))
+                .ToList();
+
+            Vector2 subMenuLocation = this.loc + new Vector2(
+                120 + 8,
+                Math.Min(index, maxIndex) * 16);
+
+            var settingListWindow = new Window_Command_Scrollbar(
+                subMenuLocation,
+                Settings.SettingWidth(index) + 32,
+                LIST_SUBMENU_ROWS,
+                strs);
+            settingListWindow.immediate_index =
+                Settings.Value<int>(index) - Settings.ValueRange(index).Minimum;
+            settingListWindow.refresh_scroll();
+            settingListWindow.current_cursor_loc = this.loc + UICursor.loc +
+                new Vector2(0, settingListWindow.scroll * 16);
+            return settingListWindow;
+        }
+
+        public bool SelectSettingListItem(int settingIndex)
+        {
+            // Correct the index to the value
+            int settingValue = settingIndex + Settings.ValueRange(index).Minimum;
+
+            TempSelectedSettings.SetValue(this.index, settingValue);
+            ConfirmSetting();
+
+            UICursor.update();
+            UICursor.move_to_target_loc();
+            SelectedSettingCursor.visible = true;
+
+            return true;
+        }
+
+        public void CloseSettingList()
+        {
+            SelectedSettingCursor.visible = true;
+            CancelSetting();
+            UICursor.update();
+            UICursor.move_to_target_loc();
+        }
+
+        public void ClearSettingList()
+        {
+            OpenSettingList = false;
+        }
+
         protected override void update_ui(bool input)
         {
             // Refresh key remap button icons
@@ -392,7 +515,6 @@ namespace Tactile.Windows.Options
                 var settings = TempSelectedSettings;
                 switch (settings.SettingType(this.index))
                 {
-                    case ConfigTypes.Number:
                     case ConfigTypes.Slider:
                         int value = settings.Value<int>(index);
                         settings.ConfirmSetting(
@@ -400,16 +522,6 @@ namespace Tactile.Windows.Options
                             value + settings.ValueInterval(this.index) * (right ? 1 : -1));
                         if (value != settings.Value<int>(index))
                         {
-                            valueChanged = true;
-                            // Menu move sound
-                            Global.game_system.play_se(System_Sounds.Menu_Move2);
-                        }
-                        break;
-                    case ConfigTypes.OnOffSwitch:
-                        bool flag = settings.Value<bool>(index);
-                        if (!flag == right)
-                        {
-                            settings.ConfirmSetting(this.index, !flag);
                             valueChanged = true;
                             // Menu move sound
                             Global.game_system.play_se(System_Sounds.Menu_Move2);

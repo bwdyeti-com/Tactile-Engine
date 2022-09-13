@@ -204,8 +204,7 @@ namespace Tactile
                 {
                     if (unit.average_stat_hue_shown)
                         return unit.actor.stat_color(Stat_Labels.Hp);
-
-                    return Color.White;
+                    return Game_Actor.StatLabelBaseTint;
                 };
             }
             TopPanelNodes.Add(new StatusHpUINode(
@@ -496,7 +495,7 @@ namespace Tactile
 
             StatusNodes[page].Update(!input ? ControlSet.None :
                 (Help_Window != null ?
-                    ControlSet.Movement : (ControlSet.Mouse | ControlSet.Touch)));
+                    ControlSet.Movement | ControlSet.TouchButtons : ControlSet.Pointing));
 
             if (input)
             {
@@ -512,7 +511,7 @@ namespace Tactile
 
                     if (help_index.IsSomething)
                     {
-                        Help_Index = StatusNodes[page][help_index].HelpLabel;
+                        Help_Index = StatusNodes[page][help_index.Index].HelpLabel;
                         open_help();
                     }
                 }

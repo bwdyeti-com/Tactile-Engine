@@ -34,7 +34,8 @@ namespace Tactile.Windows.Command
         private UICursor<CommandUINode> UICursor;
         private Hand_Cursor Grey_Cursor;
 
-        protected int SelectedIndex = -1, HelpIndex = -1;
+        protected ConsumedInput SelectedIndex;
+        protected ConsumedInput HelpIndex;
         private bool Canceled; 
 
         #region Accessors
@@ -422,28 +423,24 @@ namespace Tactile.Windows.Command
             actor2.staff_fix();
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
-            if (SelectedIndex < 0)
-                return Maybe<int>.Nothing;
             return SelectedIndex;
         }
 
         public bool is_selected()
         {
-            return SelectedIndex >= 0;
+            return SelectedIndex.IsSomething;
         }
 
-        public Maybe<int> help_index()
+        public ConsumedInput help_index()
         {
-            if (HelpIndex < 0)
-                return Maybe<int>.Nothing;
             return HelpIndex;
         }
 
         public bool getting_help()
         {
-            return HelpIndex >= 0;
+            return HelpIndex.IsSomething;
         }
 
         public bool is_canceled()
@@ -453,8 +450,8 @@ namespace Tactile.Windows.Command
 
         public void reset_selected()
         {
-            SelectedIndex = -1;
-            HelpIndex = -1;
+            SelectedIndex = new ConsumedInput();
+            HelpIndex = new ConsumedInput();
             Canceled = false;
         }
 
@@ -497,12 +494,10 @@ namespace Tactile.Windows.Command
                 {
                     var selected = ItemNodes.consume_triggered(
                         Inputs.A, MouseButtons.Left, TouchGestures.Tap);
-                    if (selected.IsSomething)
-                        SelectedIndex = selected;
+                    SelectedIndex = selected;
                     var help = ItemNodes.consume_triggered(
                         Inputs.R, MouseButtons.Right, TouchGestures.LongPress);
-                    if (help.IsSomething)
-                        HelpIndex = help;
+                    HelpIndex = help;
                 }
 
                 if (Global.Input.triggered(Inputs.B))

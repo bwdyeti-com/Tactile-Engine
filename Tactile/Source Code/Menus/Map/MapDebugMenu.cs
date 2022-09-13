@@ -80,7 +80,7 @@ namespace Tactile.Menus.Map
             get
             {
                 if (Window.is_selected())
-                    return (DebugMenuOptions)Window.selected_index().ValueOrDefault;
+                    return (DebugMenuOptions)Window.selected_index().Index;
                 return DebugMenuOptions.None;
             }
         }

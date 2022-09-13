@@ -160,7 +160,11 @@ namespace Tactile.Menus.Title
         {
             key = Window.SelectedKey;
             level = Window.SelectedLevel;
+            // Check if this support is valid
             if (!Global.data_supports.ContainsKey(key) || level >= Global.data_supports[key].MaxLevel)
+                return false;
+            // Check if this support has been saved in the progress data
+            if (!Global.progress.supports.ContainsKey(key) || level >= Global.progress.supports[key])
                 return false;
 
             return true;

@@ -107,8 +107,14 @@ namespace Tactile.Menus.Preparations
                     AddMenu(pickUnitsMenu);
                     break;
                 case PreparationsChoices.Trade:
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    AddItemMenu();
+                    if (Global.battalion.actors.Count > 0)
+                    {
+                        Global.game_system.play_se(System_Sounds.Confirm);
+                        AddItemMenu();
+                    }
+                    else
+                        // Buzz if battalion is empty
+                        Global.game_system.play_se(System_Sounds.Buzzer);
                     break;
                 case PreparationsChoices.Fortune:
                     if (Global.game_state.augury_event_exists())
@@ -161,6 +167,7 @@ namespace Tactile.Menus.Preparations
             var pickUnitsMenu = sender as Window_Prep_PickUnits;
 
             var preparationsMenu = (Menus.ElementAt(1) as Window_Setup);
+            // Execute the deployment changes the player chose
             preparationsMenu.refresh_deployed_units(
                 pickUnitsMenu.unit_changes());
             preparationsMenu.refresh();
@@ -204,6 +211,10 @@ namespace Tactile.Menus.Preparations
                 case PrepCheckMapResults.Formation:
                     Global.game_system.play_se(System_Sounds.Confirm);
                     checkMapMenu.HideToChangeFormation();
+                    break;
+                case PrepCheckMapResults.Data:
+                    Global.game_system.play_se(System_Sounds.Confirm);
+                    AddDataMenu();
                     break;
                 case PrepCheckMapResults.Options:
                     Global.game_system.play_se(System_Sounds.Confirm);

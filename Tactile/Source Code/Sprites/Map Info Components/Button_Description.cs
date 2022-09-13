@@ -20,6 +20,7 @@ namespace Tactile.Graphics.Help
 
         protected Sprite Button;
         protected Sprite Description;
+        internal bool Visible = true;
 
         #region Accessors
         public string description
@@ -284,8 +285,11 @@ namespace Tactile.Graphics.Help
 
         public override void Draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
-            Button.draw(sprite_batch, draw_offset + offset - (loc + this.draw_offset));
-            Description.draw(sprite_batch, draw_offset + offset - (loc + this.draw_offset));
+            if (Visible)
+            {
+                Button.draw(sprite_batch, draw_offset + offset - (loc + this.draw_offset));
+                Description.draw(sprite_batch, draw_offset + offset - (loc + this.draw_offset));
+            }
         }
     }
 }

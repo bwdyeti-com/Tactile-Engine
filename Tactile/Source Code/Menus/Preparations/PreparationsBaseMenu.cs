@@ -9,7 +9,7 @@ using Tactile.Graphics.Help;
 
 namespace Tactile.Menus.Preparations
 {
-    abstract class PreparationsBaseMenu : Windows.Map.Map_Window_Base, IFadeMenu
+    abstract class PreparationsBaseMenu : Windows.Map.Map_Window_Base, IFadeMenu, IHasCancelButton
     {
         const int BLACK_SCEEN_FADE_TIMER = 8;
         const int BLACK_SCREEN_HOLD_TIMER = 4;
@@ -18,6 +18,7 @@ namespace Tactile.Menus.Preparations
         protected WindowPanel ChooseUnitWindow;
         protected Pick_Units_Items_Header ItemHeader;
         protected Button_Description RButton;
+        protected Button_Description CancelButton;
 
         protected TextSprite ChooseUnitLabel;
 
@@ -71,7 +72,7 @@ namespace Tactile.Menus.Preparations
             // Choose Unit Window
             ChooseUnitWindow = new WindowPanel(Global.Content.Load<Texture2D>(
                 @"Graphics\Windowskins\Preparations_Item_Options_Window"));
-            ChooseUnitWindow.loc = new Vector2(Config.WINDOW_WIDTH - 120, Config.WINDOW_HEIGHT - 80);
+            ChooseUnitWindow.loc = new Vector2(Config.WINDOW_WIDTH - 120, Config.WINDOW_HEIGHT - 84);
             ChooseUnitWindow.width = 80;
             ChooseUnitWindow.height = 40;
             ChooseUnitWindow.stereoscopic = Config.PREPITEM_WINDOW_DEPTH;
@@ -87,15 +88,32 @@ namespace Tactile.Menus.Preparations
             refresh();
         }
 
-        protected void RefreshInputHelp()
+        protected virtual void RefreshInputHelp()
         {
             RButton = Button_Description.button(Inputs.R,
                 Global.Content.Load<Texture2D>(
                     @"Graphics\Windowskins\Preparations_Screen"),
                 new Rectangle(126, 122, 24, 16));
-            RButton.loc = new Vector2(216, 172) + new Vector2(60, -16);
+            RButton.loc = new Vector2(216, 192) + new Vector2(0, -16);
             RButton.offset = new Vector2(-1, -1);
             RButton.stereoscopic = Config.PREPITEM_FUNDS_DEPTH;
+
+            CancelButton = Button_Description.button(Inputs.B,
+                new Vector2(216, 192) + new Vector2(48, -16));
+            CancelButton.description = "Cancel";
+            CancelButton.offset = new Vector2(-1, -1);
+            CancelButton.stereoscopic = Config.PREPITEM_FUNDS_DEPTH;
+        }
+
+        protected virtual bool CanceledTriggered(bool active)
+        {
+            bool cancel = Global.Input.triggered(Inputs.B);
+            if (CancelButton != null)
+            {
+                cancel |= CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap);
+            }
+            return cancel;
         }
 
         protected void SetLabel(string str)
@@ -154,11 +172,18 @@ namespace Tactile.Menus.Preparations
         public void FadeClose() { }
         #endregion
 
+        #region IHasCancelButton
+        public bool HasCancelButton { get { return CancelButton != null; } }
+        public Vector2 CancelButtonLoc { get { return CancelButton.loc; } }
+        #endregion
+
         #region Update
         protected override void UpdateMenu(bool active)
         {
             UpdateUnitWindow(active);
-            
+            if (CancelButton != null)
+                CancelButton.Update(active);
+
             base.UpdateMenu(active);
         }
 
@@ -184,7 +209,7 @@ namespace Tactile.Menus.Preparations
             if (active && this.ready_for_inputs)
             {
                 // Close this window
-                if (Global.Input.triggered(Inputs.B))
+                if (CanceledTriggered(active))
                 {
                     Global.game_system.play_se(System_Sounds.Cancel);
                     CancelUnitSelecting();
@@ -196,7 +221,7 @@ namespace Tactile.Menus.Preparations
                     Inputs.A, MouseButtons.Left, TouchGestures.Tap);
                 if (selectedIndex.IsSomething)
                 {
-                    SelectUnit(selectedIndex);
+                    SelectUnit(selectedIndex.Index);
                     return;
                 }
 
@@ -225,10 +250,18 @@ namespace Tactile.Menus.Preparations
             ChooseUnitWindow.draw(sprite_batch);
             ChooseUnitLabel.draw(sprite_batch, -ChooseUnitWindow.loc);
             sprite_batch.End();
-            
-            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            RButton.Draw(sprite_batch, -new Vector2(0, 20));
-            sprite_batch.End();
+
+            DrawHelpButtons(sprite_batch);
+        }
+
+        protected virtual void DrawHelpButtons(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            RButton.Draw(spriteBatch);
+
+            if (CancelButton != null)
+                CancelButton.Draw(spriteBatch);
+            spriteBatch.End();
         }
 
         protected abstract void DrawStatsWindow(SpriteBatch spriteBatch);

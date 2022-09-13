@@ -7,12 +7,16 @@ namespace Tactile.Menus.Preparations
 {
     class ManageItemsCommandMenu : ItemsCommandMenu
     {
-        public ManageItemsCommandMenu(int actorId) : base(actorId) { }
+        public ManageItemsCommandMenu(int actorId, IHasCancelButton menu = null)
+            : base(actorId, menu) { }
 
         protected override Window_Command NewWindow()
         {
             List<string> strs = new List<string> { "Trade", "List", "Convoy", "Give All", "Optimize" };
-            var commandWindow = new Window_Command(new Vector2(Config.WINDOW_WIDTH - 128, Config.WINDOW_HEIGHT - 100), 56, strs);
+            var commandWindow = new Window_Command(
+                new Vector2(Config.WINDOW_WIDTH - 128, Config.WINDOW_HEIGHT - 108),
+                56,
+                strs);
             if (Global.battalion.actors.Count <= 1)
                 commandWindow.set_text_color(0, "Grey");
             if (Global.battalion.actors.Count <= 1 &&

@@ -25,7 +25,15 @@ namespace Tactile
         private TextSprite[] Labels = new TextSprite[5];
 
         #region Accessors
-        public Game_Unit unit { get { return Global.game_map.units[Unit_Id]; } }
+        public Game_Unit unit
+        {
+            get
+            {
+                if (!Global.game_map.units.ContainsKey(Unit_Id))
+                    return null;
+                return Global.game_map.units[Unit_Id];
+            }
+        }
 
         private Game_Unit opponent { get { return Opponent_Id == -1 ? null : Global.game_map.units[Opponent_Id]; } }
         #endregion

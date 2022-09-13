@@ -17,7 +17,7 @@ namespace Tactile.Windows.Target
         protected bool Visible = true;
         protected bool Manual_Targeting;
 
-        protected int SelectedIndex = -1;
+        protected ConsumedInput SelectedIndex;
         private bool Canceled; 
 
         #region Accessors
@@ -200,7 +200,7 @@ namespace Tactile.Windows.Target
                 if (active)
                 {
                     if (Global.Input.triggered(Inputs.A) && has_target)
-                        SelectedIndex = Index;
+                        SelectedIndex = new ConsumedInput(ControlSchemes.Buttons, Index);
                     else if (Global.Input.triggered(Inputs.B))
                         Canceled = true;
                     else if (Manual_Targeting)
@@ -210,7 +210,7 @@ namespace Tactile.Windows.Target
                             if (Global.Input.mouse_click(MouseButtons.Left))
                             {
                                 if (Global.player.at_mouse_loc)
-                                    SelectedIndex = 0;
+                                    SelectedIndex = new ConsumedInput(ControlSchemes.Mouse, 0);
                                 else
                                     Global.game_system.play_se(System_Sounds.Buzzer);
                             }
@@ -220,7 +220,7 @@ namespace Tactile.Windows.Target
                             if (Global.Input.gesture_triggered(TouchGestures.Tap))
                             {
                                 if (Global.game_state.move_to_touch_location(TouchGestures.Tap))
-                                    SelectedIndex = 0;
+                                    SelectedIndex = new ConsumedInput(ControlSchemes.Touch, 0);
                                 else
                                     Global.game_system.play_se(System_Sounds.Buzzer);
                             }
@@ -233,7 +233,7 @@ namespace Tactile.Windows.Target
                             if (Global.Input.mouse_clicked_rectangle(MouseButtons.Left,
                                 target_map_rect(Targets[Index])))
                             {
-                                SelectedIndex = Index;
+                                SelectedIndex = new ConsumedInput(ControlSchemes.Mouse, Index);
                             }
                             // buzz on clicking nothing? //Debug
                         }
@@ -242,7 +242,7 @@ namespace Tactile.Windows.Target
                             if (Global.Input.gesture_rectangle(TouchGestures.Tap,
                                 target_map_rect(Targets[Index])))
                             {
-                                SelectedIndex = Index;
+                                SelectedIndex = new ConsumedInput(ControlSchemes.Touch, Index);
                             }
                             // buzz on tapping nothing? //Debug
                         }
@@ -339,16 +339,14 @@ namespace Tactile.Windows.Target
             return Maybe<int>.Nothing;
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
-            if (SelectedIndex < 0)
-                return Maybe<int>.Nothing;
             return SelectedIndex;
         }
 
         public bool is_selected()
         {
-            return SelectedIndex >= 0;
+            return SelectedIndex.IsSomething;
         }
 
         public bool is_canceled()
@@ -358,7 +356,7 @@ namespace Tactile.Windows.Target
 
         public void reset_selected()
         {
-            SelectedIndex = -1;
+            SelectedIndex = new ConsumedInput();
             Canceled = false;
         }
 

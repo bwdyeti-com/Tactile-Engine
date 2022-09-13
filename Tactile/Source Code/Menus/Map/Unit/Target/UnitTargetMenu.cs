@@ -9,7 +9,7 @@ namespace Tactile.Menus.Map.Unit.Target
 
         public int SelectedUnitId
         {
-            get { return Window.targets[Window.selected_index()]; }
+            get { return Window.targets[Window.selected_index().Index]; }
         }
 
         public int Target { get { return Window.target; } }

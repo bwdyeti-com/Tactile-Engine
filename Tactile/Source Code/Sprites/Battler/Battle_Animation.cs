@@ -8,6 +8,17 @@ using TactileBattleFrameDataExtension;
 
 namespace Tactile
 {
+    [Flags]
+    enum AnimationFlag
+    {
+        None =      0,
+        Reverse =   1 << 0,
+        Repeat =    1 << 1,
+        Dmg =       1 << 2,
+        NoHit =     1 << 3,
+        Kill =      1 << 4,
+    }
+
     class Battle_Animation : Sprite
     {
         string Filename;
@@ -15,28 +26,24 @@ namespace Tactile
         int Frame = 0;
         List<int> Ids;
         int Anim_Index = -1;
-        bool Reverse;
         Battle_Animation_Data Data;
         int Shake = 0;
         bool Finished = false;
-        bool Repeat;
         int Duration, Max_Duration, Anim_Timer;
         int Opacity = 255;
         Color[] Palette = new Color[Palette_Handler.PALETTE_SIZE];
         bool Palette_Used = false, Use_Animation_Texture = false;
 
         new public int blend_mode = 0;
-        protected int terrain_sound_tag = 0;
-        public bool dmg, hit, kill;
+        private int terrain_sound_tag = 0;
+        private AnimationFlag Flags;
 
         #region Accessors
         public int id
         {
             get
             {
-                if (Anim_Index >= Ids.Count)
-                    return -1;
-                return Ids[Anim_Index];
+                return GetAnimationId(Anim_Index);
             }
         }
 
@@ -80,7 +87,7 @@ namespace Tactile
                 int offset = 0;
                 if (Ids.Count <= Anim_Index + 1)
                 {
-                    int? brighten_offest = On_Hit.SPELL_BRIGHTEN_OFFSET(id);
+                    int? brighten_offest = On_Hit.SPELL_BRIGHTEN_OFFSET(this.id);
                     if (brighten_offest != null)
                         offset = (int)brighten_offest + 1; // the +1 fixed Purge, but whatever calls this might be the one that's wrong? //Debug
                 }
@@ -93,29 +100,32 @@ namespace Tactile
         public bool palette_used { get { return Palette_Used; } }
         #endregion
 
-        public Battle_Animation(string filename, Texture2D texture, List<int> ids, bool reverse = false, bool repeat = false) :
-            this(filename, texture, ids, reverse, repeat, false, true, false) { }
-        public Battle_Animation(string filename, Texture2D texture, List<int> ids, bool reverse, bool repeat,
-            bool dmg, bool hit, bool kill)
+        public Battle_Animation(string filename, Texture2D texture, List<int> ids, AnimationFlag flags)
         {
-            this.dmg = dmg;
-            this.hit = hit;
-            this.kill = kill;
-            initialize(filename, texture, ids, reverse, repeat);
+            Flags = flags;
+
+            initialize(filename, texture, ids);
         }
-        public Battle_Animation(string filename, Texture2D texture, List<int> ids, bool reverse, bool repeat,
-            bool dmg, bool hit, bool kill, int terrain_sound_tag)
+        public Battle_Animation(string filename, Texture2D texture, List<int> ids, AnimationFlag flags, int terrain_sound_tag)
         {
-            this.dmg = dmg;
-            this.hit = hit;
-            this.kill = kill;
+            Flags = flags;
             this.terrain_sound_tag = terrain_sound_tag;
-            initialize(filename, texture, ids, reverse, repeat);
+
+            initialize(filename, texture, ids);
+        }
+        public Battle_Animation(string filename, Texture2D texture, List<int> ids,
+            Battle_Animation flagSource, bool repeat)
+        {
+            Flags = flagSource.Flags;
+            Flags &= ~AnimationFlag.Repeat;
+            Flags |= repeat ? AnimationFlag.Repeat : AnimationFlag.None;
+
+            initialize(filename, texture, ids);
         }
 
-        protected void initialize(string filename, Texture2D texture, List<int> ids, bool reverse, bool repeat)
+        protected void initialize(string filename, Texture2D texture, List<int> ids)
         {
-            Ids =  remove_missing_anims(ids);
+            Ids = remove_missing_anims(ids);
             if (Ids.Count <= 0)
             {
                 if (ids.Count > 0)
@@ -123,6 +133,7 @@ namespace Tactile
                 else
                     throw new IndexOutOfRangeException("Animation with no ids started");
             }
+
             string[] str_ary;
             if (filename != null)
             {
@@ -135,8 +146,7 @@ namespace Tactile
             // Else if no texture given
             else
                 Use_Animation_Texture = true;
-            Reverse = reverse;
-            Repeat = repeat;
+
             Anim_Index = -1;
             Max_Duration = Duration = total_duration(Ids) + 1;
             next_animation();
@@ -173,6 +183,13 @@ namespace Tactile
             return result;
         }
 
+        private int GetAnimationId(int index)
+        {
+            if (index >= Ids.Count || index < 0)
+                return -1;
+            return Ids[index];
+        }
+
         public override void update()
         {
             Frame_Timer++;
@@ -199,41 +216,40 @@ namespace Tactile
                 // New Frame
                 if (Frame_Timer >= Data.current_frame(Frame).time && Data.current_frame(Frame).time >= 0)
                 {
+                    // Next frame
                     int current_frame = Frame;
                     Frame = Data.next_frame(Frame);
-                    // If looped past the end
+
+                    // If frame looped over
                     if (Frame <= current_frame)
                     {
-                        // If the playing animation doesn't loop
-                        if (!Data.loop)
+                        // If this is the last animation in this set
+                        if (Anim_Index >= Ids.Count - 1)
                         {
-                            // And we're not freezing on the last frame
-                            if (!Repeat || Ids.Count > Anim_Index + 1)
+                            // If this animation set continues until external input
+                            if (Flags.HasFlag(AnimationFlag.Repeat))
                             {
-                                // Then either we go to the next animation
-                                if (Ids.Count > Anim_Index + 1)
+                                bool looped = TryLoop();
+
+                                // If not looped, hold on the last frame
+                                if (!looped)
                                 {
-                                    Frame_Timer = 0;
-                                    next_animation();
-                                    return;
-                                }
-                                // Or we're finished
-                                else
-                                {
-                                    Finished = true; //Sprite needs to dispose? //Yeti
+                                    Frame = current_frame;
                                     return;
                                 }
                             }
-                            // If we are freezing on the last frame
-                            else if (Ids.Count == 1)
+                            else
                             {
-                                Frame = current_frame;
-                                return;
+                                Finished = true; //Sprite needs to dispose? //Yeti
+                                TryLoop();
                             }
                         }
+                        // Else go to the next animation
                         else
                         {
                             Frame_Timer = 0;
+                            next_animation();
+                            return;
                         }
                     }
                     else
@@ -273,11 +289,11 @@ namespace Tactile
                 }
                 else if (new string[] { "Hit1", "Hit2", "Hit3" }.Contains(name)) // This should check for any hit sounds //Debug
                 {
-                    if (kill)
+                    if (Flags.HasFlag(AnimationFlag.Kill))
                         Global.Audio.play_se("Battle Sounds", "Hit_Kill");
-                    else if (!hit)
+                    else if (Flags.HasFlag(AnimationFlag.NoHit))
                         Global.Audio.play_se("Battle Sounds", "Miss");
-                    else if (!dmg)
+                    else if (!Flags.HasFlag(AnimationFlag.Dmg))
                         Global.Audio.play_se("Battle Sounds", "Hit_NoDamage");
                     else
                         Global.Audio.play_se("Battle Sounds", name);
@@ -288,7 +304,7 @@ namespace Tactile
                 }
                 else if (name == "Critical")
                 {
-                    if (dmg)
+                    if (Flags.HasFlag(AnimationFlag.Dmg))
                         Global.Audio.play_se("Battle Sounds", name);
                 }
                 else
@@ -301,9 +317,9 @@ namespace Tactile
             while (Anim_Index < Ids.Count)
             {
                 Anim_Index++;
-                if (Global.data_animations.ContainsKey(id))
+                if (Global.data_animations.ContainsKey(this.id))
                 {
-                    Data = Global.data_animations[id];
+                    Data = Global.data_animations[this.id];
                     if (Use_Animation_Texture)
                     {
                         // Uses the texture from the first animation in the animation list
@@ -346,6 +362,38 @@ namespace Tactile
             update_sounds();
         }
 
+        /// <summary>
+        /// Return to the start of this animation set's loop, if it has one
+        /// </summary>
+        protected bool TryLoop()
+        {
+            int lastId = GetAnimationId(Ids.Count - 1);
+            // If the last animation is missing
+            if (!Global.data_animations.ContainsKey(lastId))
+                return false;
+            // If the last animation doesn't loop, there's no loop
+            if (!Global.data_animations[lastId].loop)
+                return false;
+
+            // Find the last animation that loops
+            int loopIndex = Ids.Count - 1;
+            for (int i = Ids.Count - 2; i >= 0; i++)
+            {
+                int id = GetAnimationId(i);
+                if (Global.data_animations.ContainsKey(id) &&
+                        Global.data_animations[id].loop)
+                    loopIndex = i;
+                else
+                    break;
+            }
+
+            // Move to the first loop animation
+            Anim_Index = loopIndex - 1;
+            next_animation();
+
+            return true;
+        }
+
         #region Draw
         public IEnumerable<BattleFrameRenderData> draw_lower(
             SpriteBatch sprite_batch,
@@ -372,7 +420,7 @@ namespace Tactile
                                     texture, Global.frame_data.ContainsKey(Filename) ? Global.frame_data[Filename] : null, sprite_batch,
                                     Data, Frame, Frame_Timer,
                                     loc + draw_vector() - draw_offset, matrix, offset, scale * scale_mod,
-                                    mirrored, Reverse, Opacity, blend_mode, tint))
+                                    mirrored, Flags.HasFlag(AnimationFlag.Reverse), Opacity, blend_mode, tint))
                                 yield return render;
                     }
                 }
@@ -403,7 +451,7 @@ namespace Tactile
                                     texture, Global.frame_data.ContainsKey(Filename) ? Global.frame_data[Filename] : null, sprite_batch,
                                     Data, Frame, Frame_Timer,
                                     loc + draw_vector() - draw_offset, matrix, offset, scale * scale_mod,
-                                    mirrored, Reverse, Opacity, blend_mode, tint))
+                                    mirrored, Flags.HasFlag(AnimationFlag.Reverse), Opacity, blend_mode, tint))
                                 yield return render;
                     }
                 }

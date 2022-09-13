@@ -51,24 +51,29 @@ namespace Tactile.Options
             return new List<SettingsData>
             {
 #if !__MOBILE__
-                SettingsData.Create("Window Mode", ConfigTypes.Number, (int)WindowMode.Windowed,
+                SettingsData.Create("Window Mode", ConfigTypes.List, (int)WindowMode.Windowed,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
                     rangeMin: (int)WindowMode.Windowed,
-                    rangeMax: (int)WindowMode.Fullscreen),
-                SettingsData.Create("Zoom", ConfigTypes.Number,
-                    Rendering.GameRenderer.ZOOM),
+                    rangeMax: (int)WindowMode.Fullscreen,
+                    width: 48),
+                SettingsData.Create("Zoom", ConfigTypes.List,
+                    Rendering.GameRenderer.ZOOM,
+                    formatString: "{0}x",
+                    width: 24),
 #else
                 new NullSettingsData(),
                 new NullSettingsData(),
 #endif
-                SettingsData.Create("Stereoscopic 3D", ConfigTypes.Number, 0,
+                SettingsData.Create("Stereoscopic 3D", ConfigTypes.List, 0,
                     dependentSettings: new int[] { (int)GraphicsSetting.Anaglyph },
-                    formatString: "On ({0})", rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL),
+                    formatString: "On ({0})",
+                    rangeMin: 0, rangeMax: MAX_STEREOSCOPIC_LEVEL,
+                    width: 40),
                 SettingsData.Create("  Red-Cyan (3D)", ConfigTypes.OnOffSwitch, false),
 #if !__MOBILE__
                 //@Yeti: hide this setting for now, until it's supporting
                 new NullSettingsData(),
-                //SettingsData.Create("Monitor Index", ConfigTypes.Number, Maybe<int>.Nothing),
+                //SettingsData.Create("Monitor Index", ConfigTypes.List, Maybe<int>.Nothing),
                 SettingsData.Create("Minimize When Inactive", ConfigTypes.OnOffSwitch, false)
 #else
                 new NullSettingsData(),
@@ -159,26 +164,38 @@ namespace Tactile.Options
 
             switch (entry.Item1)
             {
+                case (int)GraphicsSetting.Anaglyph:
+                    return ValueString(index, this.AnaglyphMode);
+            }
+
+            return base.ValueString(index);
+        }
+        public override string ValueString(int index, object value)
+        {
+            var entry = GetEntryIndex(index);
+
+            switch (entry.Item1)
+            {
                 case (int)GraphicsSetting.Fullscreen:
                     // Show enum name
-                    switch(_Fullscreen)
+                    switch((int)value)
                     {
-                        case WindowMode.Windowed:
+                        case (int)WindowMode.Windowed:
                             return "Windowed";
-                        case WindowMode.Fullscreen:
+                        case (int)WindowMode.Fullscreen:
                         default:
                             return "Fullscreen";
                     }
                 case (int)GraphicsSetting.Stereoscopic:
                     // Don't show value if 0
-                    if (_StereoscopicLevel == 0)
+                    if ((int)value == 0)
                         return "Off";
                     break;
                 case (int)GraphicsSetting.Anaglyph:
-                    return this.AnaglyphMode ? "On" : "Off";
+                    return (bool)value ? "On" : "Off";
             }
 
-            return base.ValueString(index);
+            return base.ValueString(index, value);
         }
 
         public override void SetValue(Tuple<int, int> entry, object value)
@@ -214,16 +231,16 @@ namespace Tactile.Options
             }
         }
 
-        public override Range<int> ValueRange(Tuple<int, int> entry)
+        public override IntRange ValueRange(Tuple<int, int> entry)
         {
             switch (entry.Item1)
             {
                 case (int)GraphicsSetting.Zoom:
-                    return new Range<int>(
+                    return new IntRange(
                         ZoomMin.OrIfNothing(1),
                         ZoomMax.OrIfNothing(2));
                 case (int)GraphicsSetting.MonitorIndex:
-                    return new Range<int>(0, 0);
+                    return new IntRange(0, 0);
             }
 
             return base.ValueRange(entry);

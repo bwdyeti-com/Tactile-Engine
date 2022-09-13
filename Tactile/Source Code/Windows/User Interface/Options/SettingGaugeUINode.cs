@@ -1,13 +1,14 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tactile.Graphics.Gauges;
 using Tactile.Graphics.Text;
 
 namespace Tactile.Windows.UserInterface.Options
 {
     class SettingGaugeUINode : SettingUINode
     {
-        private Stat_Bar Bar;
+        private Slider Bar;
         private string FormatString;
         private int GaugeMin, GaugeMax;
 
@@ -20,7 +21,7 @@ namespace Tactile.Windows.UserInterface.Options
             GaugeMin = gaugeMin;
             GaugeMax = gaugeMax;
 
-            Bar = new Stat_Bar();
+            Bar = new Slider();
             Bar.offset = new Vector2(-2, -8);
             Bar.bar_width = gaugeWidth;
 
@@ -34,7 +35,10 @@ namespace Tactile.Windows.UserInterface.Options
 
         internal void refresh_value(int value)
         {
-            Bar.SetFillWidth(Bar.bar_width, value, GaugeMin, GaugeMax);
+            if (GaugeMax != GaugeMin)
+                Bar.SetFillWidth(Bar.bar_width, value, GaugeMin, GaugeMax);
+            else
+                Bar.SetFillWidth(0);
             Label.text = string.Format(FormatString, value);
         }
 
@@ -44,10 +48,12 @@ namespace Tactile.Windows.UserInterface.Options
             Bar.update();
         }
 
-        protected override float slide(Vector2 inputPosition, Vector2 drawOffset)
+        public override Rectangle SliderBounds(Vector2 drawOffset)
         {
-            Vector2 slider_position = (inputPosition - HitBoxLoc(drawOffset + Bar.offset));
-            return (slider_position.X - 4) / (Bar.bar_width - 8);
+            Vector2 loc = HitBoxLoc(drawOffset + new Vector2(Bar.offset.X - (Bar.draw_offset.X + 2), 0));
+            return new Rectangle(
+                (int)loc.X, (int)loc.Y,
+                (int)Bar.bar_width, (int)Size.Y);
         }
 
         protected override void mouse_off_graphic()

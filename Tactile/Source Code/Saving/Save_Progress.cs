@@ -214,7 +214,9 @@ namespace Tactile.IO
         #region Extras Menu
         public bool ExtrasAccessible
         {
-            get { if (this.SoundRoomAccessible || this.SupportViewerAccessible)
+            get
+            {
+                if (this.SoundRoomAccessible || this.SupportViewerAccessible || this.CommunityAccessible)
                     return true;
                 // If there are no chapters that could ever enable the support viewer,
                 // just show extras so that credits can be selected
@@ -247,6 +249,14 @@ namespace Tactile.IO
                     }
 
                 return false;
+            }
+        }
+
+        public bool CommunityAccessible
+        {
+            get
+            {
+                return Menus.Title.CommunityMenu.COMMUNITY_ENTRIES.Any();
             }
         }
         #endregion

@@ -64,7 +64,11 @@ namespace TactileLibrary
                     // Set the final saturation to slightly above the average
                     s = MathHelper.Lerp(steppedDownS, s, 0.501f);
 
-#if DEBUG
+#if DEBUG && !__MOBILE__
+                    //@Yeti: HSVToColor(ColorToHSV(c)) does not round quite the
+                    // same on my Android device as it does on x86 Windows;
+                    // look for slightly different math that makes both happy, some time
+
                     Color testColor = HSVToColor(h, s, v);
                     testColor.A = color.A;
                     if (color != testColor)

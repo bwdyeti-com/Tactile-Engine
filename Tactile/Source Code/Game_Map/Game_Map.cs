@@ -78,6 +78,7 @@ namespace Tactile
         private Dictionary<int, List<Rectangle>>[] Team_Defend_Areas;
         private Dictionary<int, Vector2> Unit_Seek_Locs;
         private Dictionary<int, Dictionary<int, Vector2>> Team_Seek_Locs;
+        private Dictionary<int, int> UnitSeekTargets;
         private List<TileOutlineData> TileOutlines;
 
         private Map_Unit_Data Unit_Data;
@@ -157,6 +158,7 @@ namespace Tactile
             Team_Defend_Areas.write(writer);
             Unit_Seek_Locs.write(writer);
             Team_Seek_Locs.write(writer);
+            UnitSeekTargets.write(writer);
             TileOutlines.write(writer);
 
             writer.Write(Last_Added_Unit_Id);
@@ -302,6 +304,10 @@ namespace Tactile
             Team_Defend_Areas = Team_Defend_Areas.read(reader);
             Unit_Seek_Locs.read(reader);
             Team_Seek_Locs.read(reader);
+            if (!Global.LOADED_VERSION.older_than(0, 7, 2, 0)) // This is a suspend load, so this isn't needed for public release //Debug
+            {
+                UnitSeekTargets.read(reader);
+            }
             if (!Global.LOADED_VERSION.older_than(0, 5, 5, 0)) // This is a suspend load, so this isn't needed for public release //Debug
             {
                 TileOutlines.read(reader);
@@ -688,6 +694,7 @@ namespace Tactile
 
         internal Dictionary<int, Vector2> unit_seek_locs { get { return Unit_Seek_Locs; } }
         internal Dictionary<int, Dictionary<int, Vector2>> team_seek_locs { get { return Team_Seek_Locs; } }
+        internal Dictionary<int, int> unitSeekTargets { get { return UnitSeekTargets; } }
 
         internal List<TileOutlineData> tile_outlines { get { return TileOutlines; } }
 
@@ -718,6 +725,7 @@ namespace Tactile
             }
             Unit_Seek_Locs = new Dictionary<int, Vector2>();
             Team_Seek_Locs = new Dictionary<int, Dictionary<int, Vector2>>();
+            UnitSeekTargets = new Dictionary<int, int>();
             TileOutlines = new List<TileOutlineData>();
             Pathfind.reset();
         }
@@ -762,6 +770,7 @@ namespace Tactile
             Waiting_Unit_Skip.Clear();
             Unit_Seek_Locs.Clear();
             Team_Seek_Locs.Clear();
+            UnitSeekTargets.Clear();
             TileOutlines.Clear();
             reset_enemy_range_data();
         }
@@ -1699,6 +1708,7 @@ namespace Tactile
                     unit.change_team(team);
                     if (!unit.is_attackable_team(team_turn))
                         remove_enemy_attack_range(id);
+                    unit.refresh_unit();
                     unit.refresh_sprite();
                     unit.queue_move_range_update();
                 }
@@ -3527,6 +3537,11 @@ namespace Tactile
             if (!Team_Seek_Locs.ContainsKey(team))
                 Team_Seek_Locs[team] = new Dictionary<int,Vector2>();
             Team_Seek_Locs[team][group] = loc;
+        }
+
+        public void AddUnitSeek(int unitId, int targetId)
+        {
+            UnitSeekTargets[unitId] = targetId;
         }
 
         public void add_tile_outline_set(byte type, Color tint)

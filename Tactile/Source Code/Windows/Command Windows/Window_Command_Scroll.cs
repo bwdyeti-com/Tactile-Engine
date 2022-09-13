@@ -283,10 +283,12 @@ namespace Tactile.Windows.Command
 
         protected void DrawRangeText(SpriteBatch spriteBatch)
         {
-            (Items as UserInterface.PartialRangeVisibleUINodeSet<CommandUINode>).Draw(
-                spriteBatch,
-                visible_indexes_range().Enumerate(),
-                -(loc + text_draw_vector()));
+            var range = visible_indexes_range();
+            if (range.IsValid())
+                (Items as UserInterface.PartialRangeVisibleUINodeSet<CommandUINode>).Draw(
+                    spriteBatch,
+                    range.Enumerate(),
+                    -(loc + text_draw_vector()));
         }
         #endregion
     }

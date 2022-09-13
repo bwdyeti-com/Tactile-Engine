@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Help;
 using Tactile.Graphics.Text;
+using Tactile.Windows;
 
 namespace Tactile.Menus.Title
 {
@@ -14,8 +15,7 @@ namespace Tactile.Menus.Title
         const int MAX_SCROLL = 6;
 
         private int DataHeight;
-        private Vector2 ScrollOffset = Vector2.Zero;
-        private float ScrollSpeed = 0f;
+        private ScrollComponent Scroll;
         private List<TextSprite> CreditsText;
         private Scroll_Bar Scrollbar;
         private Button_Description FullCreditsButton;
@@ -35,6 +35,7 @@ namespace Tactile.Menus.Title
             // Credits
             CreditsText = new List<TextSprite>();
             Vector2 loc = Vector2.Zero;
+            int charHeight = Font_Data.Data[Config.UI_FONT].CharHeight;
             foreach (var credit in Constants.Credits.CREDITS)
             {
                 if (!string.IsNullOrEmpty(credit.Role) || credit.Names.Any())
@@ -61,10 +62,10 @@ namespace Tactile.Menus.Title
                     }
                 }
 
-                loc += new Vector2(0, 16);
+                loc += new Vector2(0, charHeight);
             }
 
-            DataHeight = (int)loc.Y - 16;
+            DataHeight = (int)loc.Y - charHeight;
 
             // Scrollbar
             if (this.MaxScroll > 0)
@@ -73,6 +74,17 @@ namespace Tactile.Menus.Title
                 Scrollbar = new Scroll_Bar(height - 16, DataHeight, height, 0);
                 Scrollbar.loc = new Vector2(Config.WINDOW_WIDTH - BASE_OFFSET.X, BASE_OFFSET.Y + 8);
             }
+
+            Scroll = new ScrollComponent(
+                new Vector2(Config.WINDOW_WIDTH, Config.WINDOW_HEIGHT) - BASE_OFFSET * 2,
+                new Vector2(Config.WINDOW_WIDTH - (BASE_OFFSET.X * 2), charHeight),
+                ScrollAxes.Vertical);
+            Scroll.SetScrollSpeeds(
+                MAX_SCROLL,
+                Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);
+            Scroll.loc = BASE_OFFSET;
+            Scroll.Scrollbar = Scrollbar;
+            Scroll.SetElementLengths(new Vector2(1, DataHeight / charHeight));
 
             // Full Credits Button
             if (!string.IsNullOrEmpty(Constants.Credits.FULL_CREDITS_LINK))
@@ -102,38 +114,10 @@ namespace Tactile.Menus.Title
                     Scrollbar.update_input();
             }
 
-                bool holdDown = false, holdUp = false;
-            if (Global.Input.pressed(Inputs.Down))
-                holdDown = true;
-            else if (Global.Input.pressed(Inputs.Up))
-                holdUp = true;
-            else if (Scrollbar != null)
-            {
-                if (Scrollbar.DownHeld)
-                    holdDown = true;
-                else if (Scrollbar.UpHeld)
-                    holdUp = true;
-            }
-            
-            if (holdDown)
-            {
-                ScrollSpeed = Math.Max(1, ScrollSpeed);
-                ScrollSpeed = Math.Min(ScrollSpeed + 0.25f, +MAX_SCROLL);
-            }
-            else if (holdUp)
-            {
-                ScrollSpeed = Math.Min(-1, ScrollSpeed);
-                ScrollSpeed = Math.Max(ScrollSpeed - 0.25f, -MAX_SCROLL);
-            }
-            else
-                ScrollSpeed = 0f;
-            
-            ScrollOffset.Y = (int)MathHelper.Clamp(
-                ScrollOffset.Y + ScrollSpeed,
-                 0, this.MaxScroll);
+            Scroll.Update(active);
 
             if (Scrollbar != null)
-                Scrollbar.scroll = (int)ScrollOffset.Y;
+                Scrollbar.scroll = (int)Scroll.IntOffset.Y;
 
             // Full credits link
             if (FullCreditsButton != null)
@@ -227,7 +211,7 @@ namespace Tactile.Menus.Title
 
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, scissorState);
                 foreach (var text in CreditsText)
-                    text.draw(spriteBatch, ScrollOffset - BASE_OFFSET);
+                    text.draw(spriteBatch, Scroll.IntOffset - BASE_OFFSET);
                 spriteBatch.End();
 
                 if (FullCreditsButton != null)

@@ -530,8 +530,14 @@ namespace Tactile
         }
         void set_animation(List<int> anim, bool repeat, bool no_damage, bool hit, bool kill)
         {
-            Animation = new Battle_Animation(Name, Anim_Bitmap, anim, Reverse, repeat,
-                !no_damage, hit, kill, terrain_based_sound());
+            AnimationFlag flags = AnimationFlag.None;
+            flags |= Reverse ? AnimationFlag.Reverse : AnimationFlag.None;
+            flags |= repeat ? AnimationFlag.Repeat : AnimationFlag.None;
+            flags |= no_damage ? AnimationFlag.None : AnimationFlag.Dmg;
+            flags |= hit ? AnimationFlag.None : AnimationFlag.NoHit;
+            flags |= kill ? AnimationFlag.Kill : AnimationFlag.None;
+
+            Animation = new Battle_Animation(Name, Anim_Bitmap, anim, flags, terrain_based_sound());
 
             Animation.loc = loc;
             Animation.offset = offset;
@@ -565,7 +571,8 @@ namespace Tactile
                 if (anim.Count > 0)
                     if (anim[0] > -1)
                     {
-                        Skill_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                        Skill_Effect = new Battle_Animation(Name, null, anim,
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
                         Skill_Effect.loc = loc + new Vector2(Reverse ? -48 : 48, 0);
                         if (distance > 2 && Scene_Reverse ^ Reverse)
                             Skill_Effect.loc += new Vector2(Reverse ? -270 : 270, 0);
@@ -589,7 +596,8 @@ namespace Tactile
             else
                 return;
 
-            Anima_Effect = new Battle_Animation(Name, null, new List<int> { spell_anim }, Reverse, false);
+            Anima_Effect = new Battle_Animation(Name, null, new List<int> { spell_anim },
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
             Anima_Effect.loc = loc + new Vector2(Reverse ? -64 : 64, 0);
             if (distance > 2 && Scene_Reverse ^ Reverse)
                 Anima_Effect.loc += new Vector2(Reverse ? -270 : 270, 0);
@@ -611,8 +619,7 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false,
-                    Animation.dmg, Animation.hit, Animation.kill);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Animation, false);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -622,7 +629,8 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
-                Spell_Effect_2 = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect_2 = new Battle_Animation(Name, null, anim,
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
                 Spell_Effect_2.loc = spell_loc;
                 Spell_Effect_2.offset = offset;
                 Spell_Effect_2.mirrored = Reverse;
@@ -632,7 +640,8 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
-                Spell_Effect_3 = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect_3 = new Battle_Animation(Name, null, anim,
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
                 Spell_Effect_3.loc = spell_loc;
                 Spell_Effect_3.offset = offset;
                 Spell_Effect_3.mirrored = Reverse;
@@ -642,7 +651,8 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, distance, hit);
             if (anim.Count > 0)
             {
-                Spell_Effect_4 = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect_4 = new Battle_Animation(Name, null, anim,
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
                 Spell_Effect_4.loc = spell_loc;
                 Spell_Effect_4.offset = offset;
                 Spell_Effect_4.mirrored = Reverse;
@@ -662,7 +672,7 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, hit);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Animation, false);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -682,7 +692,7 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack, distance);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Animation, false);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -702,7 +712,7 @@ namespace Tactile
                 Battler.WeaponId, Battler.MagicAttack);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, Animation, false);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -722,7 +732,8 @@ namespace Tactile
             List<int> anim = BattlerImageWrapper.refresh_animation_value(Battler, ring_id);
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, Reverse, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim,
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.mirrored = Reverse;
@@ -742,7 +753,7 @@ namespace Tactile
             anim = anim_offset.list_add(new List<int> { 1 });
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, false, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, AnimationFlag.None);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.stereoscopic = Config.BATTLE_PLATFORM_BASE_DEPTH;
@@ -751,7 +762,7 @@ namespace Tactile
             anim = anim_offset.list_add(new List<int> { 6 });
             if (anim.Count > 0)
             {
-                Spell_Effect_2 = new Battle_Animation(Name, null, anim, false, false);
+                Spell_Effect_2 = new Battle_Animation(Name, null, anim, AnimationFlag.None);
                 Spell_Effect_2.loc = spell_loc;
                 Spell_Effect_2.offset = offset;
                 Spell_Effect_2.stereoscopic = Config.BATTLE_BATTLERS_DEPTH;
@@ -770,7 +781,7 @@ namespace Tactile
             anim = anim_offset.list_add(new List<int> { 2, 3 });
             if (anim.Count > 0)
             {
-                Spell_Effect = new Battle_Animation(Name, null, anim, false, false);
+                Spell_Effect = new Battle_Animation(Name, null, anim, AnimationFlag.None);
                 Spell_Effect.loc = spell_loc;
                 Spell_Effect.offset = offset;
                 Spell_Effect.stereoscopic = Config.BATTLE_PLATFORM_BASE_DEPTH;
@@ -779,7 +790,7 @@ namespace Tactile
             anim = anim_offset.list_add(new List<int> { 7 });
             if (anim.Count > 0)
             {
-                Spell_Effect_2 = new Battle_Animation(Name, null, anim, false, false);
+                Spell_Effect_2 = new Battle_Animation(Name, null, anim, AnimationFlag.None);
                 Spell_Effect_2.loc = spell_loc;
                 Spell_Effect_2.offset = offset;
                 Spell_Effect_2.stereoscopic = Config.BATTLE_BATTLERS_DEPTH;
@@ -788,7 +799,7 @@ namespace Tactile
             anim = anim_offset.list_add(new List<int> { 4, 5 });
             if (anim.Count > 0)
             {
-                Spell_Effect_4 = new Battle_Animation(Name, null, anim, false, false);
+                Spell_Effect_4 = new Battle_Animation(Name, null, anim, AnimationFlag.None);
                 Spell_Effect_4.loc = spell_loc;
                 Spell_Effect_4.offset = offset;
             }
@@ -957,7 +968,8 @@ namespace Tactile
                             if (anims.Count > 0)
                             {
                                 // Add a new sprite and have it play the animation
-                                Battle_Animation temp_animation = new Battle_Animation(Name, null, anims, Reverse, false);
+                                Battle_Animation temp_animation = new Battle_Animation(Name, null, anims,
+                            Reverse ? AnimationFlag.Reverse : AnimationFlag.None);
                                 temp_animation.loc = loc;
                                 if (Distance > 2 && Scene_Reverse ^ Reverse)
                                     temp_animation.loc += new Vector2(Reverse ? -270 : 270, 0);

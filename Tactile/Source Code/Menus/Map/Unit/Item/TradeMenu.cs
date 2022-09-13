@@ -2,9 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Help;
-using Tactile.Graphics.Text;
 using Tactile.Windows.Command;
-using TactileLibrary;
 
 namespace Tactile.Menus.Map.Unit.Item
 {

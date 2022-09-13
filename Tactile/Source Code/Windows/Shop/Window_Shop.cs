@@ -160,8 +160,7 @@ namespace Tactile
         protected void create_cancel_button()
         {
             CancelButton = Button_Description.button(Inputs.B,
-                Config.WINDOW_WIDTH - 48);
-            CancelButton.loc.Y = 0;
+                new Vector2(Config.WINDOW_WIDTH - 56, 8));
             CancelButton.description = "Cancel";
         }
 
@@ -286,7 +285,7 @@ namespace Tactile
             bool input = !Closing && Delay == 0 && Black_Screen_Timer == 0;
 
             Window.update(input && Trading && !Accepting && Message.text_end);
-            CancelButton.Update(input && !Accepting && Message.text_end);
+            CancelButton.Update(input && Message.text_end);
             if (Choices != null)
             {
                 Choices.Update(input && Message.text_end);
@@ -434,6 +433,9 @@ namespace Tactile
 
             var selected = Choices.consume_triggered(
                 Inputs.A, MouseButtons.Left, TouchGestures.Tap);
+            bool cancel = Global.Input.triggered(Inputs.B) ||
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap);
 
             if (selected.IsSomething)
             {
@@ -461,9 +463,7 @@ namespace Tactile
                 }
                 clear_choices();
             }
-            else if (Global.Input.triggered(Inputs.B) ||
-                CancelButton.consume_trigger(MouseButtons.Left) ||
-                CancelButton.consume_trigger(TouchGestures.Tap))
+            else if (cancel)
             {
                 Global.game_system.play_se(System_Sounds.Cancel);
                 Message_Active = true;
@@ -475,19 +475,23 @@ namespace Tactile
 
         private void update_trading()
         {
+            bool cancel =
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap);
+
             if (Window.getting_help())
             {
                 Window.open_help();
             }
-            else if (Window.is_canceled() && Window.is_help_active)
+            else if (Window.is_help_active &&
+                (Window.is_canceled() || cancel))
             {
                 Window.close_help();
             }
             else if (Window.is_canceled() ||
                 (this.actor == null && Window.is_selected()) ||
                 Global.Input.mouse_click(MouseButtons.Right) ||
-                CancelButton.consume_trigger(MouseButtons.Left) ||
-                CancelButton.consume_trigger(TouchGestures.Tap)) //Yeti
+                cancel) //@Yeti
             {
                 Global.game_system.play_se(System_Sounds.Cancel);
                 Message_Active = true;
@@ -505,7 +509,7 @@ namespace Tactile
             }
             else if (Window.is_selected())
             {
-                int index = Window.selected_index();
+                int index = Window.selected_index().Index;
                 Window.index = index;
 
                 if (Window.is_help_active)
@@ -537,6 +541,9 @@ namespace Tactile
 
             var selected = Choices.consume_triggered(
                 Inputs.A, MouseButtons.Left, TouchGestures.Tap);
+            bool cancel = Global.Input.triggered(Inputs.B) ||
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap);
 
             if (selected.IsSomething)
             {
@@ -574,7 +581,7 @@ namespace Tactile
                 }
                 clear_choices();
             }
-            else if (Global.Input.triggered(Inputs.B))
+            else if (cancel)
             {
                 Global.game_system.play_se(System_Sounds.Cancel);
                 cancel_accepting();
@@ -588,6 +595,9 @@ namespace Tactile
 
             var selected = Choices.consume_triggered(
                 Inputs.A, MouseButtons.Left, TouchGestures.Tap);
+            bool cancel = Global.Input.triggered(Inputs.B) ||
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap);
 
             if (selected.IsSomething)
             {
@@ -603,7 +613,7 @@ namespace Tactile
                 }
                 clear_choices();
             }
-            else if (Global.Input.triggered(Inputs.B))
+            else if (cancel)
             {
                 Global.game_system.play_se(System_Sounds.Cancel);
                 cancel_accepting(Shop_Messages.Send_No);
@@ -707,7 +717,7 @@ namespace Tactile
         {
             Window.draw(sprite_batch);
 
-            if (!Closing && Input.ControlScheme != ControlSchemes.Buttons &&
+            if (!Closing &&
                 (Shop_Messages)Message_Id != Shop_Messages.Leave &&
                 (Shop_Messages)Message_Id != Shop_Messages.Cancel)
             {

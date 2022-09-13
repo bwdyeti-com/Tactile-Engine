@@ -163,7 +163,7 @@ namespace Tactile.Menus.Preparations
         {
             var manageMenu = sender as CommandMenu;
 
-            switch ((HomeBaseManageChoices)manageMenu.SelectedIndex.ValueOrDefault)
+            switch ((HomeBaseManageChoices)manageMenu.SelectedIndex.Index)
             {
                 case HomeBaseManageChoices.Organize:
                     Global.game_system.play_se(System_Sounds.Confirm);
@@ -197,7 +197,7 @@ namespace Tactile.Menus.Preparations
 
             var supportPartnerMenu = new SupportCommandMenu(commandWindow);
             supportPartnerMenu.Selected += SupportPartnerMenu_Selected;
-            supportPartnerMenu.Canceled += menu_Closed;
+            supportPartnerMenu.Canceled += SupportPartnerMenu_Canceled;
             AddMenu(supportPartnerMenu);
         }
 
@@ -227,6 +227,16 @@ namespace Tactile.Menus.Preparations
             }
             else
                 Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
+        private void SupportPartnerMenu_Canceled(object sender, EventArgs e)
+        {
+            var supportPartnerMenu = (sender as SupportCommandMenu);
+            var supportMenu = (Menus.ElementAt(1) as Window_Base_Support);
+
+            supportMenu.ResetActorBonuses();
+
+            menu_Closed(sender, e);
         }
 
         private void SupportConfirmMenu_Confirmed(object sender, EventArgs e)

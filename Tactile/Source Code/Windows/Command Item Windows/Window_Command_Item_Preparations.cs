@@ -44,7 +44,7 @@ namespace Tactile.Windows.Command.Items
         protected override void item_initialize(Vector2 loc, int width, List<string> strs)
         {
             ItemInfo = new PreparationsStatsPanel(actor());
-            ItemInfo.loc = loc + new Vector2(width, 40);
+            ItemInfo.loc = loc + new Vector2(width, 32);
         }
 
         protected override CommandUINode item(string str, int i)

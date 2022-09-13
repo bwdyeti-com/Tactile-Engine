@@ -21,7 +21,7 @@ namespace Tactile.Windows.UserInterface
         public void Update(ControlSet input, IEnumerable<int> range,
             Vector2 draw_offset = default(Vector2))
         {
-            if (input.HasEnumFlag(ControlSet.Buttons))
+            if (input.HasEnumFlag(ControlSet.PadMove))
                 update_input();
             foreach (int index in range)
                 Nodes[index].Update(this, input, draw_offset);

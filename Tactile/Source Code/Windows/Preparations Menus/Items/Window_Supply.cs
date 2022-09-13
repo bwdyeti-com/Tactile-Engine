@@ -203,7 +203,7 @@ namespace Tactile.Windows.Map.Items
             base.UpdateMenu(active && this.ready);
             Convoy_Text.update();
         }
-        protected override void update_item_window()
+        protected override void UpdateItemWindow()
         {
             int item_index = Item_Window.index;
             Item_Window.update(Giving || Restocking);
@@ -228,7 +228,12 @@ namespace Tactile.Windows.Map.Items
             {
                 if (active)
                 {
-                    if (Command_Window.is_canceled())
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Command_Window.is_canceled();
+
+                    if (cancel)
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         close();
@@ -248,16 +253,21 @@ namespace Tactile.Windows.Map.Items
 
         private void update_unit_inventory(bool active)
         {
+            bool cancel =
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap) ||
+                Item_Window.is_canceled();
+
             if (active)
             {
                 if (is_help_active)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                         close_help();
                 }
                 else if (giving)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         cancel_trading();
@@ -269,7 +279,7 @@ namespace Tactile.Windows.Map.Items
                 }
                 else if (restocking)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         cancel_trading();
@@ -288,14 +298,19 @@ namespace Tactile.Windows.Map.Items
             {
                 if (selecting_take)
                 {
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Item_Selection_Window.is_canceled();
+
                     if (is_help_active)
                     {
-                        if (Item_Selection_Window.is_canceled())
+                        if (cancel)
                             close_help();
                     }
                     else
                     {
-                        if (Item_Selection_Window.is_canceled())
+                        if (cancel)
                         {
                             Global.game_system.play_se(System_Sounds.Cancel);
                             cancel_selecting_take();
@@ -308,14 +323,19 @@ namespace Tactile.Windows.Map.Items
                 }
                 else if (taking)
                 {
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Supply_Window.is_canceled();
+
                     if (is_help_active)
                     {
-                        if (Supply_Window.is_canceled())
+                        if (cancel)
                             close_help();
                     }
                     else
                     {
-                        if (Supply_Window.is_canceled())
+                        if (cancel)
                         {
                             Global.game_system.play_se(System_Sounds.Cancel);
                             cancel_trading();
@@ -344,9 +364,9 @@ namespace Tactile.Windows.Map.Items
         public void trade()
         {
             Supply_Command_Window selected_option;
-            if (Command_Window.selected_index() == 0)
+            if (Command_Window.selected_index().Index == 0)
                 selected_option = Supply_Command_Window.Give;
-            else if (Command_Window.selected_index() == 1)
+            else if (Command_Window.selected_index().Index == 1)
             {
                 if (this.restock_blocked)
                     selected_option = Supply_Command_Window.Take;

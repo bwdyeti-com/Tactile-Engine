@@ -43,13 +43,6 @@ namespace Tactile
         public EventHandler ArrowClicked;
         //@Debug: ArrowPressed event?
 
-        public bool MouseOver(Vector2 drawOffset = default(Vector2))
-        {
-            Rectangle arrow_rect = OnScreenBounds(drawOffset);
-            return Global.Input.mouse_in_rectangle(
-                arrow_rect, loc - drawOffset, this.offset, this.angle, mirrored);
-        }
-
         public void UpdateInput(Vector2 drawOffset = default(Vector2))
         {
             if (Input.ControlScheme == ControlSchemes.Buttons || !visible)
@@ -87,6 +80,13 @@ namespace Tactile
             Vector2 loc = (this.loc + this.draw_offset) - drawOffset;
             return new Rectangle(
                 (int)loc.X, (int)loc.Y, src_rect.Width, src_rect.Height);
+        }
+
+        public bool MouseOver(Vector2 drawOffset = default(Vector2))
+        {
+            Rectangle objectRect = OnScreenBounds(drawOffset);
+            return Global.Input.mouse_in_rectangle(
+                objectRect, loc - drawOffset, this.offset, this.angle, mirrored);
         }
     }
 }

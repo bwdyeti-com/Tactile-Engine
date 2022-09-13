@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Text;
@@ -7,6 +8,8 @@ namespace Tactile
 {
     class Status_Support_List : Stereoscopic_Graphic_Object
     {
+        const int ROWS = 5;
+
         private List<Icon_Sprite> Support_Icons = new List<Icon_Sprite>();
         private List<TextSprite> Support_Names = new List<TextSprite>(), Support_Letters = new List<TextSprite>();
 
@@ -24,6 +27,8 @@ namespace Tactile
                     letter.stereoscopic = value;
             }
         }
+
+        public int Rows { get { return ROWS; } }
         #endregion
 
         public void set_images(Game_Actor actor)
@@ -32,7 +37,9 @@ namespace Tactile
             Support_Icons.Clear();
             Support_Names.Clear();
             Support_Letters.Clear();
-            foreach (int i in actor.SupportKeys)
+            var actors = actor.SupportKeys
+                .Take(this.Rows);
+            foreach (int i in actors)
             {
                 if (!Global.game_actors.ContainsKey(i))
                     continue;
@@ -58,7 +65,6 @@ namespace Tactile
                 Support_Letters[Support_Letters.Count - 1].SetFont(Config.UI_FONT + "L", Global.Content, letter_color, Config.UI_FONT);
                 Support_Letters[Support_Letters.Count - 1].text = Constants.Support.SUPPORT_LETTERS[actor.get_support_level(i)];
                 copy_stereo(Support_Letters[Support_Letters.Count - 1]);
-
             }
         }
 

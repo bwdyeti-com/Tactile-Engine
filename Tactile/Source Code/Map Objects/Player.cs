@@ -196,28 +196,31 @@ namespace Tactile
             // Touch controls
             else if (Input.ControlScheme == ControlSchemes.Touch)
             {
-                bool not_manual_target_window = Global.game_state.is_menuing &&
-                    ((Scene_Map)Global.scene).target_window_up &&
-                    !((Scene_Map)Global.scene).manual_targeting;
-
-                if (!not_manual_target_window &&
-                    Global.Input.touch_triggered() && 
-                    Global.game_map.screen_loc_in_view(
-                        Global.Input.touchPressPosition))
+                if (!Global.game_temp.MapHelpInput.HasFlag(Windows.Map.Info.MapHelpButtonInputs.Pressed))
                 {
-                    Vector2 target_loc = touch_loc;
-                    if (should_move_to_direct_input_loc(ref target_loc))
+                    bool not_manual_target_window = Global.game_state.is_menuing &&
+                        ((Scene_Map)Global.scene).target_window_up &&
+                        !((Scene_Map)Global.scene).manual_targeting;
+
+                    if (!not_manual_target_window &&
+                        Global.Input.touch_triggered() &&
+                        Global.game_map.screen_loc_in_view(
+                            Global.Input.touchPressPosition))
                     {
-                        Instant_Movement = true;
-                        Loc = target_loc; //new Vector2((int)target_loc.X, (int)target_loc.Y); //already made made int values //Debug
-                        ((Scene_Map)Global.scene).update_info_image(true);
+                        Vector2 target_loc = touch_loc;
+                        if (should_move_to_direct_input_loc(ref target_loc))
+                        {
+                            Instant_Movement = true;
+                            Loc = target_loc; //new Vector2((int)target_loc.X, (int)target_loc.Y); //already made made int values //Debug
+                            ((Scene_Map)Global.scene).update_info_image(true);
+                        }
                     }
-                }
 
-                if (Global.Input.gesture_triggered(TouchGestures.FreeDrag))
-                {
-                    Global.game_map.scroll_vel(
-                        -Global.Input.freeDragVector / TILE_SIZE);
+                    if (Global.Input.gesture_triggered(TouchGestures.FreeDrag))
+                    {
+                        Global.game_map.scroll_vel(
+                            -Global.Input.freeDragVector / TILE_SIZE);
+                    }
                 }
                 return;
             }

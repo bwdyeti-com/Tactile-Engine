@@ -196,7 +196,7 @@ namespace Tactile.Menus.Map.Unit
             // 7, 11: Visit, Chest
             SimpleCommands.Add(7, (Game_Unit unit) => Visit(unit, State.Visit_Modes.Visit));
             SimpleCommands.Add(11, (Game_Unit unit) => Visit(unit, State.Visit_Modes.Chest));
-            // 9, 10, 29, 30: Shop, Arena
+            // 9, 10, 29, 30: Shop, Arena (Secret Shop, Secret Arena)
             SimpleCommands.Add(9, (Game_Unit unit) => Shop(unit, false));
             SimpleCommands.Add(10, (Game_Unit unit) => Shop(unit, false));
             SimpleCommands.Add(29, (Game_Unit unit) => Shop(unit, true));
@@ -851,7 +851,7 @@ namespace Tactile.Menus.Map.Unit
             var selected = promotionConfirmMenu.SelectedIndex;
             menu_Closed(sender, e);
 
-            switch (selected)
+            switch (selected.Index)
             {
                 // Change
                 case 0:
@@ -984,7 +984,7 @@ namespace Tactile.Menus.Map.Unit
             var unitMenu = (Menus.ElementAt(1) as UnitCommandMenu);
             Game_Unit unit = itemMenu.Unit;
             
-            switch (selected)
+            switch (selected.Index)
             {
                 // Yes
                 case 0:
@@ -1284,10 +1284,12 @@ namespace Tactile.Menus.Map.Unit
                 // Lock in unit movement
                 unit.moved();
                 Global.game_map.remove_updated_move_range(unit.id);
-                Global.game_state.call_shop_suspend();
                 // If not entering the arena
                 if (!Global.game_system.In_Arena)
                 {
+                    // Skip this when entering the arena
+                    Global.game_state.call_shop_suspend();
+
                     if (!unit.has_canto() || unit.full_move())
                         unit.start_wait();
                     Global.game_map.clear_move_range();
@@ -1336,7 +1338,7 @@ namespace Tactile.Menus.Map.Unit
             if (unit.is_dead)
             {
                 unit.gladiator = true;
-                Global.game_state.call_shop_suspend();
+                Global.game_state.CleanupArena();
             }
             // Otherwise shop is just closing
             else
@@ -1344,11 +1346,9 @@ namespace Tactile.Menus.Map.Unit
                 // Lock in unit movement
                 unit.moved();
                 Global.game_map.remove_updated_move_range(unit.id);
-                // Doesn't actually suspend, just does other cleanup //@Debug
-                Global.game_state.call_shop_suspend();
+                Global.game_state.CleanupArena();
 
                 Global.game_map.clear_move_range();
-                Global.game_temp.menuing = false;
             }
 
             // Close shop menu
@@ -1669,7 +1669,7 @@ namespace Tactile.Menus.Map.Unit
             var unitMenu = (Menus.ElementAt(1) as UnitCommandMenu);
             Game_Unit unit = Global.game_map.units[unitMenu.UnitId];
 
-            switch (constructMenu.SelectedIndex)
+            switch (constructMenu.SelectedIndex.Index)
             {
                 // Assemble
                 case 0:
