@@ -356,6 +356,10 @@ namespace Tactile
         {
             ShopState.suspend_shop();
         }
+        internal void CleanupArena()
+        {
+            ShopState.CleanupArena();
+        }
 
         internal void call_dance(int id1, int id2, int dance_item_index)
         {

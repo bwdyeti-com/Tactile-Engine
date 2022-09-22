@@ -8,10 +8,17 @@ namespace TactileLibrary.Pathfinding
     {
         Pathfinder<T> Pathfind();
 
+        int MoveCostFactor { get; }
+
+        TileData GetTileData(T loc, T goalLoc);
+
         bool Passable(T loc);
         bool Passable(T loc, T goalLoc);
 
         int TileCost(T loc, T goalLoc);
+
+        bool Obstructed(T loc);
+        bool Obstructed(T loc, T goalLoc);
 
         IEnumerable<T> AdjacentLocations(T loc);
 

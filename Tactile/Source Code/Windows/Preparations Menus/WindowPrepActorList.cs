@@ -13,12 +13,11 @@ namespace Tactile.Windows.Preparations
     //@Yeti: why isn't this just a Window_Command_Scrollbar
     abstract class WindowPrepActorList : Stereoscopic_Graphic_Object
     {
-        protected int Scroll = 0;
         protected int Rows;
         private bool Active = true;
-        private int Selected_Unit_Index;
-        protected Vector2 Offset = Vector2.Zero;
+        protected int Selected_Unit_Index { get; private set; }
         protected List<int> ActorList;
+        protected IndexScrollComponent Scroll;
 
         protected System_Color_Window Window_Img;
         protected Scroll_Bar Scrollbar;
@@ -39,7 +38,7 @@ namespace Tactile.Windows.Preparations
                 {
                     UnitNodes.set_active_node(UnitNodes[value]);
                     UnitNodes.Update(false, visible_indexes_range(false).Enumerate(),
-                        Offset - (this.loc + draw_offset));
+                        Scroll.IntOffset - (this.loc + draw_offset));
                 }
             }
         }
@@ -51,8 +50,6 @@ namespace Tactile.Windows.Preparations
             {
                 this.index = ActorList.IndexOf(value);
                 refresh_scroll(false);
-                update_cursor();
-                UnitCursor.move_to_target_loc();
             }
         }
 
@@ -61,10 +58,6 @@ namespace Tactile.Windows.Preparations
             set
             {
                 Active = value;
-                if (!Active)
-                {
-                    set_selected_loc();
-                }
                 darkened = !Active;
             }
         }
@@ -90,12 +83,16 @@ namespace Tactile.Windows.Preparations
             get
             {
                 Vector2 loc = this.loc + ScissorRectOffset;
-                return new Rectangle((int)loc.X, (int)loc.Y, this.Width, this.Height - 8);
+                return new Rectangle((int)loc.X, (int)loc.Y, this.Width, this.VisibleRows * this.RowSize);
             }
         }
         protected virtual Vector2 ScissorRectOffset { get { return new Vector2(0, 4); } }
 
         protected virtual Vector2 ScrollbarLoc { get { return new Vector2(this.Width - 16, 12); } }
+
+        protected virtual bool TouchMoveBlocked { get { return false; } }
+
+        protected virtual bool CursorSelected { get { return !Active; } }
 
         protected abstract int Columns { get; }
         protected abstract int VisibleRows { get; }
@@ -127,18 +124,21 @@ namespace Tactile.Windows.Preparations
 
             Rows = (int)Math.Ceiling(ActorList.Count / (float)this.Columns);
             // Scrollbar
+            CreateScrollbar();
+            // Cursor
+            Selected_Cursor = new Hand_Cursor();
+            Selected_Cursor.draw_offset = new Vector2(-12, 0);
+            Selected_Cursor.tint = new Color(192, 192, 192, 255);
+        }
+
+        protected void CreateScrollbar()
+        {
+            Scrollbar = null;
             if (Rows > this.VisibleRows)
             {
                 Scrollbar = new Scroll_Bar(this.VisibleRows * this.RowSize - 16, Rows, this.VisibleRows, 0);
                 Scrollbar.loc = this.ScrollbarLoc;
-
-                Scrollbar.UpArrowClicked += Scrollbar_UpArrowClicked;
-                Scrollbar.DownArrowClicked += Scrollbar_DownArrowClicked;
             }
-            // Cursor
-            Selected_Cursor = new Hand_Cursor();
-            Selected_Cursor.loc = cursor_loc() + new Vector2(8, 4);
-            Selected_Cursor.tint = new Color(192, 192, 192, 255);
         }
 
         public void refresh_nodes()
@@ -155,12 +155,12 @@ namespace Tactile.Windows.Preparations
             for (int index = 0; index < ActorList.Count; index++)
             {
                 Vector2 loc = new Vector2(
-                    (index % this.Columns) * unit_spacing() + 28,
-                    (index / this.Columns) * this.RowSize + this.ScissorRectOffset.Y) + unit_offset();
+                    (index % this.Columns) * unit_spacing(),
+                    (index / this.Columns) * this.RowSize);
                 int id = ActorList[index];
 
                 nodes.Add(unit_node(id));
-                nodes[index].loc = loc + new Vector2(this.ScissorRectOffset.X - 8, 0);
+                nodes[index].loc = loc + this.ScissorRectOffset + unit_offset();
             }
 
             UnitNodes = new PartialRangeVisibleUINodeSet<PrepItemsUnitUINode>(nodes);
@@ -191,21 +191,28 @@ namespace Tactile.Windows.Preparations
 
         protected void initialize_index()
         {
+            Scroll = new IndexScrollComponent(
+                new Vector2(this.Columns * unit_spacing(), this.Unit_Scissor_Rect.Height),
+                new Vector2(unit_spacing(), this.RowSize),
+                ScrollAxes.Vertical);
+            Scroll.loc = this.ScissorRectOffset + unit_offset();
+            Scroll.Scrollbar = Scrollbar;
+            Scroll.SetElementLengths(new Vector2(this.Columns, Rows));
+            Scroll.SetBuffers(new Rectangle(1, 2, 2, 4));
+            Scroll.SetResolveToIndex(true);
+
             // Default index to Global.game_system.Preparations_Actor_Id if possible
             if (ActorList.Contains(
                 Global.game_system.Preparations_Actor_Id))
             {
                 this.index = ActorList.IndexOf(
                     Global.game_system.Preparations_Actor_Id);
-                Scroll = (int)MathHelper.Clamp(
-                    this.index / this.Columns - (this.VisibleRows / 2), 0, Rows - this.VisibleRows);
-                if (Scrollbar != null)
-                    Scrollbar.scroll = Scroll;
-                update_cursor();
-                UnitCursor.move_to_target_loc();
+                refresh_scroll();
             }
             else
                 this.index = 0;
+
+            set_selected_loc();
         }
 
         protected virtual bool refresh_map_sprite(int index)
@@ -240,21 +247,19 @@ namespace Tactile.Windows.Preparations
 
         protected Vector2 cursor_loc()
         {
-            Vector2 old_loc = new Vector2(
-                    (this.index % this.Columns) * unit_spacing(),
-                    (this.index / this.Columns) * this.RowSize - Scroll * this.RowSize) +
-                unit_offset();
-
             return new Vector2(
                     (this.index % this.Columns) * unit_spacing(),
-                    (this.index / this.Columns) * this.RowSize - Scroll * this.RowSize) +
-                unit_offset();
+                    (this.index / this.Columns) * this.RowSize) +
+                unit_offset() + this.ScissorRectOffset - Scroll.IntOffset;
         }
 
         public void set_selected_loc()
         {
-            Selected_Cursor.loc =
-                cursor_loc() + new Vector2(8, 4 + Scroll * this.RowSize);
+            if (Selected_Cursor != null)
+            {
+                Selected_Cursor.loc =
+                cursor_loc() + Scroll.IntOffset;
+            }
             Selected_Unit_Index = this.index;
         }
         protected void ResetToSelectedIndex()
@@ -264,7 +269,7 @@ namespace Tactile.Windows.Preparations
 
         protected virtual Vector2 unit_offset()
         {
-            return new Vector2(0, 0);
+            return new Vector2(20, 0);
         }
 
         protected virtual int unit_spacing()
@@ -275,34 +280,24 @@ namespace Tactile.Windows.Preparations
         protected IntRange visible_indexes_range(bool skipFirstLine = true)
         {
             int first_line_offset = !skipFirstLine ? 0 :
-                    ((Offset.Y != Scroll * this.RowSize ? -1 : 1));
+                    ((Scroll.IsScrolling ? -1 : 1));
             int min = Math.Max(0,
-                (int)((Offset.Y / this.RowSize) + first_line_offset) * this.Columns);
+                (int)((Scroll.IntOffset.Y / this.RowSize) + first_line_offset) * this.Columns);
             int max = Math.Min(UnitNodes.Count(),
-                (((int)(Offset.Y / this.RowSize) +
-                    (Offset.Y != Scroll * this.RowSize ? 1 : 0)) + this.VisibleRows) * this.Columns);
+                (((int)(Scroll.IntOffset.Y / this.RowSize) +
+                    (Scroll.IsScrolling ? 1 : 0)) + this.VisibleRows) * this.Columns);
+
             return new IntRange(min, max - 1);
         }
 
         #region Update
-        protected void update_scroll_offset()
+        protected void UpdateScroll(bool active)
         {
-            // come up with a better name for this method //Debug
-            int target_y = this.RowSize * Scroll;
-            if (Math.Abs(Offset.Y - target_y) <= this.RowSize / 4)
-                Offset.Y = target_y;
-            if (Math.Abs(Offset.Y - target_y) <= this.RowSize)
-                Offset.Y = Additional_Math.int_closer((int)Offset.Y, target_y, this.RowSize / 4);
-            else
-                Offset.Y = ((int)(Offset.Y + target_y)) / 2;
-
-            if (Offset.Y != target_y && Scrollbar != null)
-            {
-                if (Offset.Y > target_y)
-                    Scrollbar.moving_up();
-                else
-                    Scrollbar.moving_down();
-            }
+            Scroll.Update(active, UnitNodes.ActiveNodeIndex, -this.loc);
+            if (Scroll.Index >= 0 && Scroll.Index < UnitNodes.Count)
+                UnitNodes.set_active_node(UnitNodes[Scroll.Index]);
+            if (Scrollbar != null)
+                Scrollbar.scroll = (int)Scroll.IntOffset.Y / this.RowSize;
         }
 
         public virtual void update(bool active)
@@ -314,17 +309,17 @@ namespace Tactile.Windows.Preparations
                     Scrollbar.update_input(-(this.loc + draw_offset));
             }
             update_node_location(active);
-            update_scroll_offset();
+            UpdateScroll(active);
             update_cursor();
         }
 
         protected void update_cursor()
         {
-            UnitCursor.update(new Vector2(0, this.RowSize * Scroll) - this.loc);
+            UnitCursor.update(this.ScissorRectOffset + unit_offset());
         }
         #endregion
 
-        public Maybe<int> consume_triggered(
+        public ConsumedInput consume_triggered(
             Inputs input, MouseButtons button, TouchGestures gesture)
         {
             return UnitNodes.consume_triggered(input, button, gesture);
@@ -336,73 +331,32 @@ namespace Tactile.Windows.Preparations
         private void update_node_location(bool active)
         {
             int old_index = this.index;
-            UnitNodes.Update(active, visible_indexes_range(false).Enumerate(),
-                Offset - (this.loc + draw_offset));
+            // Disable touch move if needed
+            ControlSet control = !active ? ControlSet.None :
+                (!this.TouchMoveBlocked ? ControlSet.All :
+                ControlSet.All & ~ControlSet.TouchMove);
+            UnitNodes.Update(control, visible_indexes_range(false).Enumerate(),
+                Scroll.IntOffset - (this.loc + draw_offset));
             if (old_index != this.index)
             {
-                bool vertical_move = Math.Abs(this.index - old_index)
-                    >= this.Columns;
-
-                if (vertical_move && Input.ControlScheme == ControlSchemes.Buttons)
-                {
-                    // Moved down
-                    if (old_index < this.index)
-                        while (this.index / this.Columns >= (this.VisibleRows - 1) + Scroll && Scroll < Rows - (this.VisibleRows))
-                            Scroll++;
-                    // Moved up
-                    else
-                        while (this.index / this.Columns < Scroll + 1 && Scroll > 0)
-                            Scroll--;
-                }
                 if (IndexChanged != null)
                     IndexChanged(this, new EventArgs());
-                if (vertical_move)
-                {
-                    if (Scrollbar != null)
-                        Scrollbar.scroll = Scroll;
-                }
             }
         }
 
         public void refresh_scroll(bool instant = true)
         {
-            if (this.index / this.Columns >= (this.VisibleRows - 1) + Scroll && Scroll < Rows - (this.VisibleRows))
-            {
-                while (this.index / this.Columns >= (this.VisibleRows - 1) + Scroll && Scroll < Rows - (this.VisibleRows))
-                    Scroll++;
-            }
-            else
-            {
-                while (this.index / this.Columns < Scroll + 1 && Scroll > 0)
-                    Scroll--;
-            }
-
             if (IndexChanged != null)
                 IndexChanged(this, new EventArgs());
             if (instant)
             {
-                int target_y = this.RowSize * Scroll;
-                Offset.Y = target_y;
+                Scroll.FixScroll(this.index);
+                if (Scrollbar != null)
+                    Scrollbar.scroll = (int)Scroll.IntOffset.Y / this.RowSize;
             }
-        }
 
-        protected void Scrollbar_UpArrowClicked(object sender, EventArgs e)
-        {
-            if (Scroll > 0)
-            {
-                Global.game_system.play_se(System_Sounds.Menu_Move1);
-                Scroll--;
-                Scrollbar.scroll = Scroll;
-            }
-        }
-        protected void Scrollbar_DownArrowClicked(object sender, EventArgs e)
-        {
-            if (Scroll < Rows - (this.VisibleRows))
-            {
-                Global.game_system.play_se(System_Sounds.Menu_Move1);
-                Scroll++;
-                Scrollbar.scroll = Scroll;
-            }
+            update_cursor();
+            UnitCursor.move_to_target_loc();
         }
         #endregion
 
@@ -429,7 +383,8 @@ namespace Tactile.Windows.Preparations
 
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             if (Active)
-                UnitCursor.draw(sprite_batch, -draw_vector());
+                UnitCursor.draw(sprite_batch, Scroll, -(this.ScissorRectOffset + unit_offset() + offset));
+
             sprite_batch.End();
         }
 
@@ -444,15 +399,16 @@ namespace Tactile.Windows.Preparations
         {
             Vector2 offset = this.loc + draw_vector();
 
-            // Map sprite (first one, if not scrolling)
+            // Map sprite (first row, if not scrolling)
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            if (Scroll < UnitNodes.Count() && Offset.Y == Scroll * this.RowSize)
+            int scrollOffset = (int)Scroll.IntOffset.Y / this.RowSize;
+            if (scrollOffset < UnitNodes.Count() && !Scroll.IsScrolling)
             {
-                int scroll = Scroll * this.Columns;
+                int scroll = scrollOffset * this.Columns;
                 UnitNodes.Draw(spriteBatch,
                     Enumerable.Range(scroll,
                         Math.Min(UnitNodes.Count - scroll, this.Columns)),
-                    Offset - offset);
+                    Scroll.IntOffset - offset);
             }
             spriteBatch.End();
 
@@ -463,7 +419,7 @@ namespace Tactile.Windows.Preparations
             var visible_range = visible_indexes_range();
             if (visible_range.IsValid())
                 UnitNodes.Draw(spriteBatch, visible_range.Enumerate(),
-                    Offset - offset);
+                    Scroll.IntOffset - offset);
 
             spriteBatch.End();
         }
@@ -472,8 +428,8 @@ namespace Tactile.Windows.Preparations
         {
             Vector2 offset = this.loc + draw_vector();
 
-            if (!Active)
-                Selected_Cursor.draw(sprite_batch, Offset - offset);
+            if (this.CursorSelected)
+                Selected_Cursor.draw(sprite_batch, Scroll.IntOffset - offset);
         }
         #endregion
     }

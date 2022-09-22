@@ -10,7 +10,7 @@ namespace Tactile.Windows.UserInterface
     abstract class UINode : Stereoscopic_Graphic_Object, IUIObject
     {
         internal Vector2 Size;
-        private bool LeftMouseDown, RightMouseDown, TouchPressing;
+        private bool LeftMouseDown, RightMouseDown, ScrubbingSlider;
         private HashSet<Inputs> Triggers = new HashSet<Inputs>();
         private HashSet<MouseButtons> MouseTriggers = new HashSet<MouseButtons>();
         private HashSet<TouchGestures> TouchTriggers = new HashSet<TouchGestures>();
@@ -40,7 +40,12 @@ namespace Tactile.Windows.UserInterface
         internal void Update(bool input,
             Vector2 draw_offset = default(Vector2))
         {
-            Update((UINodeSet<UINode>)null, input ? ControlSet.All : ControlSet.None, draw_offset);
+            Update(input ? ControlSet.All : ControlSet.None, draw_offset);
+        }
+        internal void Update(ControlSet input,
+            Vector2 draw_offset = default(Vector2))
+        {
+            Update((UINodeSet<UINode>)null, input, draw_offset);
         }
         internal void Update<T>(UINodeSet<T> nodes, bool input,
             Vector2 draw_offset = default(Vector2)) where T : UINode
@@ -117,15 +122,26 @@ namespace Tactile.Windows.UserInterface
                 }
             }
 
-            if (input.HasEnumFlag(ControlSet.Mouse))
-                if (IsSlider && LeftMouseDown &&
-                    OnScreenBounds(draw_offset).Contains(
-                        (int)Global.Input.mousePosition.X,
-                        (int)Global.Input.mousePosition.Y))
+            // Slider
+            if (this.IsSlider && input.HasEnumFlag(ControlSet.Mouse))
+            {
+                if (!Global.Input.mouse_pressed(MouseButtons.Left, false))
+                    ScrubbingSlider = false;
+                else
                 {
-                    TouchTriggers.Add(TouchGestures.Scrubbing);
-                    SliderValue = slide(Global.Input.mousePosition, draw_offset);
+                    bool pressed = SliderBounds(draw_offset).Contains(
+                        (int)Global.Input.mousePosition.X,
+                        (int)Global.Input.mousePosition.Y);
+                    if (pressed && Global.Input.mouse_triggered(MouseButtons.Left, false))
+                        ScrubbingSlider = true;
+
+                    if (ScrubbingSlider)
+                    {
+                        TouchTriggers.Add(TouchGestures.Scrubbing);
+                        SliderValue = slide(Global.Input.mousePosition, draw_offset);
+                    }
                 }
+            }
         }
 
         private void UpdateTouch<T>(
@@ -133,49 +149,51 @@ namespace Tactile.Windows.UserInterface
             ControlSet input,
             Vector2 draw_offset) where T : UINode
         {
-            if (input.HasEnumFlag(ControlSet.Touch))
+            // Tap
+            if (input.HasEnumFlag(ControlSet.TouchButtons) &&
+                Global.Input.gesture_rectangle(TouchGestures.Tap, OnScreenBounds(draw_offset)))
             {
-                if (Global.Input.gesture_rectangle(
-                    TouchGestures.Tap, OnScreenBounds(draw_offset)))
-                {
-                    if (nodes != null)
-                        nodes.TouchMove(this as T, TouchGestures.Tap);
-                    TouchTriggers.Add(TouchGestures.Tap);
-                }
-                else if (Global.Input.gesture_rectangle(
-                    TouchGestures.LongPress, OnScreenBounds(draw_offset)))
-                {
-                    if (nodes != null)
-                        nodes.TouchMove(this as T, TouchGestures.LongPress);
-                    TouchTriggers.Add(TouchGestures.LongPress);
-                }
-                else if (Global.Input.touch_rectangle(
+                if (nodes != null && input.HasEnumFlag(ControlSet.TouchMove))
+                    nodes.TouchMove(this as T, TouchGestures.Tap);
+                TouchTriggers.Add(TouchGestures.Tap);
+            }
+            // Long Press
+            else if (input.HasEnumFlag(ControlSet.TouchButtons) &&
+                Global.Input.gesture_rectangle(TouchGestures.LongPress, OnScreenBounds(draw_offset)))
+            {
+                if (nodes != null && input.HasEnumFlag(ControlSet.TouchMove))
+                    nodes.TouchMove(this as T, TouchGestures.LongPress);
+                TouchTriggers.Add(TouchGestures.LongPress);
+            }
+            // Movement from pressing
+            else if (input.HasEnumFlag(ControlSet.TouchMove) &&
+                Global.Input.touch_rectangle(
                     Services.Input.InputStates.Pressed,
                     OnScreenBounds(draw_offset),
                     false))
-                {
-                    if (nodes != null)
-                        nodes.TouchMove(this as T, TouchGestures.ShortPress);
-                    mouse_click_graphic();
-                }
+            {
+                if (nodes != null)
+                    nodes.TouchMove(this as T, TouchGestures.ShortPress);
+                mouse_click_graphic();
+            }
 
-                if (IsSlider)
+            // Slider
+            if (this.IsSlider && input.HasEnumFlag(ControlSet.TouchButtons))
+            {
+                if (!Global.Input.touch_pressed(false))
+                    ScrubbingSlider = false;
+                else
                 {
-                    if (!Global.Input.touch_pressed(false))
-                        TouchPressing = false;
-                    else
+                    bool pressed = SliderBounds(draw_offset).Contains(
+                        (int)Global.Input.touchPressPosition.X,
+                        (int)Global.Input.touchPressPosition.Y);
+                    if (pressed && Global.Input.touch_triggered(false))
+                        ScrubbingSlider = true;
+
+                    if (ScrubbingSlider)
                     {
-                        bool pressed = OnScreenBounds(draw_offset).Contains(
-                            (int)Global.Input.touchPressPosition.X,
-                            (int)Global.Input.touchPressPosition.Y);
-                        if (pressed && Global.Input.touch_triggered(false))
-                            TouchPressing = true;
-
-                        if (pressed && TouchPressing)
-                        {
-                            TouchTriggers.Add(TouchGestures.Scrubbing);
-                            SliderValue = slide(Global.Input.touchPressPosition, draw_offset);
-                        }
+                        TouchTriggers.Add(TouchGestures.Scrubbing);
+                        SliderValue = slide(Global.Input.touchPressPosition, draw_offset);
                     }
                 }
             }
@@ -183,12 +201,29 @@ namespace Tactile.Windows.UserInterface
 
         private void UpdateButtons<T>(ControlSet input) where T : UINode
         {
-            if (input.HasEnumFlag(ControlSet.Buttons))
-                foreach (Inputs key in this.ValidInputs)
-                    if (Global.Input.triggered(key))
-                    {
-                        Triggers.Add(key);
-                    }
+            foreach (Inputs key in this.ValidInputs)
+                switch (key)
+                {
+                    // Movement
+                    case Inputs.Down:
+                    case Inputs.Left:
+                    case Inputs.Right:
+                    case Inputs.Up:
+                        if (input.HasEnumFlag(ControlSet.PadMove))
+                            if (Global.Input.triggered(key))
+                            {
+                                Triggers.Add(key);
+                            }
+                        break;
+                    // Buttons
+                    default:
+                        if (input.HasEnumFlag(ControlSet.PadButtons))
+                            if (Global.Input.triggered(key))
+                            {
+                                Triggers.Add(key);
+                            }
+                        break;
+                }
         }
 
         private bool update_mouse_input(ref bool mouseDown, MouseButtons button,
@@ -266,6 +301,13 @@ namespace Tactile.Windows.UserInterface
             return new Rectangle((int)loc.X, (int)loc.Y,
                 (int)Size.X, (int)Size.Y);
         }
+
+        public bool MouseOver(Vector2 drawOffset = default(Vector2))
+        {
+            Rectangle objectRect = OnScreenBounds(drawOffset);
+            return Global.Input.mouse_in_rectangle(
+                objectRect, loc - drawOffset, this.offset, 0f, false);
+        }
         protected virtual Vector2 HitBoxLoc(Vector2 drawOffset)
         {
             Vector2 loc = this.loc + this.draw_offset;
@@ -273,10 +315,16 @@ namespace Tactile.Windows.UserInterface
             return loc;
         }
 
-        protected virtual float slide(Vector2 inputPosition, Vector2 drawOffset)
+        public virtual Rectangle SliderBounds(Vector2 drawOffset)
         {
-            Vector2 slide_position = (inputPosition - HitBoxLoc(drawOffset));
-            Vector2 slider_area = Size;
+            return OnScreenBounds(drawOffset);
+        }
+
+        protected float slide(Vector2 inputPosition, Vector2 drawOffset)
+        {
+            Rectangle bounds = SliderBounds(drawOffset);
+            Vector2 slide_position = (inputPosition - new Vector2(bounds.X, bounds.Y));
+            Vector2 slider_area = new Vector2(bounds.Width, bounds.Height);
             return slide_position.X / slider_area.X;
         }
 

@@ -531,6 +531,33 @@ namespace Tactile
 
         public static event EventHandler send_metrics_to_server;
 
+        public static bool ShouldSendException()
+        {
+            return Config.METRICS_ENABLED &&
+                Global.gameSettings.General.Metrics == Metrics_Settings.On;
+        }
+
+        public static string GetExceptionMetrics()
+        {
+            return _GetExceptionMetrics();
+        }
+        private static string _GetExceptionMetrics()
+        {
+            if (Global.game_state == null || Global.game_state.metrics == null)
+                return "Gameplay inactive";
+
+            try
+            {
+                Gameplay_Metrics metrics = new Gameplay_Metrics(Global.game_state.metrics);
+                var metricsData = new Metrics_Data(metrics);
+                return metricsData.ExceptionGameInfo();
+            }
+            catch
+            {
+                return "Exception getting gameplay data";
+            }
+        }
+
         // Check for update
         public static bool update_check_allowed = false;
 

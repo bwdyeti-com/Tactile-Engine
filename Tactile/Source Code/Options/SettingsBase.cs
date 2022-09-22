@@ -274,6 +274,12 @@ namespace Tactile.Options
             yield break;
         }
 
+        public int SettingWidth(int index)
+        {
+            var entry = GetEntryIndex(index);
+            return _Data[entry.Item1].Width;
+        }
+
         public bool SettingUpdatesBeforeConfirm(int index)
         {
             var entry = GetEntryIndex(index);
@@ -299,7 +305,7 @@ namespace Tactile.Options
                 case ConfigTypes.OnOffSwitch:
                     result = (bool)ValueObject(index);
                     return (T)result;
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     result = (int)ValueObject(index);
                     return (T)result;
@@ -329,15 +335,28 @@ namespace Tactile.Options
             switch (type)
             {
                 case ConfigTypes.OnOffSwitch:
-                    bool value = Value<bool>(index);
-                    return value ? "On" : "Off";
-                case ConfigTypes.Number:
+                    return ValueString(index, Value<bool>(index));
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
-                    int intValue = Value<int>(index);
-                    return string.Format(FormatString(index), intValue);
+                    return ValueString(index, Value<int>(index));
                 case ConfigTypes.Keyboard:
-                    Keys keyValue = Value<Keys>(index);
-                    return keyValue.ToString(); ;
+                    return ValueString(index, Value<Keys>(index));
+            }
+
+            return "";
+        }
+        public virtual string ValueString(int index, object value)
+        {
+            ConfigTypes type = SettingType(index);
+            switch (type)
+            {
+                case ConfigTypes.OnOffSwitch:
+                    return (bool)value ? "On" : "Off";
+                case ConfigTypes.List:
+                case ConfigTypes.Slider:
+                    return string.Format(FormatString(index), (int)value);
+                case ConfigTypes.Keyboard:
+                    return ((Keys)value).ToString();
             }
 
             return "";
@@ -353,15 +372,15 @@ namespace Tactile.Options
             SetValue(index, other.ValueObject(index));
         }
 
-        public Range<int> ValueRange(int index)
+        public IntRange ValueRange(int index)
         {
             return ValueRange(GetEntryIndex(index));
         }
-        public virtual Range<int> ValueRange(Tuple<int, int> entry)
+        public virtual IntRange ValueRange(Tuple<int, int> entry)
         {
             switch (SettingType(entry))
             {
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     return _Data[entry.Item1].Range;
             }
@@ -374,14 +393,14 @@ namespace Tactile.Options
                     this.GetType().Name, SettingLabel(entry), entry));
 #endif
 
-            return new Range<int>(0, 0);
+            return new IntRange(0, 0);
         }
 
         public virtual int ValueInterval(int index)
         {
             switch (SettingType(index))
             {
-                case ConfigTypes.Number:
+                case ConfigTypes.List:
                 case ConfigTypes.Slider:
                     return 1;
             }

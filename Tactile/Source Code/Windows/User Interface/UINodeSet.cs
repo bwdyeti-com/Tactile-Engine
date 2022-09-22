@@ -102,7 +102,7 @@ namespace Tactile.Windows.UserInterface
         public void Update(ControlSet input,
             Vector2 draw_offset = default(Vector2))
         {
-            if (input.HasEnumFlag(ControlSet.Buttons))
+            if (input.HasEnumFlag(ControlSet.PadMove))
                 update_input();
             foreach (var node in Nodes)
                 node.Update(this, input, draw_offset);
@@ -132,7 +132,7 @@ namespace Tactile.Windows.UserInterface
                 }
         }
 
-        public Maybe<int> consume_triggered(Inputs input, MouseButtons button, TouchGestures gesture)
+        public ConsumedInput consume_triggered(Inputs input, MouseButtons button, TouchGestures gesture)
         {
             var result = consume_triggered(input);
             if (result.IsNothing)
@@ -141,56 +141,48 @@ namespace Tactile.Windows.UserInterface
                 result = consume_triggered(gesture);
             return result;
         }
-        /* //Debug
-        public Maybe<int> consume_triggered(Inputs input, MouseButtons button)
-        {
-            var result = consume_triggered(input);
-            if (result.IsNothing)
-                result = consume_triggered(button);
-            return result;
-        }*/
-        public Maybe<int> consume_triggered(MouseButtons button, TouchGestures gesture)
+        public ConsumedInput consume_triggered(MouseButtons button, TouchGestures gesture)
         {
             var result = consume_triggered(button);
             if (result.IsNothing)
                 result = consume_triggered(gesture);
             return result;
         }
-        public Maybe<int> consume_triggered(Inputs input)
+        public ConsumedInput consume_triggered(Inputs input)
         {
             for (int i = 0; i < Nodes.Count; i++)
             {
                 if (Nodes[i].consume_trigger(input))
                 {
                     clear_triggers();
-                    return i;
+                    return new ConsumedInput(ControlSchemes.Buttons, i);
                 }
             }
-            return default(Maybe<int>);
+            return new ConsumedInput();
         }
-        public Maybe<int> consume_triggered(MouseButtons button)
+        public ConsumedInput consume_triggered(MouseButtons button)
         {
             for (int i = 0; i < Nodes.Count; i++)
             {
                 if (Nodes[i].consume_trigger(button))
                 {
                     clear_triggers();
-                    return i;
+                    return new ConsumedInput(ControlSchemes.Mouse, i);
                 }
             }
-            return default(Maybe<int>);
+            return new ConsumedInput();
         }
-        public Maybe<int> consume_triggered(TouchGestures gesture)
+        public ConsumedInput consume_triggered(TouchGestures gesture)
         {
             for (int i = 0; i < Nodes.Count; i++)
             {
                 if (Nodes[i].consume_trigger(gesture))
                 {
                     clear_triggers();
-                    return i;
+                    return new ConsumedInput(ControlSchemes.Touch, i);
                 }
             }
-            return default(Maybe<int>);
+            return new ConsumedInput();
         }
 
         private void clear_triggers()

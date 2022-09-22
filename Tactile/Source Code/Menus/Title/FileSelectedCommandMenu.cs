@@ -59,7 +59,7 @@ namespace Tactile.Menus.Title
         {
             get
             {
-                return (Start_Game_Options)StartGameOptionRedirect[this.SelectedIndex];
+                return (Start_Game_Options)StartGameOptionRedirect[this.SelectedIndex.Index];
             }
         }
     }

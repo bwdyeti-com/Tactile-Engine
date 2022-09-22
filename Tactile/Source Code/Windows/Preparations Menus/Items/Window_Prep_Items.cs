@@ -89,21 +89,32 @@ namespace Tactile
             
             base.InitializeSprites();
         }
-        
+
+        protected override void RefreshInputHelp()
+        {
+            base.RefreshInputHelp();
+
+            RButton.loc -= new Vector2(0, 20);
+            CancelButton.loc -= new Vector2(0, 20);
+
+            if (Trading)
+                // Move cancel button to the center
+                CancelButton.loc = new Vector2(
+                    Config.WINDOW_WIDTH / 2 - 16,
+                    Config.WINDOW_HEIGHT - 16);
+        }
+
         private Vector2 item_window_1_loc()
         {
             return new Vector2(
-                UnitWindow.loc.X + 4,
+                Config.WINDOW_WIDTH / 2 - 144,
                 ((Config.WINDOW_HEIGHT / 16) -
                     (Global.ActorConfig.NumItems + 1)) * 16 + 8);
         }
 
         private Vector2 item_window_2_loc()
         {
-            return new Vector2(
-                UnitWindow.loc.X + 148,
-                ((Config.WINDOW_HEIGHT / 16) -
-                    (Global.ActorConfig.NumItems + 1)) * 16 + 8);
+            return item_window_1_loc() + new Vector2(144, 0);
         }
 
         public override void refresh()
@@ -247,7 +258,7 @@ namespace Tactile
 
         public virtual ItemsCommandMenu GetCommandMenu()
         {
-            return new ItemsCommandMenu(ActorId);
+            return new ItemsCommandMenu(ActorId, this);
         }
 
         protected override void UpdateUnitWindow(bool active)
@@ -255,9 +266,14 @@ namespace Tactile
             UnitWindow.update(active && this.ready_for_inputs && (Trading || !Unit_Selected));
         }
 
-        public virtual bool select_unit()
+        public virtual bool select_unit(bool resetSelect = true)
         {
             Unit_Selected = true;
+            if (resetSelect)
+            {
+                UnitWindow.set_selected_loc();
+                UnitWindow.ResetTradeIndex();
+            }
             OnUnitSelected(new EventArgs());
             Item_Window_1.ShowHeader();
             return true;
@@ -265,6 +281,7 @@ namespace Tactile
 
         public virtual void cancel_unit_selection()
         {
+            UnitWindow.refresh_scroll(true);
             Item_Window_1.HideHeader();
             Unit_Selected = false;
         }
@@ -330,34 +347,6 @@ namespace Tactile
             }
         }
         
-        private void update_base_input()
-        {
-            // Close this window
-            if (Global.Input.triggered(Inputs.B))
-            {
-                Global.game_system.play_se(System_Sounds.Cancel);
-                close();
-            }
-            
-            // Select unit
-            var selected_index = UnitWindow.consume_triggered(
-                Inputs.A, MouseButtons.Left, TouchGestures.Tap);
-            if (selected_index.IsSomething)
-            {
-                Global.game_system.play_se(System_Sounds.Confirm);
-                select_unit();
-            }
-
-            // Status screen
-            var status_index = UnitWindow.consume_triggered(
-                Inputs.R, MouseButtons.Right, TouchGestures.LongPress);
-            if (status_index.IsSomething)
-            {
-                Global.game_system.play_se(System_Sounds.Confirm);
-                OnStatus(new EventArgs());
-            }
-        }
-
         // Trade
         public void trade()
         {
@@ -367,6 +356,7 @@ namespace Tactile
 
             UnitWindow.stereoscopic = Config.PREPITEM_BATTALION_DEPTH;
             Trading = true;
+            RefreshInputHelp();
             Trading_Actor_Id = ActorId;
             UnitWindow.trading = true;
             UnitWindow.active = true;
@@ -376,8 +366,9 @@ namespace Tactile
         public void cancel_trade()
         {
             Trading = false;
+            RefreshInputHelp();
             UnitWindow.trading = false;
-            select_unit();
+            select_unit(false);
             refresh();
         }
 
@@ -516,12 +507,26 @@ namespace Tactile
                     Funds_Label.draw(sprite_batch);
                     Funds_G.draw(sprite_batch);
                     Funds_Value.draw(sprite_batch);
-                    if (!Unit_Selected)
-                        RButton.Draw(sprite_batch);
                 }
             }
             // Data
             sprite_batch.End();
+
+            DrawHelpButtons(sprite_batch);
+        }
+
+        protected override void DrawHelpButtons(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            if (!Trading && !Using && !Unit_Selected)
+                RButton.Draw(spriteBatch);
+
+            if (!Unit_Selected || (Trading && Input.ControlScheme != ControlSchemes.Buttons))
+            {
+                if (CancelButton != null)
+                    CancelButton.Draw(spriteBatch);
+            }
+            spriteBatch.End();
         }
 
         protected override void DrawStatsWindow(SpriteBatch spriteBatch)

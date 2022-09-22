@@ -15,7 +15,7 @@ namespace Tactile.Windows.UserInterface.Command
         protected bool Skip = false;
         protected bool Active = true;
 
-        protected int SelectedIndex = -1;
+        protected ConsumedInput SelectedIndex;
         protected bool Canceled; 
 
         #region Accessors
@@ -163,16 +163,14 @@ namespace Tactile.Windows.UserInterface.Command
             }
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
-            if (SelectedIndex < 0)
-                return Maybe<int>.Nothing;
             return SelectedIndex;
         }
 
         public bool is_selected()
         {
-            return SelectedIndex >= 0;
+            return SelectedIndex.IsSomething;
         }
 
         public bool is_canceled()
@@ -182,7 +180,7 @@ namespace Tactile.Windows.UserInterface.Command
 
         public void reset_selected()
         {
-            SelectedIndex = -1;
+            SelectedIndex = new ConsumedInput();
             Canceled = false;
         }
 

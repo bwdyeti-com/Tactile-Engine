@@ -2421,6 +2421,11 @@ namespace Tactile.State
                             if (unit.is_rescuing)
                                 Global.game_map.remove_unit(unit.rescuing);
                             Global.game_map.remove_unit(unit.id);
+
+                            // Calls wait events for escaping units,
+                            // since they don't wait properly
+                            Global.game_state.unit_wait_events();
+
                             Ai_Phase = 3;
                             break;
                     }
@@ -2779,6 +2784,11 @@ namespace Tactile.State
                             if (unit.is_rescuing)
                                 Global.game_map.remove_unit(unit.rescuing);
                             Global.game_map.remove_unit(unit.id);
+
+                            // Calls wait events for escaping units,
+                            // since they don't wait properly
+                            Global.game_state.unit_wait_events();
+
                             Ai_Phase = 3;
                             break;
                         // Moves toward target

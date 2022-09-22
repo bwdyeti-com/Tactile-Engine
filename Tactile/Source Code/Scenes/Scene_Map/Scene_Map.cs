@@ -648,7 +648,7 @@ namespace Tactile
 
         public override void update_data()
         {
-            base.update_data();
+            UpdateInfoWindowInputs();
             Global.player.update();
             Global.game_state.update();
             update_info_windows();
@@ -959,7 +959,6 @@ namespace Tactile
 
         public override void update_sprites()
         {
-            base.update_sprites();
             // Cursor
             Player.update_anim();
             Global.player.update_sprite(Player_Sprite);
@@ -2034,7 +2033,7 @@ namespace Tactile
                         continue;
                     var unit = Global.game_map.units[id];
                     // If not visible to the player, skip
-                    if (!unit.visible_by() || unit.is_rescued)
+                    if (unit.is_rescued || !unit.visible_by())
                         continue;
                     if (!unit.sprite_moving)
                         Map_Sprites[id].draw_status(sprite_batch, Status_Sprites, Global.game_map.display_loc, camera.matrix);
@@ -2166,50 +2165,11 @@ namespace Tactile
                                 (!selected_unit.is_active_player_team &&
                                 unit.is_active_player_team && Global.game_state.can_talk(id, Global.game_system.Selected_Unit_Id)))
                             {
-                                Vector2 talk_bubble_loc = unit.pixel_loc + rescue_icon_draw_vector() +
-                                        new Vector2(TILE_SIZE / 2, TILE_SIZE) - Global.game_map.display_loc;
-
-                                Vector2 actual_bubble_loc = talk_bubble_loc;
-                                actual_bubble_loc.X = MathHelper.Clamp(
-                                    actual_bubble_loc.X, TILE_SIZE, Config.WINDOW_WIDTH - TILE_SIZE * 3 / 4);
-                                actual_bubble_loc.Y = MathHelper.Clamp(
-                                    actual_bubble_loc.Y, TILE_SIZE * 3 / 2, Config.WINDOW_HEIGHT - TILE_SIZE / 4);
-
-                                Color tint = Color.White;
-                                if (talk_bubble_loc != actual_bubble_loc)
-                                {
-                                    tint = new Color(208, 208, 208, 255);
-                                }
-
+                                // If the unit isn't currently highlit
                                 if (!unit.highlighted) //Multi
                                 {
-                                    int frame = 0;
-                                    if (talk_bubble_loc != actual_bubble_loc)
-                                    {
-                                        if (Math.Abs(talk_bubble_loc.X - actual_bubble_loc.X) >
-                                            Math.Abs(talk_bubble_loc.Y - actual_bubble_loc.Y))
-                                        {
-                                            if (talk_bubble_loc.X < actual_bubble_loc.X)
-                                                frame = 4;
-                                            else
-                                                frame = 6;
-                                        }
-                                        else
-                                        {
-                                            if (talk_bubble_loc.Y > actual_bubble_loc.Y)
-                                                frame = 2;
-                                            else
-                                                frame = 8;
-                                        }
-                                    }
-
-                                    int cell_size = Talk_Icon.Bounds.Height;
-                                    Rectangle src_rect = new Rectangle(
-                                        cell_size * (frame / 2), 0, cell_size, cell_size);
-                                    spriteBatch.Draw(Talk_Icon,
-                                        Vector2.Transform(actual_bubble_loc, camera.matrix),
-                                        src_rect, tint, 0f, new Vector2(16, 24),
-                                        1f, SpriteEffects.None, 0f);
+                                    Vector2 loc = unit.pixel_loc;
+                                    DrawTalkBubble(spriteBatch, loc);
                                 }
                             }
 
@@ -2241,6 +2201,54 @@ namespace Tactile
                     spriteBatch.End();
                 }
             }
+        }
+
+        private void DrawTalkBubble(SpriteBatch spriteBatch, Vector2 loc)
+        {
+            Vector2 talkBubbleLoc = loc + rescue_icon_draw_vector() +
+                    new Vector2(TILE_SIZE / 2, TILE_SIZE) - Global.game_map.display_loc;
+
+            Vector2 actualLoc = talkBubbleLoc;
+            actualLoc.X = MathHelper.Clamp(actualLoc.X,
+                TILE_SIZE,
+                Config.WINDOW_WIDTH - TILE_SIZE * 5 / 4);
+            actualLoc.Y = MathHelper.Clamp(actualLoc.Y,
+                TILE_SIZE * 3 / 2,
+                Config.WINDOW_HEIGHT - TILE_SIZE / 4);
+
+            Color tint = Color.White;
+            if (talkBubbleLoc != actualLoc)
+            {
+                tint = new Color(208, 208, 208, 255);
+            }
+
+            int frame = 0;
+            if (talkBubbleLoc != actualLoc)
+            {
+                if (Math.Abs(talkBubbleLoc.X - actualLoc.X) >
+                    Math.Abs(talkBubbleLoc.Y - actualLoc.Y))
+                {
+                    if (talkBubbleLoc.X < actualLoc.X)
+                        frame = 4;
+                    else
+                        frame = 6;
+                }
+                else
+                {
+                    if (talkBubbleLoc.Y > actualLoc.Y)
+                        frame = 2;
+                    else
+                        frame = 8;
+                }
+            }
+
+            int cellSize = Talk_Icon.Bounds.Height;
+            Rectangle srcRect = new Rectangle(
+                cellSize * (frame / 2), 0, cellSize, cellSize);
+            spriteBatch.Draw(Talk_Icon,
+                Vector2.Transform(actualLoc, camera.matrix),
+                srcRect, tint, 0f, new Vector2(16, 24),
+                1f, SpriteEffects.None, 0f);
         }
 
         private UnitIcons displayed_unit_icon(bool rescuing, bool boss, bool dangerous)

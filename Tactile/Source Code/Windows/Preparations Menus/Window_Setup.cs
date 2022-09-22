@@ -44,7 +44,7 @@ namespace Tactile
             set { CommandWindow.index = value; }
         }
 
-        internal virtual Maybe<int> selected_index { get { return CommandWindow.selected_index(); } }
+        internal virtual ConsumedInput selected_index { get { return CommandWindow.selected_index(); } }
 
         internal bool start_ui_button_pressed
         {
@@ -199,6 +199,11 @@ namespace Tactile
 
         public virtual void refresh()
         {
+            if (Global.battalion.actors.Count > 0)
+                CommandWindow.set_text_color(1, "White");
+            else
+                CommandWindow.set_text_color(1, "Grey");
+
             // Does augury exist?
             if (Global.game_state.augury_event_exists())
                 CommandWindow.set_text_color(2, "White");
@@ -356,6 +361,7 @@ namespace Tactile
                     }
                 }
             Global.battalion.sort_by_deployed();
+            Global.game_map.clear_updated_move_ranges();
             Global.game_map.refresh_move_ranges();
         }
 
@@ -364,7 +370,7 @@ namespace Tactile
             get
             {
                 return CommandWindow
-                    .selected_index().ValueOrDefault;
+                    .selected_index().Index;
             }
         }
 

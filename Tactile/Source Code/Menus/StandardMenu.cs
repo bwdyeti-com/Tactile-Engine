@@ -182,6 +182,8 @@ namespace Tactile.Menus
                 {
                     fadeInMenu.Finished += MenuCallback.MenuClosedCall;
                     MenuCallback.AddMenuCall(fadeInMenu);
+                    // Update fade menus immediately
+                    fadeInMenu.Update(true);
                 }
                 // If not fading in, skip it
                 else
@@ -200,6 +202,8 @@ namespace Tactile.Menus
             {
                 fadeOutMenu.Finished += MenuCallback.MenuClosedCall;
                 MenuCallback.AddMenuCall(fadeOutMenu);
+                // Update fade menus immediately
+                fadeOutMenu.Update(true);
             }
             // If not fading out, just close
             else

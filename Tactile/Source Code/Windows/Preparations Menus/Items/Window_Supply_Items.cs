@@ -60,6 +60,8 @@ namespace Tactile
             private set { Scroll[this.type] = value; }
         }
 
+        public Vector2 size { get { return CommandWindow.size; } }
+
         public SupplyItem active_item { get { return SupplyList[index]; } }
 
         public bool active
@@ -380,7 +382,7 @@ namespace Tactile
             return actor.can_take(item_data);
         }
 
-        public Maybe<int> selected_index()
+        public ConsumedInput selected_index()
         {
             return CommandWindow.selected_index();
         }

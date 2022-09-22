@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Help;
 using Tactile.Windows.Command;
+using Tactile.Windows.WorldMap;
 using TactileLibrary;
 
 namespace Tactile.Menus.Worldmap
@@ -117,6 +118,8 @@ namespace Tactile.Menus.Worldmap
                 Global.game_system.Difficulty_Mode = Difficulty_Modes.Normal;
 
             RefreshDataPanel();
+
+            Global.game_system.WorldmapChapterId = MenuData.ChapterId;
         }
 
         internal void RefreshPreviousChapters(Dictionary<string, int> previousChapterIndices)
@@ -261,7 +264,7 @@ namespace Tactile.Menus.Worldmap
 
         public ChapterCommands SelectedChapterCommand()
         {
-            return ActiveChapterCommands[ChapterCommandWindow.selected_index()];
+            return ActiveChapterCommands[ChapterCommandWindow.selected_index().Index];
         }
 
         private void CloseChapterCommands()
@@ -391,6 +394,7 @@ namespace Tactile.Menus.Worldmap
             if (ModeSwitchTimer > 0)
                 ModeSwitchTimer--;
 
+            DataWindow.update();
             MenuData.Index = this.Redirect;
             CommandWindow.update(active && this.SelectingChapter);
             if (MenuData.Index != this.Redirect)
@@ -406,8 +410,6 @@ namespace Tactile.Menus.Worldmap
             DifficultyButton.Update(active && CanChangeDifficulty());
 
             UpdateInput(active);
-
-            DataWindow.update();
         }
 
         private void UpdateInput(bool active)
@@ -426,9 +428,12 @@ namespace Tactile.Menus.Worldmap
             if (this.SelectingChapter)
             {
                 cancel |= CommandWindow.is_canceled();
+
                 bool left = false, right = false;
                 if (active && MenuData.MultipleArcs && ModeSwitchTimer <= 0)
                 {
+                    left = DataWindow.LeftClicked;
+                    right = DataWindow.RightClicked;
                     if (Global.Input.triggered(Inputs.Left) ||
                             Global.Input.gesture_triggered(TouchGestures.SwipeRight))
                         left = true;

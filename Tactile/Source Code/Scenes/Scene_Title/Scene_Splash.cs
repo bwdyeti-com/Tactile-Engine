@@ -101,7 +101,8 @@ or to give any feedback, and above all, have fun!"
             if (Timer >= -(Config.SPLASH_INITIAL_BLACK_TIME - 10))
             {
                 // Skip to title with start
-                if (Global.Input.triggered(Inputs.Start))
+                if (Global.Input.triggered(Inputs.Start) ||
+                        Global.Input.gesture_triggered(TouchGestures.LongPress))
                     Global.scene_change("Scene_Title");
                 else if (Timer >= Config.SPLASH_TIME ||
                     Global.Input.triggered(Inputs.A) ||

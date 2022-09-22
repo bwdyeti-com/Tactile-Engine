@@ -578,7 +578,7 @@ namespace Tactile
 
         public bool is_mov_capped()
         {
-            return (base_mov >= actor.mov_cap);
+            return (this.base_mov + actor.mov_plus >= actor.mov_cap);
         }
 
         public int canto_mov
@@ -1246,6 +1246,9 @@ namespace Tactile
                 return true;
             if (!is_attackable_team(team))
                 return true;
+            // If the unit is rescued, use the rescuer's visibility
+            if (this.is_rescued)
+                return this.rescuer_unit.visible_by(team);
             if (!Global.game_map.fow_visibility[team].Contains(Loc))
             {
                 // If the unit is moving and their last location in their move route was visible, check what tile they're closer to
@@ -3707,10 +3710,12 @@ namespace Tactile
 
         protected override Vector2 real_loc_on_map()
         {
-            if (!is_rescued)
-                return Real_Loc;
-            Game_Unit rescuer = Global.game_map.units[Rescued];
-            return rescuer.real_loc;
+            if (this.is_rescued)
+            {
+                Game_Unit rescuer = Global.game_map.units[Rescued];
+                return rescuer.real_loc;
+            }
+            return Real_Loc;
         }
         /// <summary>
         /// Returns the location of this unit on the map.
@@ -3719,10 +3724,12 @@ namespace Tactile
         /// </summary>
         public override Vector2 loc_on_map()
         {
-            if (!is_rescued)
-                return Loc;
-            Game_Unit rescuer = Global.game_map.units[Rescued];
-            return rescuer.loc;
+            if (this.is_rescued)
+            {
+                Game_Unit rescuer = Global.game_map.units[Rescued];
+                return rescuer.loc;
+            }
+            return Loc;
         }
         #endregion
 
@@ -4182,6 +4189,8 @@ namespace Tactile
             if (Constants.Gameplay.MASTERIES_CHARGE_AT_TURN_END)
                 if (charge_skills)
                     charge_masteries(MASTERY_RATE_NEW_TURN);
+            //@Yeti: This should be somewhere different? or refresh_unit()
+            // shouldn't call this function
             if (!Constants.Support.PLAYER_SUPPORT_ONLY || is_player_team)
                 // This inherently only allows gaining support points with members of the same team for efficiency
                 foreach (int unit_id in Global.game_map.teams[Team])
@@ -4214,11 +4223,17 @@ namespace Tactile
             else
             {
                 end_turn(false);
-                Moved_So_Far = 0;
-                Turn_Start_Loc = Prev_Loc = Loc;
-                Temp_Moved = 0;
-                Blocked = false;
             }
+
+            RefreshMovement();
+        }
+
+        public void RefreshMovement()
+        {
+            Moved_So_Far = 0;
+            Turn_Start_Loc = Prev_Loc = Loc;
+            Temp_Moved = 0;
+            Blocked = false;
         }
 
         public void new_turn()
@@ -4236,11 +4251,10 @@ namespace Tactile
                 else
                     Stat_Bonuses[i] = Math.Max(0, Stat_Bonuses[i] - 1);
             }
+
             refresh_hp(0);
-            Moved_So_Far = 0;
-            Turn_Start_Loc = Prev_Loc = Loc;
-            Temp_Moved = 0;
-            Blocked = false;
+            RefreshMovement();
+
             Attack_Targets_This_Turn.Clear();
             Ai_Wants_Rescue = false;
             if (!Constants.Support.PLAYER_SUPPORT_ONLY || is_player_team)
@@ -5143,7 +5157,25 @@ namespace Tactile
                                 anims.InsertRange(i, corrected);
                             }
                             foreach (int temp_anim in anims)
+                            {
+#if DEBUG
+                                if (!Global.data_animations.ContainsKey(temp_anim))
+                                {
+                                    var animGroup = Global.data_animation_groups
+                                        .Where(x => x.Value < temp_anim)
+                                        .OrderByDescending(x => x.Value)
+                                        .First();
+                                    int animIndex = temp_anim - animGroup.Value;
+                                    Print.message(
+                                        string.Format(
+                                            "Missing animation of added effect:\n\n" +
+                                            "Group \"{0}\", index {1:D4}",
+                                            animGroup.Key, animIndex),
+                                        "Animation Missing");
+                                }
+#endif
                                 animations.Add(Global.data_animations[temp_anim]);
+                            }
                         }
                 }
             }

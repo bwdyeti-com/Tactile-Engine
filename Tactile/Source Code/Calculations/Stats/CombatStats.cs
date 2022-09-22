@@ -58,6 +58,17 @@ namespace Tactile.Calculations.Stats
             return result;
         }
 
+        internal WeaponTriangle Tri(Game_Unit target)
+        {
+            if (target == null)
+                return WeaponTriangle.Nothing;
+            return Tri(target, this.attacker_weapon, target.actor.weapon);
+        }
+        internal WeaponTriangle Tri(Game_Unit target, Data_Weapon attackerWeapon, Data_Weapon targetWeapon)
+        {
+            return Combat.weapon_triangle(attacker, target, attackerWeapon, targetWeapon, Distance);
+        }
+
         #region Dmg
         internal override int dmg()
         {
@@ -124,7 +135,7 @@ namespace Tactile.Calculations.Stats
                 }
                 // Weapon triangle
                 skill_dmg = 0;
-                WeaponTriangle tri = Combat.weapon_triangle(attacker, target, weapon, weapon2, Distance);
+                WeaponTriangle tri = Tri(target, weapon, weapon2);
                 if (tri != WeaponTriangle.Nothing)
                     skill_dmg += Weapon_Triangle.DMG_BONUS * (tri == WeaponTriangle.Advantage ? 1 : -1) *
                         Combat.weapon_triangle_mult(attacker, target, weapon, weapon2, Distance);
@@ -282,7 +293,7 @@ namespace Tactile.Calculations.Stats
                 support_hit = support_bonus(Combat_Stat_Labels.Hit);
                 s_bonus = attacker.actor.s_rank_bonus(weapon);
                 // Weapon triangle
-                WeaponTriangle tri = Combat.weapon_triangle(attacker, target, weapon, weapon2, Distance);
+                WeaponTriangle tri = Tri(target, weapon, weapon2);
                 if (tri != WeaponTriangle.Nothing)
                     weapon_hit += Weapon_Triangle.HIT_BONUS * (tri == WeaponTriangle.Advantage ? 1 : -1) *
                         Combat.weapon_triangle_mult(attacker, target, weapon, weapon2, Distance);

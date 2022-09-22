@@ -1078,6 +1078,7 @@ namespace Tactile
         #region Shop Menu
         protected void preview_shop()
         {
+            Global.game_system.SecretShop = false;
             UnitMenu = UnitMenuManager.PreviewShop(this, Global.game_map.get_shop());
         }
         
@@ -1227,7 +1228,10 @@ namespace Tactile
 
         internal static bool intro_chapter_options_blocked()
         {
-            return Global.game_system.chapter_id == "Pre";
+            //@Debug: example condition for blocking most menu options during
+            // the introduction chapter
+            //return Global.game_system.chapter_id == "Pre";
+            return false;
         }
 
         internal static bool debug_chapter_options_blocked()

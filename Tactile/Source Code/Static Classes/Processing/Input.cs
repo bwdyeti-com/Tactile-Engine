@@ -24,22 +24,23 @@ namespace Tactile
     }
     enum TouchGestures
     {
-        None =          0,
-        Tap =           1 << 0,
-        DoubleTap =     1 << 1,
-        TapNoDouble =   1 << 2,
-        ShortPress =    1 << 3,
-        LongPress =     1 << 4,
-        FreeDrag =      1 << 5,
-        VerticalDrag =  1 << 6,
-        SwipeDown =     1 << 7,
-        SwipeLeft =     1 << 8,
-        SwipeRight =    1 << 9,
-        SwipeUp =       1 << 10,
-        Pinch =         1 << 11,
-        PinchIn =       1 << 12,
-        PinchOut =      1 << 13,
-        Scrubbing =     1 << 14,
+        None =              0,
+        Tap =               1 << 0,
+        DoubleTap =         1 << 1,
+        TapNoDouble =       1 << 2,
+        ShortPress =        1 << 3,
+        LongPress =         1 << 4,
+        FreeDrag =          1 << 5,
+        HorizontalDrag =    1 << 6,
+        VerticalDrag =      1 << 7,
+        SwipeDown =         1 << 8,
+        SwipeLeft =         1 << 9,
+        SwipeRight =        1 << 10,
+        SwipeUp =           1 << 11,
+        Pinch =             1 << 12,
+        PinchIn =           1 << 13,
+        PinchOut =          1 << 14,
+        Scrubbing =         1 << 15,
     }
     enum Directions : byte
     {
@@ -67,7 +68,7 @@ namespace Tactile
         UpLeft =        Up | Left,
         UpRight =       Up | Right,
     }
-    enum ControlSchemes { Buttons, Mouse, Touch }
+    enum ControlSchemes { None, Buttons, Mouse, Touch }
 
     public class Input
     {
@@ -181,6 +182,7 @@ namespace Tactile
         private static HashSet<GestureSample> Gestures = new HashSet<GestureSample>();
 #if TOUCH_EMULATION
         private static MouseState LastMouseTouchState;
+        private static bool TouchSwitchPressed = false;
 #endif
 #endif
 
@@ -242,11 +244,11 @@ namespace Tactile
         static Input()
         {
             ControlScheme = ControlSchemes.Buttons;
-#if TOUCH_EMULATION || __MOBILE__
+#if __MOBILE__ || TOUCH_EMULATION
             ControlScheme = ControlSchemes.Touch;
 #endif
 
-#if TOUCH_EMULATION || __MOBILE__
+#if __MOBILE__ || TOUCH_EMULATION
             TouchPanel.EnableMouseTouchPoint = true;
             TouchPanel.EnableMouseGestures = true;
 
@@ -286,19 +288,38 @@ namespace Tactile
             LastMouseState = MouseState;
             MouseState = Mouse.GetState();
 #if TOUCH_EMULATION
-            //The TouchPanel needs to know the time for when touches arrive
-            TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
+            // Press a button to switch between mouse and touch
+            bool touchSwitchButton =
+                key_state.IsKeyDown(Keys.LeftControl) &&
+                key_state.IsKeyDown(Keys.Tab);
+            if (touchSwitchButton && !TouchSwitchPressed)
+            {
+                bool touchWithMouse = !TouchPanel.EnableMouseTouchPoint;
 
-            Vector2 posThisFrame = new Vector2(MouseState.X, MouseState.Y);
-            Vector2 posLastFrame = new Vector2(LastMouseTouchState.X, LastMouseTouchState.Y);
+                TouchPanel.EnableMouseTouchPoint = touchWithMouse;
+                TouchPanel.EnableMouseGestures = touchWithMouse;
+                ControlScheme = touchWithMouse ? ControlSchemes.Touch : ControlSchemes.Mouse;
+                ControlSchemeSwitched = true;
+            }
+            TouchSwitchPressed = touchSwitchButton;
 
-            simulate_touch(MouseState.LeftButton, LastMouseTouchState.LeftButton,
-                posThisFrame, posLastFrame, false);
-            simulate_touch(MouseState.RightButton, LastMouseTouchState.RightButton,
-                posThisFrame, posLastFrame, true);
+            // If mouse is emulating touch controls
+            if (TouchPanel.EnableMouseTouchPoint)
+            {
+                //The TouchPanel needs to know the time for when touches arrive
+                TouchPanelState.CurrentTimestamp = gameTime.TotalGameTime;
 
-            LastMouseTouchState = MouseState;
-            MouseState = new MouseState();
+                Vector2 posThisFrame = new Vector2(MouseState.X, MouseState.Y);
+                Vector2 posLastFrame = new Vector2(LastMouseTouchState.X, LastMouseTouchState.Y);
+
+                simulate_touch(MouseState.LeftButton, LastMouseTouchState.LeftButton,
+                    posThisFrame, posLastFrame, false);
+                simulate_touch(MouseState.RightButton, LastMouseTouchState.RightButton,
+                    posThisFrame, posLastFrame, true);
+
+                LastMouseTouchState = MouseState;
+                MouseState = new MouseState();
+            }
 #endif
 
             ControlSchemeSwitched = false;
@@ -530,7 +551,11 @@ namespace Tactile
         private static void update_controller_active(KeyboardState key_state, GamePadState controller_state)
         {
             bool active = Controller_Active;
-            bool keys_pressed = key_state.GetPressedKeys().Length > 0;
+            //@Yeti: it's possible for this to contain only Keys.None???
+            var pressedKeys = key_state.GetPressedKeys()
+                .Where(x => x != Keys.None)
+                .ToArray();
+            bool keys_pressed = pressedKeys.Length > 0;
             bool buttons_pressed = controller_pressed(controller_state);
 
             if (keys_pressed != buttons_pressed)
@@ -559,7 +584,15 @@ namespace Tactile
 
         private static bool key_pressed(KeyboardState keyState)
         {
-            return keyState.GetPressedKeys().Length > 0;
+            //@Yeti: it's possible for this to contain only Keys.None???
+            var pressed = keyState.GetPressedKeys()
+                .Where(x => x != Keys.None)
+#if __MOBILE__
+                // Ignore volume buttons, etc on mobile
+                .Where(x => x != Keys.VolumeDown && x != Keys.VolumeUp)
+#endif
+                .ToArray();
+            return pressed.Any();
         }
         private static bool controller_pressed(GamePadState controllerState)
         {
@@ -705,6 +738,8 @@ namespace Tactile
                     return GestureType.ShortHold;
                 case TouchGestures.FreeDrag:
                     return GestureType.FreeDrag;
+                case TouchGestures.HorizontalDrag:
+                    return GestureType.FreeDrag;
                 case TouchGestures.VerticalDrag:
                     return GestureType.FreeDrag;
                 case TouchGestures.SwipeDown:
@@ -767,6 +802,17 @@ namespace Tactile
             Input.PlayerOneInputs.LockRepeat(input_name);
         }
 
+        /// <summary>
+        /// Resets the touch panel tracking the last tap made, so that the next
+        /// tap cannot be a double tap.
+        /// </summary>
+        internal static void ResetDoubleTap()
+        {
+#if __MOBILE__ || TOUCH_EMULATION
+            TouchPanel.ResetDoubleTap();
+#endif
+        }
+
         #region Mouse
         private static bool any_mouse_triggered
         {
@@ -795,11 +841,46 @@ namespace Tactile
                     return ButtonState.Released;
             }
         }
+
+        /// <summary>
+        /// Maps a vector from screen space scale to world space scale.
+        /// X and Y will be converted to int before scaling.
+        /// </summary>
+        internal static Vector2 MouseWorldScale(int x, int y)
+        {
+            float scaledX = x / ScreenScaleZoom.X;
+            float scaledY = y / ScreenScaleZoom.Y;
+
+            return new Vector2((int)scaledX, (int)scaledY);
+        }
+        internal static Vector2 MouseWorldScale(Vector2 loc)
+        {
+            return MouseWorldScale((int)loc.X, (int)loc.Y);
+        }
+
         internal static Vector2 mouse_world_loc(int x, int y)
         {
-            return new Vector2(
-                (int)(x / ScreenScaleZoom.X),
-                (int)(y / ScreenScaleZoom.Y));
+            Vector2 scaled = MouseWorldScale(x, y);
+
+            if (ControlScheme == ControlSchemes.Touch)
+            {
+                // Pillarboxed
+                if (ScreenScaleZoom.X >= ScreenScaleZoom.Y)
+                {
+                    float aspectCorrection = ScreenScaleZoom.X / ScreenScaleZoom.Y;
+                    scaled.X *= aspectCorrection;
+                    scaled.X -= Config.WINDOW_WIDTH * (aspectCorrection - 1) / 2;
+                }
+                // Letterboxed
+                else
+                {
+                    float aspectCorrection = ScreenScaleZoom.Y / ScreenScaleZoom.X;
+                    scaled.Y *= aspectCorrection;
+                    scaled.Y -= Config.WINDOW_HEIGHT * (aspectCorrection - 1) / 2;
+                }
+            }
+
+            return new Vector2((int)scaled.X, (int)scaled.Y);
         }
         /// <summary>
         /// Maps a Vector2 from screen space to world space.

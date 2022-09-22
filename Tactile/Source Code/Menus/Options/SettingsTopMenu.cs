@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Tactile.Graphics.Text;
 using Tactile.Windows.Command;
 
 namespace Tactile.Menus.Options
@@ -9,7 +8,6 @@ namespace Tactile.Menus.Options
     class SettingsTopMenu : StandardMenu //@Yeti: should probably be a CommandMenu, make that descend from StandardMenu
     {
         protected Window_Command Window;
-        private TextSprite VersionNumber;
         private Menu_Background Background;
 
         public SettingsTopMenu() : base()
@@ -24,16 +22,6 @@ namespace Tactile.Menus.Options
             Window.bar_offset = new Vector2(-8, 0);
             Window.WindowVisible = false;
             Window.stereoscopic = Config.PREPMAIN_WINDOW_DEPTH;
-
-            // Version Number
-            VersionNumber = new TextSprite();
-            VersionNumber.loc = new Vector2(8, Config.WINDOW_HEIGHT - 16);
-            VersionNumber.SetFont(Config.UI_FONT, Global.Content, "White");
-            VersionNumber.text = string.Format("v {0}", Global.RUNNING_VERSION);
-#if PRERELEASE || DEBUG
-            VersionNumber.text += " - Private Beta";
-#endif
-            VersionNumber.stereoscopic = Config.MAPCOMMAND_WINDOW_DEPTH;
 
             // Background
             Background = new Menu_Background();
@@ -77,7 +65,6 @@ namespace Tactile.Menus.Options
         protected override void UpdateStandardMenu(bool active)
         {
             Window.update(active);
-            VersionNumber.update();
             Background.update();
         }
         #endregion
@@ -111,20 +98,19 @@ namespace Tactile.Menus.Options
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (DataDisplayed)
-            {
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                Background.draw(spriteBatch);
-                spriteBatch.End();
-
-                Window.draw(spriteBatch);
-
-                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                VersionNumber.draw(spriteBatch);
-                spriteBatch.End();
-            }
+                DrawData(spriteBatch);
 
             base.Draw(spriteBatch);
         }
         #endregion
+
+        protected virtual void DrawData(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            Background.draw(spriteBatch);
+            spriteBatch.End();
+
+            Window.draw(spriteBatch);
+        }
     }
 }

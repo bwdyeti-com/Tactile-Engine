@@ -182,19 +182,34 @@ namespace Tactile
             }
         }
 
-        public void TitleOpenFullCredits()
+        public void TitleOpenCommunityLink(int index)
         {
 #if !__MOBILE__
             if (Global.gameSettings.Graphics.Fullscreen)
             {
+                // Switch off fullscreen
                 Global.gameSettings.Graphics.ConfirmSetting(
                     Tactile.Options.GraphicsSetting.Fullscreen, 0, false);
                 Global.save_config = true;
             }
 #endif
-            
-            System.Diagnostics.Process.Start(
-                string.Format("http://{0}", Constants.Credits.FULL_CREDITS_LINK));
+
+            GameLoop.OpenHyperlink(CommunityMenu.COMMUNITY_ENTRIES[index].Url);
+        }
+
+        public void TitleOpenFullCredits()
+        {
+#if !__MOBILE__
+            if (Global.gameSettings.Graphics.Fullscreen)
+            {
+                // Switch off fullscreen
+                Global.gameSettings.Graphics.ConfirmSetting(
+                    Tactile.Options.GraphicsSetting.Fullscreen, 0, false);
+                Global.save_config = true;
+            }
+#endif
+
+            GameLoop.OpenHyperlink(Constants.Credits.FULL_CREDITS_LINK);
         }
 
         public void TitleQuit()

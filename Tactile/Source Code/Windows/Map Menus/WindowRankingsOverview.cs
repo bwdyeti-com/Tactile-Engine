@@ -16,17 +16,20 @@ namespace Tactile.Windows.Map
         const bool SHOW_ALL_CHAPTERS = true;
         const int ROWS = 8;
         const int COLUMN_WIDTH = 80;
+        const int SCROLL_SPEED = 4;
         readonly static Vector2 DATA_OFFSET = new Vector2(32, 32);
 
         private string Chapter;
         private Difficulty_Modes Difficulty;
         private List<KeyValuePair<string, Game_Ranking>> Rankings;
-        private Vector2 Scroll, ScrollSpeed;
+        private IndexScrollComponent Scroll;
+        private int CharHeight;
+        private UIEmptyObject LeftScrollRegion, RightScrollRegion;
 
         private Button_Description CancelButton;
-        private Sprite RankingIcons;
+        private Sprite RankingIcons; //
         private UINodeSet<TextUINode> Nodes;
-        new private UICursor<TextUINode> Cursor; //Yeti
+        new private UICursor<TextUINode> Cursor; //@Yeti
         private Window_Ranking DetailedRanking;
         private Sprite DataBackground;
         private TextSprite StyleText, DifficultyText;
@@ -47,6 +50,7 @@ namespace Tactile.Windows.Map
         {
             Chapter = chapter;
             Difficulty = difficulty;
+            CharHeight = Font_Data.Data[Config.UI_FONT].CharHeight;
 
             initialize_sprites();
             update_black_screen();
@@ -56,6 +60,7 @@ namespace Tactile.Windows.Map
             Nodes.set_active_node(Nodes[index]);
             Cursor.UpdateTargetLoc();
             Cursor.move_to_target_loc();
+            Scroll.FixScroll(index);
         }
 
         protected void initialize_sprites()
@@ -89,7 +94,7 @@ namespace Tactile.Windows.Map
                 @"Graphics/White_Square");
             DataBackground.dest_rect = new Rectangle(
                 0, (int)DATA_OFFSET.Y,
-                Config.WINDOW_WIDTH, ROWS * 16);
+                Config.WINDOW_WIDTH, ROWS * CharHeight);
             DataBackground.tint = new Color(0, 0, 0, 128);
 
             // Style
@@ -166,11 +171,11 @@ namespace Tactile.Windows.Map
                     var text = new TextSprite();
                     text.SetFont(Config.UI_FONT, Global.Content, color);
                     text.text = chapter_data.ListName;
-                    text.stereoscopic = Config.OPTIONS_OPTIONS_DEPTH; //Yeti
+                    text.stereoscopic = Config.OPTIONS_OPTIONS_DEPTH; //@Yeti
 
                     var node = new RankingUINode("", text, COLUMN_WIDTH, ranking);
                     node.loc = DATA_OFFSET +
-                        new Vector2((i / ROWS * COLUMN_WIDTH), (i % ROWS) * 16);
+                        new Vector2((i / ROWS * COLUMN_WIDTH), (i % ROWS) * CharHeight);
 
                     ranks.Add(node);
                     i++;
@@ -185,11 +190,28 @@ namespace Tactile.Windows.Map
 
             Cursor = new UICursor<TextUINode>(Nodes);
             Cursor.draw_offset = new Vector2(-16, 0);
+
+            LeftScrollRegion = new UIEmptyObject(new Vector2(DATA_OFFSET.X, ROWS * CharHeight));
+            LeftScrollRegion.loc = new Vector2(0, DATA_OFFSET.Y);
+            RightScrollRegion = new UIEmptyObject(new Vector2(DATA_OFFSET.X, ROWS * CharHeight));
+            RightScrollRegion.loc = new Vector2(Config.WINDOW_WIDTH - DATA_OFFSET.X, DATA_OFFSET.Y);
+
+            Scroll = new IndexScrollComponent(
+                new Vector2(Config.WINDOW_WIDTH - DATA_OFFSET.X * 2, ROWS * CharHeight),
+                new Vector2(COLUMN_WIDTH, CharHeight),
+                ScrollAxes.Horizontal);
+            Scroll.SetScrollSpeeds(
+                SCROLL_SPEED,
+                Config.CONVO_BACKLOG_TOUCH_SCROLL_FRICTION);
+            Scroll.loc = DATA_OFFSET;
+            Scroll.LeftMouseOver = LeftScrollRegion;
+            Scroll.RightMouseOver = RightScrollRegion;
+            Scroll.SetElementLengths(new Vector2(
+                (ranks.Count + ROWS - 1) / ROWS, Math.Min(ranks.Count, ROWS)));
         }
 
         protected override void UpdateMenu(bool active)
         {
-            base.UpdateMenu(false);
             bool input = active && this.ready_for_inputs;
 
             if (DetailedRanking != null)
@@ -201,7 +223,7 @@ namespace Tactile.Windows.Map
                 }
             }
 
-            update_input(input);
+            base.UpdateMenu(input);
 
             StyleText.update();
             DifficultyText.update();
@@ -212,10 +234,13 @@ namespace Tactile.Windows.Map
             active &= DetailedRanking == null;
 
             CancelButton.Update(active);
-            Nodes.Update(active, new Vector2((int)Scroll.X, (int)Scroll.Y));
+            Nodes.Update(active, Scroll.IntOffset);
             Cursor.update();
 
-            update_scroll(active);
+            Scroll.Update(active, Nodes.ActiveNodeIndex);
+            // Set index back onto nodes if scrolling updated it
+            if (Scroll.Index >= 0 && Scroll.Index < Nodes.Count)
+                Nodes.set_active_node(Nodes[Scroll.Index]);
 
             if (active)
             {
@@ -224,7 +249,7 @@ namespace Tactile.Windows.Map
 
                 if (selected.IsSomething)
                 {
-                    DetailedRanking = new Window_Ranking(Rankings[selected].Value);
+                    DetailedRanking = new Window_Ranking(Rankings[selected.Index].Value);
                 }
                 else if (Global.Input.triggered(Inputs.B) || cancel_button_triggered)
                 {
@@ -234,74 +259,10 @@ namespace Tactile.Windows.Map
             }
         }
 
-        private void update_scroll(bool input)
-        {
-            int columns = (int)Math.Ceiling(Nodes.Count / (float)ROWS);
-            int columns_onscreen = (Config.WINDOW_WIDTH - 48) / COLUMN_WIDTH;
-            int max = (columns - columns_onscreen) * COLUMN_WIDTH;
-
-            if (Input.ControlScheme == ControlSchemes.Buttons)
-            {
-                ScrollSpeed = Vector2.Zero;
-
-                int right_edge_offset = columns_onscreen * COLUMN_WIDTH -
-                    (int)DATA_OFFSET.X;
-                float x = Cursor.loc.X - right_edge_offset;
-                x = Math.Max(Math.Min(x, max), 0);
-                Scroll = new Vector2(x, 0);
-            }
-            else if (Input.ControlScheme == ControlSchemes.Mouse)
-            {
-                ScrollSpeed = Vector2.Zero;
-                if (Input.IsControllingOnscreenMouse)
-                {
-                    const int MOUSE_EDGE = 48;
-
-                    float offset = 0;
-                    if (Global.Input.mousePosition.Y >= DATA_OFFSET.Y &&
-                        Global.Input.mousePosition.Y < DATA_OFFSET.Y + ROWS * 16)
-                    {
-                        // Right edge
-                        if (Global.Input.mousePosition.X >
-                            Config.WINDOW_WIDTH - MOUSE_EDGE)
-                        {
-                            offset = -(float)Math.Pow(
-                                Global.Input.mousePosition.X -
-                                    (Config.WINDOW_WIDTH - MOUSE_EDGE),
-                                0.6f);
-                        }
-                        // Left edge
-                        else if (Global.Input.mousePosition.X < MOUSE_EDGE)
-                        {
-                            offset = (float)Math.Pow(
-                                MOUSE_EDGE - Global.Input.mousePosition.X,
-                                0.6f);
-                        }
-                    }
-
-                    offset = MathHelper.Clamp(offset, -16, 16);
-                    float x = Scroll.X - offset;
-                    x = Math.Max(Math.Min(x, max), 0);
-                    Scroll = new Vector2(x, 0);
-                }
-            }
-            else if (Input.ControlScheme == ControlSchemes.Touch)
-            {
-                float x;
-                if (Global.Input.gesture_triggered(TouchGestures.FreeDrag))
-                {
-                    ScrollSpeed = Global.Input.freeDragVector;
-                }
-                x = Scroll.X - ScrollSpeed.X;
-                x = Math.Max(Math.Min(x, max), 0);
-                Scroll = new Vector2(x, 0);
-            }
-            ScrollSpeed *= 0.9f;
-        }
 
         protected override void draw_window(SpriteBatch sprite_batch)
         {
-            Vector2 scroll = new Vector2((int)Scroll.X, (int)Scroll.Y);
+            Vector2 scroll = Scroll.IntOffset;
 
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             DataBackground.draw(sprite_batch);
@@ -313,6 +274,7 @@ namespace Tactile.Windows.Map
             CancelButton.Draw(sprite_batch);
             StyleText.draw(sprite_batch);
             //DifficultyText.draw(sprite_batch); //Debug
+
             sprite_batch.End();
 
             if (DetailedRanking != null)

@@ -4,6 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+#if __MOBILE__
+using Android.App;
+using Android.Content;
+#endif
 using Microsoft.Xna.Framework;
 #if MONOGAME
 using Microsoft.Xna.Framework.Audio;
@@ -32,7 +36,7 @@ namespace Tactile
 #endif
         const int HYPER_SPEED_MULT = 15;
 
-#if WINDOWS || MONOMAC
+#if WINDOWS || MONOMAC || __MOBILE__
         const bool METRICS_ENABLED = Config.METRICS_ENABLED;
 #else
         const bool METRICS_ENABLED = false;
@@ -83,10 +87,9 @@ namespace Tactile
             MetricsHandler = metricsHandler;
             UpdateChecker = updateChecker;
 
-#if WINDOWS || MONOMAC
             if (METRICS_ENABLED)
                 Global.metrics_allowed = true;
-#endif
+
             if (Config.UPDATE_CHECK_ENABLED)
                 Global.update_check_allowed = true;
 
@@ -200,6 +203,18 @@ namespace Tactile
             Renderer.SetRenderTargets();
         }
 
+        internal static void OpenHyperlink(string link)
+        {
+            string url = string.Format("http://{0}", link);
+#if __MOBILE__
+            var intent = new Intent(Intent.ActionView, Android.Net.Uri.Parse(url));
+            intent.SetFlags(ActivityFlags.NewTask);
+            Game.Activity.StartActivity(intent);
+#else
+            Process.Start(url);
+#endif
+        }
+
         #region Update
         public IEnumerable<GameTime> Update(GameTime gameTime)
         {
@@ -308,8 +323,7 @@ namespace Tactile
         {
             if (Global.VisitGameSiteCall)
             {
-                Process.Start(
-                    string.Format("http://{0}", UpdateChecker.GameDownloadUrl));
+                OpenHyperlink(UpdateChecker.GameDownloadUrl);
 
 #if !__MOBILE__
                 if (Global.gameSettings.Graphics.Fullscreen)

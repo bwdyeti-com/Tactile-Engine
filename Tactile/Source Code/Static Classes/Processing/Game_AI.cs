@@ -2653,26 +2653,55 @@ namespace Tactile
             List<LocationDistance> targetLocs,
             bool ignoreUnits = false)
         {
+            find_tile_near_talk(unit, target.loc_on_map(), targetLocs, ignoreUnits);
+        }
+        private static void find_tile_near_talk(
+            Game_Unit unit,
+            Vector2 target,
+            List<LocationDistance> targetLocs,
+            bool ignoreUnits = false)
+        {
             // Check if the unit can move to any tiles adjacent to the other unit
             foreach (Vector2 offset in new Vector2[] { new Vector2(0, 1), new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0) })
             {
                 // Check if an ally is blocking the tile though //Debug
-                //if (!Global.game_map.is_off_map(target.loc + offset) && !Global.game_map.is_blocked(target.loc + offset, unit.id))
+                //if (!Global.game_map.is_off_map(target + offset) && !Global.game_map.is_blocked(target + offset, unit.id))
                 // Don't worry about the tile being blocked, we're just trying to move closer
-                if (!Global.game_map.is_off_map(target.loc + offset))
+                if (!Global.game_map.is_off_map(target + offset))
                 {
                     Pathfind.ignore_units = ignoreUnits;
-                    Maybe<int> distance_test = Pathfind.get_distance(target.loc + offset, unit.id, -1, false);
+                    Maybe<int> distance_test = Pathfind.get_distance(target + offset, unit.id, -1, false);
                     // If the tile can be reached ever
                     if (distance_test.IsSomething)
                     {
                         // Pathfind as close to it as possible
-                        Maybe<Vector2> target_loc = path_to_target(unit, target.loc + offset, offensive: false);
+                        Maybe<Vector2> target_loc = path_to_target(unit, target + offset, offensive: false);
                         if (target_loc.IsSomething)
                             targetLocs.Add(new LocationDistance(target_loc, distance_test));
                     }
                 }
             }
+        }
+
+        private static bool LocCloserThanCurrent(
+            Game_Unit unit,
+            Vector2 goalLoc,
+            Vector2 targetLoc,
+            bool ignoreUnits = false)
+        {
+            // Check if the tile the unit is thinking about moving to is
+            // any closer than the current tile they're on
+            Maybe<int> distanceTest = Maybe<int>.Nothing;
+            Maybe<int> targetDistanceTest = Maybe<int>.Nothing;
+            if (!Global.game_map.is_off_map(goalLoc))
+            {
+                Pathfind.ignore_units = ignoreUnits;
+                distanceTest = Pathfind.get_distance(goalLoc, unit.id, -1, false);
+                targetDistanceTest = Pathfind.get_distance(goalLoc, unit.id, -1, false, targetLoc);
+            }
+
+            return distanceTest.IsNothing || targetDistanceTest.IsNothing ||
+                    targetDistanceTest < distanceTest;
         }
 
         public static int[] search_for_tile(Game_Unit unit)
@@ -2700,6 +2729,43 @@ namespace Tactile
                     Maybe<Vector2> target_loc = path_to_target(unit, Global.game_map.team_seek_locs[unit.team][unit.group], offensive: false);
                     if (target_loc.IsSomething)
                         return new int[] { (int)((Vector2)target_loc).X, (int)((Vector2)target_loc).Y };
+                }
+            }
+            
+            // Look for other units this specific unit wants to move next to
+            if (Global.game_map.unitSeekTargets.ContainsKey(unit.id))
+            {
+                int targetId = Global.game_map.unitSeekTargets[unit.id];
+                if (Global.game_map.units.ContainsKey(targetId))
+                {
+                    Game_Unit target = Global.game_map.units[targetId];
+                    List<LocationDistance> targetLocs = new List<LocationDistance>();
+                    bool canMoveCloser = false;
+                    // Check the tiles around the target
+                    find_tile_near_talk(unit, target, targetLocs);
+                    if (targetLocs.Any())
+                    {
+                        // See if this actually moves closer
+                        targetLocs.Sort(delegate (LocationDistance a, LocationDistance b) { return a.dist - b.dist; });
+                        canMoveCloser = LocCloserThanCurrent(unit, target.loc_on_map(), targetLocs[0].loc);
+                    }
+                    else
+                    {
+                        find_tile_near_talk(unit, target, targetLocs, true);
+                        targetLocs.Sort(delegate (LocationDistance a, LocationDistance b) { return a.dist - b.dist; });
+                        if (targetLocs.Any())
+                        {
+                            // See if this actually moves closer
+                            targetLocs.Sort(delegate (LocationDistance a, LocationDistance b) { return a.dist - b.dist; });
+                            canMoveCloser = LocCloserThanCurrent(unit, target.loc_on_map(), targetLocs[0].loc, true);
+                        }
+                    }
+
+                    if (targetLocs.Any() && canMoveCloser)
+                    {
+                        var targetLoc = targetLocs[0];
+                        return new int[] { (int)targetLoc.loc.X, (int)targetLoc.loc.Y };
+                    }
                 }
             }
 

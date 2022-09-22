@@ -84,14 +84,14 @@ namespace Tactile.Menus.Map.Unit.Target
         #region IMenu
         protected override void UpdateMenu(bool active)
         {
+            if (CancelButton != null)
+                CancelButton.Update(active);
+            bool cancel = CanceledTriggered(active);
+
             int index = Window.index;
             Window.update(active);
             if (index != Window.index)
                 OnIndexChanged(new EventArgs());
-
-            if (CancelButton != null)
-                CancelButton.Update(active);
-            bool cancel = CanceledTriggered(active);
 
             if (cancel)
             {

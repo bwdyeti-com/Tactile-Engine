@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TactileConfig</RootNamespace>
+    <RootNamespace>Tactile</RootNamespace>
     <AssemblyName>TactileConfig</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -89,6 +89,7 @@
     <Compile Include="Source Code\Static Classes\Config Data\Terrain_Data.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Weapon_Triangle.cs" />
     <Compile Include="Source Code\World_Map_Chapter.cs" />
+    <Compile Include="UnitScreenData.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TactileLibrary\TactileLibrary.csproj">

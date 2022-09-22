@@ -173,6 +173,9 @@ namespace Tactile.State
                                     if (this.visitor.is_rescuing)
                                         Global.game_map.remove_unit(this.visitor.rescuing);
                                     Global.game_map.remove_unit(this.visitor.id);
+
+                                    // Wait events for escaping units
+                                    // called at the end of visiting
                                 }
                                 else
                                 {
@@ -216,7 +219,7 @@ namespace Tactile.State
             highlight_test();
 
             if (escape)
-                Global.game_state.any_trigger_events();
+                Global.game_state.unit_wait_events();
         }
     }
 }

@@ -52,8 +52,8 @@ namespace Tactile.Options
                 //@Debug: Need percent sign % in the font
                 SettingsData.Create("Left Analog Dead Zone", ConfigTypes.Slider, 20,
                     formatString: "{0}%", rangeMin: 10, rangeMax: 80),
-                SettingsData.Create("Button Icons", ConfigTypes.Number, (int)ButtonIcons.Xbox360,
-                    rangeMin: 0, rangeMax: 1),
+                SettingsData.Create("Button Icons", ConfigTypes.List, (int)ButtonIcons.Xbox360,
+                    rangeMin: 0, rangeMax: 1, width: 32),
                 SettingsData.Create("Keyboard Controls", ConfigTypes.SubSettings, ""),
                 SettingsData.Create("Gamepad Controls", ConfigTypes.SubSettings, ""),
             };
@@ -126,7 +126,7 @@ namespace Tactile.Options
             }
         }
 
-        public override string ValueString(int index)
+        public override string ValueString(int index, object value)
         {
             var entry = GetEntryIndex(index);
 
@@ -134,7 +134,7 @@ namespace Tactile.Options
             {
                 case (int)ControlsSetting.IconSet:
                     // System names
-                    switch (Value<int>(index))
+                    switch ((int)value)
                     {
                         case 0:
                         default:
@@ -144,7 +144,7 @@ namespace Tactile.Options
                     }
             }
 
-            return base.ValueString(index);
+            return base.ValueString(index, value);
         }
 
         public override void SetValue(Tuple<int, int> entry, object value)

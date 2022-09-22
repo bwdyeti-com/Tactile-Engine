@@ -12,7 +12,7 @@ using Android.App;
 [assembly: AssemblyProduct("TactileGame")]
 [assembly: AssemblyDescription("Tactile Default Game")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
-[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2020")]
+[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -34,7 +34,7 @@ using Android.App;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.7.0.3")]
+[assembly: AssemblyVersion("0.7.2.0")]
 
 // Add some common permissions, these can be removed if not needed
 #if __ANDROID__

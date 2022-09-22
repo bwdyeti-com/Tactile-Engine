@@ -1654,29 +1654,60 @@ namespace Tactile
             return true;
         }
 
-        // Class Change
+        // 51: Class Change
         private bool command_class_change()
         {
-            // Value[0] = id is for a unit, or for an actor
-            // Value[1] = id
-            // Value[2] = new class id
-            // Value[3] = promote or class change
             Game_Actor actor;
-            get_actor(command.Value[0], command.Value[1], out actor);
-            if (actor != null)
+            switch (command.Value[0])
             {
-                if (process_bool(command.Value[3]))
-                    actor.quick_promotion(process_number(command.Value[2]));
-                else
-                {
-                    throw new NotImplementedException();
-                    actor.class_id = process_number(command.Value[2]);
-                }
-                foreach (Game_Unit unit in Global.game_map.units.Values)
-                    if (unit.actor == actor)
-                        unit.refresh_sprite();
-                // Move ranges will need to be updated
-                unit_moved = true;
+                case "Promotion":
+                    // Value[0] = "Promotion"
+                    // Value[1] = id is for a unit, or for an actor
+                    // Value[2] = id
+                    // Value[3] = index in promotion array (optional)
+                    get_actor(command.Value[1], command.Value[2], out actor);
+                    if (actor != null)
+                    {
+                        int promotionIndex = command.Value.Length >= 4 ?
+                            process_number(command.Value[3]) : 0;
+                        if (promotionIndex < actor.actor_class.Promotion.Count)
+                        {
+                            int promotionId = actor.actor_class.Promotion
+                                .Keys
+                                .OrderBy(x => x)
+                                .ElementAt(promotionIndex);
+
+                            actor.quick_promotion(promotionId);
+                            foreach (Game_Unit unit in Global.game_map.units.Values)
+                                if (unit.actor == actor)
+                                    unit.refresh_sprite();
+                            // Move ranges will need to be updated
+                            unit_moved = true;
+                        }
+                    }
+                    break;
+                default:
+                    // Value[0] = id is for a unit, or for an actor
+                    // Value[1] = id
+                    // Value[2] = new class id
+                    // Value[3] = promote or class change
+                    get_actor(command.Value[0], command.Value[1], out actor);
+                    if (actor != null)
+                    {
+                        if (process_bool(command.Value[3]))
+                            actor.quick_promotion(process_number(command.Value[2]));
+                        else
+                        {
+                            throw new NotImplementedException();
+                            actor.class_id = process_number(command.Value[2]);
+                        }
+                        foreach (Game_Unit unit in Global.game_map.units.Values)
+                            if (unit.actor == actor)
+                                unit.refresh_sprite();
+                        // Move ranges will need to be updated
+                        unit_moved = true;
+                    }
+                    break;
             }
             Index++;
             return true;
@@ -2483,20 +2514,61 @@ namespace Tactile
         // 94: Add Unit Seek Loc
         private bool command_add_unit_seek()
         {
-            // Value[0] = unit id
-            // Value[1] = x
-            // Value[2] = y
-            int id = process_unit_id(command.Value[0]);
-            Game_Unit unit = null;
-            if (id == -1)
-                if (Global.game_map.last_added_unit != null)
-                    unit = Global.game_map.last_added_unit;
-            if (Global.game_map.units.ContainsKey(id))
-                unit = Global.game_map.units[id];
-            if (unit != null)
+            int id;
+            Game_Unit unit;
+
+            switch (command.Value[0])
             {
-                Global.game_map.add_unit_seek(unit.id, process_number(command.Value[1]), process_number(command.Value[2]));
+                case "Seek Unit":
+                    // Value[0] = "Seek Unit"
+                    // Value[1] = unit id
+                    // Value[2] = target id
+                    id = process_unit_id(command.Value[1]);
+                    unit = null;
+                    if (id == -1)
+                    {
+                        if (Global.game_map.last_added_unit != null)
+                            unit = Global.game_map.last_added_unit;
+                    }
+                    else if (Global.game_map.units.ContainsKey(id))
+                        unit = Global.game_map.units[id];
+
+                    id = process_unit_id(command.Value[2]);
+                    Game_Unit target = null;
+                    if (id == -1)
+                    {
+                        if (Global.game_map.last_added_unit != null)
+                            target = Global.game_map.last_added_unit;
+                    }
+                    else if (Global.game_map.units.ContainsKey(id))
+                        target = Global.game_map.units[id];
+
+                    if (unit != null && unit != null && unit != target)
+                    {
+                        Global.game_map.AddUnitSeek(unit.id, target.id);
+                    }
+                    break;
+                default:
+                    // Value[0] = unit id
+                    // Value[1] = x
+                    // Value[2] = y
+                    id = process_unit_id(command.Value[0]);
+                    unit = null;
+                    if (id == -1)
+                    {
+                        if (Global.game_map.last_added_unit != null)
+                            unit = Global.game_map.last_added_unit;
+                    }
+                    else if (Global.game_map.units.ContainsKey(id))
+                        unit = Global.game_map.units[id];
+
+                    if (unit != null)
+                    {
+                        Global.game_map.add_unit_seek(unit.id, process_number(command.Value[1]), process_number(command.Value[2]));
+                    }
+                    break;
             }
+
             Index++;
             return true;
         }
@@ -3652,7 +3724,7 @@ namespace Tactile
 #if DEBUG
                     result = Global.game_map.units.ContainsKey(process_unit_id(command.Value[1], ignore_error: true));
 #else
-                        result = Global.game_map.units.ContainsKey(process_unit_id(command.Value[1]));
+                    result = Global.game_map.units.ContainsKey(process_unit_id(command.Value[1]));
 #endif
                     break;
                 case "Actor has Unit":

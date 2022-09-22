@@ -59,7 +59,8 @@ namespace Tactile.Menus.Title
             if (Global.Input.triggered(Inputs.Start) ||
                     Global.Input.triggered(Inputs.A) ||
                     Global.Input.any_mouse_triggered ||
-                    Global.Input.gesture_triggered(TouchGestures.Tap))
+                    Global.Input.gesture_triggered(TouchGestures.Tap) ||
+                    Global.Input.gesture_triggered(TouchGestures.LongPress))
                 OnClosed(new EventArgs());
             else
             {

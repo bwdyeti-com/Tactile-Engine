@@ -147,8 +147,6 @@ namespace Tactile
             // Supports Window
             Supports_Window = new System_Color_Window();
             Supports_Window.loc = new Vector2(168, 80);
-            Supports_Window.width = 144;
-            Supports_Window.height = 112;
             Supports_Window.stereoscopic = Config.STATUS_RIGHT_WINDOW_DEPTH;
             // Affinity
             nodes.Add(new StatusAffinityUINode(
@@ -164,6 +162,9 @@ namespace Tactile
             Support_Bg = new Status_Support_Background();
             Support_Bg.loc = Supports_Window.loc + new Vector2(8, 24);
             Support_Bg.stereoscopic = Config.STATUS_RIGHT_WINDOW_DEPTH;
+            // Supports Window Size
+            Supports_Window.width = 144;
+            Supports_Window.height = Supports.Rows * 16 + 32;
 
             StatusPageNodes = new UINodeSet<StatusUINode>(nodes);
 

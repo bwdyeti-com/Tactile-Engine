@@ -13,7 +13,6 @@ namespace Tactile.Windows.Map.Items
     {
         private bool Giving = false;
         private bool HardSwitch = false;
-        //protected Window_Command Command_Window; //Debug
         private Face_Sprite Face;
         private Sprite Nameplate;
         private TextSprite Name;
@@ -91,9 +90,14 @@ namespace Tactile.Windows.Map.Items
         protected override void refresh_input_help()
         {
             base.refresh_input_help();
-            SwitchButton = Button_Description.button(Inputs.X, new Vector2(176, 8));
-            SwitchButton.description = "Switch";
-            SwitchButton.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;
+            if (Global.battalion.has_convoy)
+            {
+                SwitchButton = Button_Description.button(Inputs.X, new Vector2(176 - 48, 8));
+                SwitchButton.description = "Switch";
+                SwitchButton.offset = new Vector2((int)(SwitchButton.Size.X * 0.275f), 0);
+                SwitchButton.loc += new Vector2(12, 0);
+                SwitchButton.stereoscopic = Config.CONVOY_INPUTHELP_DEPTH;
+            }
         }
 
         protected override void initialize_supply_window()
@@ -133,7 +137,8 @@ namespace Tactile.Windows.Map.Items
 
         protected override void UpdateMenu(bool active)
         {
-            SwitchButton.Update(active);
+            if (SwitchButton != null)
+                SwitchButton.Update(active);
             base.UpdateMenu(active && this.ready);
             Face.update();
         }
@@ -141,18 +146,17 @@ namespace Tactile.Windows.Map.Items
         protected override void update_ui(bool active)
         {
             if (active)
-            {
-                if (Global.Input.triggered(Inputs.X) ||
-                    SwitchButton.consume_trigger(MouseButtons.Left) ||
-                    SwitchButton.consume_trigger(TouchGestures.Tap))
+                if (Global.battalion.has_convoy)
                 {
-                    Global.game_system.play_se(System_Sounds.Menu_Move2);
-                    switch_giving();
-                    HardSwitch = this.giving;
-                    Supply_Window.show_type_icon();
-                    return;
+                    if (Global.Input.triggered(Inputs.X))
+                    {
+                        Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        switch_giving();
+                        HardSwitch = this.giving;
+                        Supply_Window.show_type_icon();
+                        return;
+                    }
                 }
-            }
 
             if (active && this.taking && this.can_give)
             {
@@ -178,6 +182,45 @@ namespace Tactile.Windows.Map.Items
                     return;
                 }
             }
+
+            // Switch between windows if the user uses pointing controls on
+            // the inactive one
+            if (active && !this.selecting_take && !this.is_help_active)
+            {
+                //@Debug: there's a better way to do this by passing
+                // ControlSet flags into the Item and Supply windows
+                if (this.giving && this.can_take)
+                {
+                    Rectangle supplyWindowRect = new Rectangle(
+                        (int)Supply_Window.loc.X, (int)Supply_Window.loc.Y,
+                        (int)Supply_Window.size.X, (int)Supply_Window.size.Y);
+                    if ((Input.ControlScheme == ControlSchemes.Mouse &&
+                        Global.Input.mouse_in_rectangle(supplyWindowRect)) ||
+                        (Input.ControlScheme == ControlSchemes.Touch &&
+                        Global.Input.touch_rectangle(
+                            Services.Input.InputStates.Pressed, supplyWindowRect, false)))
+                    {
+                        Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        switch_giving();
+                    }
+                }
+                else if (this.taking && this.can_give)
+                {
+                    Rectangle itemWindowRect = new Rectangle(
+                        (int)Item_Window.loc.X, (int)Item_Window.loc.Y,
+                        (int)Item_Window.size.X, (int)Item_Window.size.Y);
+                    if ((Input.ControlScheme == ControlSchemes.Mouse &&
+                        Global.Input.mouse_in_rectangle(itemWindowRect)) ||
+                        (Input.ControlScheme == ControlSchemes.Touch &&
+                        Global.Input.touch_rectangle(
+                            Services.Input.InputStates.Pressed, itemWindowRect, false)))
+                    {
+                        Global.game_system.play_se(System_Sounds.Menu_Move2);
+                        switch_giving();
+                    }
+                }
+            }
+
             int item_index = Item_Window.index;
             base.update_ui(active);
             if (this.giving && item_index == Item_Window.index)
@@ -201,7 +244,7 @@ namespace Tactile.Windows.Map.Items
 
         protected override void update_input(bool active)
         {
-            if (Giving)
+            if (this.giving)
                 update_unit_inventory(active);
             else
                 update_taking(active);
@@ -209,16 +252,21 @@ namespace Tactile.Windows.Map.Items
 
         private void update_unit_inventory(bool active)
         {
+            bool cancel =
+                CancelButton.consume_trigger(MouseButtons.Left) ||
+                CancelButton.consume_trigger(TouchGestures.Tap) ||
+                Item_Window.is_canceled();
+
             if (active)
             {
                 if (is_help_active)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                         close_help();
                 }
                 else if (giving)
                 {
-                    if (Item_Window.is_canceled())
+                    if (cancel)
                     {
                         Global.game_system.play_se(System_Sounds.Cancel);
                         close();
@@ -235,16 +283,21 @@ namespace Tactile.Windows.Map.Items
         {
             if (active)
             {
-                if (selecting_take)
+                if (this.selecting_take)
                 {
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Item_Selection_Window.is_canceled();
+
                     if (is_help_active)
                     {
-                        if (Item_Selection_Window.is_canceled())
+                        if (cancel)
                             close_help();
                     }
                     else
                     {
-                        if (Item_Selection_Window.is_canceled())
+                        if (cancel)
                         {
                             Global.game_system.play_se(System_Sounds.Cancel);
                             cancel_selecting_take();
@@ -257,14 +310,19 @@ namespace Tactile.Windows.Map.Items
                 }
                 else if (taking)
                 {
+                    bool cancel =
+                        CancelButton.consume_trigger(MouseButtons.Left) ||
+                        CancelButton.consume_trigger(TouchGestures.Tap) ||
+                        Supply_Window.is_canceled();
+
                     if (is_help_active)
                     {
-                        if (Supply_Window.is_canceled())
+                        if (cancel)
                             close_help();
                     }
                     else
                     {
-                        if (Supply_Window.is_canceled())
+                        if (cancel)
                         {
                             Global.game_system.play_se(System_Sounds.Cancel);
                             close();
@@ -292,7 +350,7 @@ namespace Tactile.Windows.Map.Items
 
         public void switch_giving()
         {
-            if (Giving)
+            if (this.giving)
             {
                 Supply_Window.active = true;
                 Item_Window.active = false;
@@ -409,7 +467,7 @@ namespace Tactile.Windows.Map.Items
         #region Help
         public override void open_help()
         {
-            if (Giving)
+            if (this.giving)
             {
                 Item_Window.open_help();
             }
@@ -424,7 +482,7 @@ namespace Tactile.Windows.Map.Items
 
         public override void close_help()
         {
-            if (Giving)
+            if (this.giving)
             {
                 Item_Window.close_help();
             }
@@ -446,7 +504,8 @@ namespace Tactile.Windows.Map.Items
 
             Stock_Banner.draw(sprite_batch);
             Owner.draw_multicolored(sprite_batch);
-            SwitchButton.Draw(sprite_batch);
+            if (SwitchButton != null && Input.ControlScheme == ControlSchemes.Buttons)
+                SwitchButton.Draw(sprite_batch);
             sprite_batch.End();
 
             Face.draw(sprite_batch);
@@ -454,7 +513,7 @@ namespace Tactile.Windows.Map.Items
 
         protected override void draw_command_windows(SpriteBatch spriteBatch)
         {
-            if (!Giving)
+            if (this.taking)
             {
                 Item_Window.draw(spriteBatch);
                 Supply_Window.draw(spriteBatch);

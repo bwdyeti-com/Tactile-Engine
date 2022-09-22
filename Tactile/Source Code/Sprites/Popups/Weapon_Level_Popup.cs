@@ -11,14 +11,14 @@ namespace Tactile
         Weapon_Type_Icon Icon;
         TextSprite Rank, Text;
 
-        public Weapon_Level_Popup(int weapon, int newRank) : this(weapon, newRank, true) { }
-        public Weapon_Level_Popup(int weapon, int newRank, bool battle_scene)
+        public Weapon_Level_Popup(int weaponType, int newRank) : this(weaponType, newRank, true) { }
+        public Weapon_Level_Popup(int weaponType, int newRank, bool battle_scene)
         {
             Width = WIDTH;
-            initialize(weapon, newRank, battle_scene);
+            initialize(weaponType, newRank, battle_scene);
         }
 
-        protected void initialize(int weapon, int newRank, bool battle_scene)
+        protected void initialize(int weaponType, int newRank, bool battle_scene)
         {
             Timer_Max = 97;
             if (battle_scene)
@@ -41,7 +41,7 @@ namespace Tactile
             Rank.text = TactileLibrary.Data_Weapon.WLVL_LETTERS[newRank];
             // Weapon type icon
             Icon = new Weapon_Type_Icon();
-            Icon.index = weapon;
+            Icon.index = Global.weapon_types[weaponType].IconIndex;
             Icon.loc = Rank.loc + new Vector2(Rank.text_width, 0);
         }
 

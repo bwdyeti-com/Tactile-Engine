@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Tactile.Graphics;
-using Tactile.Graphics.Text;
-using Tactile.Graphics.Windows;
+using Tactile.Graphics.Help;
 using Tactile.Menus;
-using Tactile.Menus.Title;
-using Tactile.Windows.Command;
 using Tactile.Windows.UserInterface;
-using Tactile.Windows.UserInterface.Command;
 using Tactile.Windows.UserInterface.Title;
 
 namespace Tactile
@@ -26,7 +20,7 @@ namespace Tactile
     {
         const int BLACK_SCEEN_FADE_TIMER = 15;
         const int BLACK_SCREEN_HOLD_TIMER = 8;
-        readonly static Vector2 MENU_LOC = new Vector2(56, 32);
+        readonly static Vector2 MENU_LOC = new Vector2(56, 24);
         const Main_Menu_Selections EXPANDABLE_SELECTION = Main_Menu_Selections.Start_Game;
 
         private bool MenusHidden = false;
@@ -40,6 +34,8 @@ namespace Tactile
         private Suspend_Info_Panel SuspendPanel;
         private StartGame_Info_Panel StartGamePanel;
         private Game_Updated_Banner GameUpdated;
+
+        private Button_Description CancelButton;
 
         #region Accessors
         public override bool HidesParent { get { return DataDisplayed; } }
@@ -73,9 +69,19 @@ namespace Tactile
 
             MenuChoices.Add(new MainMenuChoicePanel("QUIT"));
 
+            CreateCancelButton();
+
             initialize_game_update_banner(true);
 
             RefreshMenuChoices();
+        }
+
+        private void CreateCancelButton()
+        {
+            CancelButton = Button_Description.button(Inputs.B,
+                Config.WINDOW_WIDTH - 64);
+            CancelButton.description = "Cancel";
+            CancelButton.stereoscopic = Config.TITLE_MENU_DEPTH;
         }
 
         private void initialize_game_update_banner(bool startOpened)
@@ -132,32 +138,36 @@ namespace Tactile
         private void RefreshLocs()
         {
             RefreshExpandedSelection();
-            // Resume
-            if (ExpandedSelection == Main_Menu_Selections.Resume)
+
+            // Expanded Selection Size
+            for (int i = 0; i <= (int)EXPANDABLE_SELECTION; i++)
             {
-                MenuChoices[0].Size = new Vector2(
-                    MenuChoices[0].Size.X, SuspendPanel == null ? 16 : SuspendPanel.height);
-                MenuChoices[0].BgVisible = false;
-            }
-            else
-            {
-                MenuChoices[0].Size = new Vector2(MenuChoices[0].Size.X, 16);
-                MenuChoices[0].BgVisible = true;
-            }
-            // Start Game
-            if (ExpandedSelection == Main_Menu_Selections.Start_Game)
-            {
-                MenuChoices[1].Size = new Vector2(
-                    MenuChoices[1].Size.X, StartGamePanel.height);
-                MenuChoices[1].BgVisible = false;
-            }
-            else
-            {
-                MenuChoices[1].Size = new Vector2(MenuChoices[1].Size.X, 16);
-                MenuChoices[1].BgVisible = true;
+                if (ExpandedSelection == (Main_Menu_Selections)i)
+                {
+                    MenuChoices[i].Size = new Vector2(
+                        MenuChoices[i].Size.X, SelectionHeight(ExpandedSelection));
+                    MenuChoices[i].BgVisible = false;
+                }
+                else
+                {
+                    MenuChoices[i].Size = new Vector2(MenuChoices[i].Size.X, 16);
+                    MenuChoices[i].BgVisible = true;
+                }
             }
 
             Vector2 loc = MENU_LOC + new Vector2(4, -12);
+            // Account for different sized expanded selections
+            Main_Menu_Selections expandOffsetSelection =
+                ExpandedSelection == Main_Menu_Selections.None ?
+                EXPANDABLE_SELECTION : ExpandedSelection;
+            for (int i = (int)expandOffsetSelection - 1; i >= 0; i--)
+            {
+                if (MenuChoices[i].Visible)
+                {
+                    int expandOffset = SelectionHeight((Main_Menu_Selections)i) - 64;
+                    loc += new Vector2(0, expandOffset);
+                }
+            }
             for (int i = 0; i < MenuChoices.Count; i++)
             {
                 MenuChoices[i].ResetOffset();
@@ -173,19 +183,22 @@ namespace Tactile
                 }
                 MenuChoices[i].RefreshBg();
             }
+        }
 
-            // Increases the top of the start game hitbox over the resume one somewhat
-            if (SuspendExists && ExpandedSelection == Main_Menu_Selections.Resume)
+        private int SelectionHeight(Main_Menu_Selections option)
+        {
+            // Resume
+            if (option == Main_Menu_Selections.Resume)
             {
-                int heightAdjustment = SuspendPanel.height - StartGamePanel.height;
-                if (heightAdjustment > 0)
-                {
-                    MenuChoices[0].Size.Y -= heightAdjustment;
-                    MenuChoices[1].Size.Y += heightAdjustment;
-                    MenuChoices[1].loc.Y -= heightAdjustment;
-                    MenuChoices[1].offset.Y -= heightAdjustment;
-                }
+                return SuspendPanel == null ? 16 : SuspendPanel.height;
             }
+            // Start Game
+            if (option == Main_Menu_Selections.Start_Game)
+            {
+                return StartGamePanel.height;
+            }
+
+            return 16;
         }
 
         private void RefreshExpandedSelection()
@@ -264,6 +277,8 @@ namespace Tactile
                 ChangeSelection(ChoiceNodes.ActiveNodeIndex);
             }
 
+            CancelButton.Update(active);
+
             if (active)
             {
                 if (GameUpdated == null)
@@ -277,14 +292,25 @@ namespace Tactile
                     Global.Input.triggered(Inputs.Start))
                 {
                     if (selected.IsSomething)
-                        ChangeSelection(selected);
+                        ChangeSelection(selected.Index);
                     OnSelected(new EventArgs());
                 }
-                else if (Global.Input.triggered(Inputs.B))
+                else if (Global.Input.triggered(Inputs.B) ||
+                    CancelButton.consume_trigger(MouseButtons.Left) ||
+                    CancelButton.consume_trigger(TouchGestures.Tap))
                 {
                     Global.game_system.play_se(System_Sounds.Cancel);
                     OnCanceled(new EventArgs());
                 }
+            }
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (CancelButton != null)
+            {
+                if (Input.ControlSchemeSwitched)
+                    CreateCancelButton();
             }
         }
 
@@ -376,6 +402,10 @@ namespace Tactile
 
                     sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                     ChoiceNodes.Draw(sprite_batch);
+                    sprite_batch.End();
+
+                    sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                    CancelButton.Draw(sprite_batch);
                     sprite_batch.End();
                 }
             }

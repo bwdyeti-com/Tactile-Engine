@@ -295,7 +295,15 @@ namespace Tactile
             return result;
         }
 
-        public static float combat_odds(Game_Unit battler_1, Game_Unit battler_2, int atk_distance, int? weapon_index, bool hard_ai, bool ignore_terrain)
+        public static float combat_odds(
+            Game_Unit battler_1,
+            Game_Unit battler_2,
+            int atk_distance,
+            int? weapon_index,
+            bool hard_ai,
+            bool ignore_terrain,
+            Maybe<int> minimumDmg = default(Maybe<int>),
+            Maybe<int> minimumHit = default(Maybe<int>))
         {
             Data_Weapon weapon1, weapon2 = null;
             if (weapon_index == null)
@@ -311,12 +319,25 @@ namespace Tactile
             if (stats_ary[4] == null)
                 return 1f;
 
-            int atk1 = (int)stats_ary[1];
+            int dmg1 = (int)stats_ary[1];
             int hit1 = (int)stats_ary[0];
             int crt1 = (int)stats_ary[2];
-            int atk2 = (int)stats_ary[5];
+            int dmg2 = (int)stats_ary[5];
             int hit2 = (int)stats_ary[4];
             int crt2 = (int)stats_ary[6];
+
+            // Minimum damage
+            if (minimumDmg.IsSomething)
+            {
+                dmg1 = Math.Max(minimumDmg, dmg1);
+                dmg2 = Math.Max(minimumDmg, dmg2);
+            }
+            // Minimum hit
+            if (minimumHit.IsSomething)
+            {
+                hit1 = Math.Max(minimumHit, hit1);
+                hit2 = Math.Max(minimumHit, hit2);
+            }
 
             int hits_per_attack1 = battler_1.is_brave_blocked() ? 1 : weapon1.HitsPerAttack;
             int hits_per_attack2 = battler_2.is_brave_blocked() ? 1 : weapon2.HitsPerAttack;
@@ -325,7 +346,7 @@ namespace Tactile
 
             return combat_odds(
                 hard_ai, battler_1.actor.maxhp, battler_2.actor.maxhp,
-                atk1, hit1, crt1, atk2, hit2, crt2,
+                dmg1, hit1, crt1, dmg2, hit2, crt2,
                 hits_per_attack1, hits_per_attack2, attacks_per_round1, attacks_per_round2);
         }
         public static float combat_odds(bool hard_ai, int hp1, int hp2, int atk1, int hit1, int crt1, int atk2, int hit2, int crt2,

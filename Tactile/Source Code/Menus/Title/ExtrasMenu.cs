@@ -8,7 +8,7 @@ using Tactile.Windows.UserInterface.Title;
 
 namespace Tactile.Menus.Title
 {
-    enum ExtrasSelections { SoundRoom, SupportViewer, Credits }
+    enum ExtrasSelections { SoundRoom, SupportViewer, Community, Credits }
 
     class ExtrasMenu : StandardMenu
     {
@@ -22,10 +22,12 @@ namespace Tactile.Menus.Title
         {
             MenuChoices.Add(new MainMenuChoicePanel("Sound Room"));
             MenuChoices.Add(new MainMenuChoicePanel("Supports"));
+            MenuChoices.Add(new MainMenuChoicePanel("Community"));
             MenuChoices.Add(new MainMenuChoicePanel("Credits"));
 
             MenuChoices[(int)ExtrasSelections.SoundRoom].Visible = Global.progress.SoundRoomAccessible;
             MenuChoices[(int)ExtrasSelections.SupportViewer].Visible = Global.progress.SupportViewerAccessible;
+            MenuChoices[(int)ExtrasSelections.Community].Visible = Global.progress.CommunityAccessible;
 
             RefreshLocs();
             

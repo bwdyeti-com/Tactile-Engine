@@ -17,7 +17,7 @@ namespace Tactile.Windows.Command.Items
         internal void face_values(bool facingRight, WindowPanel window)
         {
             Face.mirrored = facingRight;
-            Face.loc = new Vector2(-window.width / 2, window.height - (40 + 2));
+            Face.loc = new Vector2(-window.width / 2, window.height - (32 + 2));
         }
 
         protected override void set_face(Game_Actor actor)

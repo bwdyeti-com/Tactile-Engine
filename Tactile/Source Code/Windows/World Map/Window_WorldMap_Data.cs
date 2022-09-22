@@ -1,19 +1,23 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Tactile.Graphics.Map;
 using Tactile.Graphics.Text;
 
-namespace Tactile
+namespace Tactile.Windows.WorldMap
 {
     class Window_WorldMap_Data : Graphic_Object
     {
         public const int WIDTH = 136;
 
-        Sprite Window, Labels;
-        TextSprite Chapter, Lord_Lvl, Unit_Count, Gold, Mode;
-        Play_Time_Counter Counter;
-        Character_Sprite Lord_Sprite;
-        Page_Arrow Left_Arrow, Right_Arrow;
+        private Sprite Window, Labels;
+        private TextSprite Chapter, LordLvl, UnitCount, Gold, Mode;
+        private Play_Time_Counter Counter;
+        private Character_Sprite Lord_Sprite;
+        private Page_Arrow LeftArrow, RightArrow;
+
+        public bool LeftClicked { get; private set; }
+        public bool RightClicked { get; private set; }
 
         public Window_WorldMap_Data()
         {
@@ -27,17 +31,17 @@ namespace Tactile
             Chapter.loc = new Vector2(8, 8);
             Chapter.SetFont(Config.UI_FONT, Global.Content, "White");
             // Lord_Lvl
-            Lord_Lvl = new RightAdjustedText();
-            Lord_Lvl.loc = new Vector2(128, 8);
-            Lord_Lvl.SetFont(Config.UI_FONT, Global.Content, "Blue");
+            LordLvl = new RightAdjustedText();
+            LordLvl.loc = new Vector2(128, 8);
+            LordLvl.SetFont(Config.UI_FONT, Global.Content, "Blue");
             // Mode
             Mode = new TextSprite();
             Mode.loc = new Vector2(12, 24);
             Mode.SetFont(Config.UI_FONT, Global.Content, "Blue");
             // Unit_Count
-            Unit_Count = new RightAdjustedText();
-            Unit_Count.loc = new Vector2(40, 40);
-            Unit_Count.SetFont(Config.UI_FONT, Global.Content, "Blue");
+            UnitCount = new RightAdjustedText();
+            UnitCount.loc = new Vector2(40, 40);
+            UnitCount.SetFont(Config.UI_FONT, Global.Content, "Blue");
             // Gold
             Gold = new RightAdjustedText();
             Gold.loc = new Vector2(120, 40);
@@ -50,18 +54,36 @@ namespace Tactile
             Lord_Sprite.mirrored = Constants.Team.flipped_map_sprite(
                 Constants.Team.PLAYER_TEAM);
             // Arrows
-            Left_Arrow = new Page_Arrow();
-            Left_Arrow.loc = new Vector2(0, 24);
-            Right_Arrow = new Page_Arrow();
-            Right_Arrow.loc = new Vector2(WIDTH, 24);
-            Right_Arrow.mirrored = true;
+            LeftArrow = new Page_Arrow();
+            LeftArrow.loc = new Vector2(0, 24);
+            LeftArrow.ArrowClicked += LeftArrow_ArrowClicked;
+            RightArrow = new Page_Arrow();
+            RightArrow.loc = new Vector2(WIDTH, 24);
+            RightArrow.mirrored = true;
+            RightArrow.ArrowClicked += RightArrow_ArrowClicked;
+        }
+
+        private void LeftArrow_ArrowClicked(object sender, EventArgs e)
+        {
+            LeftClicked = true;
+        }
+
+        private void RightArrow_ArrowClicked(object sender, EventArgs e)
+        {
+            RightClicked = true;
         }
 
         public void update()
         {
+            LeftClicked = false;
+            RightClicked = false;
+
             Counter.update();
-            Left_Arrow.update();
-            Right_Arrow.update();
+            LeftArrow.update();
+            RightArrow.update();
+
+            LeftArrow.UpdateInput(-loc);
+            RightArrow.UpdateInput(-loc);
         }
 
         public void set(string name, int lord_id, TactileLibrary.Preset_Chapter_Data data)
@@ -73,9 +95,9 @@ namespace Tactile
             if (level == 0)
                 if (Global.data_actors.ContainsKey(lord_id))
                     level = Global.data_actors[lord_id].Level;
-            Lord_Lvl.text = level.ToString();
+            LordLvl.text = level.ToString();
             // Unit_Count
-            Unit_Count.text = data.Units.ToString();
+            UnitCount.text = data.Units.ToString();
             // Gold
             Gold.text = data.Gold.ToString();
             // Play Time Counter
@@ -99,7 +121,10 @@ namespace Tactile
             // Mode
             Mode.text = difficulty.ToString();// == Difficulty_Modes.Hard ? "Hard" : "Normal"; //Yeti
             // Arrows
-            Left_Arrow.visible = Right_Arrow.visible = arrowsVisible;
+            LeftArrow.visible = RightArrow.visible = arrowsVisible;
+
+            LeftClicked = false;
+            RightClicked = false;
         }
 
         public void draw(SpriteBatch sprite_batch)
@@ -107,14 +132,14 @@ namespace Tactile
             Window.draw(sprite_batch, -loc);
             Labels.draw(sprite_batch, -loc);
             Chapter.draw(sprite_batch, -loc);
-            Lord_Lvl.draw(sprite_batch, -loc);
+            LordLvl.draw(sprite_batch, -loc);
             Mode.draw(sprite_batch, -loc);
-            Unit_Count.draw(sprite_batch, -loc);
+            UnitCount.draw(sprite_batch, -loc);
             Gold.draw(sprite_batch, -loc);
             Counter.draw(sprite_batch, -loc);
             Lord_Sprite.draw(sprite_batch, -loc);
-            Left_Arrow.draw(sprite_batch, -loc);
-            Right_Arrow.draw(sprite_batch, -loc);
+            LeftArrow.draw(sprite_batch, -loc);
+            RightArrow.draw(sprite_batch, -loc);
         }
     }
 }

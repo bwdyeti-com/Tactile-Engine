@@ -3766,6 +3766,19 @@ namespace Tactile
         {
             return Math.Max(0, Constants.Support.ADJACENT_SUPPORT_POINTS - (dist - 1));
         }
+
+        /// <summary>
+        /// Returns the support progress for this and another actor.
+        /// </summary>
+        /// <param name="actorId">Id of the other actor</param>
+        /// <returns></returns>
+        internal int GetSupportProgress(int actorId)
+        {
+            if (Support_Progress.ContainsKey(actorId))
+                return Support_Progress[actorId];
+
+            return 0;
+        }
         #endregion
 
         public int get_support_level(int actorId)
@@ -3947,6 +3960,14 @@ namespace Tactile
             {
                 Global.game_battalions.individual_animations[Id] =
                     (value + ((int)Constants.Animation_Modes.Map + 1)) % ((int)Constants.Animation_Modes.Map + 1);
+            }
+        }
+        public string IndividualAnimationName
+        {
+            get
+            {
+                return Constants.OptionsConfig.OPTIONS_DATA[
+                  (int)Constants.Options.Animation_Mode].Options[this.individual_animation].Name;
             }
         }
 

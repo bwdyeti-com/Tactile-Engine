@@ -204,7 +204,7 @@ namespace Tactile.Menus.Map
             var reinforcementsOptionsMenu = (sender as CommandMenu);
 
             Global.game_system.play_se(System_Sounds.Confirm);
-            switch (reinforcementsOptionsMenu.SelectedIndex)
+            switch (reinforcementsOptionsMenu.SelectedIndex.Index)
             {
                     // Edit
                 case 0:
@@ -227,7 +227,7 @@ namespace Tactile.Menus.Map
                     if (ReinforcementData.Count == 0)
                         index = 0;
 
-                    if (reinforcementsOptionsMenu.SelectedIndex == 1)
+                    if (reinforcementsOptionsMenu.SelectedIndex.Index == 1)
                         // Add
                         MenuHandler.UnitEditorMapMenuAddReinforcement(index);
                     else
@@ -309,6 +309,7 @@ namespace Tactile.Menus.Map
             SettingsMenu settingsMenu;
             settingsMenu = new SettingsMenu(settings, parent);
             settingsMenu.OpenSubMenu += SettingsMenu_OpenSubMenu;
+            settingsMenu.OpenSettingList += SettingsMenu_OpenSettingList;
             settingsMenu.Canceled += settingsMenu_Canceled;
             AddMenu(settingsMenu);
         }
@@ -318,6 +319,40 @@ namespace Tactile.Menus.Map
             var parentMenu = (sender as SettingsMenu);
             var settings = parentMenu.GetSubSettings();
             OpenSettingsMenu(settings, parentMenu);
+        }
+
+        private void SettingsMenu_OpenSettingList(object sender, EventArgs e)
+        {
+            var parentMenu = (sender as SettingsMenu);
+            var settingListWindow = parentMenu.GetSettingListWindow();
+
+            var settingListCommandMenu = new CommandMenu(settingListWindow, parentMenu);
+            settingListCommandMenu.Selected += SettingListCommandMenu_Selected;
+            settingListCommandMenu.Canceled += SettingListCommandMenu_Canceled;
+            AddMenu(settingListCommandMenu);
+        }
+
+        void SettingListCommandMenu_Selected(object sender, EventArgs e)
+        {
+            var settingListCommandMenu = sender as CommandMenu;
+            var settingsMenu = (Menus.ElementAt(1) as SettingsMenu);
+
+            int settingIndex = settingListCommandMenu.SelectedIndex.Index;
+            if (settingsMenu.SelectSettingListItem(settingIndex))
+            {
+                Global.game_system.play_se(System_Sounds.Confirm);
+                RemoveTopMenu();
+            }
+            else
+                Global.game_system.play_se(System_Sounds.Buzzer);
+        }
+
+        void SettingListCommandMenu_Canceled(object sender, EventArgs e)
+        {
+            RemoveTopMenu();
+
+            var settingsMenu = (Menus.ElementAt(0) as SettingsMenu);
+            settingsMenu.CloseSettingList();
         }
 
         void settingsMenu_Canceled(object sender, EventArgs e)
@@ -331,7 +366,7 @@ namespace Tactile.Menus.Map
         // Selected a choice in the clear units window
         void clearUnitsCommandMenu_Selected(object sender, EventArgs e)
         {
-            if ((sender as CommandMenu).SelectedIndex.ValueOrDefault == 0)
+            if ((sender as CommandMenu).SelectedIndex.Index == 0)
             {
                 Global.game_system.play_se(System_Sounds.Confirm);
                 MenuHandler.UnitEditorMapMenuClearUnits();
@@ -346,7 +381,7 @@ namespace Tactile.Menus.Map
         // Selected a choice in the mirror units window
         void mirrorUnitsCommandMenu_Selected(object sender, EventArgs e)
         {
-            if ((sender as CommandMenu).SelectedIndex.ValueOrDefault == 0)
+            if ((sender as CommandMenu).SelectedIndex.Index == 0)
             {
                 Global.game_system.play_se(System_Sounds.Confirm);
                 MenuHandler.UnitEditorMapMenuMirrorUnits();

@@ -64,7 +64,7 @@ namespace Tactile
             SupportStatsWindow = new Prep_Support_Stats_Window(Global.game_map.last_added_unit);
             SupportStatsWindow.loc = new Vector2(12, Config.WINDOW_HEIGHT - 76);
             SupportListWindow = new Prep_Support_List_Window(Global.game_map.last_added_unit.actor);
-            SupportListWindow.loc = new Vector2(Config.WINDOW_WIDTH - 164, Config.WINDOW_HEIGHT - 100);
+            SupportListWindow.loc = new Vector2(Config.WINDOW_WIDTH - 164, Config.WINDOW_HEIGHT - 104);
 
             Global.game_map.completely_remove_unit(Global.game_map.last_added_unit.id);
         }
@@ -177,6 +177,11 @@ namespace Tactile
             RefreshActorBonuses(commandWindow);
         }
 
+        public void ResetActorBonuses()
+        {
+            SupportStatsWindow.set_images(Global.game_actors[this.ActorId]);
+        }
+
         private void RefreshActorBonuses(Window_Command_Support commandWindow)
         {
             int targetId = commandWindow.TargetId;
@@ -226,13 +231,21 @@ namespace Tactile
             StartingSupport = false;
             ReturningFromSupport = true;
             
-            SupportStatsWindow.set_images(Global.game_actors[this.ActorId]);
+            ResetActorBonuses();
         }
         #endregion
 
-        protected override void draw_window(SpriteBatch sprite_batch)
+        protected override void DrawHelpButtons(SpriteBatch spriteBatch)
         {
-            base.draw_window(sprite_batch);
+            if (Active)
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+                RButton.Draw(spriteBatch);
+
+                if (CancelButton != null)
+                    CancelButton.Draw(spriteBatch);
+                spriteBatch.End();
+            }
         }
 
         protected override void DrawStatsWindow(SpriteBatch spriteBatch)
@@ -243,7 +256,7 @@ namespace Tactile
                 SupportStatsWindow.draw(spriteBatch);
                 spriteBatch.End();
             }
-            if (SupportListWindow != null)
+            if (SupportListWindow != null && Active)
             {
                 spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                 SupportListWindow.draw(spriteBatch);

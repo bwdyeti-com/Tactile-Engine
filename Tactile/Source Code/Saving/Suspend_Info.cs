@@ -133,7 +133,7 @@ namespace Tactile.IO
             result.Lord_Actor_Face = lord_face;
             result.Turn = Global.game_system.chapter_turn;
             result.Units = Global.game_map.teams[Constants.Team.PLAYER_TEAM].Count;
-            result.Playtime = Global.game_system.total_play_time;
+            result.Playtime = Global.game_system.chapter_play_time;
             result.Gold = Global.battalion.gold;
             result.Save_Id = file_id;
             result.Preparations = Global.game_system.preparations;

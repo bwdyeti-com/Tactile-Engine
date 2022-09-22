@@ -23,6 +23,19 @@ namespace TactileLibrary.Pathfinding
             return new Pathfinder<Vector3>(this);
         }
 
+        public int MoveCostFactor { get { return 10; } }
+
+        public TileData GetTileData(Vector3 loc, Vector3 goalLoc)
+        {
+            bool passable = Passable(loc, goalLoc);
+            int tileCost = -1;
+            if (passable)
+                tileCost = TileCost(loc, goalLoc);
+            bool obstructed = Obstructed(loc, goalLoc);
+
+            return new TileData(passable, tileCost, obstructed);
+        }
+
         public bool Passable(Vector3 loc)
         {
             bool occupied = Map[(int)loc.X, (int)loc.Y, (int)loc.Z].Item1;
@@ -39,8 +52,17 @@ namespace TactileLibrary.Pathfinding
         public int TileCost(Vector3 loc, Vector3 goalLoc)
         {
             if (!Passable(loc))
-                return -10;
-            return 10;
+                return -this.MoveCostFactor;
+            return this.MoveCostFactor;
+        }
+
+        public bool Obstructed(Vector3 loc)
+        {
+            return false;
+        }
+        public bool Obstructed(Vector3 loc, Vector3 goalLoc)
+        {
+            return false;
         }
 
         public IEnumerable<Vector3> AdjacentLocations(Vector3 loc)
@@ -81,13 +103,13 @@ namespace TactileLibrary.Pathfinding
             return (int)(Math.Sqrt(
                 Math.Pow(loc.X - targetLoc.X, 2) +
                 Math.Pow(loc.Y - targetLoc.Y, 2) +
-                Math.Pow(loc.Z - targetLoc.Z, 2)) * 10);
+                Math.Pow(loc.Z - targetLoc.Z, 2)) * this.MoveCostFactor);
         }
         private int manhatten_dist(Vector3 loc, Vector3 targetLoc)
         {
             return (int)(Math.Abs(loc.X - targetLoc.X) +
                 Math.Abs(loc.Y - targetLoc.Y) +
-                Math.Abs(loc.Z - targetLoc.Z)) * 10;
+                Math.Abs(loc.Z - targetLoc.Z)) * this.MoveCostFactor;
         }
 
         public bool RestrictToMap(Vector3 loc, Vector3 goalLoc, bool restrictToPlayable = true)

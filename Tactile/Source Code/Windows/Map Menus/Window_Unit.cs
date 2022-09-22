@@ -3,91 +3,60 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Tactile.ConfigData;
+using Tactile.Graphics.Help;
 using Tactile.Graphics.Map;
 using Tactile.Graphics.Text;
+using Tactile.Graphics.UnitScreen;
 using Tactile.Graphics.Windows;
-using TactileStringExtension;
+using Tactile.Windows.UserInterface;
+using Tactile.Windows.UserInterface.Options;
 
 namespace Tactile.Windows.Map
 {
-    enum Unit_Sort { Name,
-        Class, Lvl, Exp, Hp, MaxHp, Affin, Cond,
-        Pow, Skl, Spd, Lck, Def, Res, Mov, Con, Aid,
-        Equip, Skills,
-        Atk, Hit, Avo, Crt, Dod, AS, Rng,
-        Sword, Lance, Axe, Bow, Fire, Thund, Wind, Light, Elder, Staff,
-        Ally,
-        Anim }
     internal class Window_Unit : Map_Window_Base
     {
         protected const int BASE_Y = 56;
-        const int BASE_PAGES = 6;
         public const int SUPPORTS_PER_PAGE = 4;
         const int Y_PER_ROW = 16;
         const int ROWS_AT_ONCE = (Config.WINDOW_HEIGHT - 72) / Y_PER_ROW;
         const int OFFSET_Y = -(16 - Y_PER_ROW) / 2;
-        readonly static int[] COLUMNS = new int[] { 8, 10, 3, 8, 11, 2 };
         const int SORT_ARROW_TIME = 32;
-        readonly static Unit_Sort[] PAGE_SORT_START = new Unit_Sort[] {
-            Unit_Sort.Class, Unit_Sort.Pow, Unit_Sort.Equip, Unit_Sort.Atk, Unit_Sort.Sword, Unit_Sort.Ally };
-        readonly static KeyValuePair<int, string>[][] HEADERS = new KeyValuePair<int, string>[][] {
-            new KeyValuePair<int, string>[]{
-                new KeyValuePair<int, string>(0, "Class"), new KeyValuePair<int, string>(64+8, "Lvl"), new KeyValuePair<int, string>(88+4, "Exp"),
-                new KeyValuePair<int, string>(112, "HP"), new KeyValuePair<int, string>(132, "Max"), new KeyValuePair<int, string>(155, "Affin"),
-                new KeyValuePair<int, string>(188, "Cond")},
-            new KeyValuePair<int, string>[]{
-                new KeyValuePair<int, string>(0, "Pow"), new KeyValuePair<int, string>(28, "Skl"), new KeyValuePair<int, string>(48, "Spd"),
-                new KeyValuePair<int, string>(72, "Luck"), new KeyValuePair<int, string>(96, "Def"), new KeyValuePair<int, string>(120, "Res"),
-                new KeyValuePair<int, string>(148, "Move"), new KeyValuePair<int, string>(178, "Con"), new KeyValuePair<int, string>(204, "Aid")},
-            new KeyValuePair<int, string>[]{
-                new KeyValuePair<int, string>(16, "Equip"), new KeyValuePair<int, string>(104, "Skills")},
-            new KeyValuePair<int, string>[]{
-                new KeyValuePair<int, string>(8, "Atk"), new KeyValuePair<int, string>(40, "Hit"), new KeyValuePair<int, string>(64, "Avoid"),
-                new KeyValuePair<int, string>(104, "Crit"), new KeyValuePair<int, string>(128, "Dod"), new KeyValuePair<int, string>(160, "AS"),
-                new KeyValuePair<int, string>(196, "Rng")},
-            new KeyValuePair<int, string>[]{
-                new KeyValuePair<int, string>(0 * 20 + 8, "WType1"), new KeyValuePair<int, string>(1 * 20 + 8, "WType2"),
-                new KeyValuePair<int, string>(2 * 20 + 8, "WType3"), new KeyValuePair<int, string>(3 * 20 + 8, "WType4"),
-                new KeyValuePair<int, string>(4 * 20 + 8, "WType5"), new KeyValuePair<int, string>(5 * 20 + 8, "WType6"),
-                new KeyValuePair<int, string>(6 * 20 + 8, "WType7"), new KeyValuePair<int, string>(7 * 20 + 8, "WType8"),
-                new KeyValuePair<int, string>(8 * 20 + 8, "WType9"), new KeyValuePair<int, string>(9 * 20 + 8, "WType10")},
-            new KeyValuePair<int, string>[]{
-                new KeyValuePair<int, string>(8, "Ally")}
-        };
-        readonly static string[] SORT_NAMES = new string[] { "Name", "Class", "Lvl", "Exp", "HP", "Max", "Affin", "Cond",
-            "Pow", "Skl", "Spd", "Luck", "Def", "Res", "Move", "Con", "Aid", "Equip", "Skills",
-            "Atk", "Hit", "Avoid", "Crit", "Dod", "AS", "Rng",
-            "WType1", "WType2", "WType3", "WType4", "WType5", "WType6", "WType7", "WType8", "WType9", "WType10",
-            "Ally", "Anim" };
 
         protected int Y_Per_Row;
         protected int Rows_At_Once;
         protected int Offset_Y;
 
-        protected int Row = 1, Column_Max, Column = 0;
         protected List<int> Team;
-        protected int Pages;
+        
         protected int Delay = 0, Direction = 0, Sort_Arrow_Timer = 0;
-        protected int Scroll = 0;
+        protected int _Scroll = 0;
         protected Vector2 Offset = Vector2.Zero;
         protected bool Show_Page_Number = true;
         protected bool Preparations;
         protected bool Unit_Selected = false;
+        private TactileLibrary.Maybe<int> StoredActorId;
         protected MenuScreenBanner Banner;
         protected Sprite Banner_Text;
         protected SystemWindowHeadered Background_Window;
-        protected TextSprite Name_Header;
-        protected List<Sprite> Headers = new List<Sprite>();
         protected System_Color_Window Sort_Window, Page_Window;
         protected List<Character_Sprite> Map_Sprites = new List<Character_Sprite>();
-        protected List<TextSprite> Names = new List<TextSprite>();
         protected Sprite Sort_Label_Text, Sort_Label, Sort_Arrow;
         protected TextSprite Page_Number, Max_Page_Number, Page_Number_Slash;
-        protected List<List<Unit_Page>> Page_Imgs = new List<List<Unit_Page>>();
         protected Unit_Line_Cursor Line_Cursor;
         protected Scroll_Bar Scrollbar;
         protected Page_Arrow Left_Page_Arrow, Right_Page_Arrow;
         protected Window_Prep_PickUnits PickUnits_Window;
+
+        protected bool HeaderActive = false;
+        protected List<UnitScreenHeader[]> PageKeys;
+        private List<PartialRangeVisibleUINodeSet<UnitHeaderUINode>> HeaderNodes;
+        protected List<UICursor<UnitHeaderUINode>> HeaderCursors;
+        protected PartialRangeVisibleUINodeSet<UnitScreenUINode> UnitNodes;
+        private UnitScreenRow[][] UnitData;
+        protected IndexScrollComponent Scroll;
+
+        private Button_Description CancelButton, AButton, RButton;
 
         protected Rectangle Unit_Scissor_Rect, Header_Scissor_Rect, Data_Scissor_Rect;
         protected RasterizerState Scissor_State = new RasterizerState { ScissorTestEnable = true };
@@ -101,21 +70,13 @@ namespace Tactile.Windows.Map
         {
             set
             {
-                Row = Team.IndexOf(value) + 1;
-                if ((Row > (Rows_At_Once - 1) + Scroll && Scroll < row_max - (Rows_At_Once + 1)))
-                {
-                    while (Row > (Rows_At_Once - 1) + Scroll && Scroll < row_max - (Rows_At_Once + 1))
-                        Scroll++;
-                }
-                else
-                {
-                    while (Row - 1 < Scroll + 1 && Scroll > 0)
-                        Scroll--;
-                }
+                int index = Team.IndexOf(value);
+                UnitNodes.set_active_node(UnitNodes[index]);
+                Scroll.FixScroll(index);
                 refresh_scroll();
                 refresh_cursor_location();
             }
-            get { return Team[Row - 1]; }
+            get { return Team[UnitNodes.ActiveNodeIndex]; }
         }
 
         public List<int> team { get { return new List<int>(Team); } }
@@ -125,12 +86,13 @@ namespace Tactile.Windows.Map
             get { return _get_page(); }
             set { _set_page(value); }
         }
-        protected int sort
+        protected int PageCount { get { return PageKeys.Count; } }
+        protected virtual int sort
         {
             get { return Global.game_system.Unit_Sort; }
             set { Global.game_system.Unit_Sort = value; }
         }
-        protected bool sort_up
+        protected virtual bool sort_up
         {
             get { return Global.game_system.Unit_Sort_Up; }
             set { Global.game_system.Unit_Sort_Up = value; }
@@ -168,12 +130,18 @@ namespace Tactile.Windows.Map
             }
             set
             {
-                var actors = Team.Select(x => _unit(x).actor.id).ToList();
-                int index = actors.IndexOf(value);
-                if (index > -1)
+                if (UnitNodes == null)
+                    StoredActorId = value;
+                else
                 {
-                    while (index + 1 > Row)
-                        move_down();
+                    StoredActorId = TactileLibrary.Maybe<int>.Nothing;
+
+                    var actors = Team.Select(x => _unit(x).actor.id).ToList();
+                    int index = actors.IndexOf(value);
+                    if (index > -1)
+                    {
+                        this.unit_index = Team[index];
+                    }
                 }
             }
         }
@@ -202,14 +170,14 @@ namespace Tactile.Windows.Map
 
         protected Game_Unit _unit()
         {
-            if (Row == 0)
-                return null;
-            return _unit(Team[Row - 1]);
+            return _unit(Team[UnitNodes.ActiveNodeIndex]);
         }
         protected virtual Game_Unit _unit(int id)
         {
             return Global.game_map.units[id];
         }
+
+        protected virtual UnitScreenData[] DataSet { get { return UnitScreenConfig.UNIT_DATA; } }
         #endregion
 
         public Window_Unit()
@@ -218,24 +186,33 @@ namespace Tactile.Windows.Map
         }
 
         #region Initialization
-        protected virtual void initialize()
+        protected void initialize()
+        {
+            InitializePositioning();
+
+            Preparations = DeterminePreparations();
+            Team = determine_team();
+
+            InitializePageKeys(this.DataSet);
+
+            this.page = Math.Min(this.page, this.PageCount - 1);
+            initialize_sprites();
+            update_black_screen();
+        }
+        protected virtual void InitializePositioning()
         {
             Y_Per_Row = Y_PER_ROW;
             Rows_At_Once = ROWS_AT_ONCE;
             Offset_Y = OFFSET_Y;
-            Unit_Scissor_Rect = new Rectangle(-12, BASE_Y, 80, ROWS_AT_ONCE * Y_PER_ROW);
-            Header_Scissor_Rect = new Rectangle(76, BASE_Y - 16, data_width, 16);
-            Data_Scissor_Rect = new Rectangle(76, BASE_Y, data_width, ROWS_AT_ONCE * Y_PER_ROW);
-
-            Preparations = Global.game_system.preparations && !Global.game_system.home_base;
-            Team = determine_team();
-            Pages = determine_page_count();
-            page = Math.Min(page, Pages - 1);
-            Column_Max = COLUMNS[Math.Min(page, BASE_PAGES - 1)];
-            initialize_sprites();
-            update_black_screen();
+            Unit_Scissor_Rect = new Rectangle(-12, BASE_Y, 80 + Window_Unit.data_width + 16, ROWS_AT_ONCE * Y_PER_ROW);
+            Header_Scissor_Rect = new Rectangle(76, BASE_Y - 16, Window_Unit.data_width, 16);
+            Data_Scissor_Rect = new Rectangle(76, BASE_Y, Window_Unit.data_width, ROWS_AT_ONCE * Y_PER_ROW);
         }
 
+        protected virtual bool DeterminePreparations()
+        {
+            return Global.game_system.preparations && !Global.game_system.home_base;
+        }
         protected virtual List<int> determine_team()
         {
             List<int> team = new List<int>();
@@ -258,17 +235,49 @@ namespace Tactile.Windows.Map
             return team;
         }
 
-        protected int determine_page_count()
+        protected void InitializePageKeys(UnitScreenData[] data)
         {
-            int support_pages = 0;
-            foreach (int id in Team)
+#if DEBUG
+            System.Diagnostics.Debug.Assert(
+                data.Select(x => x.Name).Distinct().Count() == data.Length,
+                "Unit Screen keys must all have distinct names");
+#endif
+            var pages = data
+                .Select(x => x.Page)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToArray();
+            PageKeys = new List<UnitScreenHeader[]>();
+            var teamMembers = Team
+                .Select(x => (object)_unit(x))
+                .ToList();
+            for (int i = 0; i < pages.Length; i++)
             {
-                Game_Unit unit = _unit(id);
-                // if event has more than SUPPORTS_PER_PAGE available support partners
-                support_pages = (int)Math.Max(support_pages,
-                    Math.Ceiling(unit.actor.ready_supports().Count / (float)SUPPORTS_PER_PAGE) - 1);
+                var page = pages[i];
+                var pageData = data
+                    .Where(x => x.Page == pages[i])
+                    .ToArray();
+                // Get the number of pages each header wants to repeat for
+                var pageCounts = pageData
+                    .Select(x => x.GetPageCount(teamMembers))
+                    .ToArray();
+                int count = pageCounts.Max();
+
+                for (int j = 0; j < count; j++)
+                {
+                    var newPage = Enumerable.Range(0, pageData.Length)
+                        .Where(x => j < pageCounts[x])
+                        .Select(x =>
+                        {
+                            var header = pageData[x];
+                            int index = Array.FindIndex(data, val => val.Equals(header));
+                            return new UnitScreenHeader(index, header.Name, j);
+                        })
+                        .ToArray();
+                    if (newPage.Any())
+                        PageKeys.Add(newPage);
+                }
             }
-            return BASE_PAGES + support_pages;
         }
 
         protected void initialize_sprites()
@@ -299,13 +308,6 @@ namespace Tactile.Windows.Map
             Background_Window.width = Config.WINDOW_WIDTH - 8;
             Background_Window.height = Rows_At_Once * Y_Per_Row + 34; // not 32 o_O? //Yeti
             Background_Window.stereoscopic = Config.UNIT_WINDOW_DEPTH;
-            // Header
-            Name_Header = new TextSprite();
-            Name_Header.loc = new Vector2(40 + Unit_Scissor_Rect.X, Unit_Scissor_Rect.Y - 16);
-            Name_Header.SetFont(Config.UI_FONT, Global.Content, "White");
-            Name_Header.text = "Name";
-            Name_Header.stereoscopic = Config.UNIT_WINDOW_DEPTH;
-            set_headers();
             // Sort/Page window
             Sort_Window = new System_Color_Window();
             Sort_Window.loc = new Vector2(Config.WINDOW_WIDTH - 92, 0);
@@ -340,12 +342,11 @@ namespace Tactile.Windows.Map
             Max_Page_Number = new RightAdjustedText();
             Max_Page_Number.loc = new Vector2(Config.WINDOW_WIDTH - 12, 8);
             Max_Page_Number.SetFont(Config.UI_FONT, Global.Content, "Blue");
-            Max_Page_Number.text = Pages.ToString();
+            Max_Page_Number.text = this.PageCount.ToString();
             Max_Page_Number.stereoscopic = Config.UNIT_SORT_DEPTH;
             // Cursor
             Cursor = new Hand_Cursor();
             Cursor.visible = false;
-            Cursor.loc = cursor_loc();
             Cursor.stereoscopic = Config.UNIT_HELP_DEPTH;
             // Line Cursor
             Line_Cursor = new Unit_Line_Cursor(Config.WINDOW_WIDTH - 24);
@@ -362,59 +363,126 @@ namespace Tactile.Windows.Map
             Left_Page_Arrow = new Page_Arrow();
             Left_Page_Arrow.loc = new Vector2(4, 32);
             Left_Page_Arrow.stereoscopic = Config.UNIT_ARROWS_DEPTH;
+            Left_Page_Arrow.ArrowClicked += Left_Page_Arrow_ArrowClicked;
             Right_Page_Arrow = new Page_Arrow();
             Right_Page_Arrow.loc = new Vector2(Config.WINDOW_WIDTH - 4, 32);
             Right_Page_Arrow.mirrored = true;
             Right_Page_Arrow.stereoscopic = Config.UNIT_ARROWS_DEPTH;
+            Right_Page_Arrow.ArrowClicked += Right_Page_Arrow_ArrowClicked;
+
+            // Scroll
+            Scroll = new IndexScrollComponent(
+                new Vector2(Unit_Scissor_Rect.Width, Unit_Scissor_Rect.Height),
+                new Vector2(Unit_Scissor_Rect.Width, Y_Per_Row),
+                ScrollAxes.Vertical);
+            Scroll.loc = new Vector2(Unit_Scissor_Rect.X, Unit_Scissor_Rect.Y);
+            Scroll.Scrollbar = Scrollbar;
+            Scroll.SetElementLengths(new Vector2(1, Team.Count));
+            Scroll.SetBuffers(new Rectangle(1, 2, 2, 4));
+            Scroll.SetResolveToIndex(true);
+
+            HeaderNodes = new List<PartialRangeVisibleUINodeSet<UnitHeaderUINode>>();
+            HeaderCursors = new List<UICursor<UnitHeaderUINode>>();
+            foreach (var page in PageKeys)
+            {
+                List<UnitHeaderUINode> headerNodes = new List<UnitHeaderUINode>();
+                // Name
+                var nameNode = GetHeader(UnitScreenConfig.NAME_NODE,
+                    48 + Data_Scissor_Rect.Width - Unit_Scissor_Rect.Width);
+                headerNodes.Add(nameNode);
+
+                // Page Headers
+                foreach (var header in page)
+                {
+                    var config = this.DataSet[header.Index];
+                    var node = GetHeader(config);
+                    headerNodes.Add(node);
+                }
+                var nodeSet = new PartialRangeVisibleUINodeSet<UnitHeaderUINode>(headerNodes);
+                var cursor = new UICursor<UnitHeaderUINode>(nodeSet);
+                cursor.draw_offset = new Vector2(-15, 0);
+                cursor.stereoscopic = Config.UNIT_HELP_DEPTH;
+                cursor.move_to_target_loc();
+
+                HeaderNodes.Add(nodeSet);
+                HeaderCursors.Add(cursor);
+            }
+
+            CreateCancelButton();
+            RefreshInputHelp();
 
             refresh_arrow_visibility();
             refresh_banner_text();
         }
 
-        protected virtual void set_headers()
+        private UnitHeaderUINode GetHeader(UnitScreenData config, int offset = 0)
         {
-            for (int i = 0; i < Pages; i++)
-            {
-                KeyValuePair<int, string>[] header_page = HEADERS[Math.Min(i, BASE_PAGES - 1)];
-                foreach (KeyValuePair<int, string> header in header_page)
-                {
-                    if (header.Value.substring(0, 5) == "WType")
-                    {
-                        Headers.Add(new Weapon_Type_Icon());
-                        ((Weapon_Type_Icon)Headers[Headers.Count - 1]).loc = new Vector2(header.Key + i * data_width + Header_Scissor_Rect.X, Header_Scissor_Rect.Y);
-                        ((Weapon_Type_Icon)Headers[Headers.Count - 1]).index = Convert.ToInt32(header.Value.substring(5, header.Value.Length - 5));
-                    }
-                    else
-                    {
-                        Headers.Add(new TextSprite());
-                        ((TextSprite)Headers[Headers.Count - 1]).loc = new Vector2(header.Key + i * data_width + Header_Scissor_Rect.X, Header_Scissor_Rect.Y);
-                        ((TextSprite)Headers[Headers.Count - 1]).SetFont(Config.UI_FONT, Global.Content, "White");
-                        ((TextSprite)Headers[Headers.Count - 1]).text = header.Value;
-                    }
-                    Headers[Headers.Count - 1].stereoscopic = Config.UNIT_WINDOW_DEPTH;
-                }
-            }
-            // do pages beyond 6 //Yeti
+            var text = new TextSprite(
+                Config.UI_FONT, Global.Content, "Red",
+                Vector2.Zero,
+                config.Name);
+            var node = new UnitHeaderUINode(
+                string.Format("Unit Help {0}", config.Name),
+                config);
+            node.loc = new Vector2(
+                Header_Scissor_Rect.X + config.Offset + offset,
+                Header_Scissor_Rect.Y);
+            return node;
+        }
+
+        private void CreateCancelButton()
+        {
+            CancelButton = Button_Description.button(Inputs.B,
+                Config.WINDOW_WIDTH - 64);
+            CancelButton.description = "Cancel";
+            CancelButton.stereoscopic = Config.UNIT_ARROWS_DEPTH;
+        }
+
+        protected void RefreshInputHelp()
+        {
+            AButton = Button_Description.button(Inputs.A,
+                Config.WINDOW_WIDTH - 160);
+            AButton.description = HeaderActive ? "Sort" : "Select";
+            AButton.stereoscopic = Config.UNIT_ARROWS_DEPTH;
+
+            RButton = Button_Description.button(Inputs.R,
+                Config.WINDOW_WIDTH - 112);
+            RButton.description = HeaderActive ? "Help" : "Info";
+            RButton.stereoscopic = Config.UNIT_ARROWS_DEPTH;
+
+            // Hide buttons that don't really do anything for touch
+            AButton.Visible = Input.ControlScheme != ControlSchemes.Touch;
+            RButton.Visible = Input.ControlScheme != ControlSchemes.Touch;
         }
 
         protected void set_images()
         {
-            Names.Clear();
-            Map_Sprites.Clear();
-            Page_Imgs.Clear();
-            for(int i = 0; i < Pages; i++)
-                Page_Imgs.Add(new List<Unit_Page>());
-            set_pages();
-            for (int i = 0; i < Page_Imgs.Count; i++)
-                for (int j = 0; j < Page_Imgs[i].Count; j++)
-                    Page_Imgs[i][j].stereoscopic = Config.UNIT_WINDOW_DEPTH;
-            Map_Sprite_Frame = -1;
-            update_map_sprite();
-            Offset.X = data_width * page;
-        }
+            // Names
+            List<UnitScreenUINode> nodes = new List<UnitScreenUINode>();
+            for (int i = 0; i < Team.Count; i++)
+            {
+                Game_Unit unit = _unit(Team[i]);
+                Game_Actor actor = unit.actor;
+                int y = i * Y_Per_Row;
 
-        protected virtual void set_pages()
-        {
+                Vector2 loc = new Vector2(24, y + Offset_Y) + new Vector2(Unit_Scissor_Rect.X, Unit_Scissor_Rect.Y);
+
+                var node = new UnitScreenUINode(actor.name);
+                node.Size = new Vector2(Unit_Scissor_Rect.Width - 32, Y_Per_Row);
+                node.loc = loc;
+                nodes.Add(node);
+            }
+
+            UnitNodes = new PartialRangeVisibleUINodeSet<UnitScreenUINode>(nodes);
+            UnitNodes.CursorMoveSound = System_Sounds.Menu_Move1;
+            // Unit Stats
+            UnitData = new UnitScreenRow[PageKeys.Count][];
+            for (int pageIndex = 0; pageIndex < PageKeys.Count; pageIndex++)
+            {
+                UnitData[pageIndex] = new UnitScreenRow[Team.Count];
+            }
+            // Map Sprites
+            Map_Sprites.Clear();
             for (int i = 0; i < Team.Count; i++)
             {
                 Game_Unit unit = _unit(Team[i]);
@@ -426,38 +494,43 @@ namespace Tactile.Windows.Map
                 Map_Sprites[i].frame_count = 3;
                 Map_Sprites[i].loc = new Vector2(32, y + 16 + Offset_Y) + new Vector2(Unit_Scissor_Rect.X, Unit_Scissor_Rect.Y);
                 Map_Sprites[i].stereoscopic = Config.UNIT_WINDOW_DEPTH;
-                // Name
-                Names.Add(new TextSprite());
-                Names[i].loc = new Vector2(40, y + Offset_Y) + new Vector2(Unit_Scissor_Rect.X, Unit_Scissor_Rect.Y);
-                Names[i].SetFont(Config.UI_FONT);
-                Names[i].text = unit.actor.name;
-                Names[i].stereoscopic = Config.UNIT_WINDOW_DEPTH;
-
-                refresh_unit_name_and_sprite_texture(i);
-                // Page 1
-                Page_Imgs[0].Add(new Unit_Page_1(unit));
-                Page_Imgs[0][i].loc = new Vector2(data_width * 0, y + Offset_Y) + new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
-                // Page 2
-                Page_Imgs[1].Add(new Unit_Page_2(unit));
-                Page_Imgs[1][i].loc = new Vector2(data_width * 1, y + Offset_Y) + new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
-                // Page 3
-                Page_Imgs[2].Add(new Unit_Page_3(unit));
-                Page_Imgs[2][i].loc = new Vector2(data_width * 2, y + Offset_Y) + new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
-                // Page 4
-                Page_Imgs[3].Add(new Unit_Page_4(unit));
-                Page_Imgs[3][i].loc = new Vector2(data_width * 3, y + Offset_Y) + new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
-                // Page 5
-                Page_Imgs[4].Add(new Unit_Page_5(unit));
-                Page_Imgs[4][i].loc = new Vector2(data_width * 4, y + Offset_Y) + new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
-                // Page 6
-                for (int j = BASE_PAGES - 1; j < Pages; j++)
-                {
-                    Page_Imgs[j].Add(new Unit_Page_6(unit, ((j + 1) - BASE_PAGES) * SUPPORTS_PER_PAGE));
-                    Page_Imgs[j][i].loc = new Vector2(data_width * j, y + Offset_Y) + new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
-                }
             }
+
+            for (int i = 0; i < Team.Count; i++)
+            {
+                RefreshRow(i);
+            }
+
+            Map_Sprite_Frame = -1;
+            update_map_sprite();
+            Offset.X = data_width * this.page;
+
+            if (StoredActorId.IsSomething)
+                this.ActorId = StoredActorId;
         }
 
+        protected void RefreshRow(int index)
+        {
+            for (int pageIndex = 0; pageIndex < PageKeys.Count; pageIndex++)
+            {
+                var page = PageKeys[pageIndex]
+                    .Select(x => this.DataSet[x.Index])
+                    .ToArray();
+                int[] configPages = PageKeys[pageIndex]
+                    .Select(x => x.Page)
+                    .ToArray();
+
+                Game_Unit unit = _unit(Team[index]);
+                int y = index * Y_Per_Row;
+
+                UnitData[pageIndex][index] = new UnitScreenRow(page, configPages, unit);
+                UnitData[pageIndex][index].loc =
+                    new Vector2(data_width * pageIndex, y + Offset_Y) +
+                    new Vector2(Data_Scissor_Rect.X, Data_Scissor_Rect.Y);
+            }
+
+            refresh_unit_name_and_sprite_texture(index);
+        }
         protected void refresh_unit_name_and_sprite_texture(int index)
         {
             Game_Unit unit = _unit(Team[index]);
@@ -473,11 +546,22 @@ namespace Tactile.Windows.Map
                     (Map_Sprites[index].texture.Width / Map_Sprites[index].frame_count) / 2,
                     (Map_Sprites[index].texture.Height / Map_Sprites[index].facing_count) - 8);
             Map_Sprites[index].mirrored = unit.has_flipped_map_sprite;
+
+            // Map Sprite
+            bool readySprite;
+            if (Preparations)
+                readySprite = PickUnits_Window.actor_deployed(actor.id);
+            else
+                readySprite = unit.ready;
+            UnitScreenUINode unitNode = UnitNodes[index];
+            unitNode.set_map_sprite_texture(
+                readySprite ? unit.team : 0,
+                unit.map_sprite_name);
             // Name
             if (Preparations)
-                Names[index].SetColor(Global.Content, prep_name_color(actor));
+                unitNode.set_name_texture(prep_name_color(actor));
             else
-                Names[index].SetColor(Global.Content, "White");
+                unitNode.set_name_texture("White");
         }
 
         protected string prep_name_color(Game_Actor actor)
@@ -496,25 +580,23 @@ namespace Tactile.Windows.Map
 
         protected void refresh_arrow_visibility()
         {
-            Left_Page_Arrow.visible = page > 0;
-            Right_Page_Arrow.visible = page < Pages - 1;
+            Left_Page_Arrow.visible = this.page > 0;
+            Right_Page_Arrow.visible = this.page < this.PageCount - 1;
         }
 
         protected virtual void refresh_banner_text()
         {
-            Banner_Text.src_rect = new Rectangle(0, 16 * Math.Min(page + 1, BASE_PAGES), 96, 16);
-            Page_Number.text = (page + 1).ToString();
+            int pageCount = this.DataSet
+                .Select(x => x.Page)
+                .Distinct()
+                .Count();
+
+            Banner_Text.src_rect = new Rectangle(0, 16 * Math.Min(this.page + 1, pageCount), 96, 16);
+            Page_Number.text = (this.page + 1).ToString();
         }
         #endregion
 
         #region Sorting
-        protected virtual int sort_column()
-        {
-            if (Column == 0)
-                return 0;
-            return Column - 1 + (int)PAGE_SORT_START[Math.Min(page, BASE_PAGES - 1)];
-        }
-
         protected void refresh_sort()
         {
             refresh_sort(sort);
@@ -553,220 +635,62 @@ namespace Tactile.Windows.Map
 
         protected int sort_switch(Game_Unit unit_a, Game_Unit unit_b, int new_sort)
         {
-            var stats_a = new Calculations.Stats.BattlerStats(unit_a.id);
-            var stats_b = new Calculations.Stats.BattlerStats(unit_b.id);
-
             int value;
-            switch ((Unit_Sort)new_sort)
+            // Name
+            if (new_sort == 0)
             {
-                case Unit_Sort.Name:
-                    if (Preparations)
+                if (Preparations)
+                {
+                    if (PickUnits_Window != null)
                     {
-                        if (PickUnits_Window != null)
-                        {
-                            bool deployed_a = PickUnits_Window.actor_deployed(unit_a.actor.id);
-                            bool deployed_b = PickUnits_Window.actor_deployed(unit_b.actor.id);
-                            if (deployed_a != deployed_b)
-                                return deployed_a ? -1 : 1;
-                        }
+                        bool deployed_a = PickUnits_Window.actor_deployed(unit_a.actor.id);
+                        bool deployed_b = PickUnits_Window.actor_deployed(unit_b.actor.id);
+                        if (deployed_a != deployed_b)
+                            return deployed_a ? -1 : 1;
                     }
-                    else
-                    {
-                        if (unit_a.ready && !unit_b.ready)
-                            return -1;
-                        if (unit_b.ready && !unit_a.ready)
-                            return 1;
-                    }
-                    if (Global.battalion != null &&
-                            Global.battalion.actors.Contains(unit_a.actor.id) &&
-                            Global.battalion.actors.Contains(unit_b.actor.id))
-                        value = Global.battalion.actors.IndexOf(unit_a.actor.id) -
-                            Global.battalion.actors.IndexOf(unit_b.actor.id);
-                    else
-                        value = unit_a.actor.id - unit_b.actor.id;
-                    break;
-                case Unit_Sort.Class:
-                    value = unit_a.actor.class_id - unit_b.actor.class_id;
-                    break;
-                case Unit_Sort.Lvl:
-                    value = unit_b.actor.full_level - unit_a.actor.full_level;
-                    break;
-                case Unit_Sort.Exp:
-                    value = unit_b.actor.exp - unit_a.actor.exp;
-                    break;
-                case Unit_Sort.Hp:
-                    value = unit_b.actor.hp - unit_a.actor.hp;
-                    break;
-                case Unit_Sort.MaxHp:
-                    value = unit_b.actor.maxhp - unit_a.actor.maxhp;
-                    break;
-                case Unit_Sort.Affin:
-                    value = (int)unit_a.actor.affin - (int)unit_b.actor.affin;
-                    break;
-                case Unit_Sort.Cond:
-                    if (unit_b.actor.states.Count == unit_a.actor.states.Count)
-                    {
-                        int turns_a = 0, turns_b = 0;
-                        for (int i = 0; i < unit_a.actor.states.Count; i++)
-                            turns_a += unit_a.actor.state_turns_left(unit_a.actor.states[i]);
-                        for (int i = 0; i < unit_b.actor.states.Count; i++)
-                            turns_b += unit_b.actor.state_turns_left(unit_b.actor.states[i]);
-                        value = turns_b - turns_a;
-                    }
-                    else
-                        value = unit_b.actor.states.Count - unit_a.actor.states.Count;
-                    break;
-                case Unit_Sort.Pow:
-                    value = unit_b.stat(Stat_Labels.Pow) - unit_a.stat(Stat_Labels.Pow);
-                    break;
-                case Unit_Sort.Skl:
-                    value = unit_b.stat(Stat_Labels.Skl) - unit_a.stat(Stat_Labels.Skl);
-                    break;
-                case Unit_Sort.Spd:
-                    value = unit_b.stat(Stat_Labels.Spd) - unit_a.stat(Stat_Labels.Spd);
-                    break;
-                case Unit_Sort.Lck:
-                    value = unit_b.stat(Stat_Labels.Lck) - unit_a.stat(Stat_Labels.Lck);
-                    break;
-                case Unit_Sort.Def:
-                    value = unit_b.stat(Stat_Labels.Def) - unit_a.stat(Stat_Labels.Def);
-                    break;
-                case Unit_Sort.Res:
-                    value = unit_b.stat(Stat_Labels.Res) - unit_a.stat(Stat_Labels.Res);
-                    break;
-                case Unit_Sort.Mov:
-                    value = unit_b.mov - unit_a.mov;
-                    break;
-                case Unit_Sort.Con:
-                    value = unit_b.stat(Stat_Labels.Con) - unit_a.stat(Stat_Labels.Con);
-                    break;
-                case Unit_Sort.Aid:
-                    value = unit_b.aid() - unit_a.aid();
-                    break;
-                case Unit_Sort.Equip:
-                    int weapon_id_a = unit_a.actor.weapon_id;
-                    if (weapon_id_a == 0)
-                        weapon_id_a = unit_a.actor.items[0].Id;
-                    int weapon_id_b = unit_b.actor.weapon_id;
-                    if (weapon_id_b == 0)
-                        weapon_id_b = unit_b.actor.items[0].Id;
-
-                    if (Global.data_weapons.ContainsKey(weapon_id_a) && Global.data_weapons.ContainsKey(weapon_id_b))
-                    {
-                        var weapon_a = Global.data_weapons[weapon_id_a];
-                        var weapon_b = Global.data_weapons[weapon_id_b];
-
-                        if ((weapon_a.Rank == TactileLibrary.Weapon_Ranks.None && weapon_a.is_prf) ||
-                                (weapon_b.Rank == TactileLibrary.Weapon_Ranks.None && weapon_b.is_prf))
-                            value = (int)weapon_a.Rank - (int)weapon_b.Rank;
-                        else
-                            value = (int)weapon_b.Rank - (int)weapon_a.Rank;
-                        // If the rank is the same, go by type
-                        if (value == 0)
-                        {
-                            value = (int)weapon_a.Main_Type - (int)weapon_b.Main_Type;
-                            // If the type is the same, use the price/use
-                            if (value == 0)
-                            {
-                                value = (int)weapon_a.Cost - (int)weapon_b.Cost;
-                                // If the type is the same, use the id
-                                if (value == 0)
-                                    value = weapon_id_b - weapon_id_a;
-                            }
-                        }
-                    }
-                    // If either weapon is missing, use the ids
-                    else
-                        value = weapon_id_b - weapon_id_a;
-
-                    if (value == 0)
-                        value = unit_b.actor.num_items - unit_a.actor.num_items;
-                    break;
-                case Unit_Sort.Skills:
-                    value = unit_b.actor.skills.Count - unit_a.actor.skills.Count;
-                    break;
-                case Unit_Sort.Atk:
-                    value = stats_b.dmg() - stats_a.dmg();
-                    break;
-                case Unit_Sort.Hit:
-                    bool staff_b = unit_b.actor.weapon != null && unit_b.actor.weapon.is_staff();
-                    bool staff_a = unit_a.actor.weapon != null && unit_a.actor.weapon.is_staff();
-                    if (staff_b && staff_a)
-                        return 0;
-                    else if (staff_b)
+                }
+                else
+                {
+                    if (unit_a.ready && !unit_b.ready)
                         return -1;
-                    else if (staff_a)
+                    if (unit_b.ready && !unit_a.ready)
                         return 1;
-                    value = stats_b.hit() - stats_a.hit();
-                    break;
-                case Unit_Sort.Avo:
-                    value = stats_b.avo() - stats_a.avo();
-                    break;
-                case Unit_Sort.Crt:
-                    value = stats_b.crt() - stats_a.crt();
-                    break;
-                case Unit_Sort.Dod:
-                    value = stats_b.dodge() - stats_a.dodge();
-                    break;
-                case Unit_Sort.AS:
-                    value = unit_b.atk_spd() - unit_a.atk_spd();
-                    break;
-                case Unit_Sort.Rng:
-                    value = unit_a.actor.id - unit_b.actor.id; //Yeti
-                    break;
-                case Unit_Sort.Sword:
-                case Unit_Sort.Lance:
-                case Unit_Sort.Axe:
-                case Unit_Sort.Bow:
-                case Unit_Sort.Fire:
-                case Unit_Sort.Thund:
-                case Unit_Sort.Wind:
-                case Unit_Sort.Light:
-                case Unit_Sort.Elder:
-                case Unit_Sort.Staff:
-                    TactileLibrary.WeaponType type = Global.weapon_types[new_sort - (int)Unit_Sort.Sword + 1];
-                    value = unit_b.actor.get_weapon_level(type) - unit_a.actor.get_weapon_level(type);
-                    break;
-                case Unit_Sort.Ally:
-                    value = unit_b.actor.ready_supports().Count - unit_a.actor.ready_supports().Count;
-                    break;
-                case Unit_Sort.Anim:
-                    value = unit_a.actor.individual_animation - unit_b.actor.individual_animation;
-                    break;
-                default:
-                    value = 0;
-                    break;
+                }
+                if (Global.battalion != null &&
+                        Global.battalion.actors.Contains(unit_a.actor.id) &&
+                        Global.battalion.actors.Contains(unit_b.actor.id))
+                    value = Global.battalion.actors.IndexOf(unit_a.actor.id) -
+                        Global.battalion.actors.IndexOf(unit_b.actor.id);
+                else
+                    value = unit_a.actor.id - unit_b.actor.id;
             }
+            else
+            {
+                UnitScreenData config = this.DataSet[new_sort - 1];
+                return config.GetSort(unit_a, unit_b);
+            }
+
             return value;
         }
 
         protected virtual void refresh_sort_images()
         {
-            switch ((Unit_Sort)sort)
+            var data = UnitScreenConfig.NAME_NODE;
+            if (this.sort > 0)
+                data = this.DataSet[this.sort - 1];
+
+            if (data.WeaponIcon >= 1)
             {
-                case Unit_Sort.Sword:
-                case Unit_Sort.Lance:
-                case Unit_Sort.Axe:
-                case Unit_Sort.Bow:
-                case Unit_Sort.Fire:
-                case Unit_Sort.Thund:
-                case Unit_Sort.Wind:
-                case Unit_Sort.Light:
-                case Unit_Sort.Elder:
-                case Unit_Sort.Staff:
-                    Weapon_Type_Icon sort_label_icon = new Weapon_Type_Icon();
-                    sort_label_icon.index = sort + 1 - (int)Unit_Sort.Sword;
-                    Sort_Label_Text = sort_label_icon;
-                    break;
-                default:
-                    TextSprite sort_label_text = new TextSprite();
-                    sort_label_text.SetFont(Config.UI_FONT, Global.Content, "White");
-                    //if ((Unit_Sort)sort == Unit_Sort.Name)
-                    //    sort_label_text.Value = Name_Header.Value;
-                    //else
-                        sort_label_text.text = SORT_NAMES[sort];
-                    Sort_Label_Text = sort_label_text;
-                    break;
+                Weapon_Type_Icon sort_label_icon = new Weapon_Type_Icon();
+                sort_label_icon.index = data.WeaponIcon;
+                Sort_Label_Text = sort_label_icon;
+            }
+            else
+            {
+                TextSprite sort_label_text = new TextSprite();
+                sort_label_text.SetFont(Config.UI_FONT, Global.Content, "White");
+                sort_label_text.text = data.Name;
+                Sort_Label_Text = sort_label_text;
             }
             Sort_Label_Text.loc = new Vector2(Config.WINDOW_WIDTH - 84, 8);
             Sort_Label_Text.stereoscopic = Config.UNIT_SORT_DEPTH;
@@ -775,15 +699,15 @@ namespace Tactile.Windows.Map
 
         protected void reverse_sort()
         {
-            if (sort == (int)Unit_Sort.Anim)
+            var data = UnitScreenConfig.NAME_NODE;
+            if (this.sort > 0)
+                data = this.DataSet[this.sort - 1];
+
+            if (data.NoSort)
                 refresh_sort(sort);
             else
             {
                 Team.Reverse();
-                //foreach (List<Unit_Page> page_img in Page_Imgs)
-                //    page_img.Reverse();
-                //Names.Reverse();
-                //Map_Sprites.Reverse();
                 set_images();
                 refresh_sort_images();
             }
@@ -796,7 +720,7 @@ namespace Tactile.Windows.Map
             int old_frame = Map_Sprite_Frame;
             Map_Sprite_Frame = Global.game_system.unit_anim_idle_frame;
             if (Map_Sprite_Frame != old_frame)
-                foreach(Character_Sprite sprite in Map_Sprites)
+                foreach (Character_Sprite sprite in Map_Sprites)
                     sprite.frame = Map_Sprite_Frame;
         }
 
@@ -820,40 +744,25 @@ namespace Tactile.Windows.Map
             Sort_Arrow_Timer = (Sort_Arrow_Timer + 1) % SORT_ARROW_TIME;
         }
 
-        protected void update_cursor_location()
-        {
-            int target_y = Y_Per_Row * Scroll;
-            if (Math.Abs(Offset.Y - target_y) <= Y_Per_Row / 4)
-                Offset.Y = target_y;
-            if (Math.Abs(Offset.Y - target_y) <= Y_Per_Row)
-                Offset.Y = Additional_Math.int_closer((int)Offset.Y, target_y, Y_Per_Row / 4);
-            else
-                Offset.Y = ((int)(Offset.Y + target_y)) / 2;
-            if (Offset.Y != target_y && Scrollbar != null)
-            {
-                if (Offset.Y > target_y)
-                    Scrollbar.moving_up();
-                else
-                    Scrollbar.moving_down();
-            }
-
-            Cursor.update();
-        }
-
         protected void refresh_cursor_location()
         {
-            int target_y = Y_Per_Row * Scroll;
+            int target_y = Y_Per_Row * _Scroll;
             Offset.Y = target_y;
         }
 
-        protected virtual Vector2 cursor_loc()
+        private void UpdateScroll(bool active)
         {
-            int x;
-            if (Column == 0)
-                x = 40 + (int)Unit_Scissor_Rect.X;
-            else
-                x = HEADERS[Math.Min(page, BASE_PAGES - 1)][Column - 1].Key + Header_Scissor_Rect.X;
-            return new Vector2(x - 16, BASE_Y - 16);
+            if (UnitNodes == null)
+                return;
+
+            Scroll.Update(active, UnitNodes.ActiveNodeIndex, Vector2.Zero);
+            if (!_Closing)
+            {
+                if (Scroll.Index >= 0 && Scroll.Index < UnitNodes.Count)
+                    UnitNodes.set_active_node(UnitNodes[Scroll.Index]);
+            }
+            if (Scrollbar != null)
+                Scrollbar.scroll = (int)Scroll.IntOffset.Y / Y_Per_Row;
         }
 
         protected override void UpdateMenu(bool active)
@@ -861,120 +770,270 @@ namespace Tactile.Windows.Map
             update_direction();
             update_map_sprite();
             update_sort_arrow();
-            if (Scrollbar != null)
-                Scrollbar.update();
             Line_Cursor.update();
+
+            if (Scrollbar != null)
+            {
+                Scrollbar.update();
+                if (active)
+                    Scrollbar.update_input();
+            }
+
+            // Cancel button
+            CancelButton.Update(active && this.ready_for_inputs);
+            AButton.Update();
+            RButton.Update();
+
+            base.UpdateMenu(active);
+            UpdateScroll(active && this.ready_for_inputs);
+            RefreshCursor();
+
             Left_Page_Arrow.update();
             Right_Page_Arrow.update();
 
-            base.UpdateMenu(active);
-
-            if (is_help_active)
+            if (this.IsHelpActive)
                 Help_Window.update();
-            update_cursor_location();
-            foreach (List<Unit_Page> page_img in Page_Imgs)
-                foreach (Unit_Page unit_page in page_img)
-                    unit_page.update();
+        }
+
+        protected override void UpdateAncillary()
+        {
+            if (Input.ControlScheme == ControlSchemes.Touch)
+                SetHeaderActive(true);
+
+            if (Input.ControlSchemeSwitched)
+            {
+                if (Input.ControlScheme == ControlSchemes.Mouse)
+                    SetHeaderActive(false);
+
+                if (CancelButton != null)
+                    CreateCancelButton();
+
+                RefreshInputHelp();
+            }
         }
 
         protected override void update_input(bool active)
         {
-            if (active && this.ready_for_inputs)
+            bool input = active && this.ready_for_inputs;
+            if (input)
+            {
+                Left_Page_Arrow.UpdateInput();
+                Right_Page_Arrow.UpdateInput();
+            }
+
+            input = active && this.ready_for_inputs;
+            if (input)
             {
                 // Change page
-                if (Row > 0 && Global.Input.pressed(Inputs.Left) ||
-                        Global.Input.gesture_triggered(TouchGestures.SwipeRight))
+                if ((!HeaderActive && Global.Input.pressed(Inputs.Left)) ||
+                    Global.Input.gesture_triggered(TouchGestures.SwipeRight))
+                {
                     page_left();
-                else if (Row > 0 && Global.Input.pressed(Inputs.Right) ||
-                        Global.Input.gesture_triggered(TouchGestures.SwipeLeft))
+                    input = false;
+                }
+                else if ((!HeaderActive && Global.Input.pressed(Inputs.Right)) ||
+                    Global.Input.gesture_triggered(TouchGestures.SwipeLeft))
+                {
                     page_right();
-                // Change header
-                else if (Global.Input.repeated(Inputs.Left))
-                {
-                    if (Column == 0)
-                        page_left();
-                    else
-                    {
-                        Global.game_system.play_se(System_Sounds.Menu_Move2);
-                        move_left();
-                    }
+                    input = false;
                 }
-                else if (Global.Input.repeated(Inputs.Right))
+                else if (HeaderActive &&
+                    HeaderNodes[this.page].ActiveNodeIndex == 0 &&
+                    Global.Input.repeated(Inputs.Left))
                 {
-                    if (Column == Column_Max - 1)
-                        page_right();
-                    else
-                    {
-                        Global.game_system.play_se(System_Sounds.Menu_Move2);
-                        move_right();
-                    }
+                    page_left();
+                    input = false;
                 }
-                else if (!is_help_active && (Global.Input.repeated(Inputs.Down)))
+                else if (HeaderActive &&
+                    HeaderNodes[this.page].ActiveNodeIndex == HeaderNodes[this.page].Count - 1 &&
+                    Global.Input.repeated(Inputs.Right))
+                {
+                    page_right();
+                    input = false;
+                }
+                // Switch between header and rows
+                else if (!HeaderActive && UnitNodes.ActiveNodeIndex == 0 &&
+                    Global.Input.triggered(Inputs.Up))
                 {
                     Global.game_system.play_se(System_Sounds.Menu_Move1);
-                    if (Row == row_max - 1)
-                        index = 0;
-                    else
-                        move_down();
+                    HeaderCursors[this.page].move_to_target_loc();
+                    SetHeaderActive(true);
+                    input = false;
                 }
-                else if (!is_help_active && (Global.Input.repeated(Inputs.Up)))
+                else if (HeaderActive && !this.IsHelpActive &&
+                    Global.Input.triggered(Inputs.Down))
                 {
                     Global.game_system.play_se(System_Sounds.Menu_Move1);
-                    if (Row == 0)
-                        index = row_max - 1;
-                    else
-                        move_up();
-                }
-                else if (!is_help_active && (Preparations && Row > 0 && Global.Input.triggered(Inputs.A)))
-                {
-                    if (PickUnits_Window.switch_unit(unit.actor))
-                        refresh_unit_name_and_sprite_texture(Row - 1);
-                }
-                // Close unit window
-                else if (!is_help_active && ((Row > 0 &&
-                    (!Preparations && Global.Input.triggered(Inputs.A)) ||
-                    Global.Input.triggered(Inputs.B)) ||
-                    Global.Input.gesture_triggered(TouchGestures.LongPress))) //Debug
-                {
-                    if (Preparations)
-                        PickUnits_Window.actor_id = Row == 0 ? Global.game_map.units[Team[0]].actor.id : unit.actor.id;
-                    Unit_Selected = Global.Input.triggered(Inputs.A, false);
-                    if (Unit_Selected)
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                    else
-                        Global.game_system.play_se(System_Sounds.Cancel);
-                    close();
-                }
-                else if (Global.Input.triggered(Inputs.R) && Row > 0)
-                {
-                    if (Status != null)
-                    {
-                        Global.game_system.play_se(System_Sounds.Confirm);
-                        unit.status();
-                        OnStatus(new EventArgs());
-                    }
-                }
-                else if (is_help_active &&
-                    (Global.Input.triggered(Inputs.R) || Global.Input.triggered(Inputs.B)))
-                {
-                    close_help();
-                }
-                else if (Row == 0 && !is_help_active && Global.Input.triggered(Inputs.A))
-                {
-                    Global.game_system.play_se(System_Sounds.Confirm);
-                    if (sort == sort_column())
-                    {
-                        sort_up = !sort_up;
-                        reverse_sort();
-                    }
-                    else
-                        refresh_sort(sort_column(), true);
-                }
-                else if (Row == 0 && !is_help_active && Global.Input.triggered(Inputs.R))
-                {
-                    open_help();
+                    SetHeaderActive(false);
+                    input = false;
                 }
             }
+
+            // Update nodes
+            for (int i = 0; i < HeaderNodes.Count; i++)
+            {
+                ControlSet control = ControlSet.None;
+                if (input && i == this.page)
+                {
+                    if (this.IsHelpActive)
+                        control = ControlSet.Movement;
+                    else
+                        control = HeaderActive ? ControlSet.All : ControlSet.Pointing;
+                }
+
+                int index = HeaderNodes[i].ActiveNodeIndex;
+                HeaderNodes[i].Update(control);
+                if (index != HeaderNodes[i].ActiveNodeIndex && this.IsHelpActive)
+                    RefreshHelp();
+            }
+            if (UnitNodes != null)
+            {
+                ControlSet control = ControlSet.None;
+                if (input && !this.IsHelpActive)
+                    control = !HeaderActive ? ControlSet.All : ControlSet.Pointing;
+
+                UnitNodes.Update(control, VisibleIndexesRange(false).Enumerate(), Scroll.offset);
+            }
+
+            if (input)
+            {
+                if (this.IsHelpActive)
+                {
+                    if (Global.Input.triggered(Inputs.B) ||
+                            Global.Input.triggered(Inputs.R) ||
+                            Global.Input.mouse_click(MouseButtons.Right) ||
+                            Global.Input.gesture_triggered(TouchGestures.LongPress) ||
+                            CancelButton.consume_trigger(MouseButtons.Left) ||
+                            CancelButton.consume_trigger(TouchGestures.Tap))
+                    {
+                        close_help();
+                    }
+                }
+                else
+                {
+                    // Sort Columns
+                    var sortIndex = HeaderNodes[this.page].consume_triggered(
+                        Inputs.A, MouseButtons.Left, TouchGestures.Tap);
+                    if (sortIndex.IsSomething)
+                    {
+                        Global.game_system.play_se(System_Sounds.Confirm);
+                        int key = 0;
+                        if (sortIndex.Index > 0)
+                            key = PageKeys[this.page][sortIndex.Index - 1].Index + 1;
+                        if (this.sort == key)
+                        {
+                            sort_up = !sort_up;
+                            reverse_sort();
+                        }
+                        else
+                        {
+                            refresh_sort(key, true);
+                        }
+                    }
+
+                    // Open Header Help
+                    var helpIndex = HeaderNodes[this.page].consume_triggered(
+                        Inputs.R, MouseButtons.Right, TouchGestures.LongPress);
+                    if (helpIndex.IsSomething)
+                    {
+                        open_help();
+                    }
+
+                    // Open Status Screen
+                    var statusIndex = UnitNodes.consume_triggered(
+                        Inputs.R, MouseButtons.Right, TouchGestures.LongPress);
+                    if (statusIndex.IsSomething)
+                    {
+                        if (Status != null)
+                        {
+                            Global.game_system.play_se(System_Sounds.Confirm);
+                            this.unit.status();
+                            OnStatus(new EventArgs());
+                        }
+                    }
+
+                    // Jump to Unit
+                    var selectionIndex = UnitNodes.consume_triggered(
+                        Inputs.A, MouseButtons.Left, TouchGestures.Tap);
+                    if (selectionIndex.IsSomething)
+                    {
+                        UnitSelect();
+                    }
+
+                    if (sortIndex.IsNothing && helpIndex.IsNothing &&
+                        statusIndex.IsNothing && selectionIndex.IsNothing)
+                    {
+                        if (Global.Input.triggered(Inputs.B) ||
+                            CancelButton.consume_trigger(MouseButtons.Left) ||
+                            CancelButton.consume_trigger(TouchGestures.Tap))
+                        {
+                            if (Preparations && PickUnits_Window != null)
+                                PickUnits_Window.actor_id = HeaderActive ? Global.game_map.units[Team[0]].actor.id : unit.actor.id;
+                            Unit_Selected = false;
+                            Global.game_system.play_se(System_Sounds.Cancel);
+                            close();
+                        }
+                    }
+                }
+            }
+
+            HeaderCursors[this.page].update();
+        }
+
+        protected virtual void UnitSelect()
+        {
+            if (Preparations)
+            {
+                if (PickUnits_Window.switch_unit(unit.actor))
+                    refresh_unit_name_and_sprite_texture(UnitNodes.ActiveNodeIndex);
+            }
+            else
+            {
+                Unit_Selected = true;
+                Global.game_system.play_se(System_Sounds.Confirm);
+                close();
+            }
+        }
+
+        private void RefreshCursor()
+        {
+            if (UnitNodes == null)
+                return;
+
+            foreach (var cursor in HeaderCursors)
+                cursor.visible = HeaderActive;
+            Line_Cursor.visible = !HeaderActive;
+
+            Line_Cursor.loc = new Vector2(
+                Line_Cursor.loc.X,
+                8 + BASE_Y + Offset_Y + UnitNodes.ActiveNodeIndex * Y_Per_Row);
+            Line_Cursor.loc.Y -= Scroll.Target.Y * Y_Per_Row;
+        }
+
+        private void SetHeaderActive(bool value)
+        {
+            HeaderActive = value;
+            RefreshInputHelp();
+        }
+
+        private TactileLibrary.IntRange VisibleIndexesRange(bool skipFirstLine = true)
+        {
+            int scrollOffset = (int)Scroll.IntOffset.Y / Y_Per_Row;
+            int min = scrollOffset;
+            if (skipFirstLine)
+                min += (Scroll.IsScrolling ? 0 : 1);
+            int max = scrollOffset + Rows_At_Once + (Scroll.IsScrolling ? 0 : -1);
+            max = Math.Min(max, UnitNodes.Count - 1);
+            return new TactileLibrary.IntRange(min, max);
+        }
+
+        private void Left_Page_Arrow_ArrowClicked(object sender, EventArgs e)
+        {
+            page_left();
+        }
+        private void Right_Page_Arrow_ArrowClicked(object sender, EventArgs e)
+        {
+            page_right();
         }
 
         public event EventHandler<EventArgs> Status;
@@ -1005,6 +1064,9 @@ namespace Tactile.Windows.Map
         {
             if (changing_page)
             {
+                // Spin the page arrow in the direction moved
+                (Direction == 4 ? Left_Page_Arrow : Right_Page_Arrow).twirling_update();
+
                 switch (Delay)
                 {
                     case 16:
@@ -1023,7 +1085,7 @@ namespace Tactile.Windows.Map
                         Offset.X += (Direction == 4 ? -1 : 1) * 16 * 1;
                         break;
                     case 9:
-                        page = page + (Direction == 4 ? -1 : 1);
+                        this.page = this.page + (Direction == 4 ? -1 : 1);
                         refresh_arrow_visibility();
                         refresh_banner_text();
                         Offset.X += (Direction == 4 ? -1 : 1) * 16 * 1;
@@ -1060,68 +1122,18 @@ namespace Tactile.Windows.Map
         #endregion
 
         #region Movement
-        protected int index
-        {
-            set
-            {
-                while (Row != value)
-                    if (value > Row)
-                        move_down();
-                    else
-                        move_up();
-            }
-        }
-
-        protected void move_down()
-        {
-            Row++;
-            if (Row > (Rows_At_Once - 1) + Scroll && Scroll < row_max - (Rows_At_Once + 1))
-                Scroll++;
-            refresh_scroll();
-        }
-        protected void move_up()
-        {
-            Row--;
-            if (Row - 1 < Scroll + 1 && Scroll > 0)
-                Scroll--;
-            refresh_scroll();
-        }
-
         protected void refresh_scroll()
         {
+            Scroll.FixScroll(UnitNodes.ActiveNodeIndex);
             if (Scrollbar != null)
-                Scrollbar.scroll = Scroll;
-            if (Row == 0)
-                Line_Cursor.visible = !(Cursor.visible = true);
-            else
-                Cursor.visible = !(Line_Cursor.visible = true);
-            Line_Cursor.loc = new Vector2(Line_Cursor.loc.X, 8 + BASE_Y + Offset_Y + (Row - Scroll - 1) * Y_Per_Row);
-        }
+                Scrollbar.scroll = (int)Scroll.IntOffset.Y / Y_Per_Row;
 
-        protected void move_left()
-        {
-            Column--;
-            Cursor.set_loc(cursor_loc());
-            if (is_help_active)
-            {
-                update_help_info();
-                update_help_loc();
-            }
-        }
-        protected void move_right()
-        {
-            Column++;
-            Cursor.set_loc(cursor_loc());
-            if (is_help_active)
-            {
-                update_help_info();
-                update_help_loc();
-            }
+            RefreshCursor();
         }
 
         protected void page_left()
         {
-            if (page > 0)
+            if (this.page > 0)
             {
                 Delay = 16;
                 Direction = 4;
@@ -1130,7 +1142,7 @@ namespace Tactile.Windows.Map
         }
         protected void page_right()
         {
-            if (page + 1 < Pages)
+            if (this.page + 1 < this.PageCount)
             {
                 Delay = 16;
                 Direction = 6;
@@ -1140,58 +1152,70 @@ namespace Tactile.Windows.Map
 
         protected void fix_cursor_page_change()
         {
-            int temp_page = page;
-            page += (Direction == 4 ? -1 : 1);
-            Column_Max = COLUMNS[Math.Min(page, BASE_PAGES - 1)];
-            if (Row > 0)
+            // Jump the cursor to a node on the next page
+            if (HeaderActive)
             {
-                Column = 0;
-                Cursor.loc = cursor_loc();
+                int nextPageIndex = this.page + (Direction == 4 ? -1 : 1);
+                var nextPage = HeaderNodes[nextPageIndex];
+                HeaderCursors[nextPageIndex].force_loc(HeaderCursors[this.page].loc);
+                if (Direction == 4 ^ Input.ControlScheme == ControlSchemes.Mouse)
+                    nextPage.set_active_node(nextPage.Last());
+                else
+                    nextPage.set_active_node(nextPage[0]);
             }
-            else
+
+
+            int temp_page = this.page;
+            this.page += (Direction == 4 ? -1 : 1);
+            if (this.IsHelpActive)
             {
-                Column = (Direction == 4 ? (Column_Max - 1) : 0);
-                Cursor.set_loc(cursor_loc());
+                RefreshHelp();
             }
-            if (is_help_active)
-            {
-                update_help_info();
-                update_help_loc();
-            }
-            page = temp_page;
+            this.page = temp_page;
         }
         #endregion
 
         #region Help
-        public bool is_help_active { get { return Help_Window != null; } }
+        public bool IsHelpActive { get { return Help_Window != null; } }
 
         public void open_help()
         {
+            SetHeaderActive(true);
+
             Help_Window = new Window_Help();
             Help_Window.stereoscopic = Config.UNIT_HELP_DEPTH;
             update_help_info();
-            Help_Window.loc = cursor_loc() + new Vector2(20, -8);
+            Help_Window.loc = HeaderNodes[this.page].ActiveNode.loc;
             update_help_loc();
             Global.game_system.play_se(System_Sounds.Help_Open);
         }
 
         public virtual void close_help()
         {
+            if (Input.ControlScheme == ControlSchemes.Mouse)
+                SetHeaderActive(false);
+
             Help_Window = null;
             Global.game_system.play_se(System_Sounds.Help_Close);
         }
 
+        protected void RefreshHelp()
+        {
+            update_help_info();
+            update_help_loc();
+        }
+
         protected virtual void update_help_loc()
         {
-            Help_Window.set_loc(cursor_loc() + new Vector2(20, 0));
+            Help_Window.set_loc(HeaderNodes[this.page].ActiveNode.loc);
         }
 
         protected virtual void update_help_info()
         {
-            if (Column == 0)
-                Help_Window.set_text(Global.system_text["Unit Help Name"]);
-            else
-                Help_Window.set_text(Global.system_text["Unit Help " + HEADERS[Math.Min(page, BASE_PAGES - 1)][Column - 1].Value]);
+            string helpText = "";
+            if (Global.system_text.ContainsKey(HeaderNodes[this.page].ActiveNode.HelpLabel))
+                helpText = Global.system_text[HeaderNodes[this.page].ActiveNode.HelpLabel];
+            Help_Window.set_text(helpText);
         }
         #endregion
 
@@ -1208,7 +1232,6 @@ namespace Tactile.Windows.Map
             Sort_Window.draw(sprite_batch);
             if (Show_Page_Number)
                 Page_Window.draw(sprite_batch);
-            Name_Header.draw(sprite_batch);
             // Page Arrows
             Left_Page_Arrow.draw(sprite_batch);
             Right_Page_Arrow.draw(sprite_batch);
@@ -1227,67 +1250,121 @@ namespace Tactile.Windows.Map
             // Scroll Bar
             if (Scrollbar != null)
                 Scrollbar.draw(sprite_batch);
-            // Map sprite (first one, if not scrolling)
-            if (Scroll < Map_Sprites.Count && Offset.Y == Scroll * Y_Per_Row)
-                Map_Sprites[Scroll].draw(sprite_batch, unit_offset);
             sprite_batch.End();
 
-            Rectangle unit_scissor_rect = new Rectangle(Unit_Scissor_Rect.X +
-                    (int)Stereoscopic_Graphic_Object.graphic_draw_offset(Config.UNIT_WINDOW_DEPTH).X,
-                Unit_Scissor_Rect.Y, Unit_Scissor_Rect.Width, Unit_Scissor_Rect.Height);
-            sprite_batch.GraphicsDevice.ScissorRectangle = Scene_Map.fix_rect_to_screen(unit_scissor_rect);
-            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, Scissor_State);
+
             // Map Sprites
-            for (int i = 0; i < Map_Sprites.Count; i++)
-            {
-                if (i == 5)
-                {
-                    int test = 0;
-                    test++;
-                }
-                // Skips the map sprite at the top of and directly below the screen, unless scrolling (top one is handled elsewhere)
-                if ((i != Scroll && i != Scroll + Rows_At_Once) || Offset.Y != Scroll * Y_Per_Row)
-                    Map_Sprites[i].draw(sprite_batch, unit_offset);
-            }
-            foreach (TextSprite name in Names)
-                name.draw(sprite_batch, unit_offset);
-            sprite_batch.End();
+            DrawUnits(sprite_batch);
+
             // Data
-            if (Page_Imgs.Count > 0)
-            {
-                Rectangle data_scissor_rect = new Rectangle(Data_Scissor_Rect.X +
-                        (int)Stereoscopic_Graphic_Object.graphic_draw_offset(Config.UNIT_WINDOW_DEPTH).X,
-                    Data_Scissor_Rect.Y, Data_Scissor_Rect.Width, Data_Scissor_Rect.Height);
-                sprite_batch.GraphicsDevice.ScissorRectangle = Scene_Map.fix_rect_to_screen(data_scissor_rect);
-                foreach (Unit_Page page_img in Page_Imgs[page])
-                    page_img.draw(sprite_batch, Offset);
-                if (Delay > 0 && changing_page)
-                {
-                    if (Direction == 6 ^ Delay < 9)
-                        foreach (Unit_Page page_img in Page_Imgs[page + 1])
-                            page_img.draw(sprite_batch, Offset);
-                    else
-                        foreach (Unit_Page page_img in Page_Imgs[page - 1])
-                            page_img.draw(sprite_batch, Offset);
-                }
-            }
+            DrawData(sprite_batch);
+
             // Header
+            DrawHeaders(sprite_batch);
+
             Rectangle header_scissor_rect = new Rectangle(Header_Scissor_Rect.X +
                     (int)Stereoscopic_Graphic_Object.graphic_draw_offset(Config.UNIT_WINDOW_DEPTH).X,
                 Header_Scissor_Rect.Y, Header_Scissor_Rect.Width, Header_Scissor_Rect.Height);
             sprite_batch.GraphicsDevice.ScissorRectangle = Scene_Map.fix_rect_to_screen(header_scissor_rect);
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, Scissor_State);
             Vector2 header_offset = new Vector2(Offset.X, 0);
-            foreach (Sprite header in Headers)
-                header.draw(sprite_batch, header_offset);
             sprite_batch.End();
-            // Cursor
+
             sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            Cursor.draw(sprite_batch);
+            CancelButton.Draw(sprite_batch);
+            AButton.Draw(sprite_batch);
+            RButton.Draw(sprite_batch);
+            // Cursor
+            if (HeaderActive)
+            {
+                HeaderCursors[this.page].draw(sprite_batch);
+            }
             sprite_batch.End();
             // Help Window
-            if (is_help_active)
+            if (this.IsHelpActive)
                 Help_Window.draw(sprite_batch);
+        }
+
+        private void DrawUnits(SpriteBatch sprite_batch)
+        {
+            // Map sprite (first row, if not scrolling)
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            int scrollOffset = (int)Scroll.IntOffset.Y / Y_Per_Row;
+            if (scrollOffset < UnitNodes.Count() && !Scroll.IsScrolling)
+            {
+                UnitNodes.Draw(sprite_batch,
+                    Enumerable.Range(scrollOffset, 1),
+                    Scroll.IntOffset);
+            }
+            sprite_batch.End();
+
+            // Draw other units
+            Rectangle unit_scissor_rect = new Rectangle(Unit_Scissor_Rect.X +
+                    (int)Stereoscopic_Graphic_Object.graphic_draw_offset(Config.UNIT_WINDOW_DEPTH).X,
+                Unit_Scissor_Rect.Y, Unit_Scissor_Rect.Width, Unit_Scissor_Rect.Height);
+            sprite_batch.GraphicsDevice.ScissorRectangle = Scene_Map.fix_rect_to_screen(unit_scissor_rect);
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, Scissor_State);
+
+            var range = VisibleIndexesRange();
+            if (range.IsValid())
+                UnitNodes.Draw(sprite_batch,
+                    range.Enumerate(),
+                    Scroll.IntOffset);
+
+            sprite_batch.End();
+        }
+
+        private void DrawData(SpriteBatch sprite_batch)
+        {
+            Rectangle data_scissor_rect = new Rectangle(Data_Scissor_Rect.X +
+                    (int)Stereoscopic_Graphic_Object.graphic_draw_offset(Config.UNIT_WINDOW_DEPTH).X,
+                Data_Scissor_Rect.Y, Data_Scissor_Rect.Width, Data_Scissor_Rect.Height);
+            sprite_batch.GraphicsDevice.ScissorRectangle = Scene_Map.fix_rect_to_screen(data_scissor_rect);
+
+            var range = Enumerable.Range(this.page, 1);
+            if (Delay > 0)
+                range = Enumerable.Range(this.page - 1, 3);
+            foreach (int i in range)
+            {
+                if (i < 0 || i >= UnitData.Length)
+                    continue;
+
+                foreach (var data in UnitData[i])
+                    data.Draw(sprite_batch, Scissor_State, Offset + Scroll.IntOffset);
+            }
+        }
+
+        private void DrawHeaders(SpriteBatch sprite_batch)
+        {
+            // Name
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            HeaderNodes[Math.Min(this.page, HeaderNodes.Count - 1)].Draw(sprite_batch,
+                Enumerable.Range(0, 1));
+            sprite_batch.End();
+
+            // Page Headers
+            Rectangle header_scissor_rect = new Rectangle(Header_Scissor_Rect.X +
+                    (int)Stereoscopic_Graphic_Object.graphic_draw_offset(Config.UNIT_WINDOW_DEPTH).X,
+                Header_Scissor_Rect.Y, Header_Scissor_Rect.Width, Header_Scissor_Rect.Height);
+            sprite_batch.GraphicsDevice.ScissorRectangle = Scene_Map.fix_rect_to_screen(header_scissor_rect);
+            sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, Scissor_State);
+
+            var range = Enumerable.Range(this.page, 1);
+            if (Delay > 0)
+                range = Enumerable.Range(this.page - 1, 3);
+            foreach (int i in range)
+            {
+                if (i < 0 || i >= HeaderNodes.Count)
+                    continue;
+                var headerSet = HeaderNodes[i];
+                Vector2 header_offset = new Vector2(Offset.X - Header_Scissor_Rect.Width * i, 0);
+
+                headerSet.Draw(sprite_batch,
+                    Enumerable.Range(1, headerSet.Count - 1),
+                    header_offset);
+            }
+
+            sprite_batch.End();
         }
         #endregion
     }

@@ -9,7 +9,7 @@ using TactileLibrary;
 namespace Tactile.Windows
 {
     enum PrepCheckMapResults {
-        ViewMap, Formation, Options, Save, StartChapter, Cancel, Info, None }
+        ViewMap, Formation, Data, Options, Save, StartChapter, Cancel, Info, None }
 
     class Window_Setup_CheckMap : Map.Map_Window_Base
     {
@@ -78,7 +78,7 @@ namespace Tactile.Windows
             update_map_darken_tint();
             // Command Window
             Command_Window = new Window_Command(new Vector2(Config.WINDOW_WIDTH / 2 - 40, 32),
-                80, new List<string> { "View Map", "Formation", "Options", "Save" });
+                80, new List<string> { "View Map", "Formation", "Data", "Options", "Save" });
             Command_Window.text_offset = new Vector2(8, 0);
             Command_Window.glow = true;
             Command_Window.bar_offset = new Vector2(-8, 0);
@@ -109,7 +109,7 @@ namespace Tactile.Windows
                 if (SelectedIndex.IsSomething)
                     return SelectedIndex.ValueOrDefault;
                 return (PrepCheckMapResults)Command_Window
-                    .selected_index().ValueOrDefault;
+                    .selected_index().Index;
             }
         }
 

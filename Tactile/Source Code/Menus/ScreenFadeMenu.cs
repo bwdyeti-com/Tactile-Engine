@@ -45,6 +45,11 @@ namespace Tactile.Menus
                 Finished(this, e);
         }
 
+        public void SetHoldColor(Color color)
+        {
+            Fade.SetHoldColor(color);
+        }
+
         protected override void UpdateMenu(bool active)
         {
             if (active)

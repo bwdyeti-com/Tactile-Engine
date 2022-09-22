@@ -15,7 +15,7 @@ namespace Tactile
 
         protected override Vector2 command_window_loc { get { return new Vector2(8, 40); } }
 
-        internal override Maybe<int> selected_index
+        internal override ConsumedInput selected_index
         {
             get { return CommandWindow.selected_index(); }
         }
@@ -134,7 +134,7 @@ namespace Tactile
             get
             {
                 return CommandWindow.loc + new Vector2(0,
-                    (CommandWindow.selected_index().ValueOrDefault) * 16);
+                    (CommandWindow.selected_index().Index) * 16);
             }
         }
 

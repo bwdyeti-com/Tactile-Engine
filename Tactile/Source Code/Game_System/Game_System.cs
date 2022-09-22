@@ -79,7 +79,7 @@ namespace Tactile
         internal Event_Variable_Data<int> VARIABLES = new Event_Variable_Data<int>(Config.EVENT_DATA_LENGTH);
 
         protected int Unit_Blink_Timer = 0;
-        public string New_Chapter_Id = "";
+        public string New_Chapter_Id = "", WorldmapChapterId;
         public string[] Chapter_Save_Progression_Keys;
         public bool Preparation_Events_Ready;
         public int Class_Changer = -1;
@@ -1013,16 +1013,20 @@ namespace Tactile
 
         public void update()
         {
+            const int MAX_TICKS = 100 * 60 * 60 * Config.FRAME_RATE;
+
             Total_Play_Time++;
             // If past 99:59:59
-            if (Total_Play_Time >= 100 * 60 * 60 * Config.FRAME_RATE)
+            if (Total_Play_Time >= MAX_TICKS)
                 // Lock time
                 Total_Play_Time -= Config.FRAME_RATE;
+
             Chapter_Play_Time++;
             // If past 99:59:59
-            if (Chapter_Play_Time >= 100 * 60 * 60 * Config.FRAME_RATE)
+            if (Chapter_Play_Time >= MAX_TICKS)
                 // Lock time
                 Chapter_Play_Time -= Config.FRAME_RATE;
+
             update_timers();
             update_victory();
             update_events();

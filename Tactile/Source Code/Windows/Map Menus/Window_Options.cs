@@ -346,7 +346,6 @@ namespace Tactile.Windows.Map
 
         protected override void update_input(bool active)
         {
-
             bool input = active && this.ready_for_inputs;
 
             update_node_location(input);
@@ -374,7 +373,7 @@ namespace Tactile.Windows.Map
                 bool soloanim_node_clicked = false;
                 if (settings_index.IsSomething)
                 {
-                    var node = SettingsNodes[settings_index];
+                    var node = SettingsNodes[settings_index.Index];
                     jump_to_option(SettingsNodes.ActiveNode);
 
                     byte setting = setting_from_node(node);
@@ -392,7 +391,7 @@ namespace Tactile.Windows.Map
                 var slider_index = SettingsNodes.consume_triggered(TouchGestures.Scrubbing);
                 if (slider_index.IsSomething)
                 {
-                    var node = SettingsNodes[slider_index];
+                    var node = SettingsNodes[slider_index.Index];
                     jump_to_option(SettingsNodes.ActiveNode);
 
                     byte setting = setting_from_node(node);
@@ -507,7 +506,7 @@ namespace Tactile.Windows.Map
             {
                 var option_data = this.active_option_data;
                 int range = option_data.GaugeMax - option_data.GaugeMin;
-                float value = (SettingsNodes.ActiveNode as SettingGaugeUINode).SliderValue;
+                float value = (node as SettingGaugeUINode).SliderValue;
                 value = value * range;
                 int setting = (int)Math.Round(value / option_data.GaugeInterval) * option_data.GaugeInterval;
                 setting += option_data.GaugeMin;
