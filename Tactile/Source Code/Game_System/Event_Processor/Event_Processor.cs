@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using Tactile.Events;
 using TactileVersionExtension;
 
 namespace Tactile
@@ -45,6 +46,7 @@ namespace Tactile
         private bool Finished = false;
         private int Wait_Time = 0;
         private TactileLibrary.Event_Data event_data;
+        private Dictionary<int, EventControlBlock> IndentBlocks = new Dictionary<int, EventControlBlock>();
         private List<int> Indent = new List<int>();
         private int Skip_Block = 0, SkipElseBlock = -1;
         private bool Skipping = false, SkipOverride = false, SkipOverrideEnd = false;
@@ -53,7 +55,6 @@ namespace Tactile
         private bool Unit_Moved = false, Fow_Unit_Moved = false;
         private bool Battle_Wait = false, Rescue_Wait = false;
         private bool Ignore_Move_Update = false;
-        private HashSet<int> Skip_ElseIf_Indents = new HashSet<int>();
 
         #region Serialization
         /*internal static void get_data(Event_Variable_Data<bool> switches, Event_Variable_Data<int> variables) //Debug
@@ -168,42 +169,15 @@ namespace Tactile
         private void initialize()
         {
             Index = 0;
-            int indent = 0;
-            bool if_control = false;
-            // Sets up indentation for conditional blocks
-            for (int i = 0; i < event_data.data.Count; i++)
-            {
-                TactileLibrary.Event_Control control = event_data.data[i];
-                // Skip comments
-                if (control.Key == 102)
-                {
-                    Indent.Add(indent);
-                    continue;
-                }
 
-                // If statement (or), Else statement, ElseIf
-                if (if_control && (control.Key == 202 || control.Key == 203 || control.Key == 205))
-                    Indent.Add(indent - 1);
-                // EndIf statement
-                else if (if_control && control.Key == 204)
-                {
-                    indent--;
-                    Indent.Add(indent);
-                    if (indent == 0)
-                        if_control = false;
-                }
-                // Otherwise
-                else
-                {
-                    Indent.Add(indent);
-                    // If statement
-                    if (control.Key == 201)
-                    {
-                        if_control = true;
-                        indent++;
-                    }
-                }
-            }
+            // Sets up indentation
+            var blocks = Tactile.Events.EventControlBlock.GetEventBlocks(
+                event_data.data, 0, event_data.data.Count - 1);
+            var indentation = EventControlBlock.GetIndentation(
+                event_data.data, event_data.data.Count - 1, blocks);
+
+            IndentBlocks = blocks.ToDictionary(x => x.StartControlIndex, x => x);
+            Indent = indentation;
         }
 
         private bool is_debug_event()
