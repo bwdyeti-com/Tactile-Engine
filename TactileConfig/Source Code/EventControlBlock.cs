@@ -17,7 +17,10 @@ namespace Tactile.Events
 
         public int StartControlIndex { get; private set; }
         public int EndControlIndex { get; private set; }
-        public List<int> IntermediateControlIndices { get { return _IntermediateControlIndices.ToList(); } }
+        public List<int> IntermediateControlIndices
+        {
+            get { return _IntermediateControlIndices.OrderBy(x => x).ToList(); }
+        }
         private HashSet<int> _IntermediateControlIndices;
 
         private EventControlBlock(int start, int end, params int[] other)
