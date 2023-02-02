@@ -32,7 +32,7 @@ namespace Tactile.Events
 
         public bool HasIntermediateIndex(int id)
         {
-            return IntermediateControlIndices.Contains(id);
+            return _IntermediateControlIndices.Contains(id);
         }
 
         public override string ToString()
