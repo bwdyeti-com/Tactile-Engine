@@ -17,6 +17,8 @@ namespace Tactile.Events
             // Skip
             new EventControlBlockDef(211, 213, 212),
             new EventControlBlockDef(214, 215),
+            // Loop
+            new EventControlBlockDef(221, 222),
         };
 
         public int StartControlId { get; private set; }
