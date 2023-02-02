@@ -3487,11 +3487,14 @@ namespace Tactile
             return false;
         }
 
-        // If statement
+        // 201: If statement
         private bool command_if()
         {
-            int indent = Indent[Index];
-            bool elseif_found = false;
+#if DEBUG
+            if (!IndentBlocks.ContainsKey(Index))
+                throw new System.IndexOutOfRangeException("If statement somehow didn't form a block");
+#endif
+            var ifBlock = IndentBlocks[Index];
 
             for (; ; )
             {
@@ -3507,32 +3510,44 @@ namespace Tactile
                         Index++;
                     break;
                 }
-                // The if statement was false, so find the first else, endif, or elseif statement with the same indentation
+                // The if statement was false, so use the else/endif/elseif statements in the same block
                 else
                 {
-                    Index++;
-                    while (Index < event_data.data.Count)
+                    // Look for an elseif/else
+                    bool elseIfFound = false;
+                    var intermediateControls = ifBlock.IntermediateControlIndices;
+                    for (int i = 0; i < intermediateControls.Count; i++)
                     {
-                        // On an elseif, restart this loop and test the if
-                        if (Indent[Index] == indent && (event_data.data[Index].Key == 205))
+                        int intermediateIndex = intermediateControls[i];
+                        if (intermediateIndex <= Index)
+                            continue;
+
+                        // Else if
+                        if (event_data.data[intermediateIndex].Key == 205)
                         {
-                            elseif_found = true;
+                            Index = intermediateIndex;
+                            elseIfFound = true;
                             break;
                         }
-                        // On an else or endif, break here, advance to the next line, and return
-                        else if (Indent[Index] == indent && (event_data.data[Index].Key == 203 || event_data.data[Index].Key == 204))
+                        // Else
+                        else if (event_data.data[intermediateIndex].Key == 203)
                         {
-                            Index++;
+                            // Advance to the line after the else statement, then return
+                            Index = intermediateIndex + 1;
                             return true;
                         }
-                        // Otherwise move to the next line
+                    }
+                    // Find the endif and continue
+                    if (!elseIfFound)
+                    {
+                        // If there is no matching block end, go to the end of the event
+                        if (ifBlock.EndControlIndex == -1)
+                            Index = event_data.data.Count;
                         else
-                            Index++;
+                            Index = ifBlock.EndControlIndex + 1;
+                        return true;
                     }
                 }
-
-                if (!elseif_found)
-                    break;
             }
             Index++;
             return true;
@@ -4214,17 +4229,21 @@ namespace Tactile
         // Else statement, ElseIf statement
         private bool command_else()
         {
-            int indent = Indent[Index];
-            Index++;
-            // Finds the first endif statement with the same indentation
-            while (Index < event_data.data.Count)
+            // Find the if block this control is connected to
+            if (IndentBlocks.Any(x => x.Value.HasIntermediateIndex(Index)))
             {
-                if (Indent[Index] == indent && event_data.data[Index].Key == 204)
-                    break;
+                var ifBlock = IndentBlocks.First(x => x.Value.HasIntermediateIndex(Index)).Value;
+                // Go to the end of the if block
+                // If there is no matching block end, go to the end of the event
+                if (ifBlock.EndControlIndex == -1)
+                    Index = event_data.data.Count;
                 else
-                    Index++;
+                    Index = ifBlock.EndControlIndex + 1;
+                return true;
             }
-            Index++;
+
+            // If no endif is found, break out of this event I suppose
+            Index = event_data.data.Count;
             return true;
         }
 
