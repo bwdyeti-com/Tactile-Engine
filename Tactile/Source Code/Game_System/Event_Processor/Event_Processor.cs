@@ -693,6 +693,19 @@ namespace Tactile
                 // Skip override end
                 case 215:
                     return command_skip_override_end();
+                // Loop start // This does nothing on its own
+                case 221:
+                    Index++;
+                    return true;
+                // Loop end
+                case 222:
+                    return command_loop_end();
+                // Loop break
+                case 223:
+                    return command_loop_break();
+                // Loop next
+                case 224:
+                    return command_loop_next();
                 // Delete Event
                 case 250:
                     return command_delete();

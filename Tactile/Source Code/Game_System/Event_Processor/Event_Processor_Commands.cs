@@ -4326,6 +4326,80 @@ namespace Tactile
             return true;
         }
 
+        // 222: Loop end
+        private bool command_loop_end()
+        {
+            // Find the loop block this end is connected to
+            if (IndentBlocks.Any(x => x.Value.EndControlIndex == Index))
+            {
+                var loopBlock = IndentBlocks.First(x => x.Value.EndControlIndex == Index).Value;
+                // Go back to the start of the loop
+                Index = loopBlock.StartControlIndex + 1;
+                return true;
+            }
+
+            Index++;
+            return true;
+        }
+
+        // 223: Loop break
+        private bool command_loop_break()
+        {
+            int indent = Indent[Index];
+            // Work forwards from here to find the end of the active loop, if there is one
+            //@Debug: this would break down if loops had an intermediate control, so... don't do that
+            for (int i = Index + 1; i < event_data.data.Count; i++)
+            {
+                // If the indentation of this line is less than the current one,
+                // this is the end of a block to check
+                if (Indent[i] < indent)
+                {
+                    // If this is a loop end
+                    if (event_data.data[i].Key == 222)
+                    {
+                        Index = i + 1;
+                        return true;
+                    }
+                    // Else, reduce indent and keep checking
+                    else
+                        indent = Indent[i];
+                }
+            }
+
+            // If no loop start is found, break out of this event I suppose
+            Index = event_data.data.Count;
+            return true;
+        }
+
+        // 224: Loop next
+        private bool command_loop_next()
+        {
+            int indent = Indent[Index];
+            // Work backwards from here to find the active loop, if there is one
+            //@Debug: this would break down if loops had an intermediate control, so... don't do that
+            for (int i = Index - 1; i >= 0; i--)
+            {
+                // If the indentation of this line is less than the current one,
+                // this is the start of a new block to check
+                if (Indent[i] < indent)
+                {
+                    // If this is a loop start
+                    if (event_data.data[i].Key == 221)
+                    {
+                        Index = i + 1;
+                        return true;
+                    }
+                    // Else, reduce indent and keep checking
+                    else
+                        indent = Indent[i];
+                }
+            }
+
+            // If no loop start is found, ignore this statement I suppose
+            Index++;
+            return true;
+        }
+
         // Delete
         private bool command_delete()
         {
