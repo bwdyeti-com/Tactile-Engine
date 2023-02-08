@@ -104,6 +104,7 @@ namespace Tactile
             // Switches/Variables
             { 111, "Set Switch" },
             { 112, "Set Variable" },
+            { 113, "Dialogue Prompt" },
             // Scene Controls
             { 121, "Return to Title" },
             { 122, "Game Over" },

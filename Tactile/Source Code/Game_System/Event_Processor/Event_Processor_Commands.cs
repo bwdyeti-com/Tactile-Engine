@@ -2946,6 +2946,51 @@ namespace Tactile
             return true;
         }
 
+        // 113: Dialogue Prompt
+        private bool command_dialogue_prompt()
+        {
+            // Value[0] = variable id
+            // Value[1] = Chapter Message Value
+            // Value[2] = Dialogue Choices
+            // 2 repeats
+            if (!Global.scene.is_worldmap_scene)
+            {
+                int id = process_number(command.Value[0]);
+                if (id < 0 || id >= VARIABLES.Length)
+                {
+#if DEBUG
+                    Debug.Assert(id >= 0 && id < VARIABLES.Length, "Invalid Variable Id");
+#endif
+                    Index++;
+                    return true;
+                }
+                // If text isn't already active, load the text that is supplied and start it
+                if (!Global.scene.is_message_window_waiting)
+                {
+                    // If there is text to use
+                    if (command.Value[1] != "null")
+                    {
+#if DEBUG
+                        if (!Global.chapter_text.ContainsKey(command.Value[1]))
+                            Print.message(string.Format("No text with the key \"{0}\" exists for this chapter", command.Value[1]));
+                        else
+#endif
+                            if (Global.chapter_text.ContainsKey(command.Value[1]))
+                            {
+                                Global.game_temp.message_text = Global.chapter_text[command.Value[1]];
+                                Global.scene.new_message_window();
+                            }
+                    }
+                }
+                // Get the choices
+                List<string> dialogueChoices = command.Value.Skip(2).ToList();
+
+                ((Scene_Map)Global.scene).DialoguePrompt(id, dialogueChoices);
+            }
+            Index++;
+            return false;
+        }
+
         // 121: Return to Title
         private bool command_title()
         {

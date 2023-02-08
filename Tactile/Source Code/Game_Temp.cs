@@ -15,6 +15,7 @@ namespace Tactile
         // Menu Calls
         public bool menuing = false;
         public bool discard_menuing = false;
+        public bool prompt_menuing = false;
         public bool menu_call = false;
         public bool map_menu_call = false;
         public bool end_turn_highlit = false;

@@ -1672,7 +1672,8 @@ function normally. Suggested value is -3.",
                 if (_convoSkip == TextSkips.None)
                     _convoSkip = text_skip_input(); 
 
-                if (_convoSkip != TextSkips.None)
+                // Don't skip if the dialogue prompt menu is active
+                if (_convoSkip != TextSkips.None && !Global.game_temp.prompt_menuing)
                 {
                     skip_text(_convoSkip);
                     _convoSkip = TextSkips.None;

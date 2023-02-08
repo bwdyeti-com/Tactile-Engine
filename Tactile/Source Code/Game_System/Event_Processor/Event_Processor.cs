@@ -529,6 +529,9 @@ namespace Tactile
                 // Set Variable
                 case 112:
                     return command_set_variable();
+                // Dialogue Prompt
+                case 113:
+                    return command_dialogue_prompt();
                 // Return to Title
                 case 121:
                     return command_title();
@@ -758,7 +761,10 @@ namespace Tactile
                     Skipping = StartSkip ||
                         Global.scene.message_window_skipping_event ||
                         (Global.Input.triggered(Inputs.Start) &&
-                            !Global.scene.is_message_window_active);
+                            // Let the message window handle skipping when it's active
+                            !Global.scene.is_message_window_active &&
+                            // No skipping when a dialogue prompt is up
+                            !Global.game_temp.prompt_menuing); //@Debug: temp.menuing?
                     started_skipping = Skipping;
                 }
             }
