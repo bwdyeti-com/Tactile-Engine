@@ -693,6 +693,9 @@ namespace Tactile
                 // Skip override end
                 case 215:
                     return command_skip_override_end();
+                // Skip cancel
+                case 216:
+                    return command_skip_cancel();
                 // Loop start // This does nothing on its own
                 case 221:
                     Index++;
@@ -786,6 +789,7 @@ namespace Tactile
                 {
                     switch (event_data.data[Index].Key)
                     {
+                        // Skip Block Start
                         case 211:
                             Skip_Block++;
                             break;

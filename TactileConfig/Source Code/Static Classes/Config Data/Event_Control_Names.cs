@@ -156,6 +156,7 @@ namespace Tactile
             { 213, "Skip block end" },
             { 214, "Skip override start" },
             { 215, "Skip override end" },
+            { 216, "Skip cancel" },
             // Loop
             { 221, "Loop start" },
             { 222, "Loop end" },

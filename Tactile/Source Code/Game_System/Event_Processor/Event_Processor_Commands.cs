@@ -4326,6 +4326,21 @@ namespace Tactile
             return true;
         }
 
+        // 216: Skip cancel
+        private bool command_skip_cancel()
+        {
+            if (Skipping)
+            {
+                StartSkip = false;
+                Skipping = false;
+                SkipOverride = false;
+                SkipElseBlock = -1;
+            }
+
+            Index++;
+            return true;
+        }
+
         // 222: Loop end
         private bool command_loop_end()
         {
