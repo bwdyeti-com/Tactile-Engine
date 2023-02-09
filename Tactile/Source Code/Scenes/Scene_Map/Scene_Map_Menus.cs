@@ -1196,6 +1196,11 @@ namespace Tactile
         {
             UnitMenu = UnitMenuManager.DialoguePrompt(this, variableId, dialogueChoices);
         }
+
+        public void ConfirmationPrompt(int variableId, string caption)
+        {
+            UnitMenu = UnitMenuManager.ConfirmationPrompt(this, variableId, caption);
+        }
         #endregion
 
         protected virtual void draw_menus(

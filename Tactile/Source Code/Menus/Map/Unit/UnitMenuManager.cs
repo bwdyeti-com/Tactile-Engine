@@ -156,6 +156,37 @@ namespace Tactile.Menus.Map.Unit
             return manager;
         }
 
+        public static UnitMenuManager ConfirmationPrompt(
+            IUnitMenuHandler handler,
+            int switchId,
+            string caption)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            Global.game_temp.menuing = true;
+            Global.game_temp.prompt_menuing = true;
+            Global.game_temp.menu_call = false;
+
+            var confirmationPromptWindow = new Parchment_Confirm_Window();
+            confirmationPromptWindow.set_text(caption);
+            confirmationPromptWindow.add_choice("Yes", new Vector2(16, 16));
+            confirmationPromptWindow.add_choice("No", new Vector2(56, 16));
+            confirmationPromptWindow.size = new Vector2(
+                confirmationPromptWindow.size.X,
+                caption.Split(new char[] { '\n' }, StringSplitOptions.None).Count() * 16 + 32);
+            confirmationPromptWindow.index = 0;
+            confirmationPromptWindow.loc = new Vector2(
+                (Config.WINDOW_WIDTH - confirmationPromptWindow.size.X) / 2,
+                (Config.WINDOW_HEIGHT - confirmationPromptWindow.size.Y) / 2);
+
+            var confirmationPromptMenu = new ConfirmationPromptMenu(confirmationPromptWindow, switchId);
+            confirmationPromptMenu.Confirmed += manager.confirmationPromptMenu_Confirmed;
+            confirmationPromptMenu.Canceled += manager.confirmationPromptMenu_Canceled;
+            manager.AddMenu(confirmationPromptMenu);
+
+            return manager;
+        }
+
         public static UnitMenuManager ResumeArena(IUnitMenuHandler handler)
         {
             var manager = new UnitMenuManager(handler);
@@ -2025,6 +2056,29 @@ namespace Tactile.Menus.Map.Unit
 
             int index = dialoguePromptMenu.SelectedIndex.Index;
             Global.game_system.VARIABLES[dialoguePromptMenu.VariableId] = index + 1;
+
+            Global.game_temp.menuing = false;
+            Global.game_temp.prompt_menuing = false;
+            Menus.Clear();
+        }
+
+        private void confirmationPromptMenu_Confirmed(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
+
+            Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] = true;
+
+            Global.game_temp.menuing = false;
+            Global.game_temp.prompt_menuing = false;
+            Menus.Clear();
+        }
+        private void confirmationPromptMenu_Canceled(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
+
+            Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] = false;
 
             Global.game_temp.menuing = false;
             Global.game_temp.prompt_menuing = false;

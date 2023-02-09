@@ -532,6 +532,9 @@ namespace Tactile
                 // Dialogue Prompt
                 case 113:
                     return command_dialogue_prompt();
+                // Confirmation Prompt
+                case 114:
+                    return command_confirmation_prompt();
                 // Return to Title
                 case 121:
                     return command_title();
