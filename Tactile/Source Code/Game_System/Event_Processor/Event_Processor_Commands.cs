@@ -2950,8 +2950,8 @@ namespace Tactile
         private bool command_dialogue_prompt()
         {
             // Value[0] = variable id
-            // Value[1] = Chapter Message Value
-            // Value[2] = Dialogue Choices
+            // Value[1] = chapter message value
+            // Value[2] = dialogue choices
             // 2 repeats
             if (!Global.scene.is_worldmap_scene)
             {

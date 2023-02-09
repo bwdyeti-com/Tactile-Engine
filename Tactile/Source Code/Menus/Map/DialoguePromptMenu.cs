@@ -9,17 +9,14 @@ namespace Tactile.Menus.Map
         internal readonly int VariableId;
 
         public DialoguePromptMenu(
-            Window_Command discardWindow,
+            Window_Command dialogueWindow,
             int variableId,
-            IHasCancelButton menu = null) : base(discardWindow, menu)
+            IHasCancelButton menu = null) : base(dialogueWindow, menu)
         {
             VariableId = variableId;
         }
-        
-        protected override void Cancel()
-        {
-            Global.game_system.play_se(System_Sounds.Buzzer);
-        }
+
+        protected override void Cancel() { }
 
         #region IMenu
         protected override void UpdateMenu(bool active)
