@@ -86,6 +86,15 @@ namespace Tactile
             if (str.substring(0, 8) == "Variable")
                 return VARIABLES[Convert.ToInt32(str.substring(8, str.Length - 8))];
 
+            if (str.substring(0, 18) == "LastDialoguePrompt")
+            {
+#if DEBUG
+                if (Global.game_temp.LastDialoguePrompt.IsNothing)
+                    throw new ArgumentException();
+#endif
+                return Global.game_temp.LastDialoguePrompt;
+            }
+
             var weapon_type = Global.weapon_types.FirstOrDefault(x => x.EventName == str);
             if (weapon_type != null)
                 return Global.weapon_types.IndexOf(weapon_type);
@@ -170,6 +179,16 @@ namespace Tactile
         {
             if (str.substring(0, 6) == "Switch")
                 return SWITCHES[Convert.ToInt32(str.substring(6, str.Length - 6))];
+
+            if (str.substring(0, 22) == "LastConfirmationPrompt")
+            {
+#if DEBUG
+                if (Global.game_temp.LastConfirmationPrompt.IsNothing)
+                    throw new ArgumentException();
+#endif
+                return Global.game_temp.LastConfirmationPrompt;
+            }
+
             return str == "true";
         }
 
@@ -2956,10 +2975,10 @@ namespace Tactile
             if (!Global.scene.is_worldmap_scene)
             {
                 int id = process_number(command.Value[0]);
-                if (id < 0 || id >= VARIABLES.Length)
+                if (id < -1 || id >= VARIABLES.Length)
                 {
 #if DEBUG
-                    Debug.Assert(id >= 0 && id < VARIABLES.Length, "Invalid Variable Id");
+                    Debug.Assert(id >= -1 && id < VARIABLES.Length, "Invalid Variable Id");
 #endif
                     Index++;
                     return true;
@@ -3000,10 +3019,10 @@ namespace Tactile
             if (!Global.scene.is_worldmap_scene)
             {
                 int id = process_number(command.Value[0]);
-                if (id < 0 || id >= SWITCHES.Length)
+                if (id < -1 || id >= SWITCHES.Length)
                 {
 #if DEBUG
-                    Debug.Assert(id >= 0 && id < SWITCHES.Length, "Invalid Switch Id");
+                    Debug.Assert(id >= -1 && id < SWITCHES.Length, "Invalid Switch Id");
 #endif
                     Index++;
                     return true;
@@ -3698,6 +3717,9 @@ namespace Tactile
                     break;
                 case "False":
                     result = false;
+                    break;
+                case "LastConfirmationPrompt":
+                    result = process_bool("LastConfirmationPrompt");
                     break;
                 case "Switch":
                     // Value[1] = id

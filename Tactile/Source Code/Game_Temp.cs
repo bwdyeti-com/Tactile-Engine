@@ -33,6 +33,8 @@ namespace Tactile
         public bool scripted_battle = false;
         public int preparations_item_index;
         internal Scripted_Combat_Script scripted_battle_stats;
+        public Maybe<int> LastDialoguePrompt = Maybe<int>.Nothing;
+        public Maybe<bool> LastConfirmationPrompt = Maybe<bool>.Nothing;
         // Context sensitive unit control
         public Maybe<Vector2> SelectedMoveLoc { get; private set; }
         public Maybe<int> SelectedMoveMenuChoice { get; private set; }

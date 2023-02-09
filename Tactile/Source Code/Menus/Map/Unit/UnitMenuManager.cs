@@ -2055,7 +2055,10 @@ namespace Tactile.Menus.Map.Unit
             var dialoguePromptMenu = (sender as DialoguePromptMenu);
 
             int index = dialoguePromptMenu.SelectedIndex.Index;
-            Global.game_system.VARIABLES[dialoguePromptMenu.VariableId] = index + 1;
+            Global.game_temp.LastDialoguePrompt = index + 1;
+            if (dialoguePromptMenu.VariableId >= 0)
+                Global.game_system.VARIABLES[dialoguePromptMenu.VariableId] =
+                    Global.game_temp.LastDialoguePrompt;
 
             Global.game_temp.menuing = false;
             Global.game_temp.prompt_menuing = false;
@@ -2067,7 +2070,10 @@ namespace Tactile.Menus.Map.Unit
             Global.game_system.play_se(System_Sounds.Confirm);
             var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
 
-            Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] = true;
+            Global.game_temp.LastConfirmationPrompt = true;
+            if (confirmationPromptMenu.SwitchId >= 0)
+                Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] =
+                    Global.game_temp.LastConfirmationPrompt;
 
             Global.game_temp.menuing = false;
             Global.game_temp.prompt_menuing = false;
@@ -2078,7 +2084,10 @@ namespace Tactile.Menus.Map.Unit
             Global.game_system.play_se(System_Sounds.Confirm);
             var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
 
-            Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] = false;
+            Global.game_temp.LastConfirmationPrompt = false;
+            if (confirmationPromptMenu.SwitchId >= 0)
+                Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] =
+                    Global.game_temp.LastConfirmationPrompt;
 
             Global.game_temp.menuing = false;
             Global.game_temp.prompt_menuing = false;
