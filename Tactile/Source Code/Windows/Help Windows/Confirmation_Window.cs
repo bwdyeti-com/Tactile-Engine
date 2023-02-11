@@ -184,17 +184,28 @@ namespace Tactile.Windows.UserInterface.Command
             Canceled = false;
         }
 
+        public void close()
+        {
+            Vector2 oldSize = Size;
+            this.size = new Vector2(26, 26);
+            // Hang on the original size for a moment
+            for (int i = 0; i < 12; i++)
+                Resize.Insert(0, oldSize);
+        }
+
         public override void draw(SpriteBatch sprite_batch, Vector2 draw_offset = default(Vector2))
         {
             if (visible)
             {
                 base.draw(sprite_batch, draw_offset);
-                if (is_ready)
+                if (is_ready && this.ShouldDrawText)
                 {
                     sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
                     if (Choices != null)
                         Choices.Draw(sprite_batch, draw_offset - (loc + draw_vector() + new Vector2(8, 8)));
-                    draw_cursor(sprite_batch, draw_offset);
+
+                    if (this.finished_moving)
+                        draw_cursor(sprite_batch, draw_offset);
                     sprite_batch.End();
                 }
             }

@@ -2067,7 +2067,6 @@ namespace Tactile.Menus.Map.Unit
 
         private void confirmationPromptMenu_Confirmed(object sender, EventArgs e)
         {
-            Global.game_system.play_se(System_Sounds.Confirm);
             var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
 
             Global.game_temp.LastConfirmationPrompt = true;
@@ -2081,7 +2080,6 @@ namespace Tactile.Menus.Map.Unit
         }
         private void confirmationPromptMenu_Canceled(object sender, EventArgs e)
         {
-            Global.game_system.play_se(System_Sounds.Confirm);
             var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
 
             Global.game_temp.LastConfirmationPrompt = false;

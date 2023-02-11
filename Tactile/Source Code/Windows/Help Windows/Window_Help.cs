@@ -42,6 +42,18 @@ namespace Tactile
         {
             get { return Locs.Count <= 4 && Resize.Count <= 4; }
         }
+        protected bool ShouldDrawText
+        {
+            get
+            {
+                if (this.finished_moving)
+                    return true;
+                if (Resize.Count >= 2)
+                    return Resize[1].X == Background.width && Resize[1].Y == Background.height;
+
+                return false;
+            }
+        }
         #endregion
 
         public Window_Help()
@@ -263,9 +275,11 @@ namespace Tactile
         {
             if (visible)
             {
-                Background.draw(sprite_batch, draw_offset - (loc + draw_vector()));
+                if (Background.height >= 32)
+                    Background.draw(sprite_batch, draw_offset - (loc + draw_vector()));
+
                 sprite_batch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-                if (this.finished_moving)
+                if (this.ShouldDrawText)
                 {
                     if (Help_Text != null)
                         Help_Text.draw(sprite_batch, draw_offset - (loc + draw_vector()));
