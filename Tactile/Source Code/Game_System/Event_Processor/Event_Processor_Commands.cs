@@ -4359,8 +4359,6 @@ namespace Tactile
         // Skip block start
         private bool command_skip()
         {
-            if (Global.scene.is_map_scene)
-                Global.scene.event_skip();
             Skip_Block++;
             Index++;
             return true;
