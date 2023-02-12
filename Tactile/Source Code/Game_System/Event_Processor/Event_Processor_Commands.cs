@@ -261,7 +261,7 @@ namespace Tactile
             //?Value[2] = Continuation text? (optional)
 
             // If this is a continuation text, only show this text if the text window isn't closed
-            if ((command.Value.Length > 2 && process_bool(command.Value[2])) ==
+            if (!(command.Value.Length > 2 && process_bool(command.Value[2])) ||
                 Global.scene.is_message_window_waiting)
             {
                 if (Global.game_temp.message_text == null)
@@ -4331,7 +4331,6 @@ namespace Tactile
                         "Valid operators are [<, >, <=, >=, ==, !=]"), operator_str);
 #endif
                     return false;
-                    break;
             }
         }
 
