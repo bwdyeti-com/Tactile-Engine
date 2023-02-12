@@ -239,6 +239,18 @@ namespace Tactile.Menus.Map.Unit
             return false;
         }
 
+        private void CancelAttackSkills(Game_Unit unit)
+        {
+            // Skills: Swoop
+            unit.swoop_activated = false;
+            // Skills: Trample
+            unit.trample_activated = false;
+            // Skills: Old Swoop //@Debug
+            unit.old_swoop_activated = false;
+            // Skills: Masteries
+            unit.reset_masteries();
+        }
+
         public bool ShowSkillRange(string skill)
         {
             for (int i = 0; i < Menus.Count; i++)

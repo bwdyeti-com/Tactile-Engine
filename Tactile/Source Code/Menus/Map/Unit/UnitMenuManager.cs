@@ -455,17 +455,6 @@ namespace Tactile.Menus.Map.Unit
 
             menu_Closed(sender, e);
         }
-        private void CancelAttackSkills(Game_Unit unit)
-        {
-            // Skills: Swoop
-            unit.swoop_activated = false;
-            // Skills: Trample
-            unit.trample_activated = false;
-            // Skills: Old Swoop //@Debug
-            unit.old_swoop_activated = false;
-            // Skills: Masteries
-            unit.reset_masteries();
-        }
 
         private void attackTargetMenu_Selected(object sender, EventArgs e)
         {
