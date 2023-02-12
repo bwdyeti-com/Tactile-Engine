@@ -136,7 +136,8 @@ namespace Tactile.Menus.Map.Unit
             int width = dialogueChoices.Max(x => Font_Data.text_width(x, Config.UI_FONT));
             width = Math.Max(width, 48);
             width = width + (width % 8 == 0 ? 0 : (8 - width % 8)) + 32;
-            int height = PROMPT_ROWS * Font_Data.Data[Config.UI_FONT].CharHeight + 16;
+            int height = Math.Min(dialogueChoices.Count, PROMPT_ROWS) *
+                Font_Data.Data[Config.UI_FONT].CharHeight + 16;
 
             var dialoguePromptWindow = new Window_Command_Scrollbar(
                 new Vector2(
