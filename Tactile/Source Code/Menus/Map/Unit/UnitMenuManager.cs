@@ -149,6 +149,20 @@ namespace Tactile.Menus.Map.Unit
             dialoguePromptWindow.text_offset = new Vector2(8, 0);
             dialoguePromptWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
             dialoguePromptWindow.small_window = true;
+            if (variableId >= 0)
+            {
+                // Use the value set into the variable to get the starting index
+                int variable = Global.game_system.VARIABLES[variableId];
+                if (variable > 0 && variable <= dialogueChoices.Count)
+                    dialoguePromptWindow.immediate_index = Global.game_temp.LastDialoguePrompt - 1;
+            }
+            else
+            {
+                // Use the last dialogue prompt choice to get the starting index
+                if (Global.game_temp.LastDialoguePrompt.IsSomething &&
+                        Global.game_temp.LastDialoguePrompt <= dialogueChoices.Count)
+                    dialoguePromptWindow.immediate_index = Global.game_temp.LastDialoguePrompt - 1;
+            }
 
             var dialoguePromptMenu = new DialoguePromptMenu(dialoguePromptWindow, variableId);
             dialoguePromptMenu.Selected += manager.dialoguePromptMenu_Selected;
