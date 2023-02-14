@@ -11,11 +11,6 @@
 //-----------------------------------------------------------------------------------------------
 // Original C++ code from a GDC talk by Squirrel Eiserloh
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 namespace TactileLibrary
 {
     class SquirrelNoise
