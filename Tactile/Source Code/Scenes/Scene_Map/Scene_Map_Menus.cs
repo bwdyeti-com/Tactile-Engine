@@ -1191,6 +1191,18 @@ namespace Tactile
         }
         #endregion
 
+        #region Dialogue Prompt
+        public void DialoguePrompt(int variableId, List<string> dialogueChoices)
+        {
+            UnitMenu = UnitMenuManager.DialoguePrompt(this, variableId, dialogueChoices);
+        }
+
+        public void ConfirmationPrompt(int variableId, string caption)
+        {
+            UnitMenu = UnitMenuManager.ConfirmationPrompt(this, variableId, caption);
+        }
+        #endregion
+
         protected virtual void draw_menus(
             SpriteBatch sprite_batch,
             GraphicsDevice device,
@@ -1199,20 +1211,25 @@ namespace Tactile
             if (MapMenu != null)
                 MapMenu.Draw(sprite_batch, device, renderTargets);
             if (UnitMenu != null)
-                if (!Global.game_temp.discard_menuing)
+                // Draw over messages when discarding or a dialogue prompt, in another function
+                if (!(Global.game_temp.discard_menuing ||
+                        Global.game_temp.prompt_menuing))
                     UnitMenu.Draw(sprite_batch, device, renderTargets);
             
             if (Map_Save_Confirm_Window != null) Map_Save_Confirm_Window.draw(sprite_batch);
             if (Ranking_Window != null) Ranking_Window.draw(sprite_batch);
         }
 
-        protected void draw_discard(
+        protected void DrawUnitMenuOverMessage(
             SpriteBatch spriteBatch,
             GraphicsDevice device,
             RenderTarget2D[] renderTargets)
         {
             if (UnitMenu != null)
-                if (Global.game_temp.discard_menuing)
+                //@Debug: might be nice if this was automated instead of having
+                // to manually use the inverse of the check in draw_menus()
+                if (Global.game_temp.discard_menuing ||
+                        Global.game_temp.prompt_menuing)
                     UnitMenu.Draw(spriteBatch, device, renderTargets);
         }
 

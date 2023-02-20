@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyProduct("TactileLibrary")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
-[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2022")]
+[assembly: AssemblyCopyright("Copyright © bwdyeti.com 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,4 +31,4 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.7.2.0")]
+[assembly: AssemblyVersion("0.7.2.1")]

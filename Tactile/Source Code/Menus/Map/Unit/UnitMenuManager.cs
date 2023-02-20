@@ -121,6 +121,87 @@ namespace Tactile.Menus.Map.Unit
             return manager;
         }
 
+        public static UnitMenuManager DialoguePrompt(
+            IUnitMenuHandler handler,
+            int variableId,
+            List<string> dialogueChoices)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            Global.game_temp.menuing = true;
+            Global.game_temp.prompt_menuing = true;
+            Global.game_temp.menu_call = false;
+
+            const int PROMPT_ROWS = 6;
+            int width = dialogueChoices.Max(x => Font_Data.text_width(x, Config.UI_FONT));
+            width = Math.Max(width, 48);
+            width = width + (width % 8 == 0 ? 0 : (8 - width % 8)) + 32;
+            int height = Math.Min(dialogueChoices.Count, PROMPT_ROWS) *
+                Font_Data.Data[Config.UI_FONT].CharHeight + 16;
+
+            var dialoguePromptWindow = new Window_Command_Scrollbar(
+                new Vector2(
+                    (Config.WINDOW_WIDTH - width) / 2,
+                    (Config.WINDOW_HEIGHT - height) / 2),
+                width,
+                PROMPT_ROWS,
+                dialogueChoices);
+            dialoguePromptWindow.text_offset = new Vector2(8, 0);
+            dialoguePromptWindow.help_stereoscopic = Config.MAPCOMMAND_HELP_DEPTH;
+            dialoguePromptWindow.small_window = true;
+            if (variableId >= 0)
+            {
+                // Use the value set into the variable to get the starting index
+                int variable = Global.game_system.VARIABLES[variableId];
+                if (variable > 0 && variable <= dialogueChoices.Count)
+                    dialoguePromptWindow.immediate_index = Global.game_temp.LastDialoguePrompt - 1;
+            }
+            else
+            {
+                // Use the last dialogue prompt choice to get the starting index
+                if (Global.game_temp.LastDialoguePrompt.IsSomething &&
+                        Global.game_temp.LastDialoguePrompt <= dialogueChoices.Count)
+                    dialoguePromptWindow.immediate_index = Global.game_temp.LastDialoguePrompt - 1;
+            }
+
+            var dialoguePromptMenu = new DialoguePromptMenu(dialoguePromptWindow, variableId);
+            dialoguePromptMenu.Selected += manager.dialoguePromptMenu_Selected;
+            manager.AddMenu(dialoguePromptMenu);
+
+            return manager;
+        }
+
+        public static UnitMenuManager ConfirmationPrompt(
+            IUnitMenuHandler handler,
+            int switchId,
+            string caption)
+        {
+            var manager = new UnitMenuManager(handler);
+
+            Global.game_temp.menuing = true;
+            Global.game_temp.prompt_menuing = true;
+            Global.game_temp.menu_call = false;
+
+            var confirmationPromptWindow = new Parchment_Confirm_Window();
+            confirmationPromptWindow.set_text(caption);
+            confirmationPromptWindow.add_choice("Yes", new Vector2(16, 16));
+            confirmationPromptWindow.add_choice("No", new Vector2(56, 16));
+            confirmationPromptWindow.size = new Vector2(
+                confirmationPromptWindow.size.X,
+                caption.Split(new char[] { '\n' }, StringSplitOptions.None).Count() * 16 + 32);
+            confirmationPromptWindow.index = 0;
+            confirmationPromptWindow.loc = new Vector2(
+                (Config.WINDOW_WIDTH - confirmationPromptWindow.size.X) / 2,
+                (Config.WINDOW_HEIGHT - confirmationPromptWindow.size.Y) / 2);
+
+            var confirmationPromptMenu = new ConfirmationPromptMenu(confirmationPromptWindow, switchId);
+            confirmationPromptMenu.Confirmed += manager.confirmationPromptMenu_Confirmed;
+            confirmationPromptMenu.Canceled += manager.confirmationPromptMenu_Canceled;
+            manager.AddMenu(confirmationPromptMenu);
+
+            return manager;
+        }
+
         public static UnitMenuManager ResumeArena(IUnitMenuHandler handler)
         {
             var manager = new UnitMenuManager(handler);
@@ -388,17 +469,6 @@ namespace Tactile.Menus.Map.Unit
             unitMenu.RefreshTempAttackRange();
 
             menu_Closed(sender, e);
-        }
-        private void CancelAttackSkills(Game_Unit unit)
-        {
-            // Skills: Swoop
-            unit.swoop_activated = false;
-            // Skills: Trample
-            unit.trample_activated = false;
-            // Skills: Old Swoop //@Debug
-            unit.old_swoop_activated = false;
-            // Skills: Masteries
-            unit.reset_masteries();
         }
 
         private void attackTargetMenu_Selected(object sender, EventArgs e)
@@ -1982,6 +2052,49 @@ namespace Tactile.Menus.Map.Unit
             }
         }
         #endregion
+
+        private void dialoguePromptMenu_Selected(object sender, EventArgs e)
+        {
+            Global.game_system.play_se(System_Sounds.Confirm);
+            var dialoguePromptMenu = (sender as DialoguePromptMenu);
+
+            int index = dialoguePromptMenu.SelectedIndex.Index;
+            Global.game_temp.LastDialoguePrompt = index + 1;
+            if (dialoguePromptMenu.VariableId >= 0)
+                Global.game_system.VARIABLES[dialoguePromptMenu.VariableId] =
+                    Global.game_temp.LastDialoguePrompt;
+
+            Global.game_temp.menuing = false;
+            Global.game_temp.prompt_menuing = false;
+            Menus.Clear();
+        }
+
+        private void confirmationPromptMenu_Confirmed(object sender, EventArgs e)
+        {
+            var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
+
+            Global.game_temp.LastConfirmationPrompt = true;
+            if (confirmationPromptMenu.SwitchId >= 0)
+                Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] =
+                    Global.game_temp.LastConfirmationPrompt;
+
+            Global.game_temp.menuing = false;
+            Global.game_temp.prompt_menuing = false;
+            Menus.Clear();
+        }
+        private void confirmationPromptMenu_Canceled(object sender, EventArgs e)
+        {
+            var confirmationPromptMenu = (sender as ConfirmationPromptMenu);
+
+            Global.game_temp.LastConfirmationPrompt = false;
+            if (confirmationPromptMenu.SwitchId >= 0)
+                Global.game_system.SWITCHES[confirmationPromptMenu.SwitchId] =
+                    Global.game_temp.LastConfirmationPrompt;
+
+            Global.game_temp.menuing = false;
+            Global.game_temp.prompt_menuing = false;
+            Menus.Clear();
+        }
 
         public bool ShowAttackRange
         {

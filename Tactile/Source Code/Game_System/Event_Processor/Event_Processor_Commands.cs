@@ -86,6 +86,15 @@ namespace Tactile
             if (str.substring(0, 8) == "Variable")
                 return VARIABLES[Convert.ToInt32(str.substring(8, str.Length - 8))];
 
+            if (str.substring(0, 18) == "LastDialoguePrompt")
+            {
+#if DEBUG
+                if (Global.game_temp.LastDialoguePrompt.IsNothing)
+                    throw new ArgumentException();
+#endif
+                return Global.game_temp.LastDialoguePrompt;
+            }
+
             var weapon_type = Global.weapon_types.FirstOrDefault(x => x.EventName == str);
             if (weapon_type != null)
                 return Global.weapon_types.IndexOf(weapon_type);
@@ -170,6 +179,16 @@ namespace Tactile
         {
             if (str.substring(0, 6) == "Switch")
                 return SWITCHES[Convert.ToInt32(str.substring(6, str.Length - 6))];
+
+            if (str.substring(0, 22) == "LastConfirmationPrompt")
+            {
+#if DEBUG
+                if (Global.game_temp.LastConfirmationPrompt.IsNothing)
+                    throw new ArgumentException();
+#endif
+                return Global.game_temp.LastConfirmationPrompt;
+            }
+
             return str == "true";
         }
 
@@ -242,7 +261,7 @@ namespace Tactile
             //?Value[2] = Continuation text? (optional)
 
             // If this is a continuation text, only show this text if the text window isn't closed
-            if ((command.Value.Length > 2 && process_bool(command.Value[2])) ==
+            if (!(command.Value.Length > 2 && process_bool(command.Value[2])) ||
                 Global.scene.is_message_window_waiting)
             {
                 if (Global.game_temp.message_text == null)
@@ -2946,6 +2965,93 @@ namespace Tactile
             return true;
         }
 
+        // 113: Dialogue Prompt
+        private bool command_dialogue_prompt()
+        {
+            // Value[0] = variable id
+            // Value[1] = chapter message value
+            // Value[2] = dialogue choices
+            // 2 repeats
+            if (!Global.scene.is_worldmap_scene)
+            {
+                int id = process_number(command.Value[0]);
+                if (id < -1 || id >= VARIABLES.Length)
+                {
+#if DEBUG
+                    Debug.Assert(id >= -1 && id < VARIABLES.Length, "Invalid Variable Id");
+#endif
+                    Index++;
+                    return true;
+                }
+                // If text isn't already active, load the text that is supplied and start it
+                if (!Global.scene.is_message_window_waiting)
+                {
+                    // If there is text to use
+                    if (command.Value[1] != "null")
+                    {
+#if DEBUG
+                        if (!Global.chapter_text.ContainsKey(command.Value[1]))
+                            Print.message(string.Format("No text with the key \"{0}\" exists for this chapter", command.Value[1]));
+                        else
+#endif
+                            if (Global.chapter_text.ContainsKey(command.Value[1]))
+                            {
+                                Global.game_temp.message_text = Global.chapter_text[command.Value[1]];
+                                Global.scene.new_message_window();
+                            }
+                    }
+                }
+                // Get the choices
+                List<string> dialogueChoices = command.Value.Skip(2).ToList();
+
+                ((Scene_Map)Global.scene).DialoguePrompt(id, dialogueChoices);
+            }
+            Index++;
+            return false;
+        }
+
+        // 114: Confirmation Prompt
+        private bool command_confirmation_prompt()
+        {
+            // Value[0] = switch id
+            // Value[1] = chapter message value
+            // Value[2] = caption
+            if (!Global.scene.is_worldmap_scene)
+            {
+                int id = process_number(command.Value[0]);
+                if (id < -1 || id >= SWITCHES.Length)
+                {
+#if DEBUG
+                    Debug.Assert(id >= -1 && id < SWITCHES.Length, "Invalid Switch Id");
+#endif
+                    Index++;
+                    return true;
+                }
+                // If text isn't already active, load the text that is supplied and start it
+                if (!Global.scene.is_message_window_waiting)
+                {
+                    // If there is text to use
+                    if (command.Value[1] != "null")
+                    {
+#if DEBUG
+                        if (!Global.chapter_text.ContainsKey(command.Value[1]))
+                            Print.message(string.Format("No text with the key \"{0}\" exists for this chapter", command.Value[1]));
+                        else
+#endif
+                            if (Global.chapter_text.ContainsKey(command.Value[1]))
+                            {
+                                Global.game_temp.message_text = Global.chapter_text[command.Value[1]];
+                                Global.scene.new_message_window();
+                            }
+                    }
+                }
+
+                ((Scene_Map)Global.scene).ConfirmationPrompt(id, command.Value[2]);
+            }
+            Index++;
+            return false;
+        }
+
         // 121: Return to Title
         private bool command_title()
         {
@@ -3487,11 +3593,14 @@ namespace Tactile
             return false;
         }
 
-        // If statement
+        // 201: If statement
         private bool command_if()
         {
-            int indent = Indent[Index];
-            bool elseif_found = false;
+#if DEBUG
+            if (!IndentBlocks.ContainsKey(Index))
+                throw new System.IndexOutOfRangeException("If statement somehow didn't form a block");
+#endif
+            var ifBlock = IndentBlocks[Index];
 
             for (; ; )
             {
@@ -3507,32 +3616,44 @@ namespace Tactile
                         Index++;
                     break;
                 }
-                // The if statement was false, so find the first else, endif, or elseif statement with the same indentation
+                // The if statement was false, so use the else/endif/elseif statements in the same block
                 else
                 {
-                    Index++;
-                    while (Index < event_data.data.Count)
+                    // Look for an elseif/else
+                    bool elseIfFound = false;
+                    var intermediateControls = ifBlock.IntermediateControlIndices;
+                    for (int i = 0; i < intermediateControls.Count; i++)
                     {
-                        // On an elseif, restart this loop and test the if
-                        if (Indent[Index] == indent && (event_data.data[Index].Key == 205))
+                        int intermediateIndex = intermediateControls[i];
+                        if (intermediateIndex <= Index)
+                            continue;
+
+                        // Else if
+                        if (event_data.data[intermediateIndex].Key == 205)
                         {
-                            elseif_found = true;
+                            Index = intermediateIndex;
+                            elseIfFound = true;
                             break;
                         }
-                        // On an else or endif, break here, advance to the next line, and return
-                        else if (Indent[Index] == indent && (event_data.data[Index].Key == 203 || event_data.data[Index].Key == 204))
+                        // Else
+                        else if (event_data.data[intermediateIndex].Key == 203)
                         {
-                            Index++;
+                            // Advance to the line after the else statement, then return
+                            Index = intermediateIndex + 1;
                             return true;
                         }
-                        // Otherwise move to the next line
+                    }
+                    // Find the endif and continue
+                    if (!elseIfFound)
+                    {
+                        // If there is no matching block end, go to the end of the event
+                        if (ifBlock.EndControlIndex == -1)
+                            Index = event_data.data.Count;
                         else
-                            Index++;
+                            Index = ifBlock.EndControlIndex + 1;
+                        return true;
                     }
                 }
-
-                if (!elseif_found)
-                    break;
             }
             Index++;
             return true;
@@ -3596,6 +3717,9 @@ namespace Tactile
                     break;
                 case "False":
                     result = false;
+                    break;
+                case "LastConfirmationPrompt":
+                    result = process_bool("LastConfirmationPrompt");
                     break;
                 case "Switch":
                     // Value[1] = id
@@ -4207,32 +4331,33 @@ namespace Tactile
                         "Valid operators are [<, >, <=, >=, ==, !=]"), operator_str);
 #endif
                     return false;
-                    break;
             }
         }
 
         // Else statement, ElseIf statement
         private bool command_else()
         {
-            int indent = Indent[Index];
-            Index++;
-            // Finds the first endif statement with the same indentation
-            while (Index < event_data.data.Count)
+            // Find the if block this control is connected to
+            if (IndentBlocks.Any(x => x.Value.HasIntermediateIndex(Index)))
             {
-                if (Indent[Index] == indent && event_data.data[Index].Key == 204)
-                    break;
+                var ifBlock = IndentBlocks.First(x => x.Value.HasIntermediateIndex(Index)).Value;
+                // Go to the end of the if block
+                // If there is no matching block end, go to the end of the event
+                if (ifBlock.EndControlIndex == -1)
+                    Index = event_data.data.Count;
                 else
-                    Index++;
+                    Index = ifBlock.EndControlIndex + 1;
+                return true;
             }
-            Index++;
+
+            // If no endif is found, break out of this event I suppose
+            Index = event_data.data.Count;
             return true;
         }
 
         // Skip block start
         private bool command_skip()
         {
-            if (Global.scene.is_map_scene)
-                Global.scene.event_skip();
             Skip_Block++;
             Index++;
             return true;
@@ -4304,6 +4429,95 @@ namespace Tactile
                 SkipOverride = false;
                 return false;
             }
+            return true;
+        }
+
+        // 216: Skip cancel
+        private bool command_skip_cancel()
+        {
+            if (Skipping)
+            {
+                StartSkip = false;
+                Skipping = false;
+                SkipOverride = false;
+                SkipElseBlock = -1;
+            }
+
+            Index++;
+            return true;
+        }
+
+        // 222: Loop end
+        private bool command_loop_end()
+        {
+            // Find the loop block this end is connected to
+            if (IndentBlocks.Any(x => x.Value.EndControlIndex == Index))
+            {
+                var loopBlock = IndentBlocks.First(x => x.Value.EndControlIndex == Index).Value;
+                // Go back to the start of the loop
+                Index = loopBlock.StartControlIndex + 1;
+                return true;
+            }
+
+            Index++;
+            return true;
+        }
+
+        // 223: Loop break
+        private bool command_loop_break()
+        {
+            int indent = Indent[Index];
+            // Work forwards from here to find the end of the active loop, if there is one
+            //@Debug: this would break down if loops had an intermediate control, so... don't do that
+            for (int i = Index + 1; i < event_data.data.Count; i++)
+            {
+                // If the indentation of this line is less than the current one,
+                // this is the end of a block to check
+                if (Indent[i] < indent)
+                {
+                    // If this is a loop end
+                    if (event_data.data[i].Key == 222)
+                    {
+                        Index = i + 1;
+                        return true;
+                    }
+                    // Else, reduce indent and keep checking
+                    else
+                        indent = Indent[i];
+                }
+            }
+
+            // If no loop start is found, break out of this event I suppose
+            Index = event_data.data.Count;
+            return true;
+        }
+
+        // 224: Loop next
+        private bool command_loop_next()
+        {
+            int indent = Indent[Index];
+            // Work backwards from here to find the active loop, if there is one
+            //@Debug: this would break down if loops had an intermediate control, so... don't do that
+            for (int i = Index - 1; i >= 0; i--)
+            {
+                // If the indentation of this line is less than the current one,
+                // this is the start of a new block to check
+                if (Indent[i] < indent)
+                {
+                    // If this is a loop start
+                    if (event_data.data[i].Key == 221)
+                    {
+                        Index = i + 1;
+                        return true;
+                    }
+                    // Else, reduce indent and keep checking
+                    else
+                        indent = Indent[i];
+                }
+            }
+
+            // If no loop start is found, ignore this statement I suppose
+            Index++;
             return true;
         }
 

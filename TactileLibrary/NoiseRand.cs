@@ -142,15 +142,15 @@ namespace TactileLibrary
         /// <exception cref="System.ArgumentOutOfRangeException">minValue is greater than maxValue.</exception>
         public int Next(int minValue, int maxValue)
         {
-            if (maxValue < minValue)
-                throw new ArgumentOutOfRangeException("maxValue is less than zero.");
+            if (maxValue <= minValue)
+                throw new ArgumentOutOfRangeException("maxValue isn't greater than minValue");
 
             return _Next(minValue, maxValue);
         }
         private int _Next(int minValue, int maxValue)
         {
-            if (minValue == maxValue)
-                return maxValue;
+            if (minValue == maxValue - 1)
+                return minValue;
 
             // Combine min and max value to get the range
             int result = _Next((uint)((long)maxValue - (long)minValue));

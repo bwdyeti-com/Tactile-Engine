@@ -1203,8 +1203,8 @@ namespace Tactile
         {
             base.draw_message_overlay(spriteBatch, device, renderTargets);
 
-            // Item discard
-            draw_discard(spriteBatch, device, renderTargets);
+            // Unit menus to draw over messages (discard, dialogue prompt)
+            DrawUnitMenuOverMessage(spriteBatch, device, renderTargets);
             // Popup
             if (Map_Popup != null)
             {
