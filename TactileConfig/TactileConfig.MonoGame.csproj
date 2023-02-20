@@ -56,6 +56,8 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Source Code\ClassTypeSet.cs" />
+    <Compile Include="Source Code\EventControlBlock.cs" />
+    <Compile Include="Source Code\EventControlBlockDef.cs" />
     <Compile Include="Source Code\FaceCountryRecolor.cs" />
     <Compile Include="Source Code\FaceToGeneric.cs" />
     <Compile Include="Source Code\Static Classes\Config Data\Battler Animation\Face_Recolor.cs" />
