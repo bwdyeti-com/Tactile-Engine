@@ -15,7 +15,8 @@ namespace Tactile.Windows.Command
         protected Vector2 ScrollOffset = Vector2.Zero;
         protected bool ManualScroll = false;
 
-        private readonly static RasterizerState Raster_State = new RasterizerState { ScissorTestEnable = true };
+        //@Debug: make private again when Window_Base_Convos no longer needs this
+        protected readonly static RasterizerState Raster_State = new RasterizerState { ScissorTestEnable = true };
 
         #region Accessors
         public int scroll

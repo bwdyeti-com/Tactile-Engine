@@ -9,12 +9,14 @@ using TactileLibrary;
 namespace Tactile.Windows
 {
     //@Debug: the stars should still be part of the text items instead of drawn on top
-    class Window_Base_Convos : Window_Command
+    class Window_Base_Convos : Window_Command_Scrollbar
     {
+        const int ROWS = 6;
+
         private List<Sprite> Priority_Stars;
 
         public Window_Base_Convos(Vector2 loc) :
-            base(loc, 200, Global.game_state.base_event_names())
+            base(loc, 200, ROWS, Global.game_state.base_event_names())
         {
             this.text_offset = new Vector2(16, 0);
             this.stereoscopic = Config.PREPMAIN_TALK_DEPTH;
@@ -51,10 +53,19 @@ namespace Tactile.Windows
         {
             base.draw(spriteBatch);
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-            foreach (Sprite star in Priority_Stars)
-                star.draw(spriteBatch, -this.loc);
-            spriteBatch.End();
+            //@Debug: this won't be necessary to clip manually when the
+            // stars are part of the list elements
+            Rectangle rect = scissor_rect();
+
+            if (rect.Width > 0 && rect.Height > 0)
+            {
+                spriteBatch.GraphicsDevice.ScissorRectangle = rect;
+                //@Debug: make Window_Command_Scroll.Raster_State private again when this is removed
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, Raster_State);
+                foreach (Sprite star in Priority_Stars)
+                    star.draw(spriteBatch, -(this.loc - ScrollOffset));
+                spriteBatch.End();
+            }
         }
     }
 }
