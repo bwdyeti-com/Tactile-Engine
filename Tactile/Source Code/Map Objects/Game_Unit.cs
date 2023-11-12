@@ -3261,8 +3261,9 @@ namespace Tactile
             HashSet<int> units = units_in_range(1);
             List<int> result = new List<int>();
             foreach (int id in units)
-                if (Global.game_state.can_talk(Id, id))
-                    result.Add(id);
+                if (Global.game_map.units[id].visible_by())
+                    if (Global.game_state.can_talk(Id, id))
+                        result.Add(id);
             return result;
         }
 
@@ -3278,9 +3279,13 @@ namespace Tactile
             HashSet<int> units = units_in_range(1);
             List<int> result = new List<int>();
             foreach (int id in units)
-                if (actor.is_support_ready(Global.game_map.units[id].actor.id))
-                    if (Global.game_map.units[id].can_support_skill())
-                        result.Add(id);
+            {
+                Game_Unit otherUnit = Global.game_map.units[id];
+                if (otherUnit.visible_by())
+                    if (actor.is_support_ready(otherUnit.actor.id))
+                        if (otherUnit.can_support_skill())
+                            result.Add(id);
+            }
             return result;
         }
 
@@ -3456,7 +3461,7 @@ namespace Tactile
             foreach (int id in units)
             {
                 Game_Unit other_unit = Global.game_map.units[id];
-                if (is_attackable_team(other_unit))
+                if (is_attackable_team(other_unit) && other_unit.visible_by())
                     if (can_steal_from(other_unit))
                         result.Add(id);
             }
