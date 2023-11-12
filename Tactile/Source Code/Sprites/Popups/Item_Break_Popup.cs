@@ -32,7 +32,7 @@ namespace Tactile
             if (is_item)
                 item = Global.data_items[item_id];
             else
-                item = Global.data_weapons[item_id];
+                item = Global.GetWeapon(item_id);
             // Item icon
             set_icon(item);
             // Text

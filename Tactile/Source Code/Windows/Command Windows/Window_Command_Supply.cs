@@ -70,7 +70,7 @@ namespace Tactile.Windows.Command
                     //item_listing.set_image(actor, item_data);
                 }
                 //// If the item is a weapon and can't be equipped, color it grey // This should already be handled though //Yeti
-                //if (item_data.is_weapon && !actor.is_equippable(Global.data_weapons[item_data.Id]))
+                //if (item_data.is_weapon && !actor.is_equippable(item_data.to_weapon))
                 //    item_listing.change_text_color("Grey");
 
                 items.Add(item_listing);

@@ -1056,7 +1056,7 @@ namespace Tactile
         {
             if (!ACTIVATION_SKILLS.Contains(skill) && !MASTERIES.Contains(skill))
                 return true;
-            bool magic_attack = weapon_id <= 0 ? false : check_magic_attack(Global.data_weapons[weapon_id], (int)distance);
+            bool magic_attack = weapon_id <= 0 ? false : check_magic_attack(Global.GetWeapon(weapon_id), (int)distance);
             // If opponent has Nihil or using the wrong attack type and this skill doesn't allow that
             if (nihil(target) || !(ANY_ATTACK_TYPE_ACTIVATION.Contains(skill) || is_correct_attack_type(magic_attack)))
                 return false;
@@ -1388,7 +1388,7 @@ namespace Tactile
             int i = 0;
             while (i < useable_weapons.Count)
             {
-                if (min_range(useable_weapons[i], "SWOOP") > 1 || Global.data_weapons[items[useable_weapons[i]].Id].is_siege())
+                if (min_range(useable_weapons[i], "SWOOP") > 1 || items[useable_weapons[i]].to_weapon.is_siege())
                     useable_weapons.RemoveAt(i);
                 else
                     i++;

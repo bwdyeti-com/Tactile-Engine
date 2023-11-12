@@ -184,7 +184,7 @@ namespace Tactile
                 if (Wexp1 > 0)
                 {
                     TactileLibrary.WeaponType type =
-                        battler_1.actor.valid_weapon_type_of(Global.data_weapons[Weapon_1_Id]);
+                        battler_1.actor.valid_weapon_type_of(Global.GetWeapon(Weapon_1_Id));
                     battler_1.actor.wexp_gain(type, Wexp1);
                 }
             if (immediate_level)

@@ -158,11 +158,11 @@ namespace Tactile.Windows.Map
                     Data[5].text = actor.tier.ToString() + ", " + actor.class_name;
                 }
                 Data[2].loc.X += 16;
-                if (Global.data_weapons.ContainsKey(test_battler.Weapon_Id))
+                if (Global.HasWeapon(test_battler.Weapon_Id))
                 {
-                    Data[2].text = Global.data_weapons[test_battler.Weapon_Id].Name;
-                    Item_Icons[0].texture = Global.Content.Load<Texture2D>(@"Graphics/Icons/" + Global.data_weapons[test_battler.Weapon_Id].Image_Name);
-                    Item_Icons[0].index = Global.data_weapons[test_battler.Weapon_Id].Image_Index;
+                    Data[2].text = Global.GetWeapon(test_battler.Weapon_Id).Name;
+                    Item_Icons[0].texture = Global.Content.Load<Texture2D>(@"Graphics/Icons/" + Global.GetWeapon(test_battler.Weapon_Id).Image_Name);
+                    Item_Icons[0].index = Global.GetWeapon(test_battler.Weapon_Id).Image_Index;
                 }
                 else
                 {

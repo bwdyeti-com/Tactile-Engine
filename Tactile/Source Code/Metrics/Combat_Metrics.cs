@@ -134,7 +134,7 @@ namespace Tactile.Metrics
             StartHp = start_hp;
             EndHp = map_object.hp;
             WeaponId = weapon_id;
-            WeaponName = Global.data_weapons.ContainsKey(weapon_id) ? Global.data_weapons[weapon_id].full_name() : "-----";
+            WeaponName = Global.HasWeapon(weapon_id) ? Global.GetWeapon(weapon_id).full_name() : "-----";
             Attacks = attack_count;
             Loc = map_object.loc;
         }

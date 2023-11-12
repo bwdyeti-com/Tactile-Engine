@@ -100,7 +100,7 @@ namespace Tactile
                     Print.message("This probably is about to break\nA unit is trying to attack with no weapon");
             }
             else
-                weapon1 = Global.data_weapons[battler_1.items[(int)item_index].Id];
+                weapon1 = battler_1.items[(int)item_index].to_weapon;
 
             if (is_target_unit)
                 weapon2 = actor2.weapon;
@@ -250,7 +250,7 @@ namespace Tactile
             if (weapon_index == null)
                 weapon1 = battler_1.actor.weapon;
             else
-                weapon1 = Global.data_weapons[battler_1.items[(int)weapon_index].Id];
+                weapon1 = battler_1.items[(int)weapon_index].to_weapon;
 
             weapon2 = battler_2.actor.weapon;
             // Gets battle_stats
@@ -309,7 +309,7 @@ namespace Tactile
             if (weapon_index == null)
                 weapon1 = battler_1.actor.weapon;
             else
-                weapon1 = Global.data_weapons[battler_1.items[(int)weapon_index].Id];
+                weapon1 = battler_1.items[(int)weapon_index].to_weapon;
 
             weapon2 = battler_2.actor.weapon;
             // Gets battle_stats

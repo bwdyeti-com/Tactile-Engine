@@ -42,7 +42,7 @@ namespace Tactile.Windows.Target
         {
             initialize(loc);
             Unit_Id = unit_id;
-            var staff = Global.data_weapons[get_unit().actor.items[item_index].Id];
+            var staff = get_unit().actor.items[item_index].to_weapon;
             Mode = target_mode(staff);
             if (staff.Torch())
                 Manual_Targeting = true;

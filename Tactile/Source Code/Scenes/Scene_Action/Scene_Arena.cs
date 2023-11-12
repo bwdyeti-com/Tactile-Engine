@@ -36,8 +36,8 @@ namespace Tactile
             new_combat_data(distance);
             Reverse = Battler_2.is_opposition;
             Real_Distance = Distance = distance;
-            //if (Global.data_weapons[Combat_Data.Weapon_1_Id].Max_Range <= 2 && Distance > 2)
-            if (!Global.data_weapons[weapon_id(1)].Long_Range && Distance > 2) //Debug
+            //if (Global.GetWeapon(Combat_Data.Weapon_1_Id).Max_Range <= 2 && Distance > 2)
+            if (!Global.GetWeapon(weapon_id(1)).Long_Range && Distance > 2) //Debug
                 Distance = 2;
             if (Distance == 2)
                 Pan_Vector = Effects_Pan_Vector = new Vector2(16 * (Reverse ? -1 : 1), 0);

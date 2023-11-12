@@ -1319,9 +1319,22 @@ namespace Tactile
         // Data Weapons
         static Dictionary<int, Data_Weapon> Data_Weapons;
 
-        public static Dictionary<int, Data_Weapon> data_weapons
+        internal static bool HasWeapon(int id)
         {
-            get { return Data_Weapons; }
+            return Data_Weapons.ContainsKey(id);
+        }
+
+        internal static Data_Weapon GetWeapon(int id)
+        {
+            if (!Data_Weapons.ContainsKey(id))
+                throw new KeyNotFoundException(string.Format(
+                    "There is no weapon with the key {0}.", id));
+            return Data_Weapons[id];
+        }
+
+        internal static List<int> WeaponKeys
+        {
+            get { return Data_Weapons.Keys.ToList(); }
         }
 
         // Weapon Types

@@ -73,7 +73,7 @@ namespace Tactile.Windows.Target
         {
             if (Mode == ConstructionModes.Assemble)
             {
-                var weapon = Global.data_weapons[WeaponId];
+                var weapon = Global.GetWeapon(WeaponId);
                 Global.game_temp.temp_attack_range = Global.game_map.get_unit_range(
                     new HashSet<Vector2> { Global.player.loc },
                     weapon.Min_Range,

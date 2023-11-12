@@ -219,12 +219,12 @@ namespace Tactile
             int weapon_id = -1;
             foreach (int id in Config.ARENA_WEAPON_TYPES[weapon_type].Value)
             {
-                if (!opponent.actor.class_equippable(Global.data_weapons[id]))
+                if (!opponent.actor.class_equippable(Global.GetWeapon(id)))
                     break;
                 opponent.actor.clear_items();
                 opponent.actor.gain_item(new Item_Data(0, id, 100));
                 weapon_id = id;
-                if (Global.data_weapons[id].Mgt >= stat_comparison)
+                if (Global.GetWeapon(id).Mgt >= stat_comparison)
                     break;
             }
             opponent.actor.equip(1);

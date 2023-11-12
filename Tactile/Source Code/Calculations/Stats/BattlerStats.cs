@@ -49,7 +49,7 @@ namespace Tactile.Calculations.Stats
                 {
                     if (WeaponId == 0)
                         return null;
-                    return Global.data_weapons[WeaponId];
+                    return Global.GetWeapon(WeaponId);
                 }
                 else
                 {

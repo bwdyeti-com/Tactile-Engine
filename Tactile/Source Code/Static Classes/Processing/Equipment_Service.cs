@@ -17,8 +17,8 @@ namespace Tactile
         {
             if (data.is_weapon)
             {
-                if (Global.data_weapons.ContainsKey(data.Id))
-                    return Global.data_weapons[data.Id];
+                if (Global.HasWeapon(data.Id))
+                    return Global.GetWeapon(data.Id);
 #if DEBUG
                 else
                     return DebugWeapon;
@@ -40,7 +40,7 @@ namespace Tactile
         {
             if (data.is_weapon)
             {
-                return Global.data_weapons.ContainsKey(data.Id);
+                return Global.HasWeapon(data.Id);
             }
             else if (data.is_item)
             {

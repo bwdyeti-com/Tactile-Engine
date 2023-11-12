@@ -234,7 +234,7 @@ namespace Tactile
                         // Change item
                         if (unit.actor.items[j].is_weapon)
                         {
-                            List<int> weapon_keys = Global.data_weapons.Keys.ToList();
+                            List<int> weapon_keys = Global.WeaponKeys;
                             int index = weapon_keys.IndexOf(unit.actor.items[j].Id);
                             if (dir.HasFlag(DirectionFlags.Right))
                                 index++;

@@ -548,7 +548,7 @@ namespace Tactile.Menus.Map.Unit
         public void RefreshTempAttackRange(int itemIndex, string skill = "")
         {
             Game_Unit unit = Global.game_map.units[UnitId];
-            var weapon = Global.data_weapons[unit.items[itemIndex].Id];
+            var weapon = unit.items[itemIndex].to_weapon;
 
             Global.game_temp.temp_attack_range = Global.game_map.get_unit_range(
                 new HashSet<Vector2> { unit.loc },
@@ -570,7 +570,7 @@ namespace Tactile.Menus.Map.Unit
         public void RefreshTempStaffRange(int itemIndex)
         {
             Game_Unit unit = Global.game_map.units[UnitId];
-            var weapon = Global.data_weapons[unit.items[itemIndex].Id];
+            var weapon = unit.items[itemIndex].to_weapon;
             Global.game_temp.temp_staff_range = Global.game_map.get_unit_range(
                 new HashSet<Vector2> { unit.loc },
                 unit.min_range(itemIndex), unit.max_range(itemIndex),

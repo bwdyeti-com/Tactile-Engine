@@ -44,7 +44,7 @@ namespace Tactile
 
         internal static Staff_Modes get_staff_mode(int weaponId)
         {
-            TactileLibrary.Data_Weapon weapon = Global.data_weapons[weaponId];
+            TactileLibrary.Data_Weapon weapon = Global.GetWeapon(weaponId);
 
             // Healing
             if (weapon.Heals())

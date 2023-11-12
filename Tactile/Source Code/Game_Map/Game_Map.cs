@@ -1067,7 +1067,7 @@ namespace Tactile
                                             // Remove old weapons
                                             while (last_added_unit.actor.num_items > 0)
                                                 last_added_unit.actor.drop_item();
-                                            if (last_added_unit.actor.is_equippable(Global.data_weapons[weapon_id1]))
+                                            if (last_added_unit.actor.is_equippable(Global.GetWeapon(weapon_id1)))
                                             {
                                                 last_added_unit.actor.gain_item(new Item_Data(Item_Data_Type.Weapon, weapon_id1, 50));
 
@@ -1076,17 +1076,17 @@ namespace Tactile
                                                 {
                                                     while (enemy.actor.num_items > 0)
                                                         enemy.actor.drop_item();
-                                                    if (enemy.actor.is_equippable(Global.data_weapons[weapon_id2]))
+                                                    if (enemy.actor.is_equippable(Global.GetWeapon(weapon_id2)))
                                                     {
                                                         // Only if they can fight
-                                                        Data_Weapon weapon1 = Global.data_weapons[last_added_unit.actor.items[0].Id];
-                                                        if (Global.data_weapons[weapon_id2].Max_Range >= weapon1.Min_Range &&
-                                                            Global.data_weapons[weapon_id2].Min_Range <= weapon1.Max_Range)
+                                                        Data_Weapon weapon1 = last_added_unit.actor.items[0].to_weapon;
+                                                        if (Global.GetWeapon(weapon_id2).Max_Range >= weapon1.Min_Range &&
+                                                            Global.GetWeapon(weapon_id2).Min_Range <= weapon1.Max_Range)
                                                         {
                                                             enemy.actor.gain_item(new Item_Data(Item_Data_Type.Weapon, weapon_id2, 50));
 
-                                                            int range = Math.Max(Global.data_weapons[last_added_unit.actor.items[0].Id].Min_Range,
-                                                                Global.data_weapons[enemy.actor.items[0].Id].Min_Range);
+                                                            int range = Math.Max(last_added_unit.actor.items[0].to_weapon.Min_Range,
+                                                                enemy.actor.items[0].to_weapon.Min_Range);
 
                                                             float attack_odds = Combat.combat_odds(last_added_unit, enemy, range, null, true, true);
                                                             if (float.IsNaN(attack_odds))

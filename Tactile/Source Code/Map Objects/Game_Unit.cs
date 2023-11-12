@@ -545,7 +545,7 @@ namespace Tactile
                 {
                     Siege_Engine siege = Global.game_map.get_siege(Loc);
                     if (siege != null && siege.is_ready &&
-                            actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
+                            actor.is_equippable_as_siege(siege.item.to_weapon))
                         items.Add(siege.item);
                 }
                 return items;
@@ -876,9 +876,9 @@ namespace Tactile
         }
         public int wgt_penalty(int weapon_id)
         {
-            if (!Global.data_weapons.ContainsKey(weapon_id))
+            if (!Global.HasWeapon(weapon_id))
                 return 0;
-            Data_Weapon weapon = Global.data_weapons[weapon_id];
+            Data_Weapon weapon = Global.GetWeapon(weapon_id);
             int wgt = actor.weapon_wgt(weapon);
             return (int)(stat(Stat_Labels.Con) < wgt ? wgt - stat(Stat_Labels.Con) : 0);
         }
@@ -1666,7 +1666,7 @@ namespace Tactile
             if (actor.power_type() != Power_Types.Strength)
                 return true;
             for (int i = 0; i < items.Count; i++)
-                if (items[i].is_weapon && Global.data_weapons[items[i].Id].is_magic())
+                if (items[i].is_weapon && items[i].to_weapon.is_magic())
                     return true;
             return false;
         }
@@ -1903,7 +1903,7 @@ namespace Tactile
             for (int i = 0; i < items.Count; i++)
             {
                 if (items[i].is_weapon)
-                    if (Global.data_weapons[items[i].Id].is_staff() ^ staff)
+                    if (items[i].to_weapon.is_staff() ^ staff)
                         continue;
                 // Get range
                 int range = min_range(i, skill);
@@ -1935,7 +1935,7 @@ namespace Tactile
             for (int i = 0; i < items.Count; i++)
             {
                 if (items[i].is_weapon)
-                    if (Global.data_weapons[items[i].Id].is_staff() ^ staff)
+                    if (items[i].to_weapon.is_staff() ^ staff)
                         continue;
                 // Get range
                 int range = max_range(i, skill);
@@ -1966,10 +1966,10 @@ namespace Tactile
                 if (!items[item_index].is_weapon) return null;
                 weapon_id = items[item_index].Id;
             }
-            if (!Global.data_weapons.ContainsKey(weapon_id))
+            if (!Global.HasWeapon(weapon_id))
                 return null;
             equip(item_index + 1);
-            return Global.data_weapons[weapon_id];
+            return Global.GetWeapon(weapon_id);
         }
 
         public bool can_counter(Game_Unit attacker, Data_Weapon weapon1, int distance)
@@ -1997,7 +1997,7 @@ namespace Tactile
             {
                 if (!actor.is_equippable(item_index))
                     return false;
-                weapon2 = Global.data_weapons[items[item_index].Id];
+                weapon2 = items[item_index].to_weapon;
             }
             if (weapon2.No_Counter)
                 return false;
@@ -3010,8 +3010,8 @@ namespace Tactile
                 HashSet<Vector2> move_range = Global.game_map.remove_blocked(this.move_range, Id, true);
                 foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
                     if (siege.is_ready && move_range.Contains(siege.loc) &&
-                        actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
-                        !Global.data_weapons[siege.item.Id].is_staff())
+                        actor.is_equippable_as_siege(siege.item.to_weapon) &&
+                        !siege.item.to_weapon.is_staff())
                     {
                         Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
@@ -3023,7 +3023,7 @@ namespace Tactile
                             int max = max_range(Siege_Engine.SiegeInventoryIndex);
                             var siege_range = Global.game_map.get_unit_range(
                                 new HashSet<Vector2> { Loc }, min, max,
-                                Global.data_weapons[siege.item.Id].range_blocked_by_walls());
+                                siege.item.to_weapon.range_blocked_by_walls());
                             Attack_Range = new HashSet<Vector2>(
                                 siege_range.Union(Attack_Range));
 
@@ -3053,8 +3053,8 @@ namespace Tactile
                 HashSet<Vector2> move_range = Global.game_map.remove_blocked(this.move_range, Id, true);
                 foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
                     if (siege.is_ready && move_range.Contains(siege.loc) &&
-                        actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
-                        Global.data_weapons[siege.item.Id].is_staff())
+                        actor.is_equippable_as_siege(siege.item.to_weapon) &&
+                        siege.item.to_weapon.is_staff())
                     {
                         Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
@@ -3065,7 +3065,7 @@ namespace Tactile
                             int max = max_range(Siege_Engine.SiegeInventoryIndex);
                             var siege_range = Global.game_map.get_unit_range(
                                 new HashSet<Vector2> { Loc }, min, max,
-                                Global.data_weapons[siege.item.Id].range_blocked_by_walls());
+                                siege.item.to_weapon.range_blocked_by_walls());
                             Staff_Range = new HashSet<Vector2>(
                                 siege_range.Union(Staff_Range));
 
@@ -4478,7 +4478,7 @@ namespace Tactile
             {
                 Siege_Engine siege = Global.game_map.get_siege(Loc);
                 if (siege != null && siege.is_ready &&
-                        actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
+                        actor.is_equippable_as_siege(siege.item.to_weapon))
                     return true;
             }
             return false;
@@ -4579,8 +4579,8 @@ namespace Tactile
                 HashSet<Vector2> siege_move_range = Global.game_map.remove_blocked(move_range, Id);
                 foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
                     if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
-                        actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
-                        !Global.data_weapons[siege.item.Id].is_staff())
+                        actor.is_equippable_as_siege(siege.item.to_weapon) &&
+                        !siege.item.to_weapon.is_staff())
                     {
                         Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
@@ -4661,8 +4661,8 @@ namespace Tactile
                 HashSet<Vector2> siege_move_range = Global.game_map.remove_blocked(move_range, Id);
                 foreach (Siege_Engine siege in Global.game_map.siege_engines.Values)
                     if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
-                        actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]) &&
-                        Global.data_weapons[siege.item.Id].is_attack_staff())
+                        actor.is_equippable_as_siege(siege.item.to_weapon) &&
+                        siege.item.to_weapon.is_attack_staff())
                     {
                         Maybe<int> move_distance = distance_to_siege(siege);
                         if (move_distance.IsSomething)
@@ -4728,10 +4728,10 @@ namespace Tactile
                 bool added = false;
                 foreach (int id in result)
                 {
-                    if (Global.data_weapons[items[useable_weapon].Id].Heals() ||
-                        Global.data_weapons[items[useable_weapon].Id].Status_Remove.Count > 0)
+                    if (items[useable_weapon].to_weapon.Heals() ||
+                        items[useable_weapon].to_weapon.Status_Remove.Count > 0)
                     {
-                        if (Global.data_weapons[items[useable_weapon].Id].can_heal(Global.game_map.units[id]))
+                        if (items[useable_weapon].to_weapon.can_heal(Global.game_map.units[id]))
                         {
                             targets.Add(id);
                             added = true;
@@ -4791,12 +4791,12 @@ namespace Tactile
             List<int> in_range_weapons = new List<int>();
             foreach (int useable_weapon in useable_staves)
             {
-                if (Global.data_weapons[items[useable_weapon].Id].Torch())
+                if (items[useable_weapon].to_weapon.Torch())
                 {
                     if (Global.game_map.fow)
                         in_range_weapons.Add(useable_weapon);
                 }
-                else if (Global.data_weapons[items[useable_weapon].Id].Hits_All_in_Range())
+                else if (items[useable_weapon].to_weapon.Hits_All_in_Range())
                 {
                     //in_range_weapons.Add(useable_weapon);
                 }

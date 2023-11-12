@@ -159,9 +159,9 @@ namespace Tactile
 
         private Data_Weapon GetWeapon(int weaponId)
         {
-            if (!Global.data_weapons.ContainsKey(weaponId))
+            if (!Global.HasWeapon(weaponId))
                 return null;
-            return weaponId == 0 ? null : Global.data_weapons[weaponId];
+            return weaponId == 0 ? null : Global.GetWeapon(weaponId);
         }
 
         public string UsedWeaponType

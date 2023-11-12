@@ -559,9 +559,9 @@ namespace Tactile
         {
             get
             {
-                if (!Global.data_weapons.ContainsKey(Weapon_Id))
+                if (!Global.HasWeapon(Weapon_Id))
                     return null;
-                return Weapon_Id == 0 ? null : Global.data_weapons[Weapon_Id];
+                return Weapon_Id == 0 ? null : Global.GetWeapon(Weapon_Id);
             }
         }
 
@@ -2241,7 +2241,7 @@ namespace Tactile
             bool has_non_staff = false;
             for (int i = 0; i < Items.Count; i++)
                 if (Items[i].is_weapon)
-                    if (is_equippable(Global.data_weapons[Items[i].Id]) && !Global.data_weapons[Items[i].Id].is_staff())
+                    if (is_equippable(Items[i].to_weapon) && !Items[i].to_weapon.is_staff())
                     {
                         has_non_staff = true;
                         break;
@@ -2253,8 +2253,8 @@ namespace Tactile
                 {
                     Item_Data item_data = Items[i];
                     if (item_data.is_weapon)
-                        if (is_equippable(Global.data_weapons[item_data.Id]))
-                            if (!Global.data_weapons[item_data.Id].is_staff())
+                        if (is_equippable(item_data.to_weapon))
+                            if (!item_data.to_weapon.is_staff())
                                 equipped = i + 1;
                 }
                 // Equips a nonstaff if possible
@@ -3079,7 +3079,7 @@ namespace Tactile
         {
             if (itemData.is_weapon)
             {
-                Data_Weapon weapon = Global.data_weapons[itemData.Id];
+                Data_Weapon weapon = itemData.to_weapon;
                 if (is_equippable(weapon) && weapon.Min_Range == 1 &&
                         !weapon.is_staff() && !weapon.is_always_magic())
                     return true;
@@ -3140,7 +3140,7 @@ namespace Tactile
             while (i < result.Count)
             {
                 Item_Data item_data = items[result[i]];
-                Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                Data_Weapon weapon = item_data.to_weapon;
                 if (weapon.is_attack_staff())
                     i++;
                 else
@@ -3166,7 +3166,7 @@ namespace Tactile
                 .Where(x =>
                 {
                     Item_Data item_data = items[x];
-                    Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                    Data_Weapon weapon = item_data.to_weapon;
                     // If the weapon is an attack staff return false
                     if (weapon.is_attack_staff())
                         return false;
@@ -3180,7 +3180,7 @@ namespace Tactile
             while (i < result.Count)
             {
                 Item_Data item_data = items[result[i]];
-                Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                Data_Weapon weapon = item_data.to_weapon;
                 if (!weapon.is_always_magic() && (weapon.Heals() || weapon.Status_Remove.Count > 0))
                     i++;
                 else
@@ -3207,7 +3207,7 @@ namespace Tactile
             while (i < result.Count)
             {
                 Item_Data item_data = items[result[i]];
-                Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                Data_Weapon weapon = item_data.to_weapon;
                 if (!weapon.is_attack_staff() &&
                         (weapon.Torch() || (weapon.Hits_All_in_Range() &&
                         !(weapon.Heals() || weapon.Status_Remove.Count > 0))))
@@ -3377,7 +3377,7 @@ namespace Tactile
                 Item_Data item_data = Items[i];
                 if (item_data.is_weapon)
                 {
-                    Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                    Data_Weapon weapon = item_data.to_weapon;
                     if (is_equippable(weapon) && !weapon.is_staff())
                         return false;
                 }
@@ -3423,7 +3423,7 @@ namespace Tactile
                 Item_Data item_data = Items[i];
                 if (item_data.is_weapon)
                 {
-                    Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                    Data_Weapon weapon = item_data.to_weapon;
                     if (is_equippable(weapon) && !weapon.is_staff())
                         return true;
                 }
@@ -3442,7 +3442,7 @@ namespace Tactile
                 Item_Data item_data = Items[i];
                 if (item_data.is_weapon)
                 {
-                    Data_Weapon weapon = Global.data_weapons[item_data.Id];
+                    Data_Weapon weapon = item_data.to_weapon;
                     if (is_equippable(weapon) && weapon.can_heal(target))
                         return true;
                 }

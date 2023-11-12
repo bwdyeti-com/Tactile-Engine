@@ -317,10 +317,10 @@ namespace Tactile
                             weaponIdB = 0;
                     }
 
-                    if (Global.data_weapons.ContainsKey(weaponIdA) && Global.data_weapons.ContainsKey(weaponIdB))
+                    if (Global.HasWeapon(weaponIdA) && Global.HasWeapon(weaponIdB))
                     {
-                        var weaponA = Global.data_weapons[weaponIdA];
-                        var weaponB = Global.data_weapons[weaponIdB];
+                        var weaponA = Global.GetWeapon(weaponIdA);
+                        var weaponB = Global.GetWeapon(weaponIdB);
 
                         if ((weaponA.Rank == TactileLibrary.Weapon_Ranks.None && weaponA.is_prf) ||
                                 (weaponB.Rank == TactileLibrary.Weapon_Ranks.None && weaponB.is_prf))

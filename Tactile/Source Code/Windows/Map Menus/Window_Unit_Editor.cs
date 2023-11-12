@@ -103,7 +103,7 @@ namespace Tactile.Windows.Map
             Items.AddRange(Global.data_items.Keys);
             Items.Sort();
             Weapons.Add(0);
-            Weapons.AddRange(Global.data_weapons.Keys);
+            Weapons.AddRange(Global.WeaponKeys);
             Weapons.Sort();
             initialize_item_groups();
 
@@ -121,11 +121,11 @@ namespace Tactile.Windows.Map
             string image_name = "";
             Weapon_Group_Indices.Add(0);
             for(int i = 0; i < Weapons.Count; i++)
-                if (Global.data_weapons.ContainsKey(Weapons[i]))
-                    if (image_name != Global.data_weapons[Weapons[i]].Image_Name)
+                if (Global.HasWeapon(Weapons[i]))
+                    if (image_name != Global.GetWeapon(Weapons[i]).Image_Name)
                     {
                         Weapon_Group_Indices.Add(Weapons[i]);
-                        image_name = Global.data_weapons[Weapons[i]].Image_Name;
+                        image_name = Global.GetWeapon(Weapons[i]).Image_Name;
                     }
             image_name = "";
             Item_Group_Indices.Add(0);
@@ -336,7 +336,7 @@ namespace Tactile.Windows.Map
                     {
                         if (test_battler.Items[i].is_weapon)
                         {
-                            //if (Global.data_weapons.ContainsKey(test_battler.Items[i].Id)) //Debug
+                            //if (test_battler.Items[i].weapon_exists) //Debug
                             item = test_battler.Items[i].to_equipment;
                         }
                         else
@@ -1319,7 +1319,7 @@ namespace Tactile.Windows.Map
             }
 
             for (int i = 0; i < Weapons.Count; i++)
-                if (Global.data_weapons.ContainsKey(Weapons[i]) && temp_actor.is_equippable(Global.data_weapons[Weapons[i]]))
+                if (Global.HasWeapon(Weapons[i]) && temp_actor.is_equippable(Global.GetWeapon(Weapons[i])))
                 {
                     test_battler.Weapon_Id = Weapons[i];
                     break;

@@ -37,8 +37,8 @@ namespace Tactile
             else
                 Reverse = Battler_2.is_opposition;
             Real_Distance = Distance = distance;
-            //if (Global.data_weapons[weapon_id(1)].Max_Range <= 2 && Distance > 2)
-            if (!Global.data_weapons[weapon_id(1)].Long_Range && Distance > 2) //Debug
+            //if (Global.GetWeapon(weapon_id(1)).Max_Range <= 2 && Distance > 2)
+            if (!Global.GetWeapon(weapon_id(1)).Long_Range && Distance > 2) //Debug
                 Distance = 2;
             if (Combat_Data.is_ally_killed || Combat_Data.has_death_quote)
                 Can_Skip = false;
@@ -684,9 +684,9 @@ namespace Tactile
             switch (index)
             {
                 case 1:
-                    return Global.data_weapons[weapon_id(1)];
+                    return Global.GetWeapon(weapon_id(1));
                 case 2:
-                    return Global.data_weapons[weapon_id(2)];
+                    return Global.GetWeapon(weapon_id(2));
             }
             return null;
         }

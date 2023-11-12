@@ -221,7 +221,7 @@ namespace Tactile
             Unit.actor.gender = data.Gender;
             Unit.actor.class_id = data.Class_Id;
             Unit.actor.weapon_id = data.Weapon_Id;
-            Unit.magic_attack = Unit.check_magic_attack(Global.data_weapons[data.Weapon_Id], data.Distance);
+            Unit.magic_attack = Unit.check_magic_attack(Global.GetWeapon(data.Weapon_Id), data.Distance);
             Stats = new int[7];
             for (int i = 0; i < 7; i++)
             {

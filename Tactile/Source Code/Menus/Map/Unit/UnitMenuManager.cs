@@ -735,7 +735,7 @@ namespace Tactile.Menus.Map.Unit
             {
                 // Equip
                 case 0:
-                    if (unit.actor.is_equippable(Global.data_weapons[unit.actor.items[itemIndex].Id]))
+                    if (unit.actor.is_equippable(unit.actor.items[itemIndex].to_weapon))
                     {
                         if (itemOptionsMenu.Unequips)
                         {

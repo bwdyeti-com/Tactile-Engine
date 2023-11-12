@@ -36,7 +36,7 @@ namespace Tactile.Windows.Command
             // Weapon
             if (item_data.is_weapon)
             {
-                if (unit.actor.has_staves_only() || !Global.data_weapons[item_data.Id].is_staff())
+                if (unit.actor.has_staves_only() || !item_data.to_weapon.is_staff())
                 {
                     unequip = Global.ActorConfig.AllowUnequip && equipped;
                     if (unequip)
@@ -80,7 +80,7 @@ namespace Tactile.Windows.Command
                 string color = "Green";
                 // Equip
                 if (Index_Redirect[i] == 0 &&
-                    !unit.actor.is_equippable(Global.data_weapons[item_data.Id]))
+                    !unit.actor.is_equippable(item_data.to_weapon))
                     color = "Grey";
                 // Use
                 else if (Index_Redirect[i] == 1)

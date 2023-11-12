@@ -335,8 +335,8 @@ namespace Tactile
             bool ever_counter;
             
             // Gets range
-            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
-                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            if (attacker.actor.items[weapon_index].weapon_exists)
+                weapon1 = attacker.actor.items[weapon_index].to_weapon;
             min_range = attacker.min_range(weapon_index);
             max_range = attacker.max_range(weapon_index);
 
@@ -453,7 +453,7 @@ namespace Tactile
             {
                 // If siege engine has uses and is in the move range and can be equipped
                 if (siege.is_ready && siege_move_range.Contains(siege.loc) &&
-                    attacker.actor.is_equippable_as_siege(Global.data_weapons[siege.item.Id]))
+                    attacker.actor.is_equippable_as_siege(siege.item.to_weapon))
                 {
                     Maybe<int> move_distance = Pathfind.get_distance(siege.loc, attacker.id, attacker.canto_mov, false, attacker.loc);
                     if (move_distance.IsSomething)
@@ -462,8 +462,8 @@ namespace Tactile
                         attacker.set_ai_base_loc(siege.loc, move_distance);
                         distance = (int)(Math.Abs(siege.loc.X - targetUnit.loc.X) + Math.Abs(siege.loc.Y - targetUnit.loc.Y));
 
-                        if (Global.data_weapons.ContainsKey(attacker.items[weapon_index].Id))
-                            weapon1 = Global.data_weapons[attacker.items[weapon_index].Id];
+                        if (attacker.items[weapon_index].weapon_exists)
+                            weapon1 = attacker.items[weapon_index].to_weapon;
                         min_range = attacker.min_range(weapon_index);
                         max_range = attacker.max_range(weapon_index);
 
@@ -521,8 +521,8 @@ namespace Tactile
             int min_range, max_range;
             
             // Gets range
-            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
-                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            if (attacker.actor.items[weapon_index].weapon_exists)
+                weapon1 = attacker.actor.items[weapon_index].to_weapon;
             min_range = attacker.min_range(weapon_index);
             max_range = attacker.max_range(weapon_index);
 
@@ -606,8 +606,8 @@ namespace Tactile
             int min_range, max_range;
             
             // Gets range
-            if (Global.data_weapons.ContainsKey(attacker.actor.items[weapon_index].Id))
-                weapon1 = Global.data_weapons[attacker.actor.items[weapon_index].Id];
+            if (attacker.actor.items[weapon_index].weapon_exists)
+                weapon1 = attacker.actor.items[weapon_index].to_weapon;
             min_range = attacker.min_range(weapon_index);
             max_range = attacker.max_range(weapon_index);
 
@@ -964,7 +964,7 @@ namespace Tactile
                 int distance = Global.game_map.unit_distance(staff_user.id, id);
                 foreach (int staff_index in staves)
                 {
-                    Data_Weapon staff = Global.data_weapons[actor1.items[staff_index].Id];
+                    Data_Weapon staff = actor1.items[staff_index].to_weapon;
                     // Get ranges to attack from
                     List<int> atk_distance = new List<int>();
                     int max_range = staff_user.max_range(staff_index);
@@ -1014,7 +1014,7 @@ namespace Tactile
                 int distance = Global.game_map.unit_distance(staff_user.id, id);
                 foreach (int staff_index in staves)
                 {
-                    Data_Weapon staff = Global.data_weapons[actor1.items[staff_index].Id];
+                    Data_Weapon staff = actor1.items[staff_index].to_weapon;
                     // Ignore immobile non-combat units
                     if (target.actor.mov == 0 && target.actor.is_non_combat()) //not 100% sure about how this handles //Yeti
                         continue;
@@ -1120,7 +1120,7 @@ namespace Tactile
 
             foreach (int staff_index in staves)
             {
-                Data_Weapon staff = Global.data_weapons[actor1.items[staff_index].Id];
+                Data_Weapon staff = actor1.items[staff_index].to_weapon;
                 // Gets attack range
                 List<int> atk_distance = new List<int>();
                 int min_range = staff_user.min_range(staff_index);
@@ -1646,7 +1646,7 @@ namespace Tactile
                 for (int i = min; i <= max; i++)
                 {
                     ranges.Add(i);
-                    if (Global.data_weapons[unit.actor.items[useable_weapon].Id].is_siege())
+                    if (unit.actor.items[useable_weapon].to_weapon.is_siege())
                         siege_ranges.Add(i);
                 }
             }
@@ -1702,7 +1702,7 @@ namespace Tactile
                             int distance = (int)(Math.Abs(loc.X - target.loc.X) + Math.Abs(loc.Y - target.loc.Y));
                             foreach (int weapon_index in unit.actor.useable_weapons())
                             {
-                                Data_Weapon weapon = Global.data_weapons[unit.actor.items[weapon_index].Id];
+                                Data_Weapon weapon = unit.actor.items[weapon_index].to_weapon;
                                 int min = unit.min_range(weapon_index);
                                 int max = unit.max_range(weapon_index);
 

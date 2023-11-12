@@ -4377,7 +4377,7 @@ namespace Tactile.State
                                         {
                                             foreach (int weapon_id in targets[1].Distinct().ToList()) //ListOrEquals
                                             {
-                                                var weapon = Global.data_weapons[weapon_id];
+                                                var weapon = Global.GetWeapon(weapon_id);
                                                 // If can damage or inflict status, and a non-zero hit rate
                                                 var stats = new Calculations.Stats.CombatStats(
                                                     unit.id, target_id, weapon, weapon.Min_Range);

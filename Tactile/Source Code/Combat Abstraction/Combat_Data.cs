@@ -33,8 +33,8 @@ namespace Tactile
         public bool weapon_1_broke { get { return Weapon_1_Broke; } }
         public bool weapon_2_broke { get { return Weapon_2_Broke; } }
 
-        protected Data_Weapon weapon1 { get { return Weapon_1_Id <= 0 ? null : Global.data_weapons[Weapon_1_Id]; } }
-        protected Data_Weapon weapon2 { get { return Weapon_2_Id <= 0 ? null : Global.data_weapons[Weapon_2_Id]; } }
+        protected Data_Weapon weapon1 { get { return Weapon_1_Id <= 0 ? null : Global.GetWeapon(Weapon_1_Id); } }
+        protected Data_Weapon weapon2 { get { return Weapon_2_Id <= 0 ? null : Global.GetWeapon(Weapon_2_Id); } }
 
         public virtual bool MultipleTargets { get { return false; } }
         #endregion
@@ -646,12 +646,12 @@ namespace Tactile
             {
                 if (Wexp1 > 0)
                 {
-                    WeaponType type = battler_1.actor.valid_weapon_type_of(Global.data_weapons[Weapon_1_Id]);
+                    WeaponType type = battler_1.actor.valid_weapon_type_of(Global.GetWeapon(Weapon_1_Id));
                     battler_1.actor.wexp_gain(type, Wexp1);
                 }
                 if (Wexp2 > 0)
                 {
-                    WeaponType type = battler_2.actor.valid_weapon_type_of(Global.data_weapons[(int)Weapon_2_Id]);
+                    WeaponType type = battler_2.actor.valid_weapon_type_of(Global.GetWeapon((int)Weapon_2_Id));
                     battler_2.actor.wexp_gain(type, Wexp2);
                 }
             }
