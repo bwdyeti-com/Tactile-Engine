@@ -27,7 +27,7 @@ namespace TactileLibrary
             get
             {
                 if (Equipment_Data != null)
-                    return Equipment_Data.equipment(this);
+                    return Equipment_Data.Equipment(this);
                 return null;
             }
         }
@@ -120,6 +120,11 @@ namespace TactileLibrary
         public bool is_weapon
         {
             get { return Type == Item_Data_Type.Weapon && Id > 0; }
+        }
+
+        public bool weapon_exists
+        {
+            get { return this.is_weapon && Equipment_Data.Exists(this); }
         }
 
         public bool is_item
@@ -228,6 +233,7 @@ namespace TactileLibrary
 
     public interface IEquipmentService
     {
-        Data_Equipment equipment(Item_Data data);
+        Data_Equipment Equipment(Item_Data data);
+        bool Exists(Item_Data data);
     }
 }

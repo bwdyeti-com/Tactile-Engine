@@ -13,7 +13,7 @@ namespace Tactile
             DebugItem = new Data_Item() { Name = "[DEBUG ITEM]", Uses = -1 };
         }
 
-        public Data_Equipment equipment(Item_Data data)
+        public Data_Equipment Equipment(Item_Data data)
         {
             if (data.is_weapon)
             {
@@ -34,6 +34,19 @@ namespace Tactile
 #endif
             }
             return null;
+        }
+
+        public bool Exists(Item_Data data)
+        {
+            if (data.is_weapon)
+            {
+                return Global.data_weapons.ContainsKey(data.Id);
+            }
+            else if (data.is_item)
+            {
+                return Global.data_items.ContainsKey(data.Id);
+            }
+            return false;
         }
     }
 }
