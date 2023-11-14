@@ -913,7 +913,38 @@ namespace Tactile.Windows.Map
                     break;
                 // Gender
                 case 8:
-                    test_battler.Gender = (int)(MathHelper.Clamp(test_battler.Gender + (right ? 1 : -1), 0, 5));
+                    const int EDITOR_VARIANTS = 2;
+                    int maxVariant = EDITOR_VARIANTS - 1;
+                    if (Global.data_classes.ContainsKey(test_battler.Class_Id))
+                    {
+                        string className = Global.data_classes[test_battler.Class_Id].Name;
+                        // Check animation sets
+                        var animSets = Global.data_battler_anims
+                            .Where(x => x.Key.StartsWith(className + "-"));
+                        if (animSets.Any())
+                        {
+                            maxVariant = Math.Max(maxVariant,
+                                animSets.Max(x => x.Value.DataSet.Keys.Max()));
+                        }
+                        // Check animation images
+                        string animName = string.Format("Graphics/Animations/{0}", className);
+                        var animImages = Global.loaded_files
+                            .Where(x => x.StartsWith(animName));
+                        if (animImages.Any())
+                        {
+                            maxVariant = Math.Max(maxVariant,
+                                animImages.Max(x =>
+                                {
+                                    int gender;
+                                    bool parsed = int.TryParse(x.Substring(animName.Length).Split('-')[0], out gender);
+                                    return parsed ? gender : -1;
+                                }));
+                        }
+                    }
+                    // Recalculate to the highest pair
+                    maxVariant = (((maxVariant + 1) / 2) * 2) - 1;
+
+                    test_battler.Gender = (int)(MathHelper.Clamp(test_battler.Gender + (right ? 1 : -1), 0, maxVariant));
                     actor.gender = test_battler.Gender;
                     break;
                 // Name
