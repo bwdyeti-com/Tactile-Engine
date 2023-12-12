@@ -8,6 +8,8 @@ namespace Tactile
 {
     static class UnitScreenConfig
     {
+        const int WEAPON_TYPE_SPACING = 20;
+
         public readonly static UnitScreenData NAME_NODE =
             new UnitScreenData(0, "Name", 0,
                 function: (object input, int page) => ((Game_Unit)input).actor.name);
@@ -43,6 +45,9 @@ namespace Tactile
 
         static UnitScreenConfig()
         {
+            // This constructor will not be called until it is first used,
+            // which will fortunately be after Global data is set up
+            Console.WriteLine("wah");
             List<UnitScreenData> data = new List<UnitScreenData>();
 
             #region Page 1 - Basics
@@ -183,69 +188,23 @@ namespace Tactile
             #endregion
 
             #region Page 5 - Weapon Levels
-            data.AddRange(new UnitScreenData[]
+            int wlvlIndex = 0;
+            for (int i = 0; i < Global.weapon_types.Count; i++)
             {
-                new UnitScreenData(0 * 20 + 8, "WType1", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Sword"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Sword"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Sword") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 1),
-                new UnitScreenData(1 * 20 + 8, "WType2", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Lance"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Lance"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Lance") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 2),
-                new UnitScreenData(2 * 20 + 8, "WType3", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Axe"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Axe"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Axe") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 3),
-                new UnitScreenData(3 * 20 + 8, "WType4", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Bow"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Bow"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Bow") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 4),
-                new UnitScreenData(4 * 20 + 8, "WType5", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Fire"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Fire"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Fire") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 5),
-                new UnitScreenData(5 * 20 + 8, "WType6", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Thunder"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Thunder"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Thunder") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 6),
-                new UnitScreenData(6 * 20 + 8, "WType7", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Wind"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Wind"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Wind") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 7),
-                new UnitScreenData(7 * 20 + 8, "WType8", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Light"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Light"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Light") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 8),
-                new UnitScreenData(8 * 20 + 8, "WType9", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Dark"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Dark"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Dark") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 9),
-                new UnitScreenData(9 * 20 + 8, "WType10", 4,
-                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Staff"),
-                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Staff"),
-                    align: ParagraphAlign.Left, dataOffset: 8,
-                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Staff") ? "Green" : "Blue",
-                    largeText: true, weaponIcon: 10),
-            });
+                var type = Global.weapon_types[i];
+                if (type.DisplayedInStatus)
+                {
+                    data.Add(
+                        new UnitScreenData(wlvlIndex * WEAPON_TYPE_SPACING + 8, string.Format("WType{0}", i), 4,
+                            function: (object input, int page) => GetWLvl((Game_Unit)input, type.Name),
+                            sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, type.Name),
+                            align: ParagraphAlign.Left, dataOffset: 8,
+                            textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, type.Name) ? "Green" : "Blue",
+                            largeText: true, weaponIcon: type.IconIndex)
+                    );
+                    wlvlIndex++;
+                }
+            }
             #endregion
 
             #region Page 6 - Supports
