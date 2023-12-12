@@ -6,253 +6,13 @@ using TactileLibrary;
 
 namespace Tactile
 {
-    class UnitScreenConfig
+    static class UnitScreenConfig
     {
         public readonly static UnitScreenData NAME_NODE =
             new UnitScreenData(0, "Name", 0,
                 function: (object input, int page) => ((Game_Unit)input).actor.name);
 
-        public readonly static UnitScreenData[] UNIT_DATA = new UnitScreenData[]
-        {
-            #region Page 1 - Basics
-            GetClassNode(0, 0),
-            new UnitScreenData(64+8, "Lvl", 0,
-                function: (object input, int page) => ((Game_Unit)input).actor.level,
-                sortFunc: (object a, object b) => ((Game_Unit)b).actor.full_level - ((Game_Unit)a).actor.full_level,
-                dataOffset: 16),
-            new UnitScreenData(88+4, "Exp", 0,
-                function: (object input, int page) => ((Game_Unit)input).actor.can_level() ?
-                    ((Game_Unit)input).actor.exp.ToString() : "--",
-                dataOffset: 16),
-            new UnitScreenData(112, "HP", 0,
-                function: (object input, int page) => ((Game_Unit)input).actor.hp,
-                output: UnitScreenOutput.TextDivisor,
-                dataOffset: 16),
-            new UnitScreenData(132, "Max", 0,
-                function: (object input, int page) => ((Game_Unit)input).actor.maxhp,
-                dataOffset: 20),
-            new UnitScreenData(155, "Affin", 0,
-                function: (object input, int page) => ((Game_Unit)input).actor.affin,
-                sortFunc: (object a, object b) =>
-                    (int)((Game_Unit)a).actor.affin -
-                    (int)((Game_Unit)b).actor.affin,
-                output: UnitScreenOutput.Affinity, align: ParagraphAlign.Left,
-                dataOffset: 5),
-            new UnitScreenData(188, "Cond", 0,
-                function: (object input, int page) => GetStates(input),
-                sortFunc: (object a, object b) =>
-                {
-                    Game_Unit unitA = (Game_Unit)a;
-                    Game_Unit unitB = (Game_Unit)b;
-                    if (unitB.actor.states.Count == unitA.actor.states.Count)
-                    {
-                        int turnsA = 0, turnsB = 0;
-                        for (int i = 0; i < unitA.actor.states.Count; i++)
-                            turnsA += unitA.actor.state_turns_left(unitA.actor.states[i]);
-                        for (int i = 0; i < unitB.actor.states.Count; i++)
-                            turnsB += unitB.actor.state_turns_left(unitB.actor.states[i]);
-                        return turnsB - turnsA;
-                    }
-                    else
-                        return unitB.actor.states.Count - unitA.actor.states.Count;
-                },
-                output: UnitScreenOutput.Status, align: ParagraphAlign.Center,
-                dataOffset: 16 - 5),
-            #endregion
-
-            #region Page 2 - Primary Stats
-            new UnitScreenData(0, "Pow", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Pow),
-                dataOffset: 16,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Pow) ? "Green" : "Blue"),
-            new UnitScreenData(28, "Skl", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Skl),
-                dataOffset: 16 - 4,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Skl) ? "Green" : "Blue"),
-            new UnitScreenData(48, "Spd", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Spd),
-                dataOffset: 16,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Spd) ? "Green" : "Blue"),
-            new UnitScreenData(72, "Luck", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Lck),
-                dataOffset: 16,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Lck) ? "Green" : "Blue"),
-            new UnitScreenData(96, "Def", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Def),
-                dataOffset: 16,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Def) ? "Green" : "Blue"),
-            new UnitScreenData(120, "Res", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Res),
-                dataOffset: 16,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Res) ? "Green" : "Blue"),
-            new UnitScreenData(148, "Move", 1,
-                function: (object input, int page) => ((Game_Unit)input).mov,
-                dataOffset: 16 + 4,
-                textColor: (object input) => ((Game_Unit)input).is_mov_capped() ? "Green" : "Blue"),
-            new UnitScreenData(178, "Con", 1,
-                function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Con),
-                dataOffset: 16 - 2,
-                textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Con) ? "Green" : "Blue"),
-            new UnitScreenData(204, "Aid", 1,
-                function: (object input, int page) => ((Game_Unit)input).aid(),
-                dataOffset: 16 - 4),
-            #endregion
-
-            #region Page 3 - Inventory
-            GetEquipNode(16, 2),
-            new UnitScreenData(104, "Skills", 2,
-                function: (object input, int page) => GetSkills(input),
-                sortFunc: (object a, object b) =>
-                    ((Game_Unit)b).actor.skills.Count -
-                    ((Game_Unit)a).actor.skills.Count,
-                output: UnitScreenOutput.Skills, align: ParagraphAlign.Left),
-            #endregion
-
-            #region Page 4 - Secondary Stats
-            new UnitScreenData(8, "Atk", 3,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 0),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 0),
-                dataOffset: 16),
-            new UnitScreenData(40, "Hit", 3,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 1),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 1),
-                dataOffset: 16),
-            new UnitScreenData(64, "Avoid", 3,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 4),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 4),
-                dataOffset: 24),
-            new UnitScreenData(104, "Crit", 3,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 2),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 2),
-                dataOffset: 16),
-            new UnitScreenData(128, "Dod", 3,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 5),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 5),
-                dataOffset: 16),
-            new UnitScreenData(160, "AS", 3,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 3),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 3),
-                dataOffset: 16),
-            new UnitScreenData(196, "Rng", 3, align: ParagraphAlign.Center,
-                function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 6),
-                sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 6),
-                dataOffset: 8),
-            #endregion
-
-            #region Page 5 - Weapon Levels
-            new UnitScreenData(0 * 20 + 8, "WType1", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Sword"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Sword"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Sword") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 1),
-            new UnitScreenData(1 * 20 + 8, "WType2", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Lance"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Lance"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Lance") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 2),
-            new UnitScreenData(2 * 20 + 8, "WType3", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Axe"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Axe"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Axe") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 3),
-            new UnitScreenData(3 * 20 + 8, "WType4", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Bow"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Bow"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Bow") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 4),
-            new UnitScreenData(4 * 20 + 8, "WType5", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Fire"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Fire"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Fire") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 5),
-            new UnitScreenData(5 * 20 + 8, "WType6", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Thunder"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Thunder"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Thunder") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 6),
-            new UnitScreenData(6 * 20 + 8, "WType7", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Wind"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Wind"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Wind") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 7),
-            new UnitScreenData(7 * 20 + 8, "WType8", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Light"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Light"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Light") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 8),
-            new UnitScreenData(8 * 20 + 8, "WType9", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Dark"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Dark"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Dark") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 9),
-            new UnitScreenData(9 * 20 + 8, "WType10", 4,
-                function: (object input, int page) => GetWLvl((Game_Unit)input, "Staff"),
-                sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Staff"),
-                align: ParagraphAlign.Left, dataOffset: 8,
-                textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Staff") ? "Green" : "Blue",
-                largeText: true, weaponIcon: 10),
-            #endregion
-
-            #region Page 6 - Supports
-            new UnitScreenData(8, "Ally", 5,
-                function: (object input, int page) =>
-                {
-                    Game_Unit unit = (Game_Unit)input;
-                    List<int> readySupports = unit.actor.ready_supports();
-                    int supportsPerPage = Tactile.Windows.Map.Window_Unit.SUPPORTS_PER_PAGE;
-                    List<Tuple<int, bool>> result = new List<Tuple<int, bool>>();
-                    for (int i = 0; i < supportsPerPage; i++)
-                    {
-                        int index = page * supportsPerPage + i;
-                        if (index < readySupports.Count)
-                        {
-                            int actorId = readySupports[index];
-                            bool available = true;
-                            if (Global.map_exists)
-                            {
-                                available = false;
-
-                                // In preparations, use whole battalion
-                                if (Global.game_system.preparations)
-                                    available |= Global.battalion.actors.Contains(actorId);
-
-                                // Check if unit is on the map
-                                available |= Global.game_map.is_actor_deployed(actorId);
-                                // Disable if blocked
-                                available &= !Global.game_state.is_support_blocked(
-                                    unit.actor.id, readySupports[i], true);
-                            }
-                            result.Add(Tuple.Create(actorId, available));
-                        }
-                    }
-                    if (!result.Any())
-                        return null;
-                    return result;
-                },
-                sortFunc: (object a, object b) =>
-                    ((Game_Unit)b).actor.ready_supports().Count -
-                    ((Game_Unit)a).actor.ready_supports().Count,
-
-                output: UnitScreenOutput.Supports, align: ParagraphAlign.Left,
-                textColor: (object input) => "White",
-                multiplePageFunc: (object input) =>
-                {
-                    List<int> readySupports = ((Game_Unit)input).actor.ready_supports();
-                    int supportsPerPage = Tactile.Windows.Map.Window_Unit.SUPPORTS_PER_PAGE;
-                    int count = (int)Math.Ceiling(readySupports.Count / (float)supportsPerPage);
-                    return Math.Max(1, count);
-                }),
-            #endregion
-        };
+        public readonly static UnitScreenData[] UNIT_DATA;
 
         public readonly static UnitScreenData[] SOLO_ANIM_DATA = new UnitScreenData[]
         {
@@ -280,6 +40,270 @@ namespace Tactile
                 noSort: true),
             #endregion
         };
+
+        static UnitScreenConfig()
+        {
+            List<UnitScreenData> data = new List<UnitScreenData>();
+
+            #region Page 1 - Basics
+            data.AddRange(new UnitScreenData[]
+            {
+                GetClassNode(0, 0),
+                new UnitScreenData(64+8, "Lvl", 0,
+                    function: (object input, int page) => ((Game_Unit)input).actor.level,
+                    sortFunc: (object a, object b) => ((Game_Unit)b).actor.full_level - ((Game_Unit)a).actor.full_level,
+                    dataOffset: 16),
+                new UnitScreenData(88+4, "Exp", 0,
+                    function: (object input, int page) => ((Game_Unit)input).actor.can_level() ?
+                        ((Game_Unit)input).actor.exp.ToString() : "--",
+                    dataOffset: 16),
+                new UnitScreenData(112, "HP", 0,
+                    function: (object input, int page) => ((Game_Unit)input).actor.hp,
+                    output: UnitScreenOutput.TextDivisor,
+                    dataOffset: 16),
+                new UnitScreenData(132, "Max", 0,
+                    function: (object input, int page) => ((Game_Unit)input).actor.maxhp,
+                    dataOffset: 20),
+                new UnitScreenData(155, "Affin", 0,
+                    function: (object input, int page) => ((Game_Unit)input).actor.affin,
+                    sortFunc: (object a, object b) =>
+                        (int)((Game_Unit)a).actor.affin -
+                        (int)((Game_Unit)b).actor.affin,
+                    output: UnitScreenOutput.Affinity, align: ParagraphAlign.Left,
+                    dataOffset: 5),
+                new UnitScreenData(188, "Cond", 0,
+                    function: (object input, int page) => GetStates(input),
+                    sortFunc: (object a, object b) =>
+                    {
+                        Game_Unit unitA = (Game_Unit)a;
+                        Game_Unit unitB = (Game_Unit)b;
+                        if (unitB.actor.states.Count == unitA.actor.states.Count)
+                        {
+                            int turnsA = 0, turnsB = 0;
+                            for (int i = 0; i < unitA.actor.states.Count; i++)
+                                turnsA += unitA.actor.state_turns_left(unitA.actor.states[i]);
+                            for (int i = 0; i < unitB.actor.states.Count; i++)
+                                turnsB += unitB.actor.state_turns_left(unitB.actor.states[i]);
+                            return turnsB - turnsA;
+                        }
+                        else
+                            return unitB.actor.states.Count - unitA.actor.states.Count;
+                    },
+                    output: UnitScreenOutput.Status, align: ParagraphAlign.Center,
+                    dataOffset: 16 - 5),
+            });
+            #endregion
+
+            #region Page 2 - Primary Stats
+            data.AddRange(new UnitScreenData[]
+            {
+                new UnitScreenData(0, "Pow", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Pow),
+                    dataOffset: 16,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Pow) ? "Green" : "Blue"),
+                new UnitScreenData(28, "Skl", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Skl),
+                    dataOffset: 16 - 4,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Skl) ? "Green" : "Blue"),
+                new UnitScreenData(48, "Spd", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Spd),
+                    dataOffset: 16,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Spd) ? "Green" : "Blue"),
+                new UnitScreenData(72, "Luck", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Lck),
+                    dataOffset: 16,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Lck) ? "Green" : "Blue"),
+                new UnitScreenData(96, "Def", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Def),
+                    dataOffset: 16,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Def) ? "Green" : "Blue"),
+                new UnitScreenData(120, "Res", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Res),
+                    dataOffset: 16,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Res) ? "Green" : "Blue"),
+                new UnitScreenData(148, "Move", 1,
+                    function: (object input, int page) => ((Game_Unit)input).mov,
+                    dataOffset: 16 + 4,
+                    textColor: (object input) => ((Game_Unit)input).is_mov_capped() ? "Green" : "Blue"),
+                new UnitScreenData(178, "Con", 1,
+                    function: (object input, int page) => ((Game_Unit)input).stat(Stat_Labels.Con),
+                    dataOffset: 16 - 2,
+                    textColor: (object input) => ((Game_Unit)input).actor.get_capped(Stat_Labels.Con) ? "Green" : "Blue"),
+                new UnitScreenData(204, "Aid", 1,
+                    function: (object input, int page) => ((Game_Unit)input).aid(),
+                    dataOffset: 16 - 4),
+            });
+            #endregion
+
+            #region Page 3 - Inventory
+            data.AddRange(new UnitScreenData[]
+            {
+                GetEquipNode(16, 2),
+                new UnitScreenData(104, "Skills", 2,
+                    function: (object input, int page) => GetSkills(input),
+                    sortFunc: (object a, object b) =>
+                        ((Game_Unit)b).actor.skills.Count -
+                        ((Game_Unit)a).actor.skills.Count,
+                    output: UnitScreenOutput.Skills, align: ParagraphAlign.Left),
+            });
+            #endregion
+
+            #region Page 4 - Secondary Stats
+            data.AddRange(new UnitScreenData[]
+            {
+                new UnitScreenData(8, "Atk", 3,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 0),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 0),
+                    dataOffset: 16),
+                new UnitScreenData(40, "Hit", 3,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 1),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 1),
+                    dataOffset: 16),
+                new UnitScreenData(64, "Avoid", 3,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 4),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 4),
+                    dataOffset: 24),
+                new UnitScreenData(104, "Crit", 3,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 2),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 2),
+                    dataOffset: 16),
+                new UnitScreenData(128, "Dod", 3,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 5),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 5),
+                    dataOffset: 16),
+                new UnitScreenData(160, "AS", 3,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 3),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 3),
+                    dataOffset: 16),
+                new UnitScreenData(196, "Rng", 3, align: ParagraphAlign.Center,
+                    function: (object input, int page) => GetSecondaryStat((Game_Unit)input, 6),
+                    sortFunc: (object a, object b) => GetSecondaryStatSort((Game_Unit)a, (Game_Unit)b, 6),
+                    dataOffset: 8),
+            });
+            #endregion
+
+            #region Page 5 - Weapon Levels
+            data.AddRange(new UnitScreenData[]
+            {
+                new UnitScreenData(0 * 20 + 8, "WType1", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Sword"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Sword"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Sword") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 1),
+                new UnitScreenData(1 * 20 + 8, "WType2", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Lance"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Lance"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Lance") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 2),
+                new UnitScreenData(2 * 20 + 8, "WType3", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Axe"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Axe"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Axe") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 3),
+                new UnitScreenData(3 * 20 + 8, "WType4", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Bow"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Bow"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Bow") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 4),
+                new UnitScreenData(4 * 20 + 8, "WType5", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Fire"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Fire"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Fire") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 5),
+                new UnitScreenData(5 * 20 + 8, "WType6", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Thunder"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Thunder"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Thunder") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 6),
+                new UnitScreenData(6 * 20 + 8, "WType7", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Wind"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Wind"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Wind") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 7),
+                new UnitScreenData(7 * 20 + 8, "WType8", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Light"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Light"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Light") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 8),
+                new UnitScreenData(8 * 20 + 8, "WType9", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Dark"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Dark"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Dark") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 9),
+                new UnitScreenData(9 * 20 + 8, "WType10", 4,
+                    function: (object input, int page) => GetWLvl((Game_Unit)input, "Staff"),
+                    sortFunc: (object a, object b) => GetWLvlSort((Game_Unit)a, (Game_Unit)b, "Staff"),
+                    align: ParagraphAlign.Left, dataOffset: 8,
+                    textColor: (object unit) => IsWLvlCapped((Game_Unit)unit, "Staff") ? "Green" : "Blue",
+                    largeText: true, weaponIcon: 10),
+            });
+            #endregion
+
+            #region Page 6 - Supports
+            data.AddRange(new UnitScreenData[]
+            {
+                new UnitScreenData(8, "Ally", 5,
+                    function: (object input, int page) =>
+                    {
+                        Game_Unit unit = (Game_Unit)input;
+                        List<int> readySupports = unit.actor.ready_supports();
+                        int supportsPerPage = Tactile.Windows.Map.Window_Unit.SUPPORTS_PER_PAGE;
+                        List<Tuple<int, bool>> result = new List<Tuple<int, bool>>();
+                        for (int i = 0; i < supportsPerPage; i++)
+                        {
+                            int index = page * supportsPerPage + i;
+                            if (index < readySupports.Count)
+                            {
+                                int actorId = readySupports[index];
+                                bool available = true;
+                                if (Global.map_exists)
+                                {
+                                    available = false;
+
+                                    // In preparations, use whole battalion
+                                    if (Global.game_system.preparations)
+                                        available |= Global.battalion.actors.Contains(actorId);
+
+                                    // Check if unit is on the map
+                                    available |= Global.game_map.is_actor_deployed(actorId);
+                                    // Disable if blocked
+                                    available &= !Global.game_state.is_support_blocked(
+                                        unit.actor.id, readySupports[i], true);
+                                }
+                                result.Add(Tuple.Create(actorId, available));
+                            }
+                        }
+                        if (!result.Any())
+                            return null;
+                        return result;
+                    },
+                    sortFunc: (object a, object b) =>
+                        ((Game_Unit)b).actor.ready_supports().Count -
+                        ((Game_Unit)a).actor.ready_supports().Count,
+
+                    output: UnitScreenOutput.Supports, align: ParagraphAlign.Left,
+                    textColor: (object input) => "White",
+                    multiplePageFunc: (object input) =>
+                    {
+                        List<int> readySupports = ((Game_Unit)input).actor.ready_supports();
+                        int supportsPerPage = Tactile.Windows.Map.Window_Unit.SUPPORTS_PER_PAGE;
+                        int count = (int)Math.Ceiling(readySupports.Count / (float)supportsPerPage);
+                        return Math.Max(1, count);
+                    }),
+            });
+            #endregion
+
+            UNIT_DATA = data.ToArray();
+        }
 
         private static UnitScreenData GetClassNode(int offset, int pageIndex)
         {
