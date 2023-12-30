@@ -166,20 +166,20 @@ namespace Tactile
             BattlerPaletteData = Content.Load<Dictionary<string, SpritePalette>>(@"Battler_Palette_Data");
             BattlerRecolorData = Content.Load<Dictionary<string, RecolorData>>(@"Data/BattlerRecolorData");
             Face_Palette_Data = Content.Load<Dictionary<string, Color[]>>(@"Face_Palette_Data");
-            Map_Sprite_Colors = Global.Content.Load<MapSpriteRecolorData>(@"MapSpriteRecolors");
+            Map_Sprite_Colors = Content.Load<MapSpriteRecolorData>(@"MapSpriteRecolors");
 
-            GlobalText = Global.Content.Load<TextData>(@"Data/Text/Global").Text;
-            Battle_Text = Global.Content.Load<TextData>(@"Data/Text/Battle Quotes").Text;
-            Death_Quotes = Global.Content.Load<TextData>(@"Data/Text/Death Quotes").Text;
-            Supports = Global.Content.Load<TextData>(@"Data/Text/Supports").Text;
-            System_Text = Global.Content.Load<TextData>(@"Data/Text/System").Text;
+            GlobalText = Content.Load<TextData>(@"Data/Text/Global").Text;
+            Battle_Text = Content.Load<TextData>(@"Data/Text/Battle Quotes").Text;
+            Death_Quotes = Content.Load<TextData>(@"Data/Text/Death Quotes").Text;
+            Supports = Content.Load<TextData>(@"Data/Text/Supports").Text;
+            System_Text = Content.Load<TextData>(@"Data/Text/System").Text;
 
             Actor_Descriptions = new Dictionary<string, string>();
             foreach (KeyValuePair<string, string> description in Generic_Unit_Descriptions.DESCRIPTIONS)
                 Actor_Descriptions[description.Key] = description.Value;
             foreach (TactileLibrary.Data_Actor actor in Data_Actors.Values)
                 Actor_Descriptions[actor.Name] = actor.Description;
-            
+
             Palette_Pool = new Palette_Handler();
 #if DEBUG
             Test_Battler_1 = new Test_Battle_Character_Data();
@@ -584,7 +584,7 @@ namespace Tactile
             }
         }
         public static event EventHandler check_for_updates_from_server;
-        
+
         public static void update_found(Tuple<Version, DateTime, string> result)
         {
             if (result != null && RUNNING_VERSION.older_than(result.Item1))
@@ -958,7 +958,6 @@ namespace Tactile
         #endregion
 
         #region Text
-        static Dictionary<string, string> Chapter_Text;
         internal static Dictionary<string, string> chapter_text
         {
             get { return Chapter_Text; }
@@ -974,27 +973,21 @@ namespace Tactile
         }
 
         // Global Text
-        static Dictionary<string, string> GlobalText;
         internal static Dictionary<string, string> global_text { get { return GlobalText; } }
 
         // Battle Text
-        static Dictionary<string, string> Battle_Text;
         internal static Dictionary<string, string> battle_text { get { return Battle_Text; } }
 
         // Death Quotes
-        static Dictionary<string, string> Death_Quotes;
         internal static Dictionary<string, string> death_quotes { get { return Death_Quotes; } }
 
         // Supports
-        static Dictionary<string, string> Supports;
         internal static Dictionary<string, string> supports { get { return Supports; } }
 
         // System Text
-        static Dictionary<string, string> System_Text;
         internal static Dictionary<string, string> system_text { get { return System_Text; } }
 
         // Actor Descriptions
-        static Dictionary<string, string> Actor_Descriptions;
         internal static Dictionary<string, string> actor_descriptions { get { return Actor_Descriptions; } }
         #endregion
 
@@ -1019,7 +1012,7 @@ namespace Tactile
             get { return Test_Battler_1; }
             set { Test_Battler_1 = value; }
         }
-        
+
         static Test_Battle_Character_Data Test_Battler_2;
         internal static Test_Battle_Character_Data test_battler_2
         {
@@ -1168,8 +1161,6 @@ namespace Tactile
         #endregion
 
         #region Constants
-        private static TactileLibrary.Config.ConfigData Constants;
-
         private static void SetConstants(TactileLibrary.Config.ConfigData constants)
         {
             if (Constants == null)
@@ -1185,32 +1176,24 @@ namespace Tactile
 
         #region Data
         // Data Actors
-        static Dictionary<int, Data_Actor> Data_Actors;
-
         public static Dictionary<int, Data_Actor> data_actors
         {
             get { return Data_Actors; }
         }
 
         //Data Generic Actors
-        static Dictionary<string, Data_Generic_Actor> DataGenericActors;
-
         public static Dictionary<string, Data_Generic_Actor> generic_actors
         {
             get { return DataGenericActors; }
         }
 
         // Data Animations
-        static Dictionary<int, Battle_Animation_Data> Data_Animations;
-
         public static Dictionary<int, Battle_Animation_Data> data_animations
         {
             get { return Data_Animations; }
         }
 
         // Data Animation Groups
-        static Dictionary<string, int> Data_Animation_Groups;
-        
         public static Dictionary<string, int> data_animation_groups
         {
             get { return Data_Animation_Groups; }
@@ -1230,47 +1213,36 @@ namespace Tactile
         }
 
         // Data Battler Animations
-        static Dictionary<string, Battle_Animation_Association_Set> Data_Battler_Animations;
-
         public static Dictionary<string, Battle_Animation_Association_Set> data_battler_anims
         {
             get { return Data_Battler_Animations; }
         }
 
         // Chapter List
-        public static List<string> Chapter_List { get; private set; }
         public static Data_Chapter chapter_by_index(int index)
         {
             return Data_Chapters[Chapter_List[index]];
         }
 
         // Data Chapters
-        static Dictionary<string, Data_Chapter> Data_Chapters;
-
         public static Dictionary<string, Data_Chapter> data_chapters
         {
             get { return Data_Chapters; }
         }
 
         // Data Classes
-        static Dictionary<int, Data_Class> Data_Classes;
-
         public static Dictionary<int, Data_Class> data_classes
         {
             get { return Data_Classes; }
         }
 
         // Data Items
-        static Dictionary<int, Data_Item> Data_Items;
-
         public static Dictionary<int, Data_Item> data_items
         {
             get { return Data_Items; }
         }
 
         // Data Skill
-        static Dictionary<int, Data_Skill> Data_Skills;
-
         public static Dictionary<int, Data_Skill> data_skills
         {
             get { return Data_Skills; }
@@ -1285,40 +1257,30 @@ namespace Tactile
         }
 
         // Data Status
-        static Dictionary<int, Data_Status> Data_Statuses;
-
         public static Dictionary<int, Data_Status> data_statuses
         {
             get { return Data_Statuses; }
         }
 
         // Data Support
-        static Dictionary<string, Data_Support> Data_Supports;
-
         public static Dictionary<string, Data_Support> data_supports
         {
             get { return Data_Supports; }
         }
 
         // Data Terrain
-        static Dictionary<int, Data_Terrain> Data_Terrains;
-
         public static Dictionary<int, Data_Terrain> data_terrains
         {
             get { return Data_Terrains; }
         }
 
         // Data Tilesets
-        static Dictionary<int, Data_Tileset> Data_Tilesets;
-
         public static Dictionary<int, Data_Tileset> data_tilesets
         {
             get { return Data_Tilesets; }
         }
 
         // Data Weapons
-        static Dictionary<int, Data_Weapon> Data_Weapons;
-
         internal static bool HasWeapon(int id)
         {
             return Data_Weapons.ContainsKey(id);
@@ -1338,52 +1300,38 @@ namespace Tactile
         }
 
         // Weapon Types
-        static List<WeaponType> WeaponTypes;
-
         public static List<WeaponType> weapon_types
         {
             get { return WeaponTypes; }
         }
 
         // Frame Data
-        static Dictionary<string, Frame_Data> Frame_Data;
-
         public static Dictionary<string, Frame_Data> frame_data
         {
             get { return Frame_Data; }
         }
 
         // Face Data
-        static Dictionary<string, Face_Data> FaceData;
-
         public static Dictionary<string, Face_Data> face_data
         {
             get { return FaceData; }
         }
 
         // Palette Data
-        static Dictionary<string, SpritePalette> BattlerPaletteData;
-
         public static Dictionary<string, SpritePalette> battlerPaletteData
         {
             get { return BattlerPaletteData; }
         }
-
-        static Dictionary<string, RecolorData> BattlerRecolorData;
 
         public static Dictionary<string, RecolorData> battlerRecolorData
         {
             get { return BattlerRecolorData; }
         }
 
-        static Dictionary<string, Color[]> Face_Palette_Data;
-
         public static Dictionary<string, Color[]> face_palette_data
         {
             get { return Face_Palette_Data; }
         }
-
-        internal static MapSpriteRecolorData Map_Sprite_Colors { get; private set; }
         #endregion
 
         static Palette_Handler Palette_Pool;
@@ -1393,8 +1341,6 @@ namespace Tactile
         }
 
         // Loaded Files
-        static List<string> Loaded_Files;
-
         internal static List<string> loaded_files
         {
             get { return Loaded_Files; }
@@ -1424,5 +1370,52 @@ namespace Tactile
 
             return false;
         }
+
+        #region Content Data
+        /// <summary>
+        /// All of the files available to load as content.
+        /// </summary>
+        static List<string> Loaded_Files;
+
+        /// <summary>
+        /// The game constants, like inventory size or the level cap.
+        /// </summary>
+        private static TactileLibrary.Config.ConfigData Constants;
+
+        // Text Values
+        static Dictionary<string, string> Chapter_Text;
+        static Dictionary<string, string> GlobalText;
+        static Dictionary<string, string> Battle_Text;
+        static Dictionary<string, string> Death_Quotes;
+        static Dictionary<string, string> Supports;
+        static Dictionary<string, string> System_Text;
+        static Dictionary<string, string> Actor_Descriptions;
+
+        // Game Data
+        static Dictionary<int, Data_Actor> Data_Actors;
+        static Dictionary<string, Data_Generic_Actor> DataGenericActors;
+        static Dictionary<int, Battle_Animation_Data> Data_Animations;
+        static Dictionary<string, int> Data_Animation_Groups;
+        static Dictionary<string, Battle_Animation_Association_Set> Data_Battler_Animations;
+        public static List<string> Chapter_List { get; private set; }
+        static Dictionary<string, Data_Chapter> Data_Chapters;
+        static Dictionary<int, Data_Class> Data_Classes;
+        static Dictionary<int, Data_Item> Data_Items;
+        static Dictionary<int, Data_Skill> Data_Skills;
+        static Dictionary<int, Data_Status> Data_Statuses;
+        static Dictionary<string, Data_Support> Data_Supports;
+        static Dictionary<int, Data_Terrain> Data_Terrains;
+        static Dictionary<int, Data_Tileset> Data_Tilesets;
+        static Dictionary<int, Data_Weapon> Data_Weapons;
+        static List<WeaponType> WeaponTypes;
+        static Dictionary<string, Frame_Data> Frame_Data;
+        static Dictionary<string, Face_Data> FaceData;
+
+        // Palette Data
+        static Dictionary<string, SpritePalette> BattlerPaletteData;
+        static Dictionary<string, RecolorData> BattlerRecolorData;
+        static Dictionary<string, Color[]> Face_Palette_Data;
+        internal static MapSpriteRecolorData Map_Sprite_Colors { get; private set; }
+        #endregion
     }
 }
