@@ -3995,8 +3995,17 @@ namespace Tactile
                 case "Team Fighting":
                     // Value[1] = team id
                     int team_id = process_number(command.Value[1]);
-                    result = (Global.game_system.Battler_1_Id != -1 && Global.game_map.units[Global.game_system.Battler_1_Id].team == team_id) ||
-                        (Global.game_system.Battler_2_Id != -1 && Global.game_map.units[Global.game_system.Battler_2_Id].team == team_id);
+                    bool Battler_1_check = false;
+                    bool Battler_2_check = false;
+                    if (Global.game_map.units.ContainsKey(Global.game_system.Battler_1_Id))
+                    {
+                        Battler_1_check = Global.game_system.Battler_1_Id != -1 && Global.game_map.units[Global.game_system.Battler_1_Id].team == team_id;
+                    }
+                    if (Global.game_map.units.ContainsKey(Global.game_system.Battler_2_Id))
+                    {
+                        Battler_2_check = Global.game_system.Battler_2_Id != -1 && Global.game_map.units[Global.game_system.Battler_2_Id].team == team_id;
+                    }
+                    result = Battler_1_check || Battler_2_check;
                     break;
                 case "Unit at Loc":
                     // Value[1] = x
