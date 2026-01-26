@@ -421,7 +421,7 @@ namespace Tactile
                             if (new_turn_unit.move_cost(new_turn_unit.loc) == -1 &&
                                 Global.game_map.terrain_data(new_turn_unit.loc).Name != "--")
                             {
-                                get_scene_map().set_map_effect(new_turn_unit.loc, 3, 31);
+                                get_scene_map().set_map_effect(new_turn_unit.loc, MapEffectType.Status, 31);
                             }
                             // If the terrain is causing damage but overall the unit is healing, default to vulnerary anim, otherwise use terrain anim
                             else if (heal_amount != 0)
@@ -687,7 +687,7 @@ namespace Tactile
                     switch (New_Turn_Timer)
                     {
                         case 0:
-                            get_scene_map().set_map_effect(new_turn_unit.loc, 3,
+                            get_scene_map().set_map_effect(new_turn_unit.loc, MapEffectType.Status,
                                 Global.data_statuses[new_turn_unit.actor.damaging_status_effect_id()].Map_Anim_Id);
                             New_Turn_Timer++;
                             break;

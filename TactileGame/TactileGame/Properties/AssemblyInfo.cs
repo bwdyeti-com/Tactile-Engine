@@ -10,7 +10,7 @@ using Android.App;
 // associated with an assembly.
 [assembly: AssemblyTitle("TactileGame")]
 [assembly: AssemblyProduct("TactileGame")]
-[assembly: AssemblyDescription("Tactile Default Game")]
+[assembly: AssemblyDescription("Tactile Sample Game")]
 [assembly: AssemblyCompany("www.bwdyeti.com")]
 [assembly: AssemblyCopyright("Copyright © bwdyeti.com 2023")]
 [assembly: AssemblyTrademark("")]

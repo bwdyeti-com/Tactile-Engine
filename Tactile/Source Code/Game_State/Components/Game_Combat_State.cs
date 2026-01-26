@@ -1239,7 +1239,7 @@ namespace Tactile.State
                                 map_attack(battler_1, target, is_target_unit, Map_Combat_Data.Data[Attack_Id].Key, weapon);
                                 if (!is_target_unit)
                                 {
-                                    get_scene_map().set_map_effect(target.loc, 4, Map_Combat_Data.Data[Attack_Id].Key.Result.kill ? 2 : 1);
+                                    get_scene_map().set_map_effect(target.loc, MapEffectType.Etc, Map_Combat_Data.Data[Attack_Id].Key.Result.kill ? 2 : 1);
                                 }
                                 int dmg = Map_Combat_Data.Data[Attack_Id].Key.Result.dmg;
                                 // If a crit and damaged, shake the HUD // should it shake on no damage as an indicator? //Yeti
@@ -1293,7 +1293,7 @@ namespace Tactile.State
                                         !is_battler_dead(ids[1]) &&
                                         !skip_skill_update() &&
                                         Map_Combat_Data.Data[Attack_Id].Key.Result.status_inflict_map_id() > 0)
-                                    get_scene_map().set_map_effect(battler_2.loc, 3, Map_Combat_Data.Data[Attack_Id].Key.Result.status_inflict_map_id());
+                                    get_scene_map().set_map_effect(battler_2.loc, MapEffectType.Status, Map_Combat_Data.Data[Attack_Id].Key.Result.status_inflict_map_id());
                             }
                             break;
                         case (int)Map_Battle_Actions.Next_Attack:
@@ -1353,7 +1353,7 @@ namespace Tactile.State
                     if (!get_scene_map().is_map_effect_active())
                     {
                         get_scene_map().set_map_effect(battler_2 == null ? Staff_Target_Loc : battler_2.loc,
-                            1, Map_Animations.weapon_effect_id(Map_Combat_Data.Weapon_1_Id));
+                            MapEffectType.Weapon, Map_Animations.weapon_effect_id(Map_Combat_Data.Weapon_1_Id));
                     }
                     if (get_scene_map().is_map_effect_hit())
                     {

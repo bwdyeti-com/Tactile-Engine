@@ -63,7 +63,7 @@ namespace Tactile.State
                             Block_Timer++;
                             break;
                         case 1:
-                            get_scene_map().set_map_effect(blocked_unit.loc, 4, 6);
+                            get_scene_map().set_map_effect(blocked_unit.loc, MapEffectType.Etc, 6);
                             Block_Timer++;
                             break;
                         case 2:

@@ -7,7 +7,7 @@ namespace Tactile.Graphics.Map
     class Map_Effect : Matrix_Position_Sprite
     {
         protected Texture2D Texture;
-        protected int Type = 0;
+        protected MapEffectType Type = 0;
         protected int Id = 1;
         protected int Image_Index;
         protected int Frame = 0, Frame_Time = 0;
@@ -57,7 +57,7 @@ namespace Tactile.Graphics.Map
         #endregion
 
         public Map_Effect() { }
-        public Map_Effect(int type, int id)
+        public Map_Effect(MapEffectType type, int id)
         {
             Type = type;
             Id = id;

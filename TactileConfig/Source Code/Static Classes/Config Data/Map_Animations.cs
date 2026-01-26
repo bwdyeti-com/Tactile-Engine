@@ -3,6 +3,14 @@ using Microsoft.Xna.Framework;
 
 namespace Tactile
 {
+    public enum MapEffectType
+    {
+        Item = 0,
+        Weapon = 1,
+        Skill = 2,
+        Status = 3,
+        Etc = 4,
+    }
     public class Map_Animations
     {
         #region Effects
@@ -1027,27 +1035,27 @@ namespace Tactile
         };
         #endregion
 
-        public static Map_Effect_Data effect_data(ref int type, ref int id)
+        public static Map_Effect_Data effect_data(ref MapEffectType type, ref int id)
         {
             switch (type)
             {
-                case 0:
+                case MapEffectType.Item:
                     if (ITEM_EFFECT_IDS.ContainsKey(id))
                         return ITEM_MAP_EFFECTS[id];
                     break;
-                case 1:
+                case MapEffectType.Weapon:
                     if (WEAPON_MAP_EFFECTS.ContainsKey(id))
                         return WEAPON_MAP_EFFECTS[id];
                     break;
-                case 2:
+                case MapEffectType.Skill:
                     if (SKILL_MAP_EFFECTS.ContainsKey(id))
                         return SKILL_MAP_EFFECTS[id];
                     break;
-                case 3:
+                case MapEffectType.Status:
                     if (STATUS_MAP_EFFECTS.ContainsKey(id))
                         return STATUS_MAP_EFFECTS[id];
                     break;
-                case 4:
+                case MapEffectType.Etc:
                     if (MAP_EFFECTS.ContainsKey(id))
                         return MAP_EFFECTS[id];
                     break;

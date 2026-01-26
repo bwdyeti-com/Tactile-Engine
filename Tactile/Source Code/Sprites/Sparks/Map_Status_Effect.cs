@@ -15,7 +15,7 @@ namespace Tactile.Graphics.Map
             }
         }
 
-        public Map_Status_Effect(int type, int id)
+        public Map_Status_Effect(MapEffectType type, int id)
         {
             Type = type;
             Id = id;

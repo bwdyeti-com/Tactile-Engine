@@ -313,7 +313,7 @@ namespace Tactile
             int? id = skill_map_effect_id();
             if (id != null && Global.scene.is_strict_map_scene)
             {
-                ((Scene_Map)Global.scene).set_map_effect(Loc, 2, (int)id);
+                ((Scene_Map)Global.scene).set_map_effect(Loc, MapEffectType.Skill, (int)id);
             }
         }
 

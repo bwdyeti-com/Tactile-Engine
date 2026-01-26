@@ -769,7 +769,7 @@ namespace Tactile
             texture.SetData(texture_data);
         }
 
-        public void set_map_effect(Vector2 loc, int type, int id)
+        public void set_map_effect(Vector2 loc, MapEffectType type, int id)
         {
             Unit_Map_Effect = new Map_Effect(type, id);
             Unit_Map_Effect.loc = loc * TILE_SIZE + new Vector2(TILE_SIZE, TILE_SIZE) / 2;
@@ -880,7 +880,7 @@ namespace Tactile
                 if (Map_Animations.STATUS_EFFECT_IDS.ContainsKey(id))
                 {
                     Data_Status status = Global.data_statuses[id];
-                    Status_Sprites.Add(id, new Map_Status_Effect(3, Map_Animations.status_effect_id(id)));
+                    Status_Sprites.Add(id, new Map_Status_Effect(MapEffectType.Status, Map_Animations.status_effect_id(id)));
                     string name = Status_Sprites[id].filename;
                     if (name == "")
                         Status_Sprites.Remove(id);
